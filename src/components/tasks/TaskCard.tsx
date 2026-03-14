@@ -249,6 +249,7 @@ const TaskCard = ({
               task={sub}
               isOverdue={isSubtaskOverdue(sub)}
               depth={depth + 1}
+              parentStarred={task.starred}
               onToggleComplete={onToggleComplete}
               onUpdate={onUpdate}
               onDelete={onDelete}
