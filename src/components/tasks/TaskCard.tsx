@@ -275,11 +275,14 @@ const TaskCard = ({
               onDelete={onDelete}
               onCreateSubtask={onCreateSubtask}
               onToggleStar={onToggleStar}
+              onExpandChange={handleChildExpandChange}
             />
           ))}
 
-          {canEdit && canAddSubtasks && (
-            <CreateTaskDialog onSubmit={onCreateSubtask} parentId={task.id} iconOnly />
+          {canEdit && canAddSubtasks && !hasExpandedChild && (
+            <div style={{ paddingLeft: `${4}px` }}>
+              <CreateTaskDialog onSubmit={onCreateSubtask} parentId={task.id} iconOnly />
+            </div>
           )}
         </CardContent>
       )}
