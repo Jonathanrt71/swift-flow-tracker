@@ -135,7 +135,7 @@ const TaskCard = ({
         </div>
 
         {expanded && (
-          <div className="ml-6 space-y-2">
+          <div className="ml-3 space-y-1">
             {task.subtasks?.map((sub) => (
               <TaskCard
                 key={sub.id}
