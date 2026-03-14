@@ -1,7 +1,7 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Trash2, ChevronDown, ChevronRight, AlertTriangle, User } from "lucide-react";
+import { Trash2, ChevronDown, ChevronRight, AlertTriangle } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import type { Task } from "@/hooks/useTasks";
@@ -9,6 +9,7 @@ import EditTaskDialog from "./EditTaskDialog";
 import CreateTaskDialog from "./CreateTaskDialog";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -48,8 +49,8 @@ const TaskCard = ({
   const canEdit = user?.id === task.created_by || user?.id === task.assigned_to;
   const hasChildren = task.subtasks && task.subtasks.length > 0;
   const isExpandable = hasChildren || (canEdit && depth < MAX_DEPTH);
-  const assigneeName = task.assigned_to
-    ? members?.find((m) => m.id === task.assigned_to)?.display_name || "Unnamed"
+  const assignee = task.assigned_to
+    ? members?.find((m) => m.id === task.assigned_to)
     : null;
   const canAddSubtasks = depth < MAX_DEPTH && (!task.subtasks || task.subtasks.length < 10);
 
@@ -99,10 +100,13 @@ const TaskCard = ({
                   {task.subtasks.filter((s) => s.completed).length}/{task.subtasks.length} subtasks
                 </span>
               )}
-              {assigneeName && (
+              {assignee && (
                 <span className="text-xs text-muted-foreground flex items-center gap-1">
-                  <User className="h-3 w-3" />
-                  {assigneeName}
+                  <Avatar className="h-4 w-4">
+                    <AvatarImage src={assignee.avatar_url || undefined} />
+                    <AvatarFallback className="text-[8px]">{(assignee.display_name || "?")[0]}</AvatarFallback>
+                  </Avatar>
+                  {assignee.display_name || "Unnamed"}
                 </span>
               )}
             </div>
@@ -191,10 +195,13 @@ const TaskCard = ({
                   {task.subtasks.filter((s) => s.completed).length}/{task.subtasks.length} subtasks
                 </span>
               )}
-              {assigneeName && (
+              {assignee && (
                 <span className="text-xs text-muted-foreground flex items-center gap-1">
-                  <User className="h-3 w-3" />
-                  {assigneeName}
+                  <Avatar className="h-4 w-4">
+                    <AvatarImage src={assignee.avatar_url || undefined} />
+                    <AvatarFallback className="text-[8px]">{(assignee.display_name || "?")[0]}</AvatarFallback>
+                  </Avatar>
+                  {assignee.display_name || "Unnamed"}
                 </span>
               )}
             </div>
