@@ -1,7 +1,7 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Trash2, ChevronDown, ChevronRight, AlertTriangle, Star } from "lucide-react";
+import { Trash2, ChevronDown, ChevronRight, Star } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import type { Task } from "@/hooks/useTasks";
@@ -9,7 +9,6 @@ import EditTaskDialog from "./EditTaskDialog";
 import CreateTaskDialog from "./CreateTaskDialog";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -67,22 +66,10 @@ const TaskCard = ({
 
   const hasExpandedChild = expandedChildId !== null;
   const { user } = useAuth();
-  const { data: members } = useTeamMembers();
   const canEdit = user?.id === task.created_by || user?.id === task.assigned_to;
   const hasChildren = task.subtasks && task.subtasks.length > 0;
   const isExpandable = hasChildren || canEdit && depth < MAX_DEPTH;
-  const assignee = task.assigned_to ?
-  members?.find((m) => m.id === task.assigned_to) :
-  null;
   const canAddSubtasks = depth < MAX_DEPTH && (!task.subtasks || task.subtasks.length < 10);
-
-  const formattedDue = task.due_date ?
-  new Date(task.due_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) :
-  null;
-
-  const now = new Date();
-  const isSubtaskOverdue = (t: Task) =>
-  !t.completed && !!t.due_date && new Date(t.due_date) < now;
 
   // For nested subtasks, use a simpler inline layout
   if (depth > 0) {
@@ -110,26 +97,6 @@ const TaskCard = ({
                   {task.title}
                 </span>
               </div>
-              {task.description &&
-              <p className="text-xs text-muted-foreground mt-1 line-clamp-1">{task.description}</p>
-              }
-              <div className="flex items-center gap-3 mt-1">
-                {formattedDue &&
-                <span className={cn("text-xs", isOverdue ? "text-warning font-medium flex items-center gap-1" : "text-muted-foreground")}>
-                    {isOverdue && <AlertTriangle className="h-3 w-3" />}
-                    {formattedDue}
-                  </span>
-                }
-                {assignee &&
-                <span className="text-xs text-muted-foreground flex items-center gap-1">
-                    <Avatar className="h-4 w-4">
-                      <AvatarImage src={assignee.avatar_url || undefined} />
-                      <AvatarFallback className="text-[8px]">{(assignee.display_name || "?")[0]}</AvatarFallback>
-                    </Avatar>
-                    {assignee.display_name || "Unnamed"}
-                  </span>
-                }
-              </div>
             </div>
           </div>
           {expanded &&
@@ -153,7 +120,7 @@ const TaskCard = ({
           <TaskCard
             key={sub.id}
             task={sub}
-            isOverdue={isSubtaskOverdue(sub)}
+            isOverdue={false}
             depth={depth + 1}
             parentStarred={parentStarred}
             onToggleComplete={onToggleComplete}
@@ -163,7 +130,6 @@ const TaskCard = ({
             onToggleStar={onToggleStar}
             onExpandChange={handleChildExpandChange}
             hideAddButton={hideAddButton} />
-
           )}
             {canEdit && canAddSubtasks && !hasExpandedChild && !hideAddButton &&
           <div style={{ marginLeft: '2px' }}>
@@ -201,31 +167,6 @@ const TaskCard = ({
                 )}>
                 {task.title}
               </h3>
-            </div>
-            {task.description &&
-            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{task.description}</p>
-            }
-            <div className="flex items-center gap-3 mt-2">
-              {formattedDue &&
-              <span
-                className={cn(
-                  "text-xs",
-                  isOverdue ? "text-warning font-medium flex items-center gap-1" : "text-muted-foreground"
-                )}>
-                
-                  {isOverdue && <AlertTriangle className="h-3 w-3" />}
-                  {formattedDue}
-                </span>
-              }
-              {assignee &&
-              <span className="text-xs text-muted-foreground flex items-center gap-1">
-                  <Avatar className="h-4 w-4">
-                    <AvatarImage src={assignee.avatar_url || undefined} />
-                    <AvatarFallback className="text-[8px]">{(assignee.display_name || "?")[0]}</AvatarFallback>
-                  </Avatar>
-                  {assignee.display_name || "Unnamed"}
-                </span>
-              }
             </div>
           </div>
           <div className="flex items-center gap-1 shrink-0">
@@ -271,7 +212,7 @@ const TaskCard = ({
         <TaskCard
           key={sub.id}
           task={sub}
-          isOverdue={isSubtaskOverdue(sub)}
+          isOverdue={false}
           depth={depth + 1}
           parentStarred={task.starred}
           onToggleComplete={onToggleComplete}
@@ -280,7 +221,6 @@ const TaskCard = ({
           onCreateSubtask={onCreateSubtask}
           onToggleStar={onToggleStar}
           onExpandChange={handleChildExpandChange} />
-
         )}
 
           {canEdit && canAddSubtasks && !hasExpandedChild &&
