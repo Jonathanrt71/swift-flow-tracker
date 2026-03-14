@@ -14,6 +14,41 @@ export type Database = {
   }
   public: {
     Tables: {
+      milestones: {
+        Row: {
+          completed: boolean
+          created_at: string
+          id: string
+          position: number
+          task_id: string
+          title: string
+        }
+        Insert: {
+          completed?: boolean
+          created_at?: string
+          id?: string
+          position?: number
+          task_id: string
+          title: string
+        }
+        Update: {
+          completed?: boolean
+          created_at?: string
+          id?: string
+          position?: number
+          task_id?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "milestones_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -37,6 +72,59 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      tasks: {
+        Row: {
+          assigned_to: string | null
+          completed: boolean
+          completed_at: string | null
+          created_at: string
+          created_by: string
+          description: string | null
+          due_date: string | null
+          id: string
+          parent_id: string | null
+          position: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          created_by: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          parent_id?: string | null
+          position?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          parent_id?: string | null
+          position?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tasks_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
