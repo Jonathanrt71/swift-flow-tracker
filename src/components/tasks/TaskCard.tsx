@@ -28,6 +28,7 @@ interface TaskCardProps {
   task: Task;
   isOverdue: boolean;
   depth?: number;
+  parentStarred?: boolean;
   onToggleComplete: (data: { id: string; completed: boolean }) => void;
   onUpdate: (data: { id: string; title?: string; description?: string; due_date?: string | null; assigned_to?: string | null }) => void;
   onDelete: (id: string) => void;
@@ -39,6 +40,7 @@ const TaskCard = ({
   task,
   isOverdue,
   depth = 0,
+  parentStarred = false,
   onToggleComplete,
   onUpdate,
   onDelete,
