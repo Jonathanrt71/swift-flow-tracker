@@ -86,7 +86,7 @@ const TaskCard = ({
                     {expanded ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
                   </button>
                 ) : (
-                  <span className="w-3.5 shrink-0" />
+                  <span className="w-3.5 shrink-0 text-muted-foreground text-center text-xs">–</span>
                 )}
                 <span className={cn("text-sm", task.completed && "line-through text-muted-foreground")}>
                   {task.title}
