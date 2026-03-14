@@ -11,6 +11,7 @@ import CreateTaskDialog from "@/components/tasks/CreateTaskDialog";
 
 const Index = () => {
   const { user, signOut } = useAuth();
+  const { isAdmin } = useAdmin();
   const {
     tasks,
     isLoading,
