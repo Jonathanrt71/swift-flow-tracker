@@ -100,10 +100,13 @@ const TaskCard = ({
                   {task.subtasks.filter((s) => s.completed).length}/{task.subtasks.length} subtasks
                 </span>
               )}
-              {assigneeName && (
+              {assignee && (
                 <span className="text-xs text-muted-foreground flex items-center gap-1">
-                  <User className="h-3 w-3" />
-                  {assigneeName}
+                  <Avatar className="h-4 w-4">
+                    <AvatarImage src={assignee.avatar_url || undefined} />
+                    <AvatarFallback className="text-[8px]">{(assignee.display_name || "?")[0]}</AvatarFallback>
+                  </Avatar>
+                  {assignee.display_name || "Unnamed"}
                 </span>
               )}
             </div>
