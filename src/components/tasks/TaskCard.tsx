@@ -192,11 +192,6 @@ const TaskCard = ({
                   {formattedDue}
                 </span>
               )}
-              {task.subtasks && task.subtasks.length > 0 && (
-                <span className="text-xs text-muted-foreground">
-                  {task.subtasks.filter((s) => s.completed).length}/{task.subtasks.length} subtasks
-                </span>
-              )}
               {assignee && (
                 <span className="text-xs text-muted-foreground flex items-center gap-1">
                   <Avatar className="h-4 w-4">
