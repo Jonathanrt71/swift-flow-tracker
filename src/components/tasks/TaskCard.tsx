@@ -120,7 +120,7 @@ const TaskCard = ({
               className="h-7 w-7"
               onClick={() => onToggleStar({ id: task.id, starred: !task.starred })}
             >
-              <Star className={cn("h-3 w-3", task.starred ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground")} />
+              <Star className={cn("h-3 w-3", task.starred ? "fill-starred text-starred" : "text-muted-foreground")} />
             </Button>
             <EditTaskDialog task={task} onSubmit={onUpdate} />
             <Button
