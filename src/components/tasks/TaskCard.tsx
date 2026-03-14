@@ -48,6 +48,7 @@ const TaskCard = ({
   onToggleStar,
 }: TaskCardProps) => {
   const [expanded, setExpanded] = useState(false);
+  const [expandedChildId, setExpandedChildId] = useState<string | null>(null);
   const { user } = useAuth();
   const { data: members } = useTeamMembers();
   const canEdit = user?.id === task.created_by || user?.id === task.assigned_to;
