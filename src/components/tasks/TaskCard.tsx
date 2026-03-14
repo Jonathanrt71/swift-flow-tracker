@@ -54,6 +54,7 @@ const TaskCard = ({
   const { data: members } = useTeamMembers();
   const canEdit = user?.id === task.created_by || user?.id === task.assigned_to;
   const hasChildren = (task.subtasks && task.subtasks.length > 0) || (task.milestones && task.milestones.length > 0);
+  const isExpandable = hasChildren || (canEdit && depth < MAX_DEPTH);
   const assigneeName = task.assigned_to
     ? members?.find((m) => m.id === task.assigned_to)?.display_name || "Unnamed"
     : null;
