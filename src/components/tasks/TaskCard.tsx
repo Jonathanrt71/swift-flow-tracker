@@ -7,7 +7,6 @@ import { cn } from "@/lib/utils";
 import type { Task } from "@/hooks/useTasks";
 import EditTaskDialog from "./EditTaskDialog";
 import CreateTaskDialog from "./CreateTaskDialog";
-import { useAuth } from "@/contexts/AuthContext";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import {
   AlertDialog,
