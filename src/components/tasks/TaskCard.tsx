@@ -132,17 +132,19 @@ const TaskCard = ({
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-1 shrink-0">
-            <EditTaskDialog task={task} onSubmit={onUpdate} />
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 text-muted-foreground hover:text-destructive"
-              onClick={() => onDelete(task.id)}
-            >
-              <Trash2 className="h-3.5 w-3.5" />
-            </Button>
-          </div>
+          {expanded && (
+            <div className="flex items-center gap-1 shrink-0">
+              <EditTaskDialog task={task} onSubmit={onUpdate} />
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                onClick={() => onDelete(task.id)}
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+          )}
         </div>
 
         {expanded && (
