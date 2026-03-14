@@ -65,7 +65,6 @@ const TaskCard = ({
 
   const hasExpandedChild = expandedChildId !== null;
   const { user } = useAuth();
-  const { data: members } = useTeamMembers();
   const canEdit = user?.id === task.created_by || user?.id === task.assigned_to;
   const hasChildren = task.subtasks && task.subtasks.length > 0;
   const isExpandable = hasChildren || canEdit && depth < MAX_DEPTH;
