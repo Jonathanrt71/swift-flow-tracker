@@ -1,7 +1,7 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Trash2, ChevronDown, ChevronRight, AlertTriangle } from "lucide-react";
+import { Trash2, ChevronDown, ChevronRight, AlertTriangle, Star } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import type { Task } from "@/hooks/useTasks";
@@ -32,6 +32,7 @@ interface TaskCardProps {
   onUpdate: (data: { id: string; title?: string; description?: string; due_date?: string | null; assigned_to?: string | null }) => void;
   onDelete: (id: string) => void;
   onCreateSubtask: (data: { title: string; description?: string; due_date?: string; parent_id?: string }) => void;
+  onToggleStar: (data: { id: string; starred: boolean }) => void;
 }
 
 const TaskCard = ({
@@ -42,6 +43,7 @@ const TaskCard = ({
   onUpdate,
   onDelete,
   onCreateSubtask,
+  onToggleStar,
 }: TaskCardProps) => {
   const [expanded, setExpanded] = useState(false);
   const { user } = useAuth();
@@ -112,6 +114,14 @@ const TaskCard = ({
             </div>
           </div>
           <div className="flex items-center gap-1 shrink-0">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7"
+              onClick={() => onToggleStar({ id: task.id, starred: !task.starred })}
+            >
+              <Star className={cn("h-3 w-3", task.starred ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground")} />
+            </Button>
             <EditTaskDialog task={task} onSubmit={onUpdate} />
             <Button
               variant="ghost"
@@ -136,6 +146,7 @@ const TaskCard = ({
                 onUpdate={onUpdate}
                 onDelete={onDelete}
                 onCreateSubtask={onCreateSubtask}
+                onToggleStar={onToggleStar}
               />
             ))}
             {canEdit && canAddSubtasks && (
@@ -207,6 +218,14 @@ const TaskCard = ({
             </div>
           </div>
           <div className="flex items-center gap-1 shrink-0">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => onToggleStar({ id: task.id, starred: !task.starred })}
+            >
+              <Star className={cn("h-3.5 w-3.5", task.starred ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground")} />
+            </Button>
             <EditTaskDialog task={task} onSubmit={onUpdate} />
             <AlertDialog>
               <AlertDialogTrigger asChild>
@@ -243,6 +262,7 @@ const TaskCard = ({
               onUpdate={onUpdate}
               onDelete={onDelete}
               onCreateSubtask={onCreateSubtask}
+              onToggleStar={onToggleStar}
             />
           ))}
 

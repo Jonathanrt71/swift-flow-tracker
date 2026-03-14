@@ -5,9 +5,10 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LogOut, CheckCircle2, ListTodo, Shield, User } from "lucide-react";
+import { LogOut, CheckCircle2, ListTodo, Shield, User, Star, UserCheck } from "lucide-react";
 import TaskCard from "@/components/tasks/TaskCard";
 import CreateTaskDialog from "@/components/tasks/CreateTaskDialog";
+import type { Task } from "@/hooks/useTasks";
 
 const Index = () => {
   const { user, signOut } = useAuth();
@@ -18,6 +19,7 @@ const Index = () => {
     createTask,
     updateTask,
     toggleComplete,
+    toggleStar,
     deleteTask,
   } = useTasks();
 
@@ -27,6 +29,13 @@ const Index = () => {
   const completedTasks = tasks
     .filter((t) => t.completed)
     .sort((a, b) => new Date(b.completed_at!).getTime() - new Date(a.completed_at!).getTime());
+
+  // Helper to check if task or any subtask is assigned to current user
+  const isAssignedToMe = (t: Task): boolean =>
+    t.assigned_to === user?.id || (t.subtasks?.some(isAssignedToMe) ?? false);
+
+  const assignedToMe = activeTasks.filter(isAssignedToMe);
+  const starredTasks = activeTasks.filter((t) => t.starred);
 
   const overdueTasks = activeTasks.filter(
     (t) => t.due_date && new Date(t.due_date) < now
@@ -38,6 +47,36 @@ const Index = () => {
 
   const isOverdue = (task: { due_date: string | null; completed: boolean }) =>
     !task.completed && !!task.due_date && new Date(task.due_date) < now;
+
+  const renderTaskList = (taskList: Task[], emptyIcon: React.ReactNode, emptyText: string) => {
+    if (isLoading) {
+      return (
+        <div className="flex justify-center py-12">
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        </div>
+      );
+    }
+    if (taskList.length === 0) {
+      return (
+        <div className="text-center py-12 text-muted-foreground">
+          <div className="mx-auto mb-3 opacity-40">{emptyIcon}</div>
+          <p className="text-sm">{emptyText}</p>
+        </div>
+      );
+    }
+    return taskList.map((task) => (
+      <TaskCard
+        key={task.id}
+        task={task}
+        isOverdue={isOverdue(task)}
+        onToggleComplete={(d) => toggleComplete.mutate(d)}
+        onUpdate={(d) => updateTask.mutate(d)}
+        onDelete={(id) => deleteTask.mutate(id)}
+        onCreateSubtask={(d) => createTask.mutate(d)}
+        onToggleStar={(d) => toggleStar.mutate(d)}
+      />
+    ));
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -69,22 +108,40 @@ const Index = () => {
 
       <main className="container max-w-2xl px-4 py-6">
         <Tabs defaultValue="active">
-          <div className="flex items-center justify-between mb-4">
-            <TabsList>
-              <TabsTrigger value="active" className="gap-1.5">
-                <ListTodo className="h-4 w-4" />
-                Active
+          <div className="flex items-center justify-between mb-4 gap-2">
+            <TabsList className="flex-wrap h-auto gap-1">
+              <TabsTrigger value="active" className="gap-1.5 text-xs sm:text-sm">
+                <ListTodo className="h-3.5 w-3.5" />
+                All
                 {activeTasks.length > 0 && (
-                  <span className="ml-1 text-xs bg-muted rounded-full px-1.5">
+                  <span className="ml-0.5 text-xs bg-muted rounded-full px-1.5">
                     {activeTasks.length}
                   </span>
                 )}
               </TabsTrigger>
-              <TabsTrigger value="completed" className="gap-1.5">
-                <CheckCircle2 className="h-4 w-4" />
-                Completed
+              <TabsTrigger value="assigned" className="gap-1.5 text-xs sm:text-sm">
+                <UserCheck className="h-3.5 w-3.5" />
+                Mine
+                {assignedToMe.length > 0 && (
+                  <span className="ml-0.5 text-xs bg-muted rounded-full px-1.5">
+                    {assignedToMe.length}
+                  </span>
+                )}
+              </TabsTrigger>
+              <TabsTrigger value="starred" className="gap-1.5 text-xs sm:text-sm">
+                <Star className="h-3.5 w-3.5" />
+                Starred
+                {starredTasks.length > 0 && (
+                  <span className="ml-0.5 text-xs bg-muted rounded-full px-1.5">
+                    {starredTasks.length}
+                  </span>
+                )}
+              </TabsTrigger>
+              <TabsTrigger value="completed" className="gap-1.5 text-xs sm:text-sm">
+                <CheckCircle2 className="h-3.5 w-3.5" />
+                Done
                 {completedTasks.length > 0 && (
-                  <span className="ml-1 text-xs bg-muted rounded-full px-1.5">
+                  <span className="ml-0.5 text-xs bg-muted rounded-full px-1.5">
                     {completedTasks.length}
                   </span>
                 )}
@@ -97,48 +154,34 @@ const Index = () => {
           </div>
 
           <TabsContent value="active" className="space-y-3 mt-0">
-            {isLoading ? (
-              <div className="flex justify-center py-12">
-                <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-              </div>
-            ) : sortedActive.length === 0 ? (
-              <div className="text-center py-12 text-muted-foreground">
-                <ListTodo className="h-10 w-10 mx-auto mb-3 opacity-40" />
-                <p className="text-sm">No active tasks. Create one to get started!</p>
-              </div>
-            ) : (
-              sortedActive.map((task) => (
-                <TaskCard
-                  key={task.id}
-                  task={task}
-                  isOverdue={isOverdue(task)}
-                  onToggleComplete={(d) => toggleComplete.mutate(d)}
-                  onUpdate={(d) => updateTask.mutate(d)}
-                  onDelete={(id) => deleteTask.mutate(id)}
-                  onCreateSubtask={(d) => createTask.mutate(d)}
-                />
-              ))
+            {renderTaskList(
+              sortedActive,
+              <ListTodo className="h-10 w-10 mx-auto" />,
+              "No active tasks. Create one to get started!"
+            )}
+          </TabsContent>
+
+          <TabsContent value="assigned" className="space-y-3 mt-0">
+            {renderTaskList(
+              assignedToMe,
+              <UserCheck className="h-10 w-10 mx-auto" />,
+              "No tasks assigned to you."
+            )}
+          </TabsContent>
+
+          <TabsContent value="starred" className="space-y-3 mt-0">
+            {renderTaskList(
+              starredTasks,
+              <Star className="h-10 w-10 mx-auto" />,
+              "No starred tasks. Star a task to pin it here."
             )}
           </TabsContent>
 
           <TabsContent value="completed" className="space-y-3 mt-0">
-            {completedTasks.length === 0 ? (
-              <div className="text-center py-12 text-muted-foreground">
-                <CheckCircle2 className="h-10 w-10 mx-auto mb-3 opacity-40" />
-                <p className="text-sm">No completed tasks yet.</p>
-              </div>
-            ) : (
-              completedTasks.map((task) => (
-                <TaskCard
-                  key={task.id}
-                  task={task}
-                  isOverdue={false}
-                  onToggleComplete={(d) => toggleComplete.mutate(d)}
-                  onUpdate={(d) => updateTask.mutate(d)}
-                  onDelete={(id) => deleteTask.mutate(id)}
-                  onCreateSubtask={(d) => createTask.mutate(d)}
-                />
-              ))
+            {renderTaskList(
+              completedTasks,
+              <CheckCircle2 className="h-10 w-10 mx-auto" />,
+              "No completed tasks yet."
             )}
           </TabsContent>
         </Tabs>

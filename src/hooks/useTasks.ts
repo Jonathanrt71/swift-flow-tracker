@@ -13,6 +13,7 @@ export interface Task {
   parent_id: string | null;
   created_by: string;
   assigned_to: string | null;
+  starred: boolean;
   position: number;
   created_at: string;
   updated_at: string;
@@ -97,6 +98,20 @@ export function useTasks() {
     onError: (e: Error) => toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
 
+  const toggleStar = useMutation({
+    mutationFn: async ({ id, starred }: { id: string; starred: boolean }) => {
+      const { error } = await supabase
+        .from("tasks")
+        .update({ starred })
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+    },
+    onError: (e: Error) => toast({ title: "Error", description: e.message, variant: "destructive" }),
+  });
+
   const deleteTask = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase.from("tasks").delete().eq("id", id);
@@ -115,6 +130,7 @@ export function useTasks() {
     createTask,
     updateTask,
     toggleComplete,
+    toggleStar,
     deleteTask,
   };
 }
