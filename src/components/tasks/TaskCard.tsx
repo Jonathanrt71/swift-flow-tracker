@@ -150,7 +150,7 @@ const TaskCard = ({
               />
             ))}
             {canEdit && canAddSubtasks && (
-              <CreateTaskDialog onSubmit={onCreateSubtask} parentId={task.id} />
+              <CreateTaskDialog onSubmit={onCreateSubtask} parentId={task.id} iconOnly />
             )}
           </div>
         )}
