@@ -37,7 +37,7 @@ interface TaskCardProps {
   task: Task;
   isOverdue: boolean;
   onToggleComplete: (data: { id: string; completed: boolean }) => void;
-  onUpdate: (data: { id: string; title?: string; description?: string; due_date?: string | null }) => void;
+  onUpdate: (data: { id: string; title?: string; description?: string; due_date?: string | null; assigned_to?: string | null }) => void;
   onDelete: (id: string) => void;
   onCreateSubtask: (data: { title: string; description?: string; due_date?: string; parent_id?: string }) => void;
   onCreateMilestone: (data: { task_id: string; title: string }) => void;
