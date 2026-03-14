@@ -17,9 +17,10 @@ interface CreateTaskDialogProps {
   onSubmit: (data: { title: string; description?: string; due_date?: string; parent_id?: string }) => void;
   parentId?: string;
   loading?: boolean;
+  iconOnly?: boolean;
 }
 
-const CreateTaskDialog = ({ onSubmit, parentId, loading }: CreateTaskDialogProps) => {
+const CreateTaskDialog = ({ onSubmit, parentId, loading, iconOnly }: CreateTaskDialogProps) => {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
