@@ -251,7 +251,7 @@ const TaskCard = ({
       </CardHeader>
 
       {expanded && (
-        <CardContent className="px-4 pb-4 pt-0 ml-8 space-y-3">
+        <CardContent className="px-4 pb-4 pt-0 ml-4 space-y-1">
           {task.subtasks?.map((sub) => (
             <TaskCard
               key={sub.id}
