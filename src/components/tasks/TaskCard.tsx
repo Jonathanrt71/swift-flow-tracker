@@ -28,6 +28,7 @@ interface TaskCardProps {
   task: Task;
   isOverdue: boolean;
   depth?: number;
+  parentStarred?: boolean;
   onToggleComplete: (data: { id: string; completed: boolean }) => void;
   onUpdate: (data: { id: string; title?: string; description?: string; due_date?: string | null; assigned_to?: string | null }) => void;
   onDelete: (id: string) => void;
@@ -39,6 +40,7 @@ const TaskCard = ({
   task,
   isOverdue,
   depth = 0,
+  parentStarred = false,
   onToggleComplete,
   onUpdate,
   onDelete,
@@ -67,7 +69,7 @@ const TaskCard = ({
   // For nested subtasks, use a simpler inline layout
   if (depth > 0) {
     return (
-      <div className={cn("space-y-1 rounded", isOverdue && "bg-warning/5")} style={{ backgroundColor: isOverdue ? undefined : `rgba(0,0,0,${depth * 0.025})` }}>
+      <div className={cn("space-y-1 rounded", isOverdue && "bg-warning/5")} style={{ backgroundColor: isOverdue ? undefined : parentStarred ? `rgba(220,38,38,${depth * 0.03})` : `rgba(0,0,0,${depth * 0.025})` }}>
         <div className="flex items-start gap-3 py-1">
           <div className="flex-1 min-w-0 flex items-start gap-2" style={{ paddingLeft: `${depth * 3}px` }}>
             <Checkbox
@@ -79,10 +81,12 @@ const TaskCard = ({
             />
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
-                {isExpandable && (
+                {isExpandable ? (
                   <button onClick={() => setExpanded(!expanded)} className="text-muted-foreground hover:text-foreground">
                     {expanded ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
                   </button>
+                ) : (
+                  <span className="w-3.5 shrink-0" />
                 )}
                 <span className={cn("text-sm", task.completed && "line-through text-muted-foreground")}>
                   {task.title}
@@ -131,6 +135,7 @@ const TaskCard = ({
                 task={sub}
                 isOverdue={isSubtaskOverdue(sub)}
                 depth={depth + 1}
+                parentStarred={parentStarred}
                 onToggleComplete={onToggleComplete}
                 onUpdate={onUpdate}
                 onDelete={onDelete}
@@ -244,6 +249,7 @@ const TaskCard = ({
               task={sub}
               isOverdue={isSubtaskOverdue(sub)}
               depth={depth + 1}
+              parentStarred={task.starred}
               onToggleComplete={onToggleComplete}
               onUpdate={onUpdate}
               onDelete={onDelete}
