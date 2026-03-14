@@ -18,9 +18,10 @@ interface CreateTaskDialogProps {
   parentId?: string;
   loading?: boolean;
   iconOnly?: boolean;
+  buttonBg?: string;
 }
 
-const CreateTaskDialog = ({ onSubmit, parentId, loading, iconOnly }: CreateTaskDialogProps) => {
+const CreateTaskDialog = ({ onSubmit, parentId, loading, iconOnly, buttonBg }: CreateTaskDialogProps) => {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -44,7 +45,7 @@ const CreateTaskDialog = ({ onSubmit, parentId, loading, iconOnly }: CreateTaskD
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant={parentId ? "ghost" : "default"} size={iconOnly ? "icon" : parentId ? "sm" : "default"} className={iconOnly ? "h-8 w-8" : ""}>
+        <Button variant={parentId ? "ghost" : "default"} size={iconOnly ? "icon" : parentId ? "sm" : "default"} className={iconOnly ? "h-8 w-8 rounded" : ""} style={buttonBg ? { backgroundColor: buttonBg } : undefined}>
           <Plus className="h-4 w-4" />
           {!iconOnly && (parentId ? "Add subtask" : "New task")}
         </Button>
