@@ -19,9 +19,6 @@ const Index = () => {
     updateTask,
     toggleComplete,
     deleteTask,
-    createMilestone,
-    toggleMilestone,
-    deleteMilestone,
   } = useTasks();
 
   const now = new Date();
@@ -31,7 +28,6 @@ const Index = () => {
     .filter((t) => t.completed)
     .sort((a, b) => new Date(b.completed_at!).getTime() - new Date(a.completed_at!).getTime());
 
-  // Overdue tasks pinned to the top
   const overdueTasks = activeTasks.filter(
     (t) => t.due_date && new Date(t.due_date) < now
   );
@@ -120,9 +116,6 @@ const Index = () => {
                   onUpdate={(d) => updateTask.mutate(d)}
                   onDelete={(id) => deleteTask.mutate(id)}
                   onCreateSubtask={(d) => createTask.mutate(d)}
-                  onCreateMilestone={(d) => createMilestone.mutate(d)}
-                  onToggleMilestone={(d) => toggleMilestone.mutate(d)}
-                  onDeleteMilestone={(id) => deleteMilestone.mutate(id)}
                 />
               ))
             )}
@@ -144,9 +137,6 @@ const Index = () => {
                   onUpdate={(d) => updateTask.mutate(d)}
                   onDelete={(id) => deleteTask.mutate(id)}
                   onCreateSubtask={(d) => createTask.mutate(d)}
-                  onCreateMilestone={(d) => createMilestone.mutate(d)}
-                  onToggleMilestone={(d) => toggleMilestone.mutate(d)}
-                  onDeleteMilestone={(id) => deleteMilestone.mutate(id)}
                 />
               ))
             )}
