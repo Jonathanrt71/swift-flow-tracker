@@ -19,8 +19,8 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+  AlertDialogTrigger } from
+"@/components/ui/alert-dialog";
 
 const MAX_DEPTH = 2;
 
@@ -29,11 +29,11 @@ interface TaskCardProps {
   isOverdue: boolean;
   depth?: number;
   parentStarred?: boolean;
-  onToggleComplete: (data: { id: string; completed: boolean }) => void;
-  onUpdate: (data: { id: string; title?: string; description?: string; due_date?: string | null; assigned_to?: string | null }) => void;
+  onToggleComplete: (data: {id: string;completed: boolean;}) => void;
+  onUpdate: (data: {id: string;title?: string;description?: string;due_date?: string | null;assigned_to?: string | null;}) => void;
   onDelete: (id: string) => void;
-  onCreateSubtask: (data: { title: string; description?: string; due_date?: string; parent_id?: string }) => void;
-  onToggleStar: (data: { id: string; starred: boolean }) => void;
+  onCreateSubtask: (data: {title: string;description?: string;due_date?: string;parent_id?: string;}) => void;
+  onToggleStar: (data: {id: string;starred: boolean;}) => void;
   onExpandChange?: (id: string, expanded: boolean) => void;
   hideAddButton?: boolean;
 }
@@ -49,7 +49,7 @@ const TaskCard = ({
   onCreateSubtask,
   onToggleStar,
   onExpandChange,
-  hideAddButton = false,
+  hideAddButton = false
 }: TaskCardProps) => {
   const [expanded, setExpanded] = useState(false);
   const [expandedChildId, setExpandedChildId] = useState<string | null>(null);
@@ -70,19 +70,19 @@ const TaskCard = ({
   const { data: members } = useTeamMembers();
   const canEdit = user?.id === task.created_by || user?.id === task.assigned_to;
   const hasChildren = task.subtasks && task.subtasks.length > 0;
-  const isExpandable = hasChildren || (canEdit && depth < MAX_DEPTH);
-  const assignee = task.assigned_to
-    ? members?.find((m) => m.id === task.assigned_to)
-    : null;
+  const isExpandable = hasChildren || canEdit && depth < MAX_DEPTH;
+  const assignee = task.assigned_to ?
+  members?.find((m) => m.id === task.assigned_to) :
+  null;
   const canAddSubtasks = depth < MAX_DEPTH && (!task.subtasks || task.subtasks.length < 10);
 
-  const formattedDue = task.due_date
-    ? new Date(task.due_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
-    : null;
+  const formattedDue = task.due_date ?
+  new Date(task.due_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) :
+  null;
 
   const now = new Date();
   const isSubtaskOverdue = (t: Task) =>
-    !t.completed && !!t.due_date && new Date(t.due_date) < now;
+  !t.completed && !!t.due_date && new Date(t.due_date) < now;
 
   // For nested subtasks, use a simpler inline layout
   if (depth > 0) {
@@ -93,87 +93,87 @@ const TaskCard = ({
             <Checkbox
               checked={task.completed}
               onCheckedChange={(checked) =>
-                onToggleComplete({ id: task.id, completed: !!checked })
+              onToggleComplete({ id: task.id, completed: !!checked })
               }
-              className="mt-0.5"
-            />
+              className="mt-0.5" />
+            
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
-                {isExpandable ? (
-                  <button onClick={handleToggleExpand} className="text-muted-foreground hover:text-foreground">
+                {isExpandable ?
+                <button onClick={handleToggleExpand} className="text-muted-foreground hover:text-foreground">
                     {expanded ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
-                  </button>
-                ) : (
-                  <span className="w-3.5 shrink-0 text-muted-foreground text-center text-xs">–</span>
-                )}
+                  </button> :
+
+                <span className="w-3.5 shrink-0 text-muted-foreground text-center text-xs">–</span>
+                }
                 <span className={cn("text-sm", task.completed && "line-through text-muted-foreground")}>
                   {task.title}
                 </span>
               </div>
-              {task.description && (
-                <p className="text-xs text-muted-foreground mt-1 line-clamp-1">{task.description}</p>
-              )}
+              {task.description &&
+              <p className="text-xs text-muted-foreground mt-1 line-clamp-1">{task.description}</p>
+              }
               <div className="flex items-center gap-3 mt-1">
-                {formattedDue && (
-                  <span className={cn("text-xs", isOverdue ? "text-warning font-medium flex items-center gap-1" : "text-muted-foreground")}>
+                {formattedDue &&
+                <span className={cn("text-xs", isOverdue ? "text-warning font-medium flex items-center gap-1" : "text-muted-foreground")}>
                     {isOverdue && <AlertTriangle className="h-3 w-3" />}
                     {formattedDue}
                   </span>
-                )}
-                {assignee && (
-                  <span className="text-xs text-muted-foreground flex items-center gap-1">
+                }
+                {assignee &&
+                <span className="text-xs text-muted-foreground flex items-center gap-1">
                     <Avatar className="h-4 w-4">
                       <AvatarImage src={assignee.avatar_url || undefined} />
                       <AvatarFallback className="text-[8px]">{(assignee.display_name || "?")[0]}</AvatarFallback>
                     </Avatar>
                     {assignee.display_name || "Unnamed"}
                   </span>
-                )}
+                }
               </div>
             </div>
           </div>
-          {expanded && (
-            <div className="flex items-center gap-1 shrink-0">
+          {expanded &&
+          <div className="flex items-center gap-1 shrink-0">
               <EditTaskDialog task={task} onSubmit={onUpdate} />
               <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                onClick={() => onDelete(task.id)}
-              >
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 text-muted-foreground hover:text-destructive"
+              onClick={() => onDelete(task.id)}>
+              
                 <Trash2 className="h-3.5 w-3.5" />
               </Button>
             </div>
-          )}
+          }
         </div>
 
-        {expanded && (
-          <div className="space-y-1">
-            {task.subtasks?.map((sub) => (
-              <TaskCard
-                key={sub.id}
-                task={sub}
-                isOverdue={isSubtaskOverdue(sub)}
-                depth={depth + 1}
-                parentStarred={parentStarred}
-                onToggleComplete={onToggleComplete}
-                onUpdate={onUpdate}
-                onDelete={onDelete}
-                onCreateSubtask={onCreateSubtask}
-                onToggleStar={onToggleStar}
-                onExpandChange={handleChildExpandChange}
-                hideAddButton={hideAddButton}
-              />
-            ))}
-            {canEdit && canAddSubtasks && !hasExpandedChild && !hideAddButton && (
-              <div style={{ marginLeft: '2px' }}>
+        {expanded &&
+        <div className="space-y-1">
+            {task.subtasks?.map((sub) =>
+          <TaskCard
+            key={sub.id}
+            task={sub}
+            isOverdue={isSubtaskOverdue(sub)}
+            depth={depth + 1}
+            parentStarred={parentStarred}
+            onToggleComplete={onToggleComplete}
+            onUpdate={onUpdate}
+            onDelete={onDelete}
+            onCreateSubtask={onCreateSubtask}
+            onToggleStar={onToggleStar}
+            onExpandChange={handleChildExpandChange}
+            hideAddButton={hideAddButton} />
+
+          )}
+            {canEdit && canAddSubtasks && !hasExpandedChild && !hideAddButton &&
+          <div style={{ marginLeft: '2px' }}>
                 <CreateTaskDialog onSubmit={onCreateSubtask} parentId={task.id} iconOnly buttonBg={parentStarred ? `rgba(220,38,38,${(depth + 1) * 0.02})` : `rgba(0,0,0,${(depth + 1) * 0.015})`} />
               </div>
-            )}
+          }
           </div>
-        )}
-      </div>
-    );
+        }
+      </div>);
+
   }
 
   // Root-level card
@@ -184,50 +184,50 @@ const TaskCard = ({
           <Checkbox
             checked={task.completed}
             onCheckedChange={(checked) =>
-              onToggleComplete({ id: task.id, completed: !!checked })
+            onToggleComplete({ id: task.id, completed: !!checked })
             }
-            className="mt-1"
-          />
+            className="mt-1" />
+          
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              {isExpandable && (
-                <button onClick={handleToggleExpand} className="text-muted-foreground hover:text-foreground">
+            <div className="flex items-center gap-2 py-[3px]">
+              {isExpandable &&
+              <button onClick={handleToggleExpand} className="text-muted-foreground hover:text-foreground">
                   {expanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                 </button>
-              )}
+              }
               <h3
                 className={cn(
                   "font-medium text-sm leading-tight",
                   task.completed && "line-through text-muted-foreground"
-                )}
-              >
+                )}>
+                
                 {task.title}
               </h3>
             </div>
-            {task.description && (
-              <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{task.description}</p>
-            )}
+            {task.description &&
+            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{task.description}</p>
+            }
             <div className="flex items-center gap-3 mt-2">
-              {formattedDue && (
-                <span
-                  className={cn(
-                    "text-xs",
-                    isOverdue ? "text-warning font-medium flex items-center gap-1" : "text-muted-foreground"
-                  )}
-                >
+              {formattedDue &&
+              <span
+                className={cn(
+                  "text-xs",
+                  isOverdue ? "text-warning font-medium flex items-center gap-1" : "text-muted-foreground"
+                )}>
+                
                   {isOverdue && <AlertTriangle className="h-3 w-3" />}
                   {formattedDue}
                 </span>
-              )}
-              {assignee && (
-                <span className="text-xs text-muted-foreground flex items-center gap-1">
+              }
+              {assignee &&
+              <span className="text-xs text-muted-foreground flex items-center gap-1">
                   <Avatar className="h-4 w-4">
                     <AvatarImage src={assignee.avatar_url || undefined} />
                     <AvatarFallback className="text-[8px]">{(assignee.display_name || "?")[0]}</AvatarFallback>
                   </Avatar>
                   {assignee.display_name || "Unnamed"}
                 </span>
-              )}
+              }
             </div>
           </div>
           <div className="flex items-center gap-1 shrink-0">
@@ -235,12 +235,12 @@ const TaskCard = ({
               variant="ghost"
               size="icon"
               className="h-8 w-8"
-              onClick={() => onToggleStar({ id: task.id, starred: !task.starred })}
-            >
+              onClick={() => onToggleStar({ id: task.id, starred: !task.starred })}>
+              
               <Star className={cn("h-3.5 w-3.5", task.starred ? "fill-starred text-starred" : "text-muted-foreground")} />
             </Button>
-            {expanded && (
-              <>
+            {expanded &&
+            <>
                 <EditTaskDialog task={task} onSubmit={onUpdate} />
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
@@ -262,38 +262,38 @@ const TaskCard = ({
                   </AlertDialogContent>
                 </AlertDialog>
               </>
-            )}
+            }
           </div>
         </div>
       </CardHeader>
 
-      {expanded && (
-        <CardContent className="px-4 pb-4 pt-0 space-y-1">
-          {task.subtasks?.map((sub) => (
-            <TaskCard
-              key={sub.id}
-              task={sub}
-              isOverdue={isSubtaskOverdue(sub)}
-              depth={depth + 1}
-              parentStarred={task.starred}
-              onToggleComplete={onToggleComplete}
-              onUpdate={onUpdate}
-              onDelete={onDelete}
-              onCreateSubtask={onCreateSubtask}
-              onToggleStar={onToggleStar}
-              onExpandChange={handleChildExpandChange}
-            />
-          ))}
+      {expanded &&
+      <CardContent className="px-4 pb-4 pt-0 space-y-1">
+          {task.subtasks?.map((sub) =>
+        <TaskCard
+          key={sub.id}
+          task={sub}
+          isOverdue={isSubtaskOverdue(sub)}
+          depth={depth + 1}
+          parentStarred={task.starred}
+          onToggleComplete={onToggleComplete}
+          onUpdate={onUpdate}
+          onDelete={onDelete}
+          onCreateSubtask={onCreateSubtask}
+          onToggleStar={onToggleStar}
+          onExpandChange={handleChildExpandChange} />
 
-          {canEdit && canAddSubtasks && !hasExpandedChild && (
-            <div style={{ marginLeft: '0px' }}>
+        )}
+
+          {canEdit && canAddSubtasks && !hasExpandedChild &&
+        <div style={{ marginLeft: '0px' }}>
               <CreateTaskDialog onSubmit={onCreateSubtask} parentId={task.id} iconOnly buttonBg={task.starred ? `rgba(220,38,38,${1 * 0.02})` : `rgba(0,0,0,${1 * 0.015})`} />
             </div>
-          )}
+        }
         </CardContent>
-      )}
-    </Card>
-  );
+      }
+    </Card>);
+
 };
 
 export default TaskCard;
