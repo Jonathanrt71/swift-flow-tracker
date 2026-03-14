@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LogOut, CheckCircle2, ListTodo, Shield, User, Star, UserCheck } from "lucide-react";
 import TaskCard from "@/components/tasks/TaskCard";
 import CreateTaskDialog from "@/components/tasks/CreateTaskDialog";
+import NotificationBell from "@/components/NotificationBell";
 import type { Task } from "@/hooks/useTasks";
 
 const Index = () => {
@@ -87,6 +88,7 @@ const Index = () => {
             <span className="text-sm text-muted-foreground hidden sm:inline">
               {user?.email}
             </span>
+            <NotificationBell />
             {isAdmin && (
               <Link to="/admin">
                 <Button variant="ghost" size="icon" title="Admin Panel">
