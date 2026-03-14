@@ -67,61 +67,55 @@ const TaskCard = ({
   // For nested subtasks, use a simpler inline layout
   if (depth > 0) {
     return (
-      <div className={cn("p-2 space-y-2", isOverdue && "bg-warning/5", task.starred && !isOverdue && "bg-starred/[0.02]")}>
-        <div className="flex items-start gap-3">
-          <Checkbox
-            checked={task.completed}
-            onCheckedChange={(checked) =>
-              onToggleComplete({ id: task.id, completed: !!checked })
-            }
-            className="mt-0.5"
-          />
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              {isExpandable && (
-                <button onClick={() => setExpanded(!expanded)} className="text-muted-foreground hover:text-foreground">
-                  {expanded ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
-                </button>
-              )}
-              <span className={cn("text-sm", task.completed && "line-through text-muted-foreground")}>
-                {task.title}
-              </span>
-            </div>
-            {task.description && (
-              <p className="text-xs text-muted-foreground mt-1 line-clamp-1">{task.description}</p>
-            )}
-            <div className="flex items-center gap-3 mt-1">
-              {formattedDue && (
-                <span className={cn("text-xs", isOverdue ? "text-warning font-medium flex items-center gap-1" : "text-muted-foreground")}>
-                  {isOverdue && <AlertTriangle className="h-3 w-3" />}
-                  {formattedDue}
+      <div className={cn("space-y-1", isOverdue && "bg-warning/5")}>
+        <div className="flex items-start gap-3 py-1">
+          <div className="flex-1 min-w-0 flex items-start gap-2" style={{ paddingLeft: `${(depth - 1) * 2}px` }}>
+            <Checkbox
+              checked={task.completed}
+              onCheckedChange={(checked) =>
+                onToggleComplete({ id: task.id, completed: !!checked })
+              }
+              className="mt-0.5"
+            />
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                {isExpandable && (
+                  <button onClick={() => setExpanded(!expanded)} className="text-muted-foreground hover:text-foreground">
+                    {expanded ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
+                  </button>
+                )}
+                <span className={cn("text-sm", task.completed && "line-through text-muted-foreground")}>
+                  {task.title}
                 </span>
+              </div>
+              {task.description && (
+                <p className="text-xs text-muted-foreground mt-1 line-clamp-1">{task.description}</p>
               )}
-              {task.subtasks && task.subtasks.length > 0 && (
-                <span className="text-xs text-muted-foreground">
-                  {task.subtasks.filter((s) => s.completed).length}/{task.subtasks.length} subtasks
-                </span>
-              )}
-              {assignee && (
-                <span className="text-xs text-muted-foreground flex items-center gap-1">
-                  <Avatar className="h-4 w-4">
-                    <AvatarImage src={assignee.avatar_url || undefined} />
-                    <AvatarFallback className="text-[8px]">{(assignee.display_name || "?")[0]}</AvatarFallback>
-                  </Avatar>
-                  {assignee.display_name || "Unnamed"}
-                </span>
-              )}
+              <div className="flex items-center gap-3 mt-1">
+                {formattedDue && (
+                  <span className={cn("text-xs", isOverdue ? "text-warning font-medium flex items-center gap-1" : "text-muted-foreground")}>
+                    {isOverdue && <AlertTriangle className="h-3 w-3" />}
+                    {formattedDue}
+                  </span>
+                )}
+                {task.subtasks && task.subtasks.length > 0 && (
+                  <span className="text-xs text-muted-foreground">
+                    {task.subtasks.filter((s) => s.completed).length}/{task.subtasks.length} subtasks
+                  </span>
+                )}
+                {assignee && (
+                  <span className="text-xs text-muted-foreground flex items-center gap-1">
+                    <Avatar className="h-4 w-4">
+                      <AvatarImage src={assignee.avatar_url || undefined} />
+                      <AvatarFallback className="text-[8px]">{(assignee.display_name || "?")[0]}</AvatarFallback>
+                    </Avatar>
+                    {assignee.display_name || "Unnamed"}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
           <div className="flex items-center gap-1 shrink-0">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8"
-              onClick={() => onToggleStar({ id: task.id, starred: !task.starred })}
-            >
-              <Star className={cn("h-3.5 w-3.5", task.starred ? "fill-starred text-starred" : "text-muted-foreground")} />
-            </Button>
             <EditTaskDialog task={task} onSubmit={onUpdate} />
             <Button
               variant="ghost"
@@ -135,7 +129,7 @@ const TaskCard = ({
         </div>
 
         {expanded && (
-          <div className="ml-0.5 space-y-1">
+          <div className="space-y-1">
             {task.subtasks?.map((sub) => (
               <TaskCard
                 key={sub.id}
@@ -150,7 +144,9 @@ const TaskCard = ({
               />
             ))}
             {canEdit && canAddSubtasks && (
-              <CreateTaskDialog onSubmit={onCreateSubtask} parentId={task.id} iconOnly />
+              <div style={{ paddingLeft: `${depth * 2}px` }}>
+                <CreateTaskDialog onSubmit={onCreateSubtask} parentId={task.id} iconOnly />
+              </div>
             )}
           </div>
         )}
@@ -251,7 +247,7 @@ const TaskCard = ({
       </CardHeader>
 
       {expanded && (
-        <CardContent className="px-4 pb-4 pt-0 ml-0.5 space-y-1">
+        <CardContent className="px-4 pb-4 pt-0 space-y-1">
           {task.subtasks?.map((sub) => (
             <TaskCard
               key={sub.id}
