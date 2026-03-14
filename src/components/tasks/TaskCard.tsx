@@ -9,6 +9,7 @@ import EditTaskDialog from "./EditTaskDialog";
 import CreateTaskDialog from "./CreateTaskDialog";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
   AlertDialog,
   AlertDialogAction,
