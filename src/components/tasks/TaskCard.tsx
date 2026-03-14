@@ -81,10 +81,12 @@ const TaskCard = ({
             />
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
-                {isExpandable && (
+                {isExpandable ? (
                   <button onClick={() => setExpanded(!expanded)} className="text-muted-foreground hover:text-foreground">
                     {expanded ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
                   </button>
+                ) : (
+                  <span className="w-3.5 shrink-0" />
                 )}
                 <span className={cn("text-sm", task.completed && "line-through text-muted-foreground")}>
                   {task.title}
