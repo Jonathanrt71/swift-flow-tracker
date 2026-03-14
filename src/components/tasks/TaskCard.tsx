@@ -67,7 +67,7 @@ const TaskCard = ({
   // For nested subtasks, use a simpler inline layout
   if (depth > 0) {
     return (
-      <div className={cn("border rounded-md p-3 space-y-2", isOverdue && "border-warning/50 bg-warning/5")}>
+      <div className={cn("border rounded-md p-3 space-y-2", isOverdue && "border-warning/50 bg-warning/5", task.starred && !isOverdue && "border-starred/30 bg-starred/5")}>
         <div className="flex items-start gap-3">
           <Checkbox
             checked={task.completed}
