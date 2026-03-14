@@ -48,9 +48,24 @@ const TaskCard = ({
   onDelete,
   onCreateSubtask,
   onToggleStar,
+  onExpandChange,
+  hideAddButton = false,
 }: TaskCardProps) => {
   const [expanded, setExpanded] = useState(false);
   const [expandedChildId, setExpandedChildId] = useState<string | null>(null);
+
+  const handleToggleExpand = () => {
+    const newExpanded = !expanded;
+    setExpanded(newExpanded);
+    onExpandChange?.(task.id, newExpanded);
+    if (!newExpanded) setExpandedChildId(null);
+  };
+
+  const handleChildExpandChange = (childId: string, childExpanded: boolean) => {
+    setExpandedChildId(childExpanded ? childId : null);
+  };
+
+  const hasExpandedChild = expandedChildId !== null;
   const { user } = useAuth();
   const { data: members } = useTeamMembers();
   const canEdit = user?.id === task.created_by || user?.id === task.assigned_to;
