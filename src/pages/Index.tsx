@@ -89,6 +89,7 @@ const Index = () => {
               {user?.email}
             </span>
             <NotificationBell />
+            {isAdmin && (
               <Link to="/admin">
                 <Button variant="ghost" size="icon" title="Admin Panel">
                   <Shield className="h-4 w-4" />
