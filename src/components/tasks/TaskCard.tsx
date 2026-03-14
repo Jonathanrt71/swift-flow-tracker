@@ -69,7 +69,7 @@ const TaskCard = ({
     return (
       <div className={cn("space-y-1", isOverdue && "bg-warning/5")}>
         <div className="flex items-start gap-3 py-1">
-          <div className="flex-1 min-w-0 flex items-start gap-2" style={{ paddingLeft: `${(depth - 1) * 2}px` }}>
+          <div className="flex-1 min-w-0 flex items-start gap-2" style={{ paddingLeft: `${depth}px` }}>
             <Checkbox
               checked={task.completed}
               onCheckedChange={(checked) =>
@@ -144,7 +144,7 @@ const TaskCard = ({
               />
             ))}
             {canEdit && canAddSubtasks && (
-              <div style={{ paddingLeft: `${depth * 2}px` }}>
+              <div style={{ paddingLeft: `${(depth + 1)}px` }}>
                 <CreateTaskDialog onSubmit={onCreateSubtask} parentId={task.id} iconOnly />
               </div>
             )}
