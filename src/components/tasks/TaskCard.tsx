@@ -121,6 +121,12 @@ const TaskCard = ({
                   {task.subtasks.filter((s) => s.completed).length}/{task.subtasks.length} subtasks
                 </span>
               )}
+              {assigneeName && (
+                <span className="text-xs text-muted-foreground flex items-center gap-1">
+                  <User className="h-3 w-3" />
+                  {assigneeName}
+                </span>
+              )}
             </div>
           </div>
           <div className="flex items-center gap-1 shrink-0">
