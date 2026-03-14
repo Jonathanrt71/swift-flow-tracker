@@ -85,6 +85,7 @@ export type Database = {
           id: string
           parent_id: string | null
           position: number
+          starred: boolean
           title: string
           updated_at: string
         }
@@ -99,6 +100,7 @@ export type Database = {
           id?: string
           parent_id?: string | null
           position?: number
+          starred?: boolean
           title: string
           updated_at?: string
         }
@@ -113,6 +115,7 @@ export type Database = {
           id?: string
           parent_id?: string | null
           position?: number
+          starred?: boolean
           title?: string
           updated_at?: string
         }
