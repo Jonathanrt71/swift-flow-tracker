@@ -281,7 +281,7 @@ const TaskCard = ({
 
           {canEdit && canAddSubtasks && !hasExpandedChild && (
             <div style={{ marginLeft: '0px' }}>
-              <CreateTaskDialog onSubmit={onCreateSubtask} parentId={task.id} iconOnly />
+              <CreateTaskDialog onSubmit={onCreateSubtask} parentId={task.id} iconOnly buttonBg={task.starred ? `rgba(220,38,38,${1 * 0.02})` : `rgba(0,0,0,${1 * 0.015})`} />
             </div>
           )}
         </CardContent>
