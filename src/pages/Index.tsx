@@ -88,7 +88,7 @@ const Index = () => {
             <span className="text-sm text-muted-foreground hidden sm:inline">
               {user?.email}
             </span>
-            {isAdmin && (
+            <NotificationBell />
               <Link to="/admin">
                 <Button variant="ghost" size="icon" title="Admin Panel">
                   <Shield className="h-4 w-4" />
