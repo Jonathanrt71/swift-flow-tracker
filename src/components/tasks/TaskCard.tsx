@@ -196,10 +196,9 @@ const TaskCard = ({
               }
               <h3
                 className={cn(
-                  "font-medium text-sm leading-normal",
+                  "font-medium text-sm leading-none",
                   task.completed && "line-through text-muted-foreground"
                 )}>
-                
                 {task.title}
               </h3>
             </div>
