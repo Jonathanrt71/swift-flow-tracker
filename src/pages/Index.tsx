@@ -5,7 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LogOut, CheckCircle2, ListTodo, Shield } from "lucide-react";
+import { LogOut, CheckCircle2, ListTodo, Shield, User } from "lucide-react";
 import TaskCard from "@/components/tasks/TaskCard";
 import CreateTaskDialog from "@/components/tasks/CreateTaskDialog";
 
@@ -59,6 +59,11 @@ const Index = () => {
                 </Button>
               </Link>
             )}
+            <Link to="/profile">
+              <Button variant="ghost" size="icon" title="Profile Settings">
+                <User className="h-4 w-4" />
+              </Button>
+            </Link>
             <Button variant="ghost" size="icon" onClick={signOut}>
               <LogOut className="h-4 w-4" />
             </Button>
