@@ -67,7 +67,7 @@ const TaskCard = ({
   // For nested subtasks, use a simpler inline layout
   if (depth > 0) {
     return (
-      <div className={cn("border rounded-md p-3 space-y-2", isOverdue && "border-warning/50 bg-warning/5", task.starred && !isOverdue && "border-starred/20 bg-starred/[0.02]")}>
+      <div className={cn("p-2 space-y-2", isOverdue && "bg-warning/5", task.starred && !isOverdue && "bg-starred/[0.02]")}>
         <div className="flex items-start gap-3">
           <Checkbox
             checked={task.completed}
@@ -135,7 +135,7 @@ const TaskCard = ({
         </div>
 
         {expanded && (
-          <div className="ml-6 space-y-2">
+          <div className="ml-3 space-y-1">
             {task.subtasks?.map((sub) => (
               <TaskCard
                 key={sub.id}
@@ -150,7 +150,7 @@ const TaskCard = ({
               />
             ))}
             {canEdit && canAddSubtasks && (
-              <CreateTaskDialog onSubmit={onCreateSubtask} parentId={task.id} />
+              <CreateTaskDialog onSubmit={onCreateSubtask} parentId={task.id} iconOnly />
             )}
           </div>
         )}
@@ -251,7 +251,7 @@ const TaskCard = ({
       </CardHeader>
 
       {expanded && (
-        <CardContent className="px-4 pb-4 pt-0 ml-8 space-y-3">
+        <CardContent className="px-4 pb-4 pt-0 ml-4 space-y-1">
           {task.subtasks?.map((sub) => (
             <TaskCard
               key={sub.id}
@@ -267,7 +267,7 @@ const TaskCard = ({
           ))}
 
           {canEdit && canAddSubtasks && (
-            <CreateTaskDialog onSubmit={onCreateSubtask} parentId={task.id} />
+            <CreateTaskDialog onSubmit={onCreateSubtask} parentId={task.id} iconOnly />
           )}
         </CardContent>
       )}
