@@ -185,7 +185,8 @@ const TaskCard = ({
             checked={task.completed}
             onCheckedChange={(checked) =>
             onToggleComplete({ id: task.id, completed: !!checked })
-            } />
+            }
+            className="mt-1" />
           
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 py-0">
