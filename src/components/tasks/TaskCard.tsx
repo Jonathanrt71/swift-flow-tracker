@@ -180,15 +180,15 @@ const TaskCard = ({
   return (
     <Card className={cn("transition-all", isOverdue && "border-warning/50 bg-warning/5", task.starred && !isOverdue && "border-starred/20 bg-starred/[0.02]", !isOverdue && !task.starred && "bg-muted/40")}>
       <CardHeader className="p-4 pb-2">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 pb-0">
           <Checkbox
             checked={task.completed}
             onCheckedChange={(checked) =>
             onToggleComplete({ id: task.id, completed: !!checked })
             } />
           
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 py-0">
+          <div className="flex-1 min-w-0 mb-[6px]">
+            <div className="flex items-center gap-2 py-0 pt-[6px] pb-[6px] my-[11px] mt-[11px]">
               {isExpandable &&
               <button onClick={handleToggleExpand} className="text-muted-foreground hover:text-foreground">
                   {expanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
@@ -235,7 +235,7 @@ const TaskCard = ({
               className="h-8 w-8"
               onClick={() => onToggleStar({ id: task.id, starred: !task.starred })}>
               
-              <Star className={cn("h-3.5 w-3.5", task.starred ? "fill-starred text-starred" : "text-muted-foreground")} />
+              <Star className={cn("h-3.5 w-3.5 mb-[4px]", task.starred ? "fill-starred text-starred" : "text-muted-foreground")} />
             </Button>
             {expanded &&
             <>
