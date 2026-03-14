@@ -17,29 +17,14 @@ export interface Task {
   created_at: string;
   updated_at: string;
   subtasks?: Task[];
-  milestones?: Milestone[];
 }
 
-export interface Milestone {
-  id: string;
-  task_id: string;
-  title: string;
-  completed: boolean;
-  position: number;
-  created_at: string;
-}
-
-function buildTree(allTasks: any[], milestoneMap: Map<string, Milestone[]>): Task[] {
+function buildTree(allTasks: any[]): Task[] {
   const taskMap = new Map<string, Task>();
-
-  // Create all task nodes with milestones
   allTasks.forEach((t) => {
-    taskMap.set(t.id, { ...t, subtasks: [], milestones: milestoneMap.get(t.id) || [] });
+    taskMap.set(t.id, { ...t, subtasks: [] });
   });
-
   const roots: Task[] = [];
-
-  // Build tree
   allTasks.forEach((t) => {
     const node = taskMap.get(t.id)!;
     if (t.parent_id && taskMap.has(t.parent_id)) {
@@ -48,7 +33,6 @@ function buildTree(allTasks: any[], milestoneMap: Map<string, Milestone[]>): Tas
       roots.push(node);
     }
   });
-
   return roots;
 }
 
@@ -65,21 +49,7 @@ export function useTasks() {
         .select("*")
         .order("position", { ascending: true });
       if (error) throw error;
-
-      const { data: milestones, error: mError } = await supabase
-        .from("milestones")
-        .select("*")
-        .order("position", { ascending: true });
-      if (mError) throw mError;
-
-      const milestoneMap = new Map<string, Milestone[]>();
-      (milestones || []).forEach((m) => {
-        const list = milestoneMap.get(m.task_id) || [];
-        list.push(m as Milestone);
-        milestoneMap.set(m.task_id, list);
-      });
-
-      return buildTree(allTasks || [], milestoneMap);
+      return buildTree(allTasks || []);
     },
     enabled: !!user,
   });
@@ -139,33 +109,6 @@ export function useTasks() {
     onError: (e: Error) => toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
 
-  const createMilestone = useMutation({
-    mutationFn: async (data: { task_id: string; title: string }) => {
-      const { error } = await supabase.from("milestones").insert(data);
-      if (error) throw error;
-    },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["tasks"] }),
-    onError: (e: Error) => toast({ title: "Error", description: e.message, variant: "destructive" }),
-  });
-
-  const toggleMilestone = useMutation({
-    mutationFn: async ({ id, completed }: { id: string; completed: boolean }) => {
-      const { error } = await supabase.from("milestones").update({ completed }).eq("id", id);
-      if (error) throw error;
-    },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["tasks"] }),
-    onError: (e: Error) => toast({ title: "Error", description: e.message, variant: "destructive" }),
-  });
-
-  const deleteMilestone = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase.from("milestones").delete().eq("id", id);
-      if (error) throw error;
-    },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["tasks"] }),
-    onError: (e: Error) => toast({ title: "Error", description: e.message, variant: "destructive" }),
-  });
-
   return {
     tasks: tasksQuery.data || [],
     isLoading: tasksQuery.isLoading,
@@ -173,8 +116,5 @@ export function useTasks() {
     updateTask,
     toggleComplete,
     deleteTask,
-    createMilestone,
-    toggleMilestone,
-    deleteMilestone,
   };
 }

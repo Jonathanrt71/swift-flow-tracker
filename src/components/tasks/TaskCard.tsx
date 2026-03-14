@@ -7,7 +7,6 @@ import { cn } from "@/lib/utils";
 import type { Task } from "@/hooks/useTasks";
 import EditTaskDialog from "./EditTaskDialog";
 import CreateTaskDialog from "./CreateTaskDialog";
-import MilestoneList from "./MilestoneList";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import {
@@ -32,9 +31,6 @@ interface TaskCardProps {
   onUpdate: (data: { id: string; title?: string; description?: string; due_date?: string | null; assigned_to?: string | null }) => void;
   onDelete: (id: string) => void;
   onCreateSubtask: (data: { title: string; description?: string; due_date?: string; parent_id?: string }) => void;
-  onCreateMilestone: (data: { task_id: string; title: string }) => void;
-  onToggleMilestone: (data: { id: string; completed: boolean }) => void;
-  onDeleteMilestone: (id: string) => void;
 }
 
 const TaskCard = ({
@@ -45,15 +41,12 @@ const TaskCard = ({
   onUpdate,
   onDelete,
   onCreateSubtask,
-  onCreateMilestone,
-  onToggleMilestone,
-  onDeleteMilestone,
 }: TaskCardProps) => {
   const [expanded, setExpanded] = useState(false);
   const { user } = useAuth();
   const { data: members } = useTeamMembers();
   const canEdit = user?.id === task.created_by || user?.id === task.assigned_to;
-  const hasChildren = (task.subtasks && task.subtasks.length > 0) || (task.milestones && task.milestones.length > 0);
+  const hasChildren = task.subtasks && task.subtasks.length > 0;
   const isExpandable = hasChildren || (canEdit && depth < MAX_DEPTH);
   const assigneeName = task.assigned_to
     ? members?.find((m) => m.id === task.assigned_to)?.display_name || "Unnamed"
@@ -129,16 +122,6 @@ const TaskCard = ({
 
         {expanded && (
           <div className="ml-6 space-y-2">
-            {task.milestones && (
-              <MilestoneList
-                milestones={task.milestones}
-                taskId={task.id}
-                onCreateMilestone={onCreateMilestone}
-                onToggleMilestone={onToggleMilestone}
-                onDeleteMilestone={onDeleteMilestone}
-                canEdit={canEdit}
-              />
-            )}
             {task.subtasks?.map((sub) => (
               <TaskCard
                 key={sub.id}
@@ -149,9 +132,6 @@ const TaskCard = ({
                 onUpdate={onUpdate}
                 onDelete={onDelete}
                 onCreateSubtask={onCreateSubtask}
-                onCreateMilestone={onCreateMilestone}
-                onToggleMilestone={onToggleMilestone}
-                onDeleteMilestone={onDeleteMilestone}
               />
             ))}
             {canEdit && canAddSubtasks && (
@@ -231,7 +211,7 @@ const TaskCard = ({
                 <AlertDialogHeader>
                   <AlertDialogTitle>Delete task?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    This will permanently delete "{task.title}" and all its subtasks and milestones.
+                    This will permanently delete "{task.title}" and all its subtasks.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
@@ -246,17 +226,6 @@ const TaskCard = ({
 
       {expanded && (
         <CardContent className="px-4 pb-4 pt-0 ml-8 space-y-3">
-          {task.milestones && (
-            <MilestoneList
-              milestones={task.milestones}
-              taskId={task.id}
-              onCreateMilestone={onCreateMilestone}
-              onToggleMilestone={onToggleMilestone}
-              onDeleteMilestone={onDeleteMilestone}
-              canEdit={canEdit}
-            />
-          )}
-
           {task.subtasks?.map((sub) => (
             <TaskCard
               key={sub.id}
@@ -267,9 +236,6 @@ const TaskCard = ({
               onUpdate={onUpdate}
               onDelete={onDelete}
               onCreateSubtask={onCreateSubtask}
-              onCreateMilestone={onCreateMilestone}
-              onToggleMilestone={onToggleMilestone}
-              onDeleteMilestone={onDeleteMilestone}
             />
           ))}
 
