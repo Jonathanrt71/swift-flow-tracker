@@ -1,7 +1,7 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Trash2, ChevronDown, ChevronRight, AlertTriangle } from "lucide-react";
+import { Trash2, ChevronDown, ChevronRight, AlertTriangle, User } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import type { Task } from "@/hooks/useTasks";
@@ -9,6 +9,18 @@ import EditTaskDialog from "./EditTaskDialog";
 import CreateTaskDialog from "./CreateTaskDialog";
 import MilestoneList from "./MilestoneList";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTeamMembers } from "@/hooks/useTeamMembers";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import {
   AlertDialog,
   AlertDialogAction,
