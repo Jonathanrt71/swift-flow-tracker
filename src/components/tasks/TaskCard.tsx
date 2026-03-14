@@ -87,9 +87,9 @@ const TaskCard = ({
   // For nested subtasks, use a simpler inline layout
   if (depth > 0) {
     return (
-      <div className={cn("space-y-1 rounded", isOverdue && "bg-warning/5")} style={{ marginLeft: `${depth * 5 + 1}px`, backgroundColor: isOverdue ? undefined : parentStarred ? `rgba(220,38,38,${depth * 0.03})` : `rgba(0,0,0,${depth * 0.025})` }}>
+      <div className={cn("space-y-1 rounded", isOverdue && "bg-warning/5")} style={{ marginLeft: `${depth * 5 - 1}px`, backgroundColor: isOverdue ? undefined : parentStarred ? `rgba(220,38,38,${depth * 0.03})` : `rgba(0,0,0,${depth * 0.025})` }}>
         <div className="flex items-start gap-3 py-1">
-          <div className="flex-1 min-w-0 flex items-start gap-2">
+          <div className="flex-1 min-w-0 flex items-start gap-2" style={{ paddingLeft: '1px' }}>
             <Checkbox
               checked={task.completed}
               onCheckedChange={(checked) =>
