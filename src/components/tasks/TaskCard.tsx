@@ -160,7 +160,7 @@ const TaskCard = ({
 
   // Root-level card
   return (
-    <Card className={cn("transition-all", isOverdue && "border-warning/50 bg-warning/5")}>
+    <Card className={cn("transition-all", isOverdue && "border-warning/50 bg-warning/5", task.starred && !isOverdue && "border-starred/30 bg-starred/5")}>
       <CardHeader className="p-4 pb-2">
         <div className="flex items-start gap-3">
           <Checkbox
