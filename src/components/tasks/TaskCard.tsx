@@ -177,7 +177,7 @@ const TaskCard = ({
           />
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              {hasChildren && (
+              {isExpandable && (
                 <button onClick={() => setExpanded(!expanded)} className="text-muted-foreground hover:text-foreground">
                   {expanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                 </button>
