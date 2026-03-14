@@ -70,18 +70,7 @@ const TaskCard = ({
   const canEdit = user?.id === task.created_by || user?.id === task.assigned_to;
   const hasChildren = task.subtasks && task.subtasks.length > 0;
   const isExpandable = hasChildren || canEdit && depth < MAX_DEPTH;
-  const assignee = task.assigned_to ?
-  members?.find((m) => m.id === task.assigned_to) :
-  null;
   const canAddSubtasks = depth < MAX_DEPTH && (!task.subtasks || task.subtasks.length < 10);
-
-  const formattedDue = task.due_date ?
-  new Date(task.due_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) :
-  null;
-
-  const now = new Date();
-  const isSubtaskOverdue = (t: Task) =>
-  !t.completed && !!t.due_date && new Date(t.due_date) < now;
 
   // For nested subtasks, use a simpler inline layout
   if (depth > 0) {
