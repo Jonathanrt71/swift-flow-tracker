@@ -59,6 +59,11 @@ const Index = () => {
                 </Button>
               </Link>
             )}
+            <Link to="/profile">
+              <Button variant="ghost" size="icon" title="Profile Settings">
+                <User className="h-4 w-4" />
+              </Button>
+            </Link>
             <Button variant="ghost" size="icon" onClick={signOut}>
               <LogOut className="h-4 w-4" />
             </Button>
