@@ -39,6 +39,9 @@ All colors MUST be HSL.
     --warning: 25 95% 53%;
     --warning-foreground: 25 95% 20%;
 
+    --starred: 0 84% 60%;
+    --starred-foreground: 0 84% 25%;
+
     --radius: 0.5rem;
 
     --sidebar-background: 0 0% 98%;
