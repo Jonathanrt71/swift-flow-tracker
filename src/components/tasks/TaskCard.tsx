@@ -164,7 +164,7 @@ const TaskCard = ({
               />
             ))}
             {canEdit && canAddSubtasks && !hasExpandedChild && !hideAddButton && (
-              <div style={{ paddingLeft: '7px' }}>
+              <div style={{ paddingLeft: '5px' }}>
                 <CreateTaskDialog onSubmit={onCreateSubtask} parentId={task.id} iconOnly />
               </div>
             )}
