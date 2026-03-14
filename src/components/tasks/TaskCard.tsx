@@ -58,8 +58,12 @@ const TaskCard = ({
 }: TaskCardProps) => {
   const [expanded, setExpanded] = useState(false);
   const { user } = useAuth();
+  const { data: members } = useTeamMembers();
   const canEdit = user?.id === task.created_by || user?.id === task.assigned_to;
   const hasChildren = (task.subtasks && task.subtasks.length > 0) || (task.milestones && task.milestones.length > 0);
+  const assigneeName = task.assigned_to
+    ? members?.find((m) => m.id === task.assigned_to)?.display_name || "Unnamed"
+    : null;
 
   const formattedDue = task.due_date
     ? new Date(task.due_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
