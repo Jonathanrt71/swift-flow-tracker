@@ -134,6 +134,7 @@ const TaskCard = ({
                 key={sub.id}
                 task={sub}
                 isOverdue={isSubtaskOverdue(sub)}
+                depth={depth + 1}
                 parentStarred={parentStarred}
                 onToggleComplete={onToggleComplete}
                 onUpdate={onUpdate}
