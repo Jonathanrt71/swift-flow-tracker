@@ -11,12 +11,20 @@ import {
   DialogTrigger,
   DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Pencil } from "lucide-react";
 import type { Task } from "@/hooks/useTasks";
+import { useTeamMembers } from "@/hooks/useTeamMembers";
 
 interface EditTaskDialogProps {
   task: Task;
-  onSubmit: (data: { id: string; title?: string; description?: string; due_date?: string | null }) => void;
+  onSubmit: (data: { id: string; title?: string; description?: string; due_date?: string | null; assigned_to?: string | null }) => void;
   loading?: boolean;
 }
 
@@ -25,6 +33,8 @@ const EditTaskDialog = ({ task, onSubmit, loading }: EditTaskDialogProps) => {
   const [title, setTitle] = useState(task.title);
   const [description, setDescription] = useState(task.description || "");
   const [dueDate, setDueDate] = useState(task.due_date ? task.due_date.split("T")[0] : "");
+  const [assignedTo, setAssignedTo] = useState<string>(task.assigned_to || "unassigned");
+  const { data: members } = useTeamMembers();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,6 +44,7 @@ const EditTaskDialog = ({ task, onSubmit, loading }: EditTaskDialogProps) => {
       title: title.trim(),
       description: description.trim(),
       due_date: dueDate || null,
+      assigned_to: assignedTo === "unassigned" ? null : assignedTo,
     });
     setOpen(false);
   };
@@ -78,6 +89,22 @@ const EditTaskDialog = ({ task, onSubmit, loading }: EditTaskDialogProps) => {
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
             />
+          </div>
+          <div className="space-y-2">
+            <Label>Assign to</Label>
+            <Select value={assignedTo} onValueChange={setAssignedTo}>
+              <SelectTrigger>
+                <SelectValue placeholder="Unassigned" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="unassigned">Unassigned</SelectItem>
+                {members?.map((m) => (
+                  <SelectItem key={m.id} value={m.id}>
+                    {m.display_name || "Unnamed"}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <DialogFooter>
             <Button type="submit" disabled={loading || !title.trim()}>
