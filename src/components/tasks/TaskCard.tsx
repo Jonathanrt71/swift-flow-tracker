@@ -117,25 +117,25 @@ const TaskCard = ({
             <Button
               variant="ghost"
               size="icon"
-              className="h-7 w-7"
+              className="h-8 w-8"
               onClick={() => onToggleStar({ id: task.id, starred: !task.starred })}
             >
-              <Star className={cn("h-3 w-3", task.starred ? "fill-starred text-starred" : "text-muted-foreground")} />
+              <Star className={cn("h-3.5 w-3.5", task.starred ? "fill-starred text-starred" : "text-muted-foreground")} />
             </Button>
             <EditTaskDialog task={task} onSubmit={onUpdate} />
             <Button
               variant="ghost"
               size="icon"
-              className="h-7 w-7 text-muted-foreground hover:text-destructive"
+              className="h-8 w-8 text-muted-foreground hover:text-destructive"
               onClick={() => onDelete(task.id)}
             >
-              <Trash2 className="h-3 w-3" />
+              <Trash2 className="h-3.5 w-3.5" />
             </Button>
           </div>
         </div>
 
         {expanded && (
-          <div className="ml-1.5 space-y-1">
+          <div className="ml-1 space-y-1">
             {task.subtasks?.map((sub) => (
               <TaskCard
                 key={sub.id}
