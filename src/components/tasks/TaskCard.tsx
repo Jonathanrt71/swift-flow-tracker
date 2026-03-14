@@ -34,6 +34,8 @@ interface TaskCardProps {
   onDelete: (id: string) => void;
   onCreateSubtask: (data: { title: string; description?: string; due_date?: string; parent_id?: string }) => void;
   onToggleStar: (data: { id: string; starred: boolean }) => void;
+  onExpandChange?: (id: string, expanded: boolean) => void;
+  hideAddButton?: boolean;
 }
 
 const TaskCard = ({
