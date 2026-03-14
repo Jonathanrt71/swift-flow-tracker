@@ -1,7 +1,7 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Trash2, ChevronDown, ChevronRight, AlertTriangle } from "lucide-react";
+import { Trash2, ChevronDown, ChevronRight, AlertTriangle, User } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import type { Task } from "@/hooks/useTasks";
@@ -9,6 +9,7 @@ import EditTaskDialog from "./EditTaskDialog";
 import CreateTaskDialog from "./CreateTaskDialog";
 import MilestoneList from "./MilestoneList";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTeamMembers } from "@/hooks/useTeamMembers";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,7 +26,7 @@ interface TaskCardProps {
   task: Task;
   isOverdue: boolean;
   onToggleComplete: (data: { id: string; completed: boolean }) => void;
-  onUpdate: (data: { id: string; title?: string; description?: string; due_date?: string | null }) => void;
+  onUpdate: (data: { id: string; title?: string; description?: string; due_date?: string | null; assigned_to?: string | null }) => void;
   onDelete: (id: string) => void;
   onCreateSubtask: (data: { title: string; description?: string; due_date?: string; parent_id?: string }) => void;
   onCreateMilestone: (data: { task_id: string; title: string }) => void;
@@ -46,8 +47,12 @@ const TaskCard = ({
 }: TaskCardProps) => {
   const [expanded, setExpanded] = useState(false);
   const { user } = useAuth();
+  const { data: members } = useTeamMembers();
   const canEdit = user?.id === task.created_by || user?.id === task.assigned_to;
   const hasChildren = (task.subtasks && task.subtasks.length > 0) || (task.milestones && task.milestones.length > 0);
+  const assigneeName = task.assigned_to
+    ? members?.find((m) => m.id === task.assigned_to)?.display_name || "Unnamed"
+    : null;
 
   const formattedDue = task.due_date
     ? new Date(task.due_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
@@ -103,6 +108,12 @@ const TaskCard = ({
               {task.subtasks && task.subtasks.length > 0 && (
                 <span className="text-xs text-muted-foreground">
                   {task.subtasks.filter((s) => s.completed).length}/{task.subtasks.length} subtasks
+                </span>
+              )}
+              {assigneeName && (
+                <span className="text-xs text-muted-foreground flex items-center gap-1">
+                  <User className="h-3 w-3" />
+                  {assigneeName}
                 </span>
               )}
             </div>
