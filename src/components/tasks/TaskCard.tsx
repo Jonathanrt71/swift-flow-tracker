@@ -54,6 +54,7 @@ const TaskCard = ({
   const { data: members } = useTeamMembers();
   const canEdit = user?.id === task.created_by || user?.id === task.assigned_to;
   const hasChildren = (task.subtasks && task.subtasks.length > 0) || (task.milestones && task.milestones.length > 0);
+  const isExpandable = hasChildren || (canEdit && depth < MAX_DEPTH);
   const assigneeName = task.assigned_to
     ? members?.find((m) => m.id === task.assigned_to)?.display_name || "Unnamed"
     : null;
@@ -81,7 +82,7 @@ const TaskCard = ({
           />
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              {hasChildren && (
+              {isExpandable && (
                 <button onClick={() => setExpanded(!expanded)} className="text-muted-foreground hover:text-foreground">
                   {expanded ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
                 </button>
@@ -176,7 +177,7 @@ const TaskCard = ({
           />
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              {hasChildren && (
+              {isExpandable && (
                 <button onClick={() => setExpanded(!expanded)} className="text-muted-foreground hover:text-foreground">
                   {expanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                 </button>
