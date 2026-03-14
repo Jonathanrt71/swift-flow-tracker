@@ -67,7 +67,7 @@ const TaskCard = ({
   // For nested subtasks, use a simpler inline layout
   if (depth > 0) {
     return (
-      <div className={cn("space-y-1", isOverdue && "bg-warning/5")}>
+      <div className={cn("space-y-1 rounded", isOverdue && "bg-warning/5")} style={{ backgroundColor: isOverdue ? undefined : `rgba(0,0,0,${depth * 0.025})` }}>
         <div className="flex items-start gap-3 py-1">
           <div className="flex-1 min-w-0 flex items-start gap-2" style={{ paddingLeft: `${depth * 3}px` }}>
             <Checkbox
@@ -96,11 +96,6 @@ const TaskCard = ({
                   <span className={cn("text-xs", isOverdue ? "text-warning font-medium flex items-center gap-1" : "text-muted-foreground")}>
                     {isOverdue && <AlertTriangle className="h-3 w-3" />}
                     {formattedDue}
-                  </span>
-                )}
-                {task.subtasks && task.subtasks.length > 0 && (
-                  <span className="text-xs text-muted-foreground">
-                    {task.subtasks.filter((s) => s.completed).length}/{task.subtasks.length} subtasks
                   </span>
                 )}
                 {assignee && (
@@ -156,7 +151,7 @@ const TaskCard = ({
 
   // Root-level card
   return (
-    <Card className={cn("transition-all", isOverdue && "border-warning/50 bg-warning/5", task.starred && !isOverdue && "border-starred/20 bg-starred/[0.02]")}>
+    <Card className={cn("transition-all", isOverdue && "border-warning/50 bg-warning/5", task.starred && !isOverdue && "border-starred/20 bg-starred/[0.02]", !isOverdue && !task.starred && "bg-muted/40")}>
       <CardHeader className="p-4 pb-2">
         <div className="flex items-start gap-3">
           <Checkbox
@@ -195,11 +190,6 @@ const TaskCard = ({
                 >
                   {isOverdue && <AlertTriangle className="h-3 w-3" />}
                   {formattedDue}
-                </span>
-              )}
-              {task.subtasks && task.subtasks.length > 0 && (
-                <span className="text-xs text-muted-foreground">
-                  {task.subtasks.filter((s) => s.completed).length}/{task.subtasks.length} subtasks
                 </span>
               )}
               {assignee && (
