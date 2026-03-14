@@ -110,26 +110,6 @@ const TaskCard = ({
                   {task.title}
                 </span>
               </div>
-              {task.description &&
-              <p className="text-xs text-muted-foreground mt-1 line-clamp-1">{task.description}</p>
-              }
-              <div className="flex items-center gap-3 mt-1">
-                {formattedDue &&
-                <span className={cn("text-xs", isOverdue ? "text-warning font-medium flex items-center gap-1" : "text-muted-foreground")}>
-                    {isOverdue && <AlertTriangle className="h-3 w-3" />}
-                    {formattedDue}
-                  </span>
-                }
-                {assignee &&
-                <span className="text-xs text-muted-foreground flex items-center gap-1">
-                    <Avatar className="h-4 w-4">
-                      <AvatarImage src={assignee.avatar_url || undefined} />
-                      <AvatarFallback className="text-[8px]">{(assignee.display_name || "?")[0]}</AvatarFallback>
-                    </Avatar>
-                    {assignee.display_name || "Unnamed"}
-                  </span>
-                }
-              </div>
             </div>
           </div>
           {expanded &&
