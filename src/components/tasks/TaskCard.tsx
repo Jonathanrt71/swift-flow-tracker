@@ -176,7 +176,7 @@ const TaskCard = ({
               className="h-8 w-8"
               onClick={() => onToggleStar({ id: task.id, starred: !task.starred })}>
               
-              <Star className={cn("h-3.5 w-3.5 mb-[4px]", task.starred ? "fill-starred text-starred" : "text-muted-foreground")} />
+              <Star className={cn("h-3.5 w-3.5", task.starred ? "fill-starred text-starred" : "text-muted-foreground")} />
             </Button>
             {expanded &&
             <>
