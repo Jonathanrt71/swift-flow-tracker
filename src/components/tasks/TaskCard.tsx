@@ -211,7 +211,7 @@ const TaskCard = ({
         <TaskCard
           key={sub.id}
           task={sub}
-          isOverdue={isSubtaskOverdue(sub)}
+          isOverdue={false}
           depth={depth + 1}
           parentStarred={task.starred}
           onToggleComplete={onToggleComplete}
@@ -220,7 +220,6 @@ const TaskCard = ({
           onCreateSubtask={onCreateSubtask}
           onToggleStar={onToggleStar}
           onExpandChange={handleChildExpandChange} />
-
         )}
 
           {canEdit && canAddSubtasks && !hasExpandedChild &&
