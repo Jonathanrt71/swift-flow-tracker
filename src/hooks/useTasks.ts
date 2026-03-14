@@ -76,6 +76,17 @@ export function useTasks() {
 
   const updateTask = useMutation({
     mutationFn: async ({ id, ...data }: { id: string; title?: string; description?: string; due_date?: string | null; assigned_to?: string | null }) => {
+      // Check if assignment changed to notify
+      if (data.assigned_to && data.assigned_to !== user?.id) {
+        const taskTitle = data.title || "a task";
+        createNotification({
+          user_id: data.assigned_to,
+          type: "assignment",
+          title: "Task assigned to you",
+          message: `You have been assigned "${taskTitle}"`,
+          task_id: id,
+        });
+      }
       const { error } = await supabase.from("tasks").update(data).eq("id", id);
       if (error) throw error;
     },
