@@ -29,6 +29,29 @@ export interface Milestone {
   created_at: string;
 }
 
+function buildTree(allTasks: any[], milestoneMap: Map<string, Milestone[]>): Task[] {
+  const taskMap = new Map<string, Task>();
+
+  // Create all task nodes with milestones
+  allTasks.forEach((t) => {
+    taskMap.set(t.id, { ...t, subtasks: [], milestones: milestoneMap.get(t.id) || [] });
+  });
+
+  const roots: Task[] = [];
+
+  // Build tree
+  allTasks.forEach((t) => {
+    const node = taskMap.get(t.id)!;
+    if (t.parent_id && taskMap.has(t.parent_id)) {
+      taskMap.get(t.parent_id)!.subtasks!.push(node);
+    } else if (!t.parent_id) {
+      roots.push(node);
+    }
+  });
+
+  return roots;
+}
+
 export function useTasks() {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -37,19 +60,11 @@ export function useTasks() {
   const tasksQuery = useQuery({
     queryKey: ["tasks"],
     queryFn: async () => {
-      const { data: tasks, error } = await supabase
+      const { data: allTasks, error } = await supabase
         .from("tasks")
         .select("*")
-        .is("parent_id", null)
         .order("position", { ascending: true });
       if (error) throw error;
-
-      const { data: subtasks, error: subError } = await supabase
-        .from("tasks")
-        .select("*")
-        .not("parent_id", "is", null)
-        .order("position", { ascending: true });
-      if (subError) throw subError;
 
       const { data: milestones, error: mError } = await supabase
         .from("milestones")
@@ -57,7 +72,6 @@ export function useTasks() {
         .order("position", { ascending: true });
       if (mError) throw mError;
 
-      const taskIds = [...(tasks || []).map(t => t.id), ...(subtasks || []).map(t => t.id)];
       const milestoneMap = new Map<string, Milestone[]>();
       (milestones || []).forEach((m) => {
         const list = milestoneMap.get(m.task_id) || [];
@@ -65,19 +79,7 @@ export function useTasks() {
         milestoneMap.set(m.task_id, list);
       });
 
-      const subtaskMap = new Map<string, Task[]>();
-      (subtasks || []).forEach((s) => {
-        const st = { ...s, milestones: milestoneMap.get(s.id) || [] } as Task;
-        const list = subtaskMap.get(s.parent_id!) || [];
-        list.push(st);
-        subtaskMap.set(s.parent_id!, list);
-      });
-
-      return (tasks || []).map((t) => ({
-        ...t,
-        subtasks: subtaskMap.get(t.id) || [],
-        milestones: milestoneMap.get(t.id) || [],
-      })) as Task[];
+      return buildTree(allTasks || [], milestoneMap);
     },
     enabled: !!user,
   });

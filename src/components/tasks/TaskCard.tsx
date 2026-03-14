@@ -22,9 +22,12 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
+const MAX_DEPTH = 3;
+
 interface TaskCardProps {
   task: Task;
   isOverdue: boolean;
+  depth?: number;
   onToggleComplete: (data: { id: string; completed: boolean }) => void;
   onUpdate: (data: { id: string; title?: string; description?: string; due_date?: string | null; assigned_to?: string | null }) => void;
   onDelete: (id: string) => void;
@@ -37,6 +40,7 @@ interface TaskCardProps {
 const TaskCard = ({
   task,
   isOverdue,
+  depth = 0,
   onToggleComplete,
   onUpdate,
   onDelete,
@@ -53,18 +57,114 @@ const TaskCard = ({
   const assigneeName = task.assigned_to
     ? members?.find((m) => m.id === task.assigned_to)?.display_name || "Unnamed"
     : null;
+  const canAddSubtasks = depth < MAX_DEPTH && (!task.subtasks || task.subtasks.length < 10);
 
   const formattedDue = task.due_date
     ? new Date(task.due_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
     : null;
 
+  const now = new Date();
+  const isSubtaskOverdue = (t: Task) =>
+    !t.completed && !!t.due_date && new Date(t.due_date) < now;
+
+  // For nested subtasks, use a simpler inline layout
+  if (depth > 0) {
+    return (
+      <div className={cn("border rounded-md p-3 space-y-2", isOverdue && "border-warning/50 bg-warning/5")}>
+        <div className="flex items-start gap-3">
+          <Checkbox
+            checked={task.completed}
+            onCheckedChange={(checked) =>
+              onToggleComplete({ id: task.id, completed: !!checked })
+            }
+            className="mt-0.5"
+          />
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2">
+              {hasChildren && (
+                <button onClick={() => setExpanded(!expanded)} className="text-muted-foreground hover:text-foreground">
+                  {expanded ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
+                </button>
+              )}
+              <span className={cn("text-sm", task.completed && "line-through text-muted-foreground")}>
+                {task.title}
+              </span>
+            </div>
+            {task.description && (
+              <p className="text-xs text-muted-foreground mt-1 line-clamp-1">{task.description}</p>
+            )}
+            <div className="flex items-center gap-3 mt-1">
+              {formattedDue && (
+                <span className={cn("text-xs", isOverdue ? "text-warning font-medium flex items-center gap-1" : "text-muted-foreground")}>
+                  {isOverdue && <AlertTriangle className="h-3 w-3" />}
+                  {formattedDue}
+                </span>
+              )}
+              {task.subtasks && task.subtasks.length > 0 && (
+                <span className="text-xs text-muted-foreground">
+                  {task.subtasks.filter((s) => s.completed).length}/{task.subtasks.length} subtasks
+                </span>
+              )}
+              {assigneeName && (
+                <span className="text-xs text-muted-foreground flex items-center gap-1">
+                  <User className="h-3 w-3" />
+                  {assigneeName}
+                </span>
+              )}
+            </div>
+          </div>
+          <div className="flex items-center gap-1 shrink-0">
+            <EditTaskDialog task={task} onSubmit={onUpdate} />
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7 text-muted-foreground hover:text-destructive"
+              onClick={() => onDelete(task.id)}
+            >
+              <Trash2 className="h-3 w-3" />
+            </Button>
+          </div>
+        </div>
+
+        {expanded && (
+          <div className="ml-6 space-y-2">
+            {task.milestones && (
+              <MilestoneList
+                milestones={task.milestones}
+                taskId={task.id}
+                onCreateMilestone={onCreateMilestone}
+                onToggleMilestone={onToggleMilestone}
+                onDeleteMilestone={onDeleteMilestone}
+                canEdit={canEdit}
+              />
+            )}
+            {task.subtasks?.map((sub) => (
+              <TaskCard
+                key={sub.id}
+                task={sub}
+                isOverdue={isSubtaskOverdue(sub)}
+                depth={depth + 1}
+                onToggleComplete={onToggleComplete}
+                onUpdate={onUpdate}
+                onDelete={onDelete}
+                onCreateSubtask={onCreateSubtask}
+                onCreateMilestone={onCreateMilestone}
+                onToggleMilestone={onToggleMilestone}
+                onDeleteMilestone={onDeleteMilestone}
+              />
+            ))}
+            {canEdit && canAddSubtasks && (
+              <CreateTaskDialog onSubmit={onCreateSubtask} parentId={task.id} />
+            )}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Root-level card
   return (
-    <Card
-      className={cn(
-        "transition-all",
-        isOverdue && "border-warning/50 bg-warning/5",
-      )}
-    >
+    <Card className={cn("transition-all", isOverdue && "border-warning/50 bg-warning/5")}>
       <CardHeader className="p-4 pb-2">
         <div className="flex items-start gap-3">
           <Checkbox
@@ -145,7 +245,6 @@ const TaskCard = ({
 
       {expanded && (
         <CardContent className="px-4 pb-4 pt-0 ml-8 space-y-3">
-          {/* Milestones */}
           {task.milestones && (
             <MilestoneList
               milestones={task.milestones}
@@ -157,60 +256,24 @@ const TaskCard = ({
             />
           )}
 
-          {/* Subtasks */}
-          {task.subtasks && task.subtasks.map((sub) => (
-            <div key={sub.id} className="border rounded-md p-3 space-y-2">
-              <div className="flex items-start gap-3">
-                <Checkbox
-                  checked={sub.completed}
-                  onCheckedChange={(checked) =>
-                    onToggleComplete({ id: sub.id, completed: !!checked })
-                  }
-                  className="mt-0.5"
-                />
-                <div className="flex-1 min-w-0">
-                  <span className={cn("text-sm", sub.completed && "line-through text-muted-foreground")}>
-                    {sub.title}
-                  </span>
-                  {sub.due_date && (
-                    <span className="text-xs text-muted-foreground ml-2">
-                      {new Date(sub.due_date).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
-                    </span>
-                  )}
-                </div>
-                <div className="flex items-center gap-1 shrink-0">
-                  <EditTaskDialog task={sub} onSubmit={onUpdate} />
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7 text-muted-foreground hover:text-destructive"
-                    onClick={() => onDelete(sub.id)}
-                  >
-                    <Trash2 className="h-3 w-3" />
-                  </Button>
-                </div>
-              </div>
-              {sub.milestones && sub.milestones.length > 0 && (
-                <div className="ml-6">
-                  <MilestoneList
-                    milestones={sub.milestones}
-                    taskId={sub.id}
-                    onCreateMilestone={onCreateMilestone}
-                    onToggleMilestone={onToggleMilestone}
-                    onDeleteMilestone={onDeleteMilestone}
-                    canEdit={canEdit}
-                  />
-                </div>
-              )}
-            </div>
+          {task.subtasks?.map((sub) => (
+            <TaskCard
+              key={sub.id}
+              task={sub}
+              isOverdue={isSubtaskOverdue(sub)}
+              depth={depth + 1}
+              onToggleComplete={onToggleComplete}
+              onUpdate={onUpdate}
+              onDelete={onDelete}
+              onCreateSubtask={onCreateSubtask}
+              onCreateMilestone={onCreateMilestone}
+              onToggleMilestone={onToggleMilestone}
+              onDeleteMilestone={onDeleteMilestone}
+            />
           ))}
 
-          {/* Add subtask button */}
-          {canEdit && (!task.subtasks || task.subtasks.length < 3) && (
-            <CreateTaskDialog
-              onSubmit={onCreateSubtask}
-              parentId={task.id}
-            />
+          {canEdit && canAddSubtasks && (
+            <CreateTaskDialog onSubmit={onCreateSubtask} parentId={task.id} />
           )}
         </CardContent>
       )}
