@@ -1,14 +1,17 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { useTasks } from "@/hooks/useTasks";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAdmin } from "@/hooks/useAdmin";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LogOut, CheckCircle2, ListTodo } from "lucide-react";
+import { LogOut, CheckCircle2, ListTodo, Shield } from "lucide-react";
 import TaskCard from "@/components/tasks/TaskCard";
 import CreateTaskDialog from "@/components/tasks/CreateTaskDialog";
 
 const Index = () => {
   const { user, signOut } = useAuth();
+  const { isAdmin } = useAdmin();
   const {
     tasks,
     isLoading,
@@ -49,6 +52,13 @@ const Index = () => {
             <span className="text-sm text-muted-foreground hidden sm:inline">
               {user?.email}
             </span>
+            {isAdmin && (
+              <Link to="/admin">
+                <Button variant="ghost" size="icon" title="Admin Panel">
+                  <Shield className="h-4 w-4" />
+                </Button>
+              </Link>
+            )}
             <Button variant="ghost" size="icon" onClick={signOut}>
               <LogOut className="h-4 w-4" />
             </Button>
