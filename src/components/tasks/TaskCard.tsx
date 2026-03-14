@@ -197,7 +197,7 @@ const TaskCard = ({
               }
               <h3
                 className={cn(
-                  "font-medium text-sm leading-tight",
+                  "font-medium text-sm leading-normal",
                   task.completed && "line-through text-muted-foreground"
                 )}>
                 
