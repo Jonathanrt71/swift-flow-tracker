@@ -180,7 +180,7 @@ const TaskCard = ({
   return (
     <Card className={cn("transition-all", isOverdue && "border-warning/50 bg-warning/5", task.starred && !isOverdue && "border-starred/20 bg-starred/[0.02]", !isOverdue && !task.starred && "bg-muted/40")}>
       <CardHeader className="p-4 pb-2">
-        <div className="flex items-center gap-3">
+        <div className="flex items-start gap-3">
           <Checkbox
             checked={task.completed}
             onCheckedChange={(checked) =>
