@@ -187,7 +187,7 @@ const TaskCard = ({
             onToggleComplete({ id: task.id, completed: !!checked })
             } />
           
-          <div className="flex-1 min-w-0 mb-[6px]">
+          <div className="flex-1 min-w-0 mb-0">
             <div className="flex items-center gap-2 py-0 pt-[6px] pb-[6px] my-[11px] mt-[11px]">
               {isExpandable &&
               <button onClick={handleToggleExpand} className="text-muted-foreground hover:text-foreground">
@@ -266,7 +266,7 @@ const TaskCard = ({
       </CardHeader>
 
       {expanded &&
-      <CardContent className="pr-4 pb-4 pt-0 space-y-1" style={{ paddingLeft: '5px' }}>
+      <CardContent className="px-4 pb-4 pt-0 space-y-1">
           {task.subtasks?.map((sub) =>
         <TaskCard
           key={sub.id}
