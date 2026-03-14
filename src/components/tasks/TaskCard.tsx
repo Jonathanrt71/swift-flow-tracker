@@ -34,6 +34,8 @@ interface TaskCardProps {
   onDelete: (id: string) => void;
   onCreateSubtask: (data: { title: string; description?: string; due_date?: string; parent_id?: string }) => void;
   onToggleStar: (data: { id: string; starred: boolean }) => void;
+  onExpandChange?: (id: string, expanded: boolean) => void;
+  hideAddButton?: boolean;
 }
 
 const TaskCard = ({
@@ -46,8 +48,24 @@ const TaskCard = ({
   onDelete,
   onCreateSubtask,
   onToggleStar,
+  onExpandChange,
+  hideAddButton = false,
 }: TaskCardProps) => {
   const [expanded, setExpanded] = useState(false);
+  const [expandedChildId, setExpandedChildId] = useState<string | null>(null);
+
+  const handleToggleExpand = () => {
+    const newExpanded = !expanded;
+    setExpanded(newExpanded);
+    onExpandChange?.(task.id, newExpanded);
+    if (!newExpanded) setExpandedChildId(null);
+  };
+
+  const handleChildExpandChange = (childId: string, childExpanded: boolean) => {
+    setExpandedChildId(childExpanded ? childId : null);
+  };
+
+  const hasExpandedChild = expandedChildId !== null;
   const { user } = useAuth();
   const { data: members } = useTeamMembers();
   const canEdit = user?.id === task.created_by || user?.id === task.assigned_to;
@@ -71,7 +89,7 @@ const TaskCard = ({
     return (
       <div className={cn("space-y-1 rounded", isOverdue && "bg-warning/5")} style={{ backgroundColor: isOverdue ? undefined : parentStarred ? `rgba(220,38,38,${depth * 0.03})` : `rgba(0,0,0,${depth * 0.025})` }}>
         <div className="flex items-start gap-3 py-1">
-          <div className="flex-1 min-w-0 flex items-start gap-2" style={{ paddingLeft: `${depth * 3}px` }}>
+          <div className="flex-1 min-w-0 flex items-start gap-2" style={{ paddingLeft: `${depth * 4}px` }}>
             <Checkbox
               checked={task.completed}
               onCheckedChange={(checked) =>
@@ -82,7 +100,7 @@ const TaskCard = ({
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
                 {isExpandable ? (
-                  <button onClick={() => setExpanded(!expanded)} className="text-muted-foreground hover:text-foreground">
+                  <button onClick={handleToggleExpand} className="text-muted-foreground hover:text-foreground">
                     {expanded ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
                   </button>
                 ) : (
@@ -141,10 +159,12 @@ const TaskCard = ({
                 onDelete={onDelete}
                 onCreateSubtask={onCreateSubtask}
                 onToggleStar={onToggleStar}
+                onExpandChange={handleChildExpandChange}
+                hideAddButton={hideAddButton}
               />
             ))}
-            {canEdit && canAddSubtasks && (
-              <div style={{ paddingLeft: `${(depth + 1) * 3}px` }}>
+            {canEdit && canAddSubtasks && !hasExpandedChild && !hideAddButton && (
+              <div style={{ paddingLeft: `${(depth + 1) * 4}px` }}>
                 <CreateTaskDialog onSubmit={onCreateSubtask} parentId={task.id} iconOnly />
               </div>
             )}
@@ -169,7 +189,7 @@ const TaskCard = ({
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
               {isExpandable && (
-                <button onClick={() => setExpanded(!expanded)} className="text-muted-foreground hover:text-foreground">
+                <button onClick={handleToggleExpand} className="text-muted-foreground hover:text-foreground">
                   {expanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                 </button>
               )}
@@ -255,11 +275,14 @@ const TaskCard = ({
               onDelete={onDelete}
               onCreateSubtask={onCreateSubtask}
               onToggleStar={onToggleStar}
+              onExpandChange={handleChildExpandChange}
             />
           ))}
 
-          {canEdit && canAddSubtasks && (
-            <CreateTaskDialog onSubmit={onCreateSubtask} parentId={task.id} iconOnly />
+          {canEdit && canAddSubtasks && !hasExpandedChild && (
+            <div style={{ paddingLeft: `${4}px` }}>
+              <CreateTaskDialog onSubmit={onCreateSubtask} parentId={task.id} iconOnly />
+            </div>
           )}
         </CardContent>
       )}
