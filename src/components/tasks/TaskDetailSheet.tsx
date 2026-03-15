@@ -54,7 +54,6 @@ interface TaskDetailSheetProps {
 const TaskDetailSheet = ({ task, onUpdate, onDelete }: TaskDetailSheetProps) => {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState(task.title);
-  const [description, setDescription] = useState(task.description || "");
   const [dueDate, setDueDate] = useState(
     task.due_date ? task.due_date.split("T")[0] : ""
   );
@@ -66,7 +65,6 @@ const TaskDetailSheet = ({ task, onUpdate, onDelete }: TaskDetailSheetProps) => 
   const handleOpenChange = (isOpen: boolean) => {
     if (isOpen) {
       setTitle(task.title);
-      setDescription(task.description || "");
       setDueDate(task.due_date ? task.due_date.split("T")[0] : "");
       setAssignedTo(task.assigned_to || "unassigned");
     }
@@ -78,7 +76,6 @@ const TaskDetailSheet = ({ task, onUpdate, onDelete }: TaskDetailSheetProps) => 
     onUpdate({
       id: task.id,
       title: title.trim(),
-      description: description.trim(),
       due_date: dueDate || null,
       assigned_to: assignedTo === "unassigned" ? null : assignedTo,
     });
