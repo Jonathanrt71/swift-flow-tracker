@@ -151,7 +151,7 @@ const TaskDetailSheet = ({ task, onUpdate, onDelete }: TaskDetailSheetProps) => 
             </div>
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs text-muted-foreground">Assign to</Label>
+            <Label className="text-xs font-normal text-[hsl(215,15%,55%)]">Assign to</Label>
             <Select value={assignedTo} onValueChange={setAssignedTo}>
               <SelectTrigger className="bg-background rounded-lg">
                 <SelectValue placeholder="Unassigned" />

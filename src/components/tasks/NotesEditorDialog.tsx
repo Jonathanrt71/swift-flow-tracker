@@ -45,8 +45,8 @@ const NotesEditorDialog = ({ task, onUpdate }: NotesEditorDialogProps) => {
         </button>
       </DialogTrigger>
       <DialogContent
-        className="w-[calc(100%-2rem)] max-w-md overflow-y-auto bg-muted border-border rounded-xl p-0 max-h-[85vh]"
-        overlayClassName="bg-background/60 backdrop-blur-sm"
+        className="w-[calc(100%-2rem)] max-w-md overflow-y-auto bg-[hsl(210,20%,92%)] border-border rounded-xl p-0 max-h-[85vh] flex flex-col"
+        overlayClassName="bg-background/40 backdrop-blur-sm"
         onPointerDownOutside={(e) => e.preventDefault()}
         onInteractOutside={(e) => e.preventDefault()}
       >
@@ -55,8 +55,8 @@ const NotesEditorDialog = ({ task, onUpdate }: NotesEditorDialogProps) => {
             <DialogTitle>Notes</DialogTitle>
           </DialogHeader>
         </div>
-        <div className="px-6 pb-6 space-y-5">
-          <div className="overflow-hidden min-h-[200px]">
+        <div className="px-6 pb-6 space-y-3 flex flex-col flex-1">
+          <div className="overflow-hidden min-h-[300px] flex-1 bg-background rounded-lg">
             <RichTextEditor content={description} onChange={setDescription} />
           </div>
           <div className="flex items-center justify-end pt-4 border-t border-border">

@@ -77,7 +77,7 @@ const Login = () => {
             </div>
             {!showForgot &&
             <div className="space-y-1.5">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password" className="font-normal text-sm text-muted-foreground">Password</Label>
                 <Input
                 id="password"
                 type="password"
