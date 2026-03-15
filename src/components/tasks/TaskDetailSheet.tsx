@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import RichTextEditor from "./RichTextEditor";
 import {
   Dialog,
   DialogContent,
@@ -55,7 +54,6 @@ interface TaskDetailSheetProps {
 const TaskDetailSheet = ({ task, onUpdate, onDelete }: TaskDetailSheetProps) => {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState(task.title);
-  const [description, setDescription] = useState(task.description || "");
   const [dueDate, setDueDate] = useState(
     task.due_date ? task.due_date.split("T")[0] : ""
   );
@@ -67,7 +65,6 @@ const TaskDetailSheet = ({ task, onUpdate, onDelete }: TaskDetailSheetProps) => 
   const handleOpenChange = (isOpen: boolean) => {
     if (isOpen) {
       setTitle(task.title);
-      setDescription(task.description || "");
       setDueDate(task.due_date ? task.due_date.split("T")[0] : "");
       setAssignedTo(task.assigned_to || "unassigned");
     }
@@ -79,7 +76,6 @@ const TaskDetailSheet = ({ task, onUpdate, onDelete }: TaskDetailSheetProps) => 
     onUpdate({
       id: task.id,
       title: title.trim(),
-      description: description.trim(),
       due_date: dueDate || null,
       assigned_to: assignedTo === "unassigned" ? null : assignedTo,
     });
@@ -113,12 +109,6 @@ const TaskDetailSheet = ({ task, onUpdate, onDelete }: TaskDetailSheetProps) => 
               onChange={(e) => setTitle(e.target.value)}
               className="bg-background rounded-lg"
             />
-          </div>
-          <div className="space-y-1.5">
-            <Label className="text-xs text-muted-foreground">Notes</Label>
-            <div className="bg-background rounded-lg border border-input overflow-hidden">
-              <RichTextEditor content={description} onChange={setDescription} />
-            </div>
           </div>
           <div className="space-y-1.5">
             <Label className="text-xs text-muted-foreground">Due date</Label>

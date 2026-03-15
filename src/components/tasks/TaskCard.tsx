@@ -1,11 +1,12 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card } from "@/components/ui/card";
-import { Plus, Star } from "lucide-react";
+import { Star } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import type { Task } from "@/hooks/useTasks";
 import CreateTaskDialog from "./CreateTaskDialog";
 import TaskDetailSheet from "./TaskDetailSheet";
+import NotesEditorDialog from "./NotesEditorDialog";
 import { useAuth } from "@/contexts/AuthContext";
 
 const MAX_DEPTH = 1;
@@ -48,7 +49,7 @@ const TaskCard = ({
   const canAddSubtasks =
     depth < MAX_DEPTH && (!task.subtasks || task.subtasks.length < 10);
 
-  // Subtask row (depth > 0): minimal — checkbox, tappable name, detail icon
+  // Subtask row (depth > 0): checkbox, name, pencil icon
   if (depth > 0) {
     return (
       <div style={{ marginLeft: `${depth * 24}px` }}>
@@ -63,39 +64,21 @@ const TaskCard = ({
             />
           </div>
 
-          {/* Tappable name area */}
-          <button
+          {/* Subtask name */}
+          <div
             className={cn(
-              "flex-1 min-w-0 text-left min-h-[44px] flex items-center px-2",
+              "flex-1 min-w-0 min-h-[44px] flex items-center px-2",
               task.completed && "line-through text-muted-foreground"
             )}
-            onClick={() => hasChildren && setExpanded(!expanded)}
           >
             <span className="text-sm truncate">{task.title}</span>
-          </button>
-
-          {/* Detail icon */}
-          <TaskDetailSheet task={task} onUpdate={onUpdate} onDelete={onDelete} />
-        </div>
-
-        {/* Expanded subtask children */}
-        {expanded && hasChildren && (
-          <div>
-            {task.subtasks!.map((sub) => (
-              <TaskCard
-                key={sub.id}
-                task={sub}
-                isOverdue={false}
-                depth={depth + 1}
-                onToggleComplete={onToggleComplete}
-                onUpdate={onUpdate}
-                onDelete={onDelete}
-                onCreateSubtask={onCreateSubtask}
-                onToggleStar={onToggleStar}
-              />
-            ))}
           </div>
-        )}
+
+          {/* Pencil icon — right-justified */}
+          <div className="flex items-center shrink-0">
+            <NotesEditorDialog task={task} onUpdate={onUpdate} />
+          </div>
+        </div>
       </div>
     );
   }
@@ -109,7 +92,7 @@ const TaskCard = ({
         !task.starred && "bg-muted"
       )}
     >
-      {/* Collapsed row — always visible */}
+      {/* Collapsed row — checkbox, name, star */}
       <div className="flex items-center min-h-[48px] px-2">
         {/* Checkbox */}
         <div className="flex items-center justify-center min-w-[44px] min-h-[44px]">
@@ -132,18 +115,8 @@ const TaskCard = ({
           <span className="font-medium text-sm truncate">{task.title}</span>
         </button>
 
-        {/* Action icons — right side */}
+        {/* Star icon only in collapsed row */}
         <div className="flex items-center shrink-0">
-          {canAddSubtasks && (
-            <CreateTaskDialog
-              onSubmit={onCreateSubtask}
-              parentId={task.id}
-              iconOnly
-            />
-          )}
-
-          <TaskDetailSheet task={task} onUpdate={onUpdate} onDelete={onDelete} />
-
           <button
             className="flex items-center justify-center min-w-[44px] min-h-[44px] hover:text-foreground transition-colors"
             onClick={() =>
@@ -162,9 +135,23 @@ const TaskCard = ({
         </div>
       </div>
 
-      {/* Expanded state — subtask list */}
+      {/* Expanded state */}
       {expanded && (
         <div className="pb-2">
+          {/* Action row: +, pencil, info — right-justified */}
+          <div className="flex items-center justify-end px-2">
+            {canAddSubtasks && (
+              <CreateTaskDialog
+                onSubmit={onCreateSubtask}
+                parentId={task.id}
+                iconOnly
+              />
+            )}
+            <NotesEditorDialog task={task} onUpdate={onUpdate} />
+            <TaskDetailSheet task={task} onUpdate={onUpdate} onDelete={onDelete} />
+          </div>
+
+          {/* Subtask list */}
           {hasChildren ? (
             task.subtasks!.map((sub) => (
               <TaskCard
