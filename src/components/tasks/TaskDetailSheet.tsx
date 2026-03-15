@@ -50,9 +50,10 @@ interface TaskDetailSheetProps {
     assigned_to?: string | null;
   }) => void;
   onDelete: (id: string) => void;
+  starred?: boolean;
 }
 
-const TaskDetailSheet = ({ task, onUpdate, onDelete }: TaskDetailSheetProps) => {
+const TaskDetailSheet = ({ task, onUpdate, onDelete, starred }: TaskDetailSheetProps) => {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState(task.title);
   const [description, setDescription] = useState(task.description || "");
