@@ -104,7 +104,14 @@ const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
       </div>
       <EditorContent
         editor={editor}
-        className="prose prose-sm max-w-none px-3 py-2 min-h-[80px] text-sm [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[60px]"
+        className={cn(
+          "px-3 py-2 min-h-[80px] text-sm",
+          "[&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[60px]",
+          "[&_.ProseMirror_ul]:list-disc [&_.ProseMirror_ul]:pl-5 [&_.ProseMirror_ul]:my-1",
+          "[&_.ProseMirror_ol]:list-decimal [&_.ProseMirror_ol]:pl-5 [&_.ProseMirror_ol]:my-1",
+          "[&_.ProseMirror_li]:my-0.5",
+          "[&_.ProseMirror_p]:my-1"
+        )}
       />
     </div>
   );
