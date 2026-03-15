@@ -41,7 +41,7 @@ const Login = () => {
     }
     setLoading(true);
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
+      redirectTo: `${window.location.origin}/reset-password`
     });
     setLoading(false);
 
@@ -58,13 +58,13 @@ const Login = () => {
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl">Sign in</CardTitle>
-          {showForgot && (
-            <CardDescription>Enter your email to reset your password</CardDescription>
-          )}
+          {showForgot &&
+          <CardDescription>Enter your email to reset your password</CardDescription>
+          }
         </CardHeader>
         <form onSubmit={showForgot ? handleForgotPassword : handleLogin}>
           <CardContent className="space-y-4">
-            <div className="space-y-2">
+            <div className="space-y-2 pt-0">
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
@@ -72,21 +72,21 @@ const Login = () => {
                 placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                required
-              />
+                required />
+              
             </div>
-            {!showForgot && (
-              <div className="space-y-2">
+            {!showForgot &&
+            <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
                 <Input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required />
+              
               </div>
-            )}
+            }
           </CardContent>
           <CardFooter className="flex flex-col gap-3">
             <Button type="submit" className="w-full" disabled={loading}>
@@ -95,15 +95,15 @@ const Login = () => {
             <button
               type="button"
               className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-              onClick={() => setShowForgot(!showForgot)}
-            >
+              onClick={() => setShowForgot(!showForgot)}>
+              
               {showForgot ? "Back to sign in" : "Forgot password?"}
             </button>
           </CardFooter>
         </form>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default Login;
