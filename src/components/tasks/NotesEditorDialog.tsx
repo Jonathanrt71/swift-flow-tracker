@@ -76,7 +76,7 @@ const NotesEditorDialog = ({
           </DialogHeader>
         </div>
         <div className="px-5 pb-5 flex flex-col flex-1 gap-3">
-          <div className="flex-1 min-h-[300px] bg-background rounded-lg overflow-hidden">
+          <div className="flex-1 min-h-[300px] [&_.rounded-md]:rounded-lg [&_.rounded-md]:border-border [&_.rounded-md]:h-full [&_.rounded-md]:flex [&_.rounded-md]:flex-col [&_.ProseMirror]:flex-1">
             <RichTextEditor content={description} onChange={setDescription} />
           </div>
           <div className="flex items-center justify-end pt-3 border-t border-border">

@@ -66,6 +66,7 @@ const SwipeWrap = ({
       el.style.transition = "transform 0.25s ease";
       el.style.transform = `translateX(${target}px)`;
       state.current.offset = target;
+      state.current._current = target;
     },
     []
   );
@@ -83,6 +84,8 @@ const SwipeWrap = ({
     };
 
     const onStart = (x: number) => {
+      // If swiped open, don't start a new drag — tap-to-close is handled by click
+      if (state.current.offset !== 0) return;
       state.current.sx = x;
       state.current.dragging = true;
       state.current.didSwipe = false;
@@ -91,9 +94,9 @@ const SwipeWrap = ({
 
     const onMove = (x: number) => {
       if (!state.current.dragging) return;
-      const dx = x - state.current.sx + state.current.offset;
+      const dx = x - state.current.sx;
       const clamped = Math.max(maxLeft, Math.min(maxRight, dx));
-      if (Math.abs(x - state.current.sx) > 5) state.current.didSwipe = true;
+      if (Math.abs(dx) > 5) state.current.didSwipe = true;
       el.style.transform = `translateX(${clamped}px)`;
       state.current._current = clamped;
     };
@@ -108,9 +111,24 @@ const SwipeWrap = ({
       snap(target);
     };
 
+    // Click handler: if swiped open and user taps the card, snap closed
+    const onClick = (e: MouseEvent) => {
+      if (state.current.offset !== 0 && !state.current.didSwipe) {
+        const target = e.target as HTMLElement;
+        // Only close if tapping the card content, not the action buttons
+        if (!target.closest("[data-no-swipe]") && !target.closest(".swipe-action-btn")) {
+          e.preventDefault();
+          e.stopPropagation();
+          snap(0);
+        }
+      }
+    };
+
     // Touch
     const ts = (e: TouchEvent) => {
       if (isInteractive(e.target)) return;
+      // If open, handle tap-to-close via touchend
+      if (state.current.offset !== 0) return;
       onStart(e.touches[0].clientX);
       e.stopPropagation();
     };
@@ -121,12 +139,23 @@ const SwipeWrap = ({
       e.stopPropagation();
     };
     const te = (e: TouchEvent) => {
-      onEnd();
-      e.stopPropagation();
+      if (state.current.dragging) {
+        onEnd();
+        e.stopPropagation();
+      } else if (state.current.offset !== 0) {
+        // Tap-to-close on touch
+        const target = e.target as HTMLElement;
+        if (!target.closest("[data-no-swipe]") && !target.closest(".swipe-action-btn")) {
+          e.preventDefault();
+          e.stopPropagation();
+          snap(0);
+        }
+      }
     };
     // Mouse
     const md = (e: MouseEvent) => {
       if (isInteractive(e.target)) return;
+      if (state.current.offset !== 0) return;
       onStart(e.clientX);
       e.stopPropagation();
     };
@@ -147,6 +176,7 @@ const SwipeWrap = ({
     wrap.addEventListener("mousedown", md);
     wrap.addEventListener("mousemove", mm);
     wrap.addEventListener("mouseup", mu);
+    wrap.addEventListener("click", onClick, true);
 
     return () => {
       wrap.removeEventListener("touchstart", ts);
@@ -155,6 +185,7 @@ const SwipeWrap = ({
       wrap.removeEventListener("mousedown", md);
       wrap.removeEventListener("mousemove", mm);
       wrap.removeEventListener("mouseup", mu);
+      wrap.removeEventListener("click", onClick, true);
     };
   }, [maxLeft, maxRight, snap]);
 
