@@ -55,11 +55,19 @@ const Index = () => {
   });
 
   const sortedByAssignee = [...activeTasks].sort((a, b) => {
+    // Assigned first, unassigned last
     if (a.assigned_to && !b.assigned_to) return -1;
     if (!a.assigned_to && b.assigned_to) return 1;
+    // Sort by assignee display name
     if (a.assigned_to && b.assigned_to && a.assigned_to !== b.assigned_to) {
-      return a.assigned_to.localeCompare(b.assigned_to);
+      const nameA = teamMembers?.find((m) => m.id === a.assigned_to)?.display_name || "";
+      const nameB = teamMembers?.find((m) => m.id === b.assigned_to)?.display_name || "";
+      const cmp = nameA.localeCompare(nameB);
+      if (cmp !== 0) return cmp;
     }
+    // Within same assignee: starred first
+    if (a.starred !== b.starred) return a.starred ? -1 : 1;
+    // Then by due date
     return sortByDueDate(a, b);
   });
 
