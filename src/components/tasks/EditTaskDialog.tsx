@@ -71,7 +71,7 @@ const EditTaskDialog = ({ task, onSubmit, loading }: EditTaskDialogProps) => {
             />
           </div>
           <div className="space-y-2">
-            <Label>Description</Label>
+            <Label>Notes</Label>
             <RichTextEditor content={description} onChange={setDescription} />
           </div>
           <div className="space-y-2">
