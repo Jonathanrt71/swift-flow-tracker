@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useTasks } from "@/hooks/useTasks";
@@ -6,13 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LogOut, CheckCircle2, ListTodo, Shield, User, Star, UserCheck, SlidersHorizontal } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { LogOut, CheckCircle2, ListTodo, Shield, User, Star, UserCheck, Users } from "lucide-react";
 import TaskCard from "@/components/tasks/TaskCard";
 import CreateTaskDialog from "@/components/tasks/CreateTaskDialog";
 import NotificationBell from "@/components/NotificationBell";
@@ -20,7 +13,6 @@ import type { Task } from "@/hooks/useTasks";
 import { useToast } from "@/components/ui/use-toast";
 
 const Index = () => {
-  const [sortByAssignee, setSortByAssignee] = useState(false);
   const { user, signOut } = useAuth();
   const { isAdmin } = useAdmin();
   const {
@@ -56,17 +48,16 @@ const Index = () => {
   };
 
   const sortedActive = [...activeTasks].sort((a, b) => {
-    if (sortByAssignee) {
-      // Sort by assignee (assigned first, then alphabetically by id), then due date
-      if (a.assigned_to && !b.assigned_to) return -1;
-      if (!a.assigned_to && b.assigned_to) return 1;
-      if (a.assigned_to && b.assigned_to && a.assigned_to !== b.assigned_to) {
-        return a.assigned_to.localeCompare(b.assigned_to);
-      }
-      return sortByDueDate(a, b);
-    }
-    // Default: starred first, then due date
     if (a.starred !== b.starred) return a.starred ? -1 : 1;
+    return sortByDueDate(a, b);
+  });
+
+  const sortedByAssignee = [...activeTasks].sort((a, b) => {
+    if (a.assigned_to && !b.assigned_to) return -1;
+    if (!a.assigned_to && b.assigned_to) return 1;
+    if (a.assigned_to && b.assigned_to && a.assigned_to !== b.assigned_to) {
+      return a.assigned_to.localeCompare(b.assigned_to);
+    }
     return sortByDueDate(a, b);
   });
 
@@ -139,6 +130,9 @@ const Index = () => {
               <TabsTrigger value="active" className="h-8 w-8 p-0" title="All Tasks">
                 <ListTodo className="h-4 w-4" />
               </TabsTrigger>
+              <TabsTrigger value="byAssignee" className="h-8 w-8 p-0" title="By Assignee">
+                <Users className="h-4 w-4" />
+              </TabsTrigger>
               <TabsTrigger value="assigned" className="h-8 w-8 p-0" title="Assigned to Me">
                 <UserCheck className="h-4 w-4" />
               </TabsTrigger>
@@ -161,43 +155,18 @@ const Index = () => {
           </div>
 
           <TabsContent value="active" className="space-y-3 mt-0">
-            <div className="flex justify-end">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className={cn(
-                      "h-7 w-7",
-                      sortByAssignee && "bg-accent text-accent-foreground"
-                    )}
-                    title="Sort options"
-                  >
-                    <SlidersHorizontal className="h-3.5 w-3.5" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem
-                    onClick={() => setSortByAssignee(false)}
-                    className={cn(!sortByAssignee && "bg-accent")}
-                  >
-                    <Star className="h-3.5 w-3.5 mr-2" />
-                    Priority then due date
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => setSortByAssignee(true)}
-                    className={cn(sortByAssignee && "bg-accent")}
-                  >
-                    <UserCheck className="h-3.5 w-3.5 mr-2" />
-                    Assignee then due date
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
             {renderTaskList(
               sortedActive,
               <ListTodo className="h-10 w-10 mx-auto" />,
               "No active tasks. Create one to get started!"
+            )}
+          </TabsContent>
+
+          <TabsContent value="byAssignee" className="space-y-3 mt-0">
+            {renderTaskList(
+              sortedByAssignee,
+              <Users className="h-10 w-10 mx-auto" />,
+              "No active tasks."
             )}
           </TabsContent>
 
