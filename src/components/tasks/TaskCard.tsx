@@ -32,6 +32,15 @@ interface TaskCardProps {
   onToggleStar: (data: { id: string; starred: boolean }) => void;
 }
 
+/** Extract first block of content (p or li) as HTML, preserving inline formatting */
+const getNotesPreviewHtml = (html: string) => {
+  const liMatch = html.match(/<li>(.*?)<\/li>/);
+  if (liMatch) return "• " + (liMatch[1] || "");
+  const pMatch = html.match(/<p>(.*?)<\/p>/);
+  if (pMatch) return pMatch[1] || "";
+  return html.replace(/<\/?(?:p|ul|ol|li|br|div)[^>]*>/gi, " ").trim();
+};
+
 const TaskCard = ({
   task,
   isOverdue,
@@ -49,16 +58,6 @@ const TaskCard = ({
     depth < MAX_DEPTH && (!task.subtasks || task.subtasks.length < 10);
   const hasNotes = !!task.description?.trim();
 
-  // Strip to first line of text for preview, but keep HTML formatting
-  const getNotesPreviewHtml = (html: string) => {
-    // Get first <p>, <li>, or text block
-    const match = html.match(/<p>(.*?)<\/p>|<li>(.*?)<\/li>/);
-    if (match) return match[1] || match[2] || "";
-    // Fallback: strip all block tags, return first chunk
-    return html.replace(/<\/?(?:p|ul|ol|li|br)[^>]*>/gi, " ").trim();
-  };
-
-  // Close on outside click
   useEffect(() => {
     if (!expanded) return;
     const handler = (e: MouseEvent) => {
@@ -70,7 +69,7 @@ const TaskCard = ({
     return () => document.removeEventListener("mousedown", handler);
   }, [expanded]);
 
-  // Subtask row (depth > 0)
+  // ── Subtask row (depth > 0) ──
   if (depth > 0) {
     return (
       <div style={{ marginLeft: `${depth * 24}px` }} ref={cardRef}>
@@ -102,19 +101,16 @@ const TaskCard = ({
           </div>
         </div>
         {expanded && (
-          <div className="flex items-center min-h-[40px] px-2 mt-1">
-            <div className="flex-1" />
-            <div className="flex items-center shrink-0 gap-0">
-              <NotesEditorDialog task={task} onUpdate={onUpdate} />
-              <TaskDetailSheet task={task} onUpdate={onUpdate} onDelete={onDelete} />
-            </div>
+          <div className="flex items-center justify-end min-h-[36px] px-2">
+            <NotesEditorDialog task={task} onUpdate={onUpdate} />
+            <TaskDetailSheet task={task} onUpdate={onUpdate} onDelete={onDelete} />
           </div>
         )}
       </div>
     );
   }
 
-  // Root-level card
+  // ── Root-level card ──
   return (
     <Card
       ref={cardRef}
@@ -124,7 +120,7 @@ const TaskCard = ({
         !task.starred && "bg-muted"
       )}
     >
-      {/* Collapsed row — checkbox, name, kebab, star */}
+      {/* Row: checkbox · name · kebab · star */}
       <div className="flex items-center min-h-[48px] px-2">
         <div className="flex items-center justify-center min-w-[44px] min-h-[44px]">
           <Checkbox
@@ -171,22 +167,22 @@ const TaskCard = ({
         </div>
       </div>
 
-      {/* Expanded state */}
+      {/* Expanded content */}
       {expanded && (
-        <div className="pb-2 pt-1">
-          {/* Notes preview + action icons row */}
-          <div className="flex items-center min-h-[40px] px-2">
-            <div className="flex-1 min-w-0 pl-2">
+        <div className="pb-3">
+          {/* Notes preview + action icons — single row */}
+          <div className="flex items-center min-h-[40px] px-4 mt-1">
+            <div className="flex-1 min-w-0 pr-2">
               {hasNotes && (
                 <p
                   className="text-xs text-muted-foreground truncate [&_strong]:font-bold [&_em]:italic [&_a]:underline [&_a]:text-primary"
                   dangerouslySetInnerHTML={{
-                    __html: getNotesPreviewHtml(task.description!),
+                    __html: getNotesPreviewHtml(task.description!) + "…",
                   }}
                 />
               )}
             </div>
-            <div className="flex items-center shrink-0 gap-0">
+            <div className="flex items-center shrink-0">
               {canAddSubtasks && onCreateSubtask && (
                 <CreateTaskDialog
                   onSubmit={onCreateSubtask}
@@ -199,7 +195,7 @@ const TaskCard = ({
             </div>
           </div>
 
-          {/* Subtask list */}
+          {/* Subtasks */}
           {hasChildren &&
             task.subtasks!.map((sub) => (
               <TaskCard
