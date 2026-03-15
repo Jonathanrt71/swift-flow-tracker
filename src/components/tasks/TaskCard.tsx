@@ -139,13 +139,17 @@ const TaskCard = ({
               onSubmit={onCreateSubtask}
               parentId={task.id}
               iconOnly
+              starred={task.starred}
             />
           )}
 
-          <TaskDetailSheet task={task} onUpdate={onUpdate} onDelete={onDelete} />
+          <TaskDetailSheet task={task} onUpdate={onUpdate} onDelete={onDelete} starred={task.starred} />
 
           <button
-            className="flex items-center justify-center min-w-[44px] min-h-[44px]"
+            className={cn(
+              "flex items-center justify-center min-w-[44px] min-h-[44px]",
+              task.starred && "bg-starred/25"
+            )}
             onClick={() =>
               onToggleStar({ id: task.id, starred: !task.starred })
             }

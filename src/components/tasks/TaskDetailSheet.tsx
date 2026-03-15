@@ -50,9 +50,10 @@ interface TaskDetailSheetProps {
     assigned_to?: string | null;
   }) => void;
   onDelete: (id: string) => void;
+  starred?: boolean;
 }
 
-const TaskDetailSheet = ({ task, onUpdate, onDelete }: TaskDetailSheetProps) => {
+const TaskDetailSheet = ({ task, onUpdate, onDelete, starred }: TaskDetailSheetProps) => {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState(task.title);
   const [description, setDescription] = useState(task.description || "");
@@ -92,7 +93,10 @@ const TaskDetailSheet = ({ task, onUpdate, onDelete }: TaskDetailSheetProps) => 
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <button
-          className="flex items-center justify-center min-w-[44px] min-h-[44px] text-muted-foreground hover:text-foreground transition-colors"
+          className={cn(
+            "flex items-center justify-center min-w-[44px] min-h-[44px] text-muted-foreground",
+            starred && "bg-starred/25"
+          )}
           aria-label="View details"
         >
           <Info className="h-4 w-4" />
