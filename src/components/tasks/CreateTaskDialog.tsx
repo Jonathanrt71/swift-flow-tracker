@@ -80,7 +80,7 @@ const CreateTaskDialog = ({ onSubmit, parentId, loading, iconOnly, inlineIcon }:
           {!inlineIcon && !iconOnly && (parentId ? "Add subtask" : "New task")}
         </Button>
       </DialogTrigger>
-      <DialogContent className="w-[calc(100%-2rem)] max-w-md overflow-y-auto bg-muted border-border rounded-xl p-0 max-h-[85vh]" overlayClassName="bg-background/60 backdrop-blur-sm">
+      <DialogContent className="w-[calc(100%-2rem)] max-w-md overflow-y-auto bg-[hsl(210,20%,92%)] border-border rounded-xl p-0 max-h-[85vh]" overlayClassName="bg-[hsl(30,20%,95%)]/60 backdrop-blur-sm">
         <div className="p-6 pb-0">
           <DialogHeader>
             <DialogTitle>{parentId ? "Add Subtask" : "Create Task"}</DialogTitle>

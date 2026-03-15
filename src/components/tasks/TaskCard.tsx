@@ -32,29 +32,23 @@ interface TaskCardProps {
   onToggleStar: (data: { id: string; starred: boolean }) => void;
 }
 
-/** Extract first notes block as inline HTML so preview always stays on one visual line */
-const getNotesPreviewHtml = (html: string) => {
+/** Extract first line of notes as inline HTML for single-line preview */
+const getNotesPreviewHtml = (html: string): string => {
   const root = document.createElement("div");
   root.innerHTML = html;
 
-  // Find the first meaningful content node
   const firstLi = root.querySelector("li");
   if (firstLi) {
-    // Preserve inline formatting (bold, italic, links) but strip block wrappers
-    const inner = firstLi.innerHTML.replace(/<br\s*\/?>/gi, " ").replace(/\s+/g, " ").trim();
-    return `• ${inner}`;
+    return `<span style="margin-right:4px">•</span>${firstLi.innerHTML}`;
   }
 
   const firstP = root.querySelector("p");
   if (firstP) {
-    return firstP.innerHTML.replace(/<br\s*\/?>/gi, " ").replace(/\s+/g, " ").trim();
+    return firstP.innerHTML;
   }
 
-  // Fallback: strip block tags but keep inline formatting
-  return root.innerHTML
-    .replace(/<\/?(?:p|div|ul|ol|li|br)\s*\/?>/gi, " ")
-    .replace(/\s+/g, " ")
-    .trim();
+  const text = root.textContent?.trim();
+  return text || "";
 };
 
 const TaskCard = ({
@@ -68,27 +62,31 @@ const TaskCard = ({
   onToggleStar,
 }: TaskCardProps) => {
   const [expanded, setExpanded] = useState(false);
+  const [showActions, setShowActions] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
   const hasChildren = task.subtasks && task.subtasks.length > 0;
   const canAddSubtasks =
     depth < MAX_DEPTH && (!task.subtasks || task.subtasks.length < 10);
-  const hasNotes = !!task.description?.trim();
+  const hasNotes =
+    !!task.description?.trim() &&
+    task.description.trim() !== "<p></p>";
 
   useEffect(() => {
-    if (!expanded) return;
+    if (!showActions && !expanded) return;
     const handler = (e: MouseEvent) => {
       if (cardRef.current && !cardRef.current.contains(e.target as Node)) {
+        setShowActions(false);
         setExpanded(false);
       }
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
-  }, [expanded]);
+  }, [showActions, expanded]);
 
   // ── Subtask row (depth > 0) ──
   if (depth > 0) {
     return (
-      <div style={{ marginLeft: `${depth * 24}px` }} ref={cardRef}>
+      <div style={{ marginLeft: `${depth * 32}px` }} ref={cardRef}>
         <div className="flex items-center min-h-[44px]">
           <div className="flex items-center justify-center min-w-[44px] min-h-[44px]">
             <Checkbox
@@ -109,15 +107,15 @@ const TaskCard = ({
           <div className="flex items-center shrink-0">
             <button
               className="flex items-center justify-center min-w-[44px] min-h-[44px] text-muted-foreground hover:text-foreground transition-colors"
-              onClick={() => setExpanded(!expanded)}
+              onClick={() => setShowActions(!showActions)}
               aria-label="Task actions"
             >
               <MoreVertical className="h-4 w-4" />
             </button>
           </div>
         </div>
-        {expanded && (
-          <div className="flex items-center justify-end min-h-[36px] px-2">
+        {showActions && (
+          <div className="flex items-center justify-end min-h-[36px] px-2 pb-1">
             <NotesEditorDialog task={task} onUpdate={onUpdate} />
             <TaskDetailSheet task={task} onUpdate={onUpdate} onDelete={onDelete} />
           </div>
@@ -132,11 +130,12 @@ const TaskCard = ({
       ref={cardRef}
       className={cn(
         "transition-all overflow-hidden",
-        task.starred && "border-starred/40 bg-starred/25",
-        !task.starred && "bg-muted"
+        task.starred
+          ? "bg-[hsl(0,60%,88%)] border-[hsl(0,50%,78%)]"
+          : "bg-muted border-border"
       )}
     >
-      {/* Row: checkbox · name · kebab · star */}
+      {/* Row 1: checkbox · name · kebab · star */}
       <div className="flex items-center min-h-[48px] px-2">
         <div className="flex items-center justify-center min-w-[44px] min-h-[44px]">
           <Checkbox
@@ -160,7 +159,14 @@ const TaskCard = ({
         <div className="flex items-center shrink-0">
           <button
             className="flex items-center justify-center min-w-[44px] min-h-[44px] text-muted-foreground hover:text-foreground transition-colors"
-            onClick={() => setExpanded(!expanded)}
+            onClick={() => {
+              if (!expanded) {
+                setExpanded(true);
+                setShowActions(true);
+              } else {
+                setShowActions(!showActions);
+              }
+            }}
             aria-label="Task actions"
           >
             <MoreVertical className="h-4 w-4" />
@@ -175,7 +181,7 @@ const TaskCard = ({
               className={cn(
                 "h-4 w-4",
                 task.starred
-                  ? "fill-starred text-starred"
+                  ? "fill-[hsl(0,70%,45%)] text-[hsl(0,70%,45%)]"
                   : "text-muted-foreground"
               )}
             />
@@ -186,31 +192,32 @@ const TaskCard = ({
       {/* Expanded content */}
       {expanded && (
         <div className="pb-2">
-          {/* Notes preview + action icons — single row, aligned with checkbox */}
-          <div className="flex items-center min-h-[40px] px-2">
-            {/* Spacer matching checkbox column width */}
+          {/* Row 2: notes preview (left) + action icons (right), 12px gap from row 1 */}
+          <div className="flex items-center min-h-[40px] px-2 mt-3">
             <div className="min-w-[44px] shrink-0" />
-            <div className="flex-1 min-w-0 min-h-[40px] flex items-center px-2">
+            <div className="flex-1 min-w-0 flex items-center px-2">
               {hasNotes && (
                 <div
-                  className="text-xs text-muted-foreground truncate leading-none whitespace-nowrap overflow-hidden text-ellipsis [&_strong]:font-bold [&_em]:italic [&_a]:underline [&_a]:text-primary [&_p]:inline [&_div]:inline [&_ul]:inline [&_ol]:inline [&_li]:inline [&_br]:hidden"
+                  className="text-xs text-muted-foreground truncate leading-none whitespace-nowrap overflow-hidden text-ellipsis [&_strong]:font-bold [&_em]:italic [&_a]:underline [&_a]:text-primary"
                   dangerouslySetInnerHTML={{
-                    __html: getNotesPreviewHtml(task.description!) + "…",
+                    __html: getNotesPreviewHtml(task.description!),
                   }}
                 />
               )}
             </div>
-            <div className="flex items-center shrink-0">
-              {canAddSubtasks && onCreateSubtask && (
-                <CreateTaskDialog
-                  onSubmit={onCreateSubtask}
-                  parentId={task.id}
-                  iconOnly
-                />
-              )}
-              <NotesEditorDialog task={task} onUpdate={onUpdate} />
-              <TaskDetailSheet task={task} onUpdate={onUpdate} onDelete={onDelete} />
-            </div>
+            {showActions && (
+              <div className="flex items-center shrink-0">
+                {canAddSubtasks && onCreateSubtask && (
+                  <CreateTaskDialog
+                    onSubmit={onCreateSubtask}
+                    parentId={task.id}
+                    iconOnly
+                  />
+                )}
+                <NotesEditorDialog task={task} onUpdate={onUpdate} />
+                <TaskDetailSheet task={task} onUpdate={onUpdate} onDelete={onDelete} />
+              </div>
+            )}
           </div>
 
           {/* Subtasks */}

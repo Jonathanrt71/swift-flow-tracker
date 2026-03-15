@@ -45,21 +45,21 @@ const NotesEditorDialog = ({ task, onUpdate }: NotesEditorDialogProps) => {
         </button>
       </DialogTrigger>
       <DialogContent
-        className="w-[calc(100%-2rem)] max-w-md overflow-y-auto bg-[hsl(210,20%,92%)] border-border rounded-xl p-0 max-h-[85vh] flex flex-col"
-        overlayClassName="bg-background/40 backdrop-blur-sm"
+        className="w-[calc(100%-2rem)] max-w-md bg-[hsl(210,20%,92%)] border-border rounded-xl p-0 max-h-[85vh] flex flex-col"
+        overlayClassName="bg-[hsl(30,20%,95%)]/60 backdrop-blur-sm"
         onPointerDownOutside={(e) => e.preventDefault()}
         onInteractOutside={(e) => e.preventDefault()}
       >
-        <div className="p-6 pb-0">
+        <div className="p-5 pb-3">
           <DialogHeader>
             <DialogTitle>Notes</DialogTitle>
           </DialogHeader>
         </div>
-        <div className="px-6 pb-6 space-y-3 flex flex-col flex-1">
-          <div className="overflow-hidden min-h-[300px] flex-1 bg-background rounded-lg">
+        <div className="px-5 pb-5 flex flex-col flex-1 gap-3">
+          <div className="flex-1 min-h-[300px] bg-background rounded-lg overflow-hidden">
             <RichTextEditor content={description} onChange={setDescription} />
           </div>
-          <div className="flex items-center justify-end pt-4 border-t border-border">
+          <div className="flex items-center justify-end pt-3 border-t border-border">
             <button
               onClick={handleSave}
               className="flex items-center justify-center min-w-[44px] min-h-[44px] rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
