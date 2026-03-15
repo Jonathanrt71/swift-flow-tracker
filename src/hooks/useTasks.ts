@@ -63,7 +63,7 @@ export function useTasks() {
         description: data.description || null,
         due_date: data.due_date || null,
         parent_id: data.parent_id || null,
-        assigned_to: data.assigned_to || null,
+        assigned_to: data.assigned_to || user!.id,
         created_by: user!.id,
       });
       if (error) throw error;

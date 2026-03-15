@@ -127,9 +127,10 @@ const ActionBar = ({
   return (
     <div
       className={cn(
-        "absolute top-0 right-0 bottom-0 flex items-center gap-0 pr-1 z-[5] transition-transform duration-200 ease-out bg-[#CDD6DE]",
+        "absolute top-0 right-0 bottom-0 flex items-center gap-0 pr-1 z-[5] transition-transform duration-200 ease-out",
         isSubtask ? "rounded-r-md" : "rounded-r-[10px]",
-        isOpen ? "translate-x-0" : "translate-x-full"
+        isOpen ? "translate-x-0" : "translate-x-full",
+        task.starred ? "bg-[#DDA8A8]" : "bg-[#CDD6DE]"
       )}
     >
       {!isSubtask && (
@@ -214,8 +215,6 @@ const SubtaskRow = ({
   onCreateSubtask: TaskCardProps["onCreateSubtask"];
   onToggleStar: TaskCardProps["onToggleStar"];
 }) => {
-  const hc = hasNotes(task.description);
-
   return (
     <div
       className={cn(
@@ -242,17 +241,16 @@ const SubtaskRow = ({
         </div>
         <div className="flex items-center shrink-0">
           <button
-            className="flex items-center justify-center min-w-[36px] min-h-[36px] bg-transparent border-none cursor-pointer"
+            className="bg-transparent border-none cursor-pointer p-0 mr-1"
             onClick={(e) => {
               e.stopPropagation();
               onToggleBar(task.id);
             }}
           >
-            <div
-              className={cn(
-                "block w-1.5 h-1.5 min-w-[6px] min-h-[6px] rounded-full",
-                hc ? "bg-foreground" : "bg-muted-foreground"
-              )}
+            <AssigneeAvatar
+              assignedTo={task.assigned_to || task.created_by}
+              teamMembers={teamMembers}
+              size={22}
             />
           </button>
         </div>
@@ -289,7 +287,6 @@ const TaskCard = ({
   const [openBarId, setOpenBarId] = useState<string | null>(null);
 
   const hasChildren = task.subtasks && task.subtasks.length > 0;
-  const hc = hasContent(task);
 
   const toggleBar = (id: string) => {
     setOpenBarId((prev) => (prev === id ? null : id));
@@ -350,31 +347,37 @@ const TaskCard = ({
           <span className="font-medium text-sm truncate">{task.title}</span>
         </div>
 
-        <div className="flex items-center shrink-0 gap-0">
+        <div className="flex items-center shrink-0">
           <button
-            className="flex items-center justify-center min-w-[44px] min-h-[44px] bg-transparent border-none cursor-pointer"
+            className="bg-transparent border-none cursor-pointer p-0 mr-1.5"
             onClick={(e) => {
               e.stopPropagation();
               toggleBar(task.id);
             }}
           >
-            <div
-              className={cn(
-                "block w-[7px] h-[7px] min-w-[7px] min-h-[7px] rounded-full",
-                hc
-                  ? task.starred ? "bg-[#6B2020]" : "bg-foreground"
-                  : task.starred ? "bg-[#A06060]" : "bg-muted-foreground"
-              )}
-            />
+            {hasChildren ? (
+              <div
+                className="rounded-full flex items-center justify-center"
+                style={{
+                  width: 32,
+                  height: 32,
+                  border: `2px solid ${task.starred ? "#6B2020" : "#7A8FA0"}`,
+                }}
+              >
+                <AssigneeAvatar
+                  assignedTo={task.assigned_to || task.created_by}
+                  teamMembers={teamMembers}
+                  size={26}
+                />
+              </div>
+            ) : (
+              <AssigneeAvatar
+                assignedTo={task.assigned_to || task.created_by}
+                teamMembers={teamMembers}
+                size={28}
+              />
+            )}
           </button>
-
-          <div className="mr-1.5">
-            <AssigneeAvatar
-              assignedTo={task.assigned_to}
-              teamMembers={teamMembers}
-              size={28}
-            />
-          </div>
         </div>
 
         <ActionBar
