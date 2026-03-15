@@ -147,28 +147,26 @@ const TaskCard = ({
   return (
     <Card className={cn("transition-all", isOverdue && "border-warning/50 bg-warning/5", task.starred && !isOverdue && "border-starred/20 bg-starred/[0.02]", !isOverdue && !task.starred && "bg-muted/40")}>
       <CardHeader className="px-3 py-1.5">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 w-full">
           <Checkbox
             checked={task.completed}
             onCheckedChange={(checked) =>
             onToggleComplete({ id: task.id, completed: !!checked })
             } />
           
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              {isExpandable &&
-              <button onClick={handleToggleExpand} className="text-muted-foreground hover:text-foreground">
-                  {expanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                </button>
-              }
-              <h3
-                className={cn(
-                  "font-medium text-sm leading-none",
-                  task.completed && "line-through text-muted-foreground"
-                )}>
-                {task.title}
-              </h3>
-            </div>
+          <div className="flex-1 min-w-0 flex items-center gap-2">
+            {isExpandable &&
+            <button onClick={handleToggleExpand} className="text-muted-foreground hover:text-foreground">
+                {expanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+              </button>
+            }
+            <h3
+              className={cn(
+                "flex-1 min-w-0 font-medium text-sm leading-none",
+                task.completed && "line-through text-muted-foreground"
+              )}>
+              {task.title}
+            </h3>
           </div>
           <div className="flex items-center gap-1 shrink-0">
             {expanded &&
