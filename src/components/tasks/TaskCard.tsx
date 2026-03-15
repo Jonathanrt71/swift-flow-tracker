@@ -133,7 +133,7 @@ const TaskCard = ({
             hideAddButton={hideAddButton} />
           )}
             {canEdit && canAddSubtasks && !hasExpandedChild && !hideAddButton &&
-          <div style={{ marginLeft: `${(depth + 1) * 16}px` }}>
+          <div style={{ marginLeft: `${(depth + 1) * 8}px` }}>
                 <CreateTaskDialog onSubmit={onCreateSubtask} parentId={task.id} iconOnly buttonBg={parentStarred ? `rgba(220,38,38,${(depth + 1) * 0.02})` : `rgba(0,0,0,${(depth + 1) * 0.015})`} />
               </div>
           }
