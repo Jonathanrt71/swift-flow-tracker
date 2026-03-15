@@ -267,7 +267,7 @@ const SubtaskRow = ({
       <div
         className={cn(
           "rounded-md",
-          isStarred ? "bg-[hsl(0,60%,88%)]" : "bg-muted"
+          isStarred ? "bg-transparent" : "bg-transparent"
         )}
       >
         <div className="flex items-center min-h-[40px] px-2">
@@ -461,7 +461,7 @@ const TaskCard = ({
       {expanded && hasChildren && (
         <div className={cn(
           "pb-2 pl-8 pr-2 pt-1 rounded-b-lg",
-          task.starred ? "bg-[hsl(0,55%,83%)]" : "bg-[hsl(210,25%,94%)]"
+          task.starred ? "bg-[hsl(0,50%,91%)]" : "bg-[hsl(210,18%,95%)]"
         )}>
           {task.subtasks!.map((sub) => (
             <SubtaskRow
