@@ -172,7 +172,9 @@ const TaskCard = ({
         <div className="pb-2">
           {/* Notes preview + action icons — single row, aligned with checkbox */}
           <div className="flex items-center min-h-[40px] px-2">
-            <div className="flex-1 min-w-0 min-h-[40px] flex items-center pl-[12px]">
+            {/* Spacer matching checkbox column width */}
+            <div className="min-w-[44px] shrink-0" />
+            <div className="flex-1 min-w-0 min-h-[40px] flex items-center px-2">
               {hasNotes && (
                 <p
                   className="text-xs text-muted-foreground truncate leading-none [&_strong]:font-bold [&_em]:italic [&_a]:underline [&_a]:text-primary"
