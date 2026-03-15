@@ -26,7 +26,7 @@ interface CreateTaskDialogProps {
   parentId?: string;
   loading?: boolean;
   iconOnly?: boolean;
-  buttonBg?: string;
+  inlineIcon?: boolean;
 }
 
 const CreateTaskDialog = ({ onSubmit, parentId, loading, iconOnly, buttonBg }: CreateTaskDialogProps) => {
