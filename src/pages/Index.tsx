@@ -10,11 +10,13 @@ import TaskCard from "@/components/tasks/TaskCard";
 import CreateTaskDialog from "@/components/tasks/CreateTaskDialog";
 import NotificationBell from "@/components/NotificationBell";
 import type { Task } from "@/hooks/useTasks";
+import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { useToast } from "@/components/ui/use-toast";
 
 const Index = () => {
   const { user, signOut } = useAuth();
   const { isAdmin } = useAdmin();
+  const { data: teamMembers } = useTeamMembers();
   const {
     tasks,
     isLoading,
@@ -85,6 +87,7 @@ const Index = () => {
         key={task.id}
         task={task}
         isOverdue={isOverdue(task)}
+        teamMembers={teamMembers || []}
         onToggleComplete={(d) => toggleComplete.mutate(d)}
         onUpdate={(d) => updateTask.mutate(d)}
         onDelete={(id) => deleteTask.mutate(id)}
