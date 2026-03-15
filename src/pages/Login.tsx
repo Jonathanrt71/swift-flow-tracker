@@ -57,7 +57,6 @@ const Login = () => {
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl">Sign in</CardTitle>
           {showForgot &&
           <CardDescription>Enter your email to reset your password</CardDescription>
           }
