@@ -213,7 +213,7 @@ const TaskCard = ({
               </AlertDialog>
             </div>
           </div>
-          {task.description && <p className="mt-2 pl-1 text-xs text-muted-foreground leading-relaxed whitespace-pre-wrap">{task.description}</p>}
+          {task.description && <div className="mt-2 pl-1 prose prose-xs text-xs text-muted-foreground leading-relaxed [&_p]:my-1 [&_ul]:my-1 [&_ol]:my-1" dangerouslySetInnerHTML={{ __html: task.description }} />}
           {task.subtasks?.map((sub) =>
         <TaskCard
           key={sub.id}
