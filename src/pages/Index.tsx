@@ -102,11 +102,6 @@ const Index = () => {
                 <User className="h-4 w-4" />
               </Button>
             </Link>
-            <CreateTaskDialog
-              onSubmit={(data) => createTask.mutate(data)}
-              loading={createTask.isPending}
-              iconOnly
-            />
             <Button variant="ghost" size="icon" onClick={signOut}>
               <LogOut className="h-4 w-4" />
             </Button>
