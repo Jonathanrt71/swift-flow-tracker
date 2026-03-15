@@ -78,7 +78,7 @@ const CreateTaskDialog = ({ onSubmit, parentId, loading, iconOnly, inlineIcon, i
       <DialogTrigger asChild>
         {iconTrigger ? (
           <button data-no-swipe className="flex items-center justify-center w-full h-full bg-transparent border-none cursor-pointer" aria-label="Add subtask">
-            <Plus className="h-4 w-4 stroke-white" />
+            <Plus className="h-4 w-4 text-foreground" />
           </button>
         ) : (
           <Button variant={inlineIcon ? "ghost" : parentId ? "ghost" : "default"} size={inlineIcon ? "icon" : iconOnly ? "icon" : parentId ? "sm" : "default"} className={inlineIcon ? "h-8 w-8 p-0" : iconOnly ? "min-w-[44px] min-h-[44px] rounded text-muted-foreground hover:text-foreground transition-colors" : ""}>

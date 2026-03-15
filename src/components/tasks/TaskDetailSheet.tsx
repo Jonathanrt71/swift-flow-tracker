@@ -96,7 +96,7 @@ const TaskDetailSheet = ({
       className="flex items-center justify-center w-full h-full bg-transparent border-none cursor-pointer"
       aria-label="View details"
     >
-      <Info className="h-4 w-4 stroke-white" />
+      <Info className="h-4 w-4 text-foreground" />
     </button>
   ) : (
     <button
