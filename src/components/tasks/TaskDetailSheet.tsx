@@ -92,10 +92,7 @@ const TaskDetailSheet = ({ task, onUpdate, onDelete }: TaskDetailSheetProps) => 
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <button
-          className={cn(
-            "flex items-center justify-center min-w-[44px] min-h-[44px] text-muted-foreground",
-            starred && "bg-starred/25"
-          )}
+          className="flex items-center justify-center min-w-[44px] min-h-[44px] text-muted-foreground hover:text-foreground transition-colors"
           aria-label="View details"
         >
           <Info className="h-4 w-4" />

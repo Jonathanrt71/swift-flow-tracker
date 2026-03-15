@@ -75,15 +75,10 @@ const CreateTaskDialog = ({ onSubmit, parentId, loading, iconOnly, inlineIcon }:
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <button
-          className={cn(
-            "flex items-center justify-center min-w-[44px] min-h-[44px] rounded text-muted-foreground",
-            starred && "bg-starred/25"
-          )}
-          aria-label={parentId ? "Add subtask" : "New task"}
-        >
+        <Button variant={inlineIcon ? "ghost" : parentId ? "ghost" : "default"} size={inlineIcon ? "icon" : iconOnly ? "icon" : parentId ? "sm" : "default"} className={inlineIcon ? "h-8 w-8 p-0" : iconOnly ? "min-w-[44px] min-h-[44px] rounded text-muted-foreground hover:text-foreground transition-colors" : ""}>
           <Plus className="h-4 w-4" />
-        </button>
+          {!inlineIcon && !iconOnly && (parentId ? "Add subtask" : "New task")}
+        </Button>
       </DialogTrigger>
       <DialogContent className="w-[calc(100%-2rem)] max-w-md overflow-y-auto bg-muted border-border rounded-xl p-0 max-h-[85vh]" overlayClassName="bg-background/60 backdrop-blur-sm">
         <div className="p-6 pb-0">
