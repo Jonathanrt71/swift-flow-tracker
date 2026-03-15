@@ -142,12 +142,28 @@ const Index = () => {
                 <CheckCircle2 className="h-4 w-4" />
               </TabsTrigger>
             </TabsList>
-            <div className="bg-muted rounded-lg p-1">
-              <CreateTaskDialog
-                onSubmit={(data) => createTask.mutate(data)}
-                loading={createTask.isPending}
-                inlineIcon
-              />
+            <div className="flex items-center gap-1">
+              <div className="bg-muted rounded-lg p-1">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className={cn(
+                    "h-8 w-8",
+                    sortByAssignee && "bg-background text-foreground shadow-sm"
+                  )}
+                  title="Sort by assignee"
+                  onClick={() => setSortByAssignee((v) => !v)}
+                >
+                  <ArrowUpDown className="h-4 w-4" />
+                </Button>
+              </div>
+              <div className="bg-muted rounded-lg p-1">
+                <CreateTaskDialog
+                  onSubmit={(data) => createTask.mutate(data)}
+                  loading={createTask.isPending}
+                  inlineIcon
+                />
+              </div>
             </div>
           </div>
 
