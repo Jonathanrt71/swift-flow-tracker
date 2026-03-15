@@ -57,12 +57,13 @@ export function useTasks() {
   });
 
   const createTask = useMutation({
-    mutationFn: async (data: { title: string; description?: string; due_date?: string; parent_id?: string }) => {
+    mutationFn: async (data: { title: string; description?: string; due_date?: string; parent_id?: string; assigned_to?: string }) => {
       const { error } = await supabase.from("tasks").insert({
         title: data.title,
         description: data.description || null,
         due_date: data.due_date || null,
         parent_id: data.parent_id || null,
+        assigned_to: data.assigned_to || null,
         created_by: user!.id,
       });
       if (error) throw error;
