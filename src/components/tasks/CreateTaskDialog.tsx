@@ -57,7 +57,7 @@ const CreateTaskDialog = ({ onSubmit, parentId, loading, iconOnly, buttonBg }: C
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant={parentId ? "ghost" : "default"} size={iconOnly ? "icon" : parentId ? "sm" : "default"} className={iconOnly ? "h-8 w-8 rounded" : ""} style={buttonBg ? { backgroundColor: buttonBg } : undefined}>
+        <Button variant={parentId ? "ghost" : "default"} size={iconOnly ? "icon" : parentId ? "sm" : "default"} className={iconOnly ? "min-w-[44px] min-h-[44px] rounded" : ""} style={buttonBg ? { backgroundColor: buttonBg } : undefined}>
           <Plus className="h-4 w-4" />
           {!iconOnly && (parentId ? "Add subtask" : "New task")}
         </Button>
