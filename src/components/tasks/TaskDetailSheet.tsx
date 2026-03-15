@@ -111,7 +111,7 @@ const TaskDetailSheet = ({ task, onUpdate, onDelete }: TaskDetailSheetProps) => 
             />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs text-muted-foreground">Due date</Label>
+            <Label className="text-xs font-normal text-[hsl(215,15%,55%)]">Due date</Label>
             <div className="flex items-center gap-2">
               <Popover>
                 <PopoverTrigger asChild>
