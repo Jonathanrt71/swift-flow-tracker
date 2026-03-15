@@ -197,8 +197,8 @@ const TaskCard = ({
             <div className="min-w-[44px] shrink-0" />
             <div className="flex-1 min-w-0 min-h-[40px] flex items-center px-2">
               {hasNotes && (
-                <p
-                  className="text-xs text-muted-foreground truncate leading-none [&_strong]:font-bold [&_em]:italic [&_a]:underline [&_a]:text-primary"
+                <div
+                  className="text-xs text-muted-foreground truncate leading-none whitespace-nowrap overflow-hidden text-ellipsis [&_strong]:font-bold [&_em]:italic [&_a]:underline [&_a]:text-primary [&_p]:inline [&_div]:inline [&_ul]:inline [&_ol]:inline [&_li]:inline [&_br]:hidden"
                   dangerouslySetInnerHTML={{
                     __html: getNotesPreviewHtml(task.description!) + "…",
                   }}
