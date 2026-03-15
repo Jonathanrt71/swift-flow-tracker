@@ -105,9 +105,8 @@ const TaskCard = ({
     <Card
       className={cn(
         "transition-all overflow-hidden",
-        isOverdue && "border-warning/60 bg-warning/15",
-        task.starred && !isOverdue && "border-starred/40 bg-starred/25",
-        !isOverdue && !task.starred && "bg-muted"
+        task.starred && "border-starred/40 bg-starred/25",
+        !task.starred && "bg-muted"
       )}
     >
       {/* Collapsed row — always visible */}
