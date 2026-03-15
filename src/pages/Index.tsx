@@ -49,17 +49,16 @@ const Index = () => {
   };
 
   const sortedActive = [...activeTasks].sort((a, b) => {
-    if (sortByAssignee) {
-      // Sort by assignee (assigned first, then alphabetically by id), then due date
-      if (a.assigned_to && !b.assigned_to) return -1;
-      if (!a.assigned_to && b.assigned_to) return 1;
-      if (a.assigned_to && b.assigned_to && a.assigned_to !== b.assigned_to) {
-        return a.assigned_to.localeCompare(b.assigned_to);
-      }
-      return sortByDueDate(a, b);
-    }
-    // Default: starred first, then due date
     if (a.starred !== b.starred) return a.starred ? -1 : 1;
+    return sortByDueDate(a, b);
+  });
+
+  const sortedByAssignee = [...activeTasks].sort((a, b) => {
+    if (a.assigned_to && !b.assigned_to) return -1;
+    if (!a.assigned_to && b.assigned_to) return 1;
+    if (a.assigned_to && b.assigned_to && a.assigned_to !== b.assigned_to) {
+      return a.assigned_to.localeCompare(b.assigned_to);
+    }
     return sortByDueDate(a, b);
   });
 
