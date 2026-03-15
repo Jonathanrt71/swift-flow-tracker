@@ -70,12 +70,10 @@ const EditTaskDialog = ({ task, onSubmit, loading }: EditTaskDialogProps) => {
               required
             />
           </div>
-          {!task.parent_id && (
-            <div className="space-y-2">
-              <Label>Description</Label>
-              <RichTextEditor content={description} onChange={setDescription} />
-            </div>
-          )}
+          <div className="space-y-2">
+            <Label>Description</Label>
+            <RichTextEditor content={description} onChange={setDescription} />
+          </div>
           <div className="space-y-2">
             <Label htmlFor="edit-due">Due date</Label>
             <Input
