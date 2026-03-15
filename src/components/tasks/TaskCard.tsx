@@ -122,12 +122,12 @@ const ActionBar = ({
   const assigneeAvatarUrl = member?.avatar_url;
 
   const btnClass =
-    "flex items-center justify-center min-w-[44px] min-h-[44px] bg-transparent border-none cursor-pointer rounded-md hover:bg-black/5";
+    "flex items-center justify-center w-10 h-10 bg-transparent border-none cursor-pointer rounded-md hover:bg-black/5";
 
   return (
     <div
       className={cn(
-        "absolute top-0 right-0 bottom-0 flex items-center gap-0 pr-1 z-[5] transition-transform duration-200 ease-out",
+        "absolute top-0 right-0 bottom-0 flex items-center gap-0.5 px-1.5 z-[5] transition-transform duration-200 ease-out",
         isSubtask ? "rounded-r-md" : "rounded-r-[10px]",
         isOpen ? "translate-x-0" : "translate-x-full",
         task.starred ? "bg-[#DDA8A8]" : "bg-[#CDD6DE]"
@@ -177,13 +177,13 @@ const ActionBar = ({
       </button>
 
       <button
-        className="flex items-center justify-center min-w-[36px] min-h-[36px] bg-transparent border-none cursor-pointer rounded-md ml-0.5"
+        className="flex items-center justify-center w-10 h-10 bg-transparent border-none cursor-pointer rounded-md"
         onClick={(e) => {
           e.stopPropagation();
           onClose();
         }}
       >
-        <X className="h-3.5 w-3.5 text-muted-foreground" />
+        <X className="h-3.5 w-3.5 text-foreground" />
       </button>
     </div>
   );

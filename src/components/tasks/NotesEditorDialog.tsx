@@ -75,7 +75,7 @@ const NotesEditorDialog = ({
   const trigger = iconTrigger ? (
     <button
       data-no-swipe
-      className="flex items-center justify-center min-w-[44px] min-h-[44px] bg-transparent border-none cursor-pointer"
+      className="flex items-center justify-center w-10 h-10 bg-transparent border-none cursor-pointer"
       aria-label="Edit notes"
       onClick={(e) => e.stopPropagation()}
     >
