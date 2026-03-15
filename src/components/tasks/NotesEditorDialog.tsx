@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import {
   Dialog,
   DialogContent,
@@ -13,9 +13,16 @@ import type { Task } from "@/hooks/useTasks";
 interface NotesEditorDialogProps {
   task: Task;
   onUpdate: (data: { id: string; description?: string }) => void;
+  children?: ReactNode;
+  iconTrigger?: boolean;
 }
 
-const NotesEditorDialog = ({ task, onUpdate }: NotesEditorDialogProps) => {
+const NotesEditorDialog = ({
+  task,
+  onUpdate,
+  children,
+  iconTrigger,
+}: NotesEditorDialogProps) => {
   const [open, setOpen] = useState(false);
   const [description, setDescription] = useState(task.description || "");
 
@@ -34,19 +41,32 @@ const NotesEditorDialog = ({ task, onUpdate }: NotesEditorDialogProps) => {
     setOpen(false);
   };
 
+  const trigger = iconTrigger ? (
+    <button
+      data-no-swipe
+      className="flex items-center justify-center w-full h-full bg-transparent border-none cursor-pointer"
+      aria-label="Edit notes"
+    >
+      <Pencil className="h-4 w-4 stroke-white" />
+    </button>
+  ) : children ? (
+    children
+  ) : (
+    <button
+      data-no-swipe
+      className="flex items-center justify-center min-w-[44px] min-h-[44px] text-muted-foreground hover:text-foreground transition-colors bg-transparent border-none cursor-pointer"
+      aria-label="Edit notes"
+    >
+      <Pencil className="h-4 w-4" />
+    </button>
+  );
+
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>
-        <button
-          className="flex items-center justify-center min-w-[44px] min-h-[44px] text-muted-foreground hover:text-foreground transition-colors"
-          aria-label="Edit notes"
-        >
-          <Pencil className="h-4 w-4" />
-        </button>
-      </DialogTrigger>
+      <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent
-        className="w-[calc(100%-2rem)] max-w-md bg-[hsl(210,20%,92%)] border-border rounded-xl p-0 max-h-[85vh] flex flex-col"
-        overlayClassName="bg-[hsl(30,20%,95%)]/60 backdrop-blur-sm"
+        className="w-[calc(100%-2rem)] max-w-md bg-muted border-border rounded-xl p-0 max-h-[85vh] flex flex-col"
+        overlayClassName="bg-background/60 backdrop-blur-sm"
         onPointerDownOutside={(e) => e.preventDefault()}
         onInteractOutside={(e) => e.preventDefault()}
       >

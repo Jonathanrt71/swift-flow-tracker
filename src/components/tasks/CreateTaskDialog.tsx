@@ -34,9 +34,10 @@ interface CreateTaskDialogProps {
   loading?: boolean;
   iconOnly?: boolean;
   inlineIcon?: boolean;
+  iconTrigger?: boolean;
 }
 
-const CreateTaskDialog = ({ onSubmit, parentId, loading, iconOnly, inlineIcon }: CreateTaskDialogProps) => {
+const CreateTaskDialog = ({ onSubmit, parentId, loading, iconOnly, inlineIcon, iconTrigger }: CreateTaskDialogProps) => {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -75,12 +76,18 @@ const CreateTaskDialog = ({ onSubmit, parentId, loading, iconOnly, inlineIcon }:
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button variant={inlineIcon ? "ghost" : parentId ? "ghost" : "default"} size={inlineIcon ? "icon" : iconOnly ? "icon" : parentId ? "sm" : "default"} className={inlineIcon ? "h-8 w-8 p-0" : iconOnly ? "min-w-[44px] min-h-[44px] rounded text-muted-foreground hover:text-foreground transition-colors" : ""}>
-          <Plus className="h-4 w-4" />
-          {!inlineIcon && !iconOnly && (parentId ? "Add subtask" : "New task")}
-        </Button>
+        {iconTrigger ? (
+          <button data-no-swipe className="flex items-center justify-center w-full h-full bg-transparent border-none cursor-pointer" aria-label="Add subtask">
+            <Plus className="h-4 w-4 stroke-white" />
+          </button>
+        ) : (
+          <Button variant={inlineIcon ? "ghost" : parentId ? "ghost" : "default"} size={inlineIcon ? "icon" : iconOnly ? "icon" : parentId ? "sm" : "default"} className={inlineIcon ? "h-8 w-8 p-0" : iconOnly ? "min-w-[44px] min-h-[44px] rounded text-muted-foreground hover:text-foreground transition-colors" : ""}>
+            <Plus className="h-4 w-4" />
+            {!inlineIcon && !iconOnly && (parentId ? "Add subtask" : "New task")}
+          </Button>
+        )}
       </DialogTrigger>
-      <DialogContent className="w-[calc(100%-2rem)] max-w-md overflow-y-auto bg-[hsl(210,20%,92%)] border-border rounded-xl p-0 max-h-[85vh]" overlayClassName="bg-[hsl(30,20%,95%)]/60 backdrop-blur-sm">
+      <DialogContent className="w-[calc(100%-2rem)] max-w-md overflow-y-auto bg-muted border-border rounded-xl p-0 max-h-[85vh]" overlayClassName="bg-background/60 backdrop-blur-sm">
         <div className="p-6 pb-0">
           <DialogHeader>
             <DialogTitle>{parentId ? "Add Subtask" : "Create Task"}</DialogTitle>

@@ -49,9 +49,15 @@ interface TaskDetailSheetProps {
     assigned_to?: string | null;
   }) => void;
   onDelete: (id: string) => void;
+  iconTrigger?: boolean;
 }
 
-const TaskDetailSheet = ({ task, onUpdate, onDelete }: TaskDetailSheetProps) => {
+const TaskDetailSheet = ({
+  task,
+  onUpdate,
+  onDelete,
+  iconTrigger,
+}: TaskDetailSheetProps) => {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState(task.title);
   const [dueDate, setDueDate] = useState(
@@ -84,30 +90,41 @@ const TaskDetailSheet = ({ task, onUpdate, onDelete }: TaskDetailSheetProps) => 
 
   const selectedDate = dueDate ? parseISO(dueDate) : undefined;
 
+  const trigger = iconTrigger ? (
+    <button
+      data-no-swipe
+      className="flex items-center justify-center w-full h-full bg-transparent border-none cursor-pointer"
+      aria-label="View details"
+    >
+      <Info className="h-4 w-4 stroke-white" />
+    </button>
+  ) : (
+    <button
+      data-no-swipe
+      className="flex items-center justify-center min-w-[44px] min-h-[44px] text-muted-foreground hover:text-foreground transition-colors bg-transparent border-none cursor-pointer"
+      aria-label="View details"
+    >
+      <Info className="h-4 w-4" />
+    </button>
+  );
+
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>
-        <button
-          className="flex items-center justify-center min-w-[44px] min-h-[44px] text-muted-foreground hover:text-foreground transition-colors"
-          aria-label="View details"
-        >
-          <Info className="h-4 w-4" />
-        </button>
-      </DialogTrigger>
+      <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent
-        className="w-[calc(100%-2rem)] max-w-md overflow-y-auto bg-[hsl(210,20%,92%)] border-border rounded-xl p-0 max-h-[85vh]"
-        overlayClassName="bg-[hsl(30,20%,95%)]/60 backdrop-blur-sm"
+        className="w-[calc(100%-2rem)] max-w-md overflow-y-auto bg-muted border-border rounded-xl p-0 max-h-[85vh]"
+        overlayClassName="bg-background/60 backdrop-blur-sm"
       >
         <div className="p-5 pb-3">
           <DialogHeader>
-            <DialogTitle>Task Details</DialogTitle>
+            <DialogTitle>Task details</DialogTitle>
           </DialogHeader>
         </div>
         <div className="space-y-4 px-5 pb-5">
           <div className="space-y-1.5">
             <Label
               htmlFor="detail-title"
-              className="text-xs font-normal text-[hsl(215,15%,55%)]"
+              className="text-xs font-normal text-muted-foreground"
             >
               Title
             </Label>
@@ -119,7 +136,7 @@ const TaskDetailSheet = ({ task, onUpdate, onDelete }: TaskDetailSheetProps) => 
             />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs font-normal text-[hsl(215,15%,55%)]">
+            <Label className="text-xs font-normal text-muted-foreground">
               Due date
             </Label>
             <div className="flex items-center gap-2">
@@ -152,7 +169,7 @@ const TaskDetailSheet = ({ task, onUpdate, onDelete }: TaskDetailSheetProps) => 
                 <button
                   type="button"
                   onClick={() => setDueDate("")}
-                  className="flex items-center justify-center min-w-[44px] min-h-[44px] text-muted-foreground hover:text-foreground transition-colors"
+                  className="flex items-center justify-center min-w-[44px] min-h-[44px] text-muted-foreground hover:text-foreground transition-colors bg-transparent border-none cursor-pointer"
                   aria-label="Clear due date"
                 >
                   <X className="h-4 w-4" />
@@ -161,7 +178,7 @@ const TaskDetailSheet = ({ task, onUpdate, onDelete }: TaskDetailSheetProps) => 
             </div>
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs font-normal text-[hsl(215,15%,55%)]">
+            <Label className="text-xs font-normal text-muted-foreground">
               Assign to
             </Label>
             <Select value={assignedTo} onValueChange={setAssignedTo}>
