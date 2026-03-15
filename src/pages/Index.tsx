@@ -40,13 +40,28 @@ const Index = () => {
   const assignedToMe = activeTasks.filter(isAssignedToMe);
   const starredTasks = activeTasks.filter((t) => t.starred);
 
-  const overdueTasks = activeTasks.filter(
-    (t) => t.due_date && new Date(t.due_date) < now
-  );
-  const upcomingTasks = activeTasks.filter(
-    (t) => !t.due_date || new Date(t.due_date) >= now
-  );
-  const sortedActive = [...overdueTasks, ...upcomingTasks];
+  // Default sort: starred first, then due date (soonest first, no date last)
+  const sortByDueDate = (a: Task, b: Task) => {
+    if (!a.due_date && !b.due_date) return 0;
+    if (!a.due_date) return 1;
+    if (!b.due_date) return -1;
+    return new Date(a.due_date).getTime() - new Date(b.due_date).getTime();
+  };
+
+  const sortedActive = [...activeTasks].sort((a, b) => {
+    if (sortByAssignee) {
+      // Sort by assignee (assigned first, then alphabetically by id), then due date
+      if (a.assigned_to && !b.assigned_to) return -1;
+      if (!a.assigned_to && b.assigned_to) return 1;
+      if (a.assigned_to && b.assigned_to && a.assigned_to !== b.assigned_to) {
+        return a.assigned_to.localeCompare(b.assigned_to);
+      }
+      return sortByDueDate(a, b);
+    }
+    // Default: starred first, then due date
+    if (a.starred !== b.starred) return a.starred ? -1 : 1;
+    return sortByDueDate(a, b);
+  });
 
   const isOverdue = (task: { due_date: string | null; completed: boolean }) =>
     !task.completed && !!task.due_date && new Date(task.due_date) < now;
