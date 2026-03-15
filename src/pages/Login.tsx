@@ -56,7 +56,8 @@ const Login = () => {
   return (
     <div className="flex min-h-screen items-center justify-center bg-muted px-4">
       <Card className="w-full max-w-md bg-card border-border shadow-sm">
-        <CardHeader className="text-center pb-2">
+        <CardHeader className="text-center pb-2 items-center justify-center">
+          <CardTitle className="text-xl">{showForgot ? "Reset password" : "Sign in"}</CardTitle>
           {showForgot && (
             <CardDescription className="pt-2">Enter your email to reset your password</CardDescription>
           )}

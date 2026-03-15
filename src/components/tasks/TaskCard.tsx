@@ -139,6 +139,7 @@ const TaskCard = ({
               onSubmit={onCreateSubtask}
               parentId={task.id}
               iconOnly
+              starred={task.starred}
             />
           )}
 
