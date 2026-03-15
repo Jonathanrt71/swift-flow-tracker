@@ -171,14 +171,6 @@ const TaskCard = ({
             </div>
           </div>
           <div className="flex items-center gap-1 shrink-0">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8"
-              onClick={() => onToggleStar({ id: task.id, starred: !task.starred })}>
-              
-              <Star className={cn("h-3.5 w-3.5", task.starred ? "fill-starred text-starred" : "text-muted-foreground")} />
-            </Button>
             {expanded &&
             <>
                 <EditTaskDialog task={task} onSubmit={onUpdate} />
@@ -203,6 +195,13 @@ const TaskCard = ({
                 </AlertDialog>
               </>
             }
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => onToggleStar({ id: task.id, starred: !task.starred })}>
+              <Star className={cn("h-3.5 w-3.5", task.starred ? "fill-starred text-starred" : "text-muted-foreground")} />
+            </Button>
           </div>
         </div>
       </CardHeader>
