@@ -13,6 +13,7 @@ import type { Task } from "@/hooks/useTasks";
 import { useToast } from "@/components/ui/use-toast";
 
 const Index = () => {
+  const [sortByAssignee, setSortByAssignee] = useState(false);
   const { user, signOut } = useAuth();
   const { isAdmin } = useAdmin();
   const {
