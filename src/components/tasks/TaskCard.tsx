@@ -202,17 +202,30 @@ const TaskCard = ({
       {/* Expanded state */}
       {expanded && (
         <div className="pb-2">
-          {/* Notes preview — aligned with task name */}
-          {hasNotes && (
-            <div className="px-2" style={{ marginLeft: "44px" }}>
-              <p className="text-xs text-muted-foreground truncate">
-                {task.description!.replace(/<[^>]*>/g, "").trim()}
-              </p>
+          {/* Notes preview + action icons on one row */}
+          <div className="flex items-center min-h-[40px] px-2">
+            <div className="flex-1 min-w-0 pl-[44px]">
+              {hasNotes && (
+                <p className="text-xs text-muted-foreground truncate">
+                  {task.description!.replace(/<[^>]*>/g, "").trim()}
+                </p>
+              )}
             </div>
-          )}
+            <div className="flex items-center shrink-0">
+              {canAddSubtasks && onCreateSubtask && (
+                <CreateTaskDialog
+                  onSubmit={onCreateSubtask}
+                  parentId={task.id}
+                  iconOnly
+                />
+              )}
+              <NotesEditorDialog task={task} onUpdate={onUpdate} />
+              <TaskDetailSheet task={task} onUpdate={onUpdate} onDelete={onDelete} />
+            </div>
+          </div>
 
           {/* Subtask list */}
-          {hasChildren ? (
+          {hasChildren &&
             task.subtasks!.map((sub) => (
               <TaskCard
                 key={sub.id}
@@ -225,12 +238,7 @@ const TaskCard = ({
                 onCreateSubtask={onCreateSubtask}
                 onToggleStar={onToggleStar}
               />
-            ))
-          ) : (
-            <p className="text-xs text-muted-foreground px-6 py-2">
-              No subtasks yet
-            </p>
-          )}
+            ))}
         </div>
       )}
     </Card>
