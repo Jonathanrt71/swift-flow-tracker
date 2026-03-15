@@ -185,10 +185,10 @@ const TaskCard = ({
           <div className="flex items-center justify-between gap-2 pl-1">
             <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
               {task.description && <span>{task.description}</span>}
-              {task.due_date && <span>Due: {new Date(task.due_date).toLocaleDateString()}</span>}
+              {task.due_date && <span>{new Date(task.due_date).toLocaleDateString()}</span>}
               {task.assigned_to && members && (() => {
                 const member = members.find(m => m.id === task.assigned_to);
-                return member ? <span>Assigned: {member.display_name || "Unnamed"}</span> : null;
+                return member ? <span>{member.display_name || "Unnamed"}</span> : null;
               })()}
             </div>
             <div className="flex items-center gap-1 shrink-0">
