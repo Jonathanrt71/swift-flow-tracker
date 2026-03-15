@@ -32,13 +32,34 @@ interface TaskCardProps {
   onToggleStar: (data: { id: string; starred: boolean }) => void;
 }
 
-/** Extract first block of content (p or li) as HTML, preserving inline formatting */
+/** Extract first notes block as inline HTML so preview always stays on one visual line */
 const getNotesPreviewHtml = (html: string) => {
-  const liMatch = html.match(/<li>(.*?)<\/li>/);
-  if (liMatch) return "• " + (liMatch[1] || "");
-  const pMatch = html.match(/<p>(.*?)<\/p>/);
-  if (pMatch) return pMatch[1] || "";
-  return html.replace(/<\/?(?:p|ul|ol|li|br|div)[^>]*>/gi, " ").trim();
+  const root = document.createElement("div");
+  root.innerHTML = html;
+
+  const toInlineHtml = (element: Element) => {
+    const clone = element.cloneNode(true) as HTMLElement;
+
+    clone.querySelectorAll("p,div,ul,ol,li").forEach((node) => {
+      const fragment = document.createDocumentFragment();
+      while (node.firstChild) fragment.appendChild(node.firstChild);
+      node.replaceWith(fragment);
+    });
+
+    clone.querySelectorAll("br").forEach((node) => {
+      node.replaceWith(document.createTextNode(" "));
+    });
+
+    return clone.innerHTML.replace(/\s+/g, " ").trim();
+  };
+
+  const firstListItem = root.querySelector("li");
+  if (firstListItem) return `• ${toInlineHtml(firstListItem)}`;
+
+  const firstParagraph = root.querySelector("p");
+  if (firstParagraph) return toInlineHtml(firstParagraph);
+
+  return toInlineHtml(root);
 };
 
 const TaskCard = ({
@@ -176,8 +197,8 @@ const TaskCard = ({
             <div className="min-w-[44px] shrink-0" />
             <div className="flex-1 min-w-0 min-h-[40px] flex items-center px-2">
               {hasNotes && (
-                <p
-                  className="text-xs text-muted-foreground truncate leading-none [&_strong]:font-bold [&_em]:italic [&_a]:underline [&_a]:text-primary"
+                <div
+                  className="text-xs text-muted-foreground truncate leading-none whitespace-nowrap overflow-hidden text-ellipsis [&_strong]:font-bold [&_em]:italic [&_a]:underline [&_a]:text-primary [&_p]:inline [&_div]:inline [&_ul]:inline [&_ol]:inline [&_li]:inline [&_br]:hidden"
                   dangerouslySetInnerHTML={{
                     __html: getNotesPreviewHtml(task.description!) + "…",
                   }}
