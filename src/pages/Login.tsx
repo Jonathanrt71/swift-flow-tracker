@@ -57,12 +57,9 @@ const Login = () => {
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <Card className="w-full max-w-md bg-card border-border shadow-sm">
         <CardHeader className="text-center pt-12 pb-2 items-center justify-center">
-          <CardTitle className="text-xl">{showForgot ? "Reset password" : "Sign in"}</CardTitle>
-          {showForgot && (
-            <CardDescription className="pt-2">Enter your email to reset your password</CardDescription>
-          )}
+          <CardTitle className="text-xl">Sign in</CardTitle>
         </CardHeader>
-        <form onSubmit={showForgot ? handleForgotPassword : handleLogin}>
+        <form onSubmit={handleLogin}>
           <CardContent className="space-y-4 pt-0">
             <div className="space-y-1.5">
               <Label htmlFor="email" className="font-normal text-sm text-muted-foreground">Email</Label>
@@ -73,32 +70,22 @@ const Login = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required />
-              
             </div>
-            {!showForgot &&
             <div className="space-y-1.5">
-                <Label htmlFor="password" className="font-normal text-sm text-muted-foreground">Password</Label>
-                <Input
+              <Label htmlFor="password" className="font-normal text-sm text-muted-foreground">Password</Label>
+              <Input
                 id="password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required />
-              
-              </div>
-            }
+            </div>
           </CardContent>
           <CardFooter className="flex flex-col gap-3 pt-2">
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Please wait…" : showForgot ? "Send reset link" : "Sign in"}
+              {loading ? "Please wait…" : "Sign in"}
             </Button>
-            <button
-              type="button"
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-              onClick={() => setShowForgot(!showForgot)}>
-              
-              {showForgot ? "Back to sign in" : "Forgot password?"}
-            </button>
+            <p className="text-xs text-muted-foreground">Contact your admin for password resets</p>
           </CardFooter>
         </form>
       </Card>
