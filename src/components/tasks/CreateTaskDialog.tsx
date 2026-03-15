@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import RichTextEditor from "./RichTextEditor";
 import {
   Dialog,
   DialogContent,
@@ -11,10 +11,18 @@ import {
   DialogTrigger,
   DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Plus } from "lucide-react";
+import { useTeamMembers } from "@/hooks/useTeamMembers";
 
 interface CreateTaskDialogProps {
-  onSubmit: (data: { title: string; description?: string; due_date?: string; parent_id?: string }) => void;
+  onSubmit: (data: { title: string; description?: string; due_date?: string; parent_id?: string; assigned_to?: string }) => void;
   parentId?: string;
   loading?: boolean;
   iconOnly?: boolean;
@@ -26,6 +34,8 @@ const CreateTaskDialog = ({ onSubmit, parentId, loading, iconOnly, buttonBg }: C
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [dueDate, setDueDate] = useState("");
+  const [assignedTo, setAssignedTo] = useState("unassigned");
+  const { data: members } = useTeamMembers();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,10 +45,12 @@ const CreateTaskDialog = ({ onSubmit, parentId, loading, iconOnly, buttonBg }: C
       description: description.trim() || undefined,
       due_date: dueDate || undefined,
       parent_id: parentId,
+      assigned_to: assignedTo === "unassigned" ? undefined : assignedTo,
     });
     setTitle("");
     setDescription("");
     setDueDate("");
+    setAssignedTo("unassigned");
     setOpen(false);
   };
 
@@ -65,18 +77,10 @@ const CreateTaskDialog = ({ onSubmit, parentId, loading, iconOnly, buttonBg }: C
               required
             />
           </div>
-          {!parentId && (
-            <div className="space-y-2">
-              <Label htmlFor="task-desc">Description</Label>
-              <Textarea
-                id="task-desc"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Optional details…"
-                rows={3}
-              />
-            </div>
-          )}
+          <div className="space-y-2">
+            <Label>Description</Label>
+            <RichTextEditor content={description} onChange={setDescription} />
+          </div>
           <div className="space-y-2">
             <Label htmlFor="task-due">Due date</Label>
             <Input
@@ -85,6 +89,22 @@ const CreateTaskDialog = ({ onSubmit, parentId, loading, iconOnly, buttonBg }: C
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
             />
+          </div>
+          <div className="space-y-2">
+            <Label>Assign to</Label>
+            <Select value={assignedTo} onValueChange={setAssignedTo}>
+              <SelectTrigger>
+                <SelectValue placeholder="Unassigned" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="unassigned">Unassigned</SelectItem>
+                {members?.map((m) => (
+                  <SelectItem key={m.id} value={m.id}>
+                    {m.display_name || "Unnamed"}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <DialogFooter>
             <Button type="submit" disabled={loading || !title.trim()}>
