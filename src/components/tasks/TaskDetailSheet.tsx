@@ -102,7 +102,7 @@ const TaskDetailSheet = ({ task, onUpdate, onDelete }: TaskDetailSheetProps) => 
         </div>
         <div className="space-y-5 px-6 pb-6">
           <div className="space-y-1.5">
-            <Label htmlFor="detail-title" className="text-xs text-muted-foreground">Title</Label>
+            <Label htmlFor="detail-title" className="text-xs font-normal text-[hsl(215,15%,55%)]">Title</Label>
             <Input
               id="detail-title"
               value={title}
