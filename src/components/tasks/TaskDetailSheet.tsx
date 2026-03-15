@@ -98,7 +98,7 @@ const TaskDetailSheet = ({ task, onUpdate, onDelete }: TaskDetailSheetProps) => 
           <Info className="h-4 w-4" />
         </button>
       </DialogTrigger>
-      <DialogContent className="w-[calc(100%-2rem)] max-w-md overflow-y-auto bg-muted border-border rounded-xl p-0 max-h-[85vh]">
+      <DialogContent className="w-[calc(100%-2rem)] max-w-md overflow-y-auto bg-muted border-border rounded-xl p-0 max-h-[85vh]" overlayClassName="bg-background/60 backdrop-blur-sm">
         <div className="p-6 pb-0">
           <DialogHeader>
             <DialogTitle>Task Details</DialogTitle>
