@@ -213,6 +213,7 @@ const TaskCard = ({
               </AlertDialog>
             </div>
           </div>
+          {task.description && <p className="mt-2 pl-1 text-xs text-muted-foreground leading-relaxed">{task.description}</p>}
           {task.subtasks?.map((sub) =>
         <TaskCard
           key={sub.id}
