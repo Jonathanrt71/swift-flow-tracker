@@ -112,7 +112,7 @@ const Profile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[hsl(30,20%,95%)]">
+    <div className="min-h-screen bg-background">
       <header className="border-b">
         <div className="container flex items-center gap-3 h-14 px-4">
           <Link to="/">

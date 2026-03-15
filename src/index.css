@@ -8,7 +8,7 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 30 20% 95%;
+    --background: 33 30% 95%;
     --foreground: 24 4% 23%;
 
     --card: 0 0% 100%;
@@ -18,9 +18,9 @@ All colors MUST be HSL.
     --popover-foreground: 24 4% 23%;
 
     --primary: 24 4% 23%;
-    --primary-foreground: 30 20% 95%;
+    --primary-foreground: 33 30% 95%;
 
-    --secondary: 30 10% 92%;
+    --secondary: 33 20% 92%;
     --secondary-foreground: 24 4% 23%;
 
     --muted: 210 20% 92%;
@@ -44,7 +44,7 @@ All colors MUST be HSL.
 
     --radius: 0.5rem;
 
-    --sidebar-background: 30 20% 95%;
+    --sidebar-background: 33 30% 95%;
     --sidebar-foreground: 24 4% 23%;
     --sidebar-primary: 24 4% 23%;
     --sidebar-primary-foreground: 30 20% 95%;

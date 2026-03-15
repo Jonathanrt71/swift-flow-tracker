@@ -54,7 +54,7 @@ const Login = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[hsl(30,20%,95%)] px-4">
+    <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <Card className="w-full max-w-md bg-card border-border shadow-sm">
         <CardHeader className="text-center pt-12 pb-2 items-center justify-center">
           <CardTitle className="text-xl">{showForgot ? "Reset password" : "Sign in"}</CardTitle>

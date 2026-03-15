@@ -267,7 +267,7 @@ const SubtaskRow = ({
       <div
         className={cn(
           "rounded-md",
-          isStarred ? "bg-[hsl(0,55%,92%)]" : "bg-[hsl(210,20%,95%)]"
+          isStarred ? "bg-[hsl(0,60%,88%)]" : "bg-muted"
         )}
       >
         <div className="flex items-center min-h-[40px] px-2">
