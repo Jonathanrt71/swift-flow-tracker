@@ -82,7 +82,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="bg-[hsl(35,20%,90%)] border-b border-border">
+      <header className="bg-[hsl(0,0%,96%)] border-b border-border">
         <div className="container flex items-center justify-between h-14 px-4">
           <h1 className="text-lg font-semibold text-foreground">Tasks</h1>
           <div className="flex items-center gap-1">
