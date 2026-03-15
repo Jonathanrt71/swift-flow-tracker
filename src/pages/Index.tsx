@@ -111,20 +111,29 @@ const Index = () => {
 
       <main className="container max-w-2xl px-4 py-6">
         <Tabs defaultValue="active">
-          <TabsList className="gap-1 h-auto p-1 mb-4">
-            <TabsTrigger value="active" className="h-8 w-8 p-0" title="All Tasks">
-              <ListTodo className="h-4 w-4" />
-            </TabsTrigger>
-            <TabsTrigger value="assigned" className="h-8 w-8 p-0" title="Assigned to Me">
-              <UserCheck className="h-4 w-4" />
-            </TabsTrigger>
-            <TabsTrigger value="starred" className="h-8 w-8 p-0" title="Starred">
-              <Star className="h-4 w-4" />
-            </TabsTrigger>
-            <TabsTrigger value="completed" className="h-8 w-8 p-0" title="Done">
-              <CheckCircle2 className="h-4 w-4" />
-            </TabsTrigger>
-          </TabsList>
+          <div className="flex items-center justify-between mb-4">
+            <TabsList className="gap-1 h-auto p-1 bg-muted">
+              <TabsTrigger value="active" className="h-8 w-8 p-0" title="All Tasks">
+                <ListTodo className="h-4 w-4" />
+              </TabsTrigger>
+              <TabsTrigger value="assigned" className="h-8 w-8 p-0" title="Assigned to Me">
+                <UserCheck className="h-4 w-4" />
+              </TabsTrigger>
+              <TabsTrigger value="starred" className="h-8 w-8 p-0" title="Starred">
+                <Star className="h-4 w-4" />
+              </TabsTrigger>
+              <TabsTrigger value="completed" className="h-8 w-8 p-0" title="Done">
+                <CheckCircle2 className="h-4 w-4" />
+              </TabsTrigger>
+            </TabsList>
+            <div className="bg-muted rounded-lg p-1">
+              <CreateTaskDialog
+                onSubmit={(data) => createTask.mutate(data)}
+                loading={createTask.isPending}
+                inlineIcon
+              />
+            </div>
+          </div>
 
           <TabsContent value="active" className="space-y-3 mt-0">
             {renderTaskList(
