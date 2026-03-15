@@ -161,6 +161,39 @@ const Index = () => {
           </div>
 
           <TabsContent value="active" className="space-y-3 mt-0">
+            <div className="flex justify-end">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className={cn(
+                      "h-7 w-7",
+                      sortByAssignee && "bg-accent text-accent-foreground"
+                    )}
+                    title="Sort options"
+                  >
+                    <SlidersHorizontal className="h-3.5 w-3.5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem
+                    onClick={() => setSortByAssignee(false)}
+                    className={cn(!sortByAssignee && "bg-accent")}
+                  >
+                    <Star className="h-3.5 w-3.5 mr-2" />
+                    Priority then due date
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => setSortByAssignee(true)}
+                    className={cn(sortByAssignee && "bg-accent")}
+                  >
+                    <UserCheck className="h-3.5 w-3.5 mr-2" />
+                    Assignee then due date
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
             {renderTaskList(
               sortedActive,
               <ListTodo className="h-10 w-10 mx-auto" />,
