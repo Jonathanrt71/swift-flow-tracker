@@ -131,6 +131,9 @@ const Index = () => {
               <TabsTrigger value="active" className="h-8 w-8 p-0" title="All Tasks">
                 <ListTodo className="h-4 w-4" />
               </TabsTrigger>
+              <TabsTrigger value="byAssignee" className="h-8 w-8 p-0" title="By Assignee">
+                <Users className="h-4 w-4" />
+              </TabsTrigger>
               <TabsTrigger value="assigned" className="h-8 w-8 p-0" title="Assigned to Me">
                 <UserCheck className="h-4 w-4" />
               </TabsTrigger>
