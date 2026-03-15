@@ -69,71 +69,52 @@ const TaskCard = ({
   const { data: members } = useTeamMembers();
   const canEdit = user?.id === task.created_by || user?.id === task.assigned_to;
   const hasChildren = task.subtasks && task.subtasks.length > 0;
-  const isExpandable = hasChildren || canEdit && depth < MAX_DEPTH;
+  const isExpandable = depth === 0 ? (hasChildren || (canEdit && depth < MAX_DEPTH)) : true;
   const canAddSubtasks = depth < MAX_DEPTH && (!task.subtasks || task.subtasks.length < 10);
 
-  // For nested subtasks, use a simpler inline layout
+  // Subtask rows: expandable like root tasks but without star and + button
   if (depth > 0) {
     return (
-      <div className={cn("space-y-1 rounded", isOverdue && "bg-warning/5")} style={{ marginLeft: `${depth * 8}px` }}>
-        <div className="flex items-start gap-3 py-1">
-          <div className="flex-1 min-w-0 flex items-start gap-2" style={{ paddingLeft: '2px' }}>
+      <div className={cn("space-y-1 rounded")} style={{ marginLeft: `${depth * 8}px` }}>
+        <div className="flex items-center gap-3 py-1">
+          <div className="flex-1 min-w-0 flex items-center gap-2" style={{ paddingLeft: '2px' }}>
             <Checkbox
               checked={task.completed}
               onCheckedChange={(checked) =>
               onToggleComplete({ id: task.id, completed: !!checked })
               }
-              className="mt-0.5" />
-            
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2">
-                {isExpandable ?
-                <button onClick={handleToggleExpand} className="text-muted-foreground hover:text-foreground">
-                    {expanded ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
-                  </button> :
-
-                <span className="w-3.5 shrink-0 text-muted-foreground text-center text-xs">–</span>
-                }
-                <span className={cn("text-sm", task.completed && "line-through text-muted-foreground")}>
-                  {task.title}
-                </span>
-              </div>
-            </div>
+            />
+            <button onClick={handleToggleExpand} className="text-muted-foreground hover:text-foreground">
+              {expanded ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
+            </button>
+            <span className={cn("text-sm flex-1 min-w-0", task.completed && "line-through text-muted-foreground")}>
+              {task.title}
+            </span>
           </div>
-          {(expanded || !isExpandable) &&
-          <div className="flex items-center gap-1 shrink-0">
-              {canEdit && canAddSubtasks && !hasExpandedChild && !hideAddButton &&
-                <CreateTaskDialog onSubmit={onCreateSubtask} parentId={task.id} iconOnly buttonBg={parentStarred ? `rgba(220,38,38,${(depth + 1) * 0.02})` : `rgba(0,0,0,${(depth + 1) * 0.015})`} />
-              }
-              <EditTaskDialog task={task} onSubmit={onUpdate} />
-              <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 text-muted-foreground hover:text-destructive"
-              onClick={() => onDelete(task.id)}>
-                <Trash2 className="h-3.5 w-3.5" />
-              </Button>
-            </div>
-          }
         </div>
 
         {expanded &&
-        <div className="space-y-1">
-            {task.subtasks?.map((sub) =>
-          <TaskCard
-            key={sub.id}
-            task={sub}
-            isOverdue={false}
-            depth={depth + 1}
-            parentStarred={parentStarred}
-            onToggleComplete={onToggleComplete}
-            onUpdate={onUpdate}
-            onDelete={onDelete}
-            onCreateSubtask={onCreateSubtask}
-            onToggleStar={onToggleStar}
-            onExpandChange={handleChildExpandChange}
-            hideAddButton={hideAddButton} />
-          )}
+        <div className="space-y-2 pl-2">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                {task.due_date && <span>{new Date(task.due_date).toLocaleDateString()}</span>}
+                {task.assigned_to && members && (() => {
+                  const member = members.find(m => m.id === task.assigned_to);
+                  return member ? <span>{member.display_name || "Unnamed"}</span> : null;
+                })()}
+              </div>
+              <div className="flex items-center gap-1 shrink-0">
+                <EditTaskDialog task={task} onSubmit={onUpdate} />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                  onClick={() => onDelete(task.id)}>
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
+              </div>
+            </div>
+            {task.description && <div className="pl-1 prose prose-xs text-xs text-muted-foreground leading-relaxed [&_p]:my-1 [&_ul]:my-1 [&_ol]:my-1" dangerouslySetInnerHTML={{ __html: task.description }} />}
           </div>
         }
       </div>);
