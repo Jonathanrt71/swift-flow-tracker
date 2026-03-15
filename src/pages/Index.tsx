@@ -81,11 +81,11 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b">
+      <header className="bg-[hsl(40,25%,96%)]">
         <div className="container flex items-center justify-between h-14 px-4">
           <h1 className="text-lg font-semibold text-foreground">Tasks</h1>
-          <div className="flex items-center gap-3">
-            <span className="text-sm text-muted-foreground hidden sm:inline">
+          <div className="flex items-center gap-1">
+            <span className="text-sm text-muted-foreground hidden sm:inline mr-2">
               {user?.email}
             </span>
             <NotificationBell />
@@ -101,6 +101,11 @@ const Index = () => {
                 <User className="h-4 w-4" />
               </Button>
             </Link>
+            <CreateTaskDialog
+              onSubmit={(data) => createTask.mutate(data)}
+              loading={createTask.isPending}
+              iconOnly
+            />
             <Button variant="ghost" size="icon" onClick={signOut}>
               <LogOut className="h-4 w-4" />
             </Button>
