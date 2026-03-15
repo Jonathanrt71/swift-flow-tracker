@@ -191,6 +191,9 @@ const TaskCard = ({
               })()}
             </div>
             <div className="flex items-center gap-1 shrink-0">
+              {canEdit && canAddSubtasks && !hasExpandedChild &&
+                <CreateTaskDialog onSubmit={onCreateSubtask} parentId={task.id} iconOnly buttonBg={task.starred ? `rgba(220,38,38,${1 * 0.02})` : `rgba(0,0,0,${1 * 0.015})`} />
+              }
               <EditTaskDialog task={task} onSubmit={onUpdate} />
               <AlertDialog>
                 <AlertDialogTrigger asChild>
@@ -228,11 +231,6 @@ const TaskCard = ({
           onToggleStar={onToggleStar}
           onExpandChange={handleChildExpandChange} />
         )}
-          {canEdit && canAddSubtasks && !hasExpandedChild &&
-            <div style={{ marginLeft: `${1 * 8}px` }}>
-              <CreateTaskDialog onSubmit={onCreateSubtask} parentId={task.id} iconOnly buttonBg={task.starred ? `rgba(220,38,38,${1 * 0.02})` : `rgba(0,0,0,${1 * 0.015})`} />
-            </div>
-          }
 
         </CardContent>
       }
