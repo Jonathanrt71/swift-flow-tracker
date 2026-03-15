@@ -105,8 +105,8 @@ const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
       <EditorContent
         editor={editor}
         className={cn(
-          "px-3 py-2 min-h-[80px] text-sm font-normal",
-          "[&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[60px] [&_.ProseMirror]:font-normal",
+          "px-3 py-2 min-h-[160px] text-sm font-normal",
+          "[&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[140px] [&_.ProseMirror]:font-normal",
           "[&_.ProseMirror_ul]:list-disc [&_.ProseMirror_ul]:pl-5 [&_.ProseMirror_ul]:my-1",
           "[&_.ProseMirror_ol]:list-decimal [&_.ProseMirror_ol]:pl-5 [&_.ProseMirror_ol]:my-1",
           "[&_.ProseMirror_li]:my-0.5",
