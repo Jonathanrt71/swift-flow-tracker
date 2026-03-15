@@ -65,7 +65,7 @@ const NotesEditorDialog = ({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent
-        className="w-[calc(100%-2rem)] max-w-md bg-muted border-border rounded-xl p-0 max-h-[85vh] flex flex-col"
+        className="w-[calc(100%-2rem)] max-w-md bg-muted border-border rounded-xl p-0"
         overlayClassName="bg-background/60 backdrop-blur-sm"
         onPointerDownOutside={(e) => e.preventDefault()}
         onInteractOutside={(e) => e.preventDefault()}
@@ -75,8 +75,8 @@ const NotesEditorDialog = ({
             <DialogTitle>Notes</DialogTitle>
           </DialogHeader>
         </div>
-        <div className="px-5 pb-5 flex flex-col flex-1 gap-3">
-          <div className="flex-1 min-h-[300px] [&_.rounded-md]:rounded-lg [&_.rounded-md]:border-border [&_.rounded-md]:h-full [&_.rounded-md]:flex [&_.rounded-md]:flex-col [&_.ProseMirror]:flex-1">
+        <div className="px-5 pb-5 flex flex-col gap-3">
+          <div className="[&_.rounded-md]:rounded-lg [&_.rounded-md]:border-border">
             <RichTextEditor content={description} onChange={setDescription} />
           </div>
           <div className="flex items-center justify-end pt-3 border-t border-border">

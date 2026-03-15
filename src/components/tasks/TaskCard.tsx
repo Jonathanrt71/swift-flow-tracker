@@ -57,7 +57,8 @@ const SwipeWrap = ({
 }: SwipeWrapProps) => {
   const contentRef = useRef<HTMLDivElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
-  const state = useRef({ sx: 0, offset: 0, dragging: false, didSwipe: false, _current: 0 });
+  const [isOpen, setIsOpen] = useState(false);
+  const state = useRef({ sx: 0, dragging: false, didSwipe: false, _current: 0 });
 
   const snap = useCallback(
     (target: number) => {
@@ -65,8 +66,8 @@ const SwipeWrap = ({
       if (!el) return;
       el.style.transition = "transform 0.25s ease";
       el.style.transform = `translateX(${target}px)`;
-      state.current.offset = target;
       state.current._current = target;
+      setIsOpen(target !== 0);
     },
     []
   );
@@ -78,14 +79,10 @@ const SwipeWrap = ({
 
     const isInteractive = (t: EventTarget | null) => {
       if (!t || !(t instanceof HTMLElement)) return false;
-      return !!t.closest(
-        "button, input, [data-no-swipe], .checkbox-area"
-      );
+      return !!t.closest("button, input, [data-no-swipe], .checkbox-area, .close-overlay");
     };
 
     const onStart = (x: number) => {
-      // If swiped open, don't start a new drag — tap-to-close is handled by click
-      if (state.current.offset !== 0) return;
       state.current.sx = x;
       state.current.dragging = true;
       state.current.didSwipe = false;
@@ -111,24 +108,8 @@ const SwipeWrap = ({
       snap(target);
     };
 
-    // Click handler: if swiped open and user taps the card, snap closed
-    const onClick = (e: MouseEvent) => {
-      if (state.current.offset !== 0 && !state.current.didSwipe) {
-        const target = e.target as HTMLElement;
-        // Only close if tapping the card content, not the action buttons
-        if (!target.closest("[data-no-swipe]") && !target.closest(".swipe-action-btn")) {
-          e.preventDefault();
-          e.stopPropagation();
-          snap(0);
-        }
-      }
-    };
-
-    // Touch
     const ts = (e: TouchEvent) => {
       if (isInteractive(e.target)) return;
-      // If open, handle tap-to-close via touchend
-      if (state.current.offset !== 0) return;
       onStart(e.touches[0].clientX);
       e.stopPropagation();
     };
@@ -139,23 +120,11 @@ const SwipeWrap = ({
       e.stopPropagation();
     };
     const te = (e: TouchEvent) => {
-      if (state.current.dragging) {
-        onEnd();
-        e.stopPropagation();
-      } else if (state.current.offset !== 0) {
-        // Tap-to-close on touch
-        const target = e.target as HTMLElement;
-        if (!target.closest("[data-no-swipe]") && !target.closest(".swipe-action-btn")) {
-          e.preventDefault();
-          e.stopPropagation();
-          snap(0);
-        }
-      }
+      onEnd();
+      e.stopPropagation();
     };
-    // Mouse
     const md = (e: MouseEvent) => {
       if (isInteractive(e.target)) return;
-      if (state.current.offset !== 0) return;
       onStart(e.clientX);
       e.stopPropagation();
     };
@@ -176,7 +145,6 @@ const SwipeWrap = ({
     wrap.addEventListener("mousedown", md);
     wrap.addEventListener("mousemove", mm);
     wrap.addEventListener("mouseup", mu);
-    wrap.addEventListener("click", onClick, true);
 
     return () => {
       wrap.removeEventListener("touchstart", ts);
@@ -185,12 +153,8 @@ const SwipeWrap = ({
       wrap.removeEventListener("mousedown", md);
       wrap.removeEventListener("mousemove", mm);
       wrap.removeEventListener("mouseup", mu);
-      wrap.removeEventListener("click", onClick, true);
     };
   }, [maxLeft, maxRight, snap]);
-
-  // Expose didSwipe check
-  (contentRef as any)._swipeState = state;
 
   return (
     <div ref={wrapRef} className={cn("relative overflow-hidden", className)}>
@@ -207,6 +171,21 @@ const SwipeWrap = ({
       <div ref={contentRef} className="relative z-[2]">
         {children}
       </div>
+      {isOpen && (
+        <div
+          className="close-overlay absolute inset-0 z-[3]"
+          onClick={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            snap(0);
+          }}
+          onTouchEnd={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            snap(0);
+          }}
+        />
+      )}
     </div>
   );
 };
