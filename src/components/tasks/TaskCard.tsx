@@ -181,7 +181,7 @@ const TaskCard = ({
       </CardHeader>
 
       {expanded &&
-      <CardContent className="px-4 pb-3 pt-1 space-y-2">
+      <CardContent className="px-4 pb-3 pt-0 space-y-2">
           <div className="flex items-center justify-between gap-2 pl-1">
             <div className="flex items-center gap-2">
               {canEdit && canAddSubtasks && !hasExpandedChild &&
