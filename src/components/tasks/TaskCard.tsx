@@ -106,7 +106,7 @@ const TaskCard = ({
       className={cn(
         "transition-all overflow-hidden",
         isOverdue && "border-warning/60 bg-warning/15",
-        task.starred && !isOverdue && "border-starred/30 bg-starred/12",
+        task.starred && !isOverdue && "border-starred/40 bg-starred/25",
         !isOverdue && !task.starred && "bg-muted"
       )}
     >
