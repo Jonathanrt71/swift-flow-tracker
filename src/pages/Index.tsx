@@ -6,7 +6,13 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LogOut, CheckCircle2, ListTodo, Shield, User, Star, UserCheck, ArrowUpDown } from "lucide-react";
+import { LogOut, CheckCircle2, ListTodo, Shield, User, Star, UserCheck, SlidersHorizontal } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import TaskCard from "@/components/tasks/TaskCard";
 import CreateTaskDialog from "@/components/tasks/CreateTaskDialog";
 import NotificationBell from "@/components/NotificationBell";
@@ -145,20 +151,6 @@ const Index = () => {
             </TabsList>
             <div className="flex items-center gap-1">
               <div className="bg-muted rounded-lg p-1">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className={cn(
-                    "h-8 w-8",
-                    sortByAssignee && "bg-background text-foreground shadow-sm"
-                  )}
-                  title="Sort by assignee"
-                  onClick={() => setSortByAssignee((v) => !v)}
-                >
-                  <ArrowUpDown className="h-4 w-4" />
-                </Button>
-              </div>
-              <div className="bg-muted rounded-lg p-1">
                 <CreateTaskDialog
                   onSubmit={(data) => createTask.mutate(data)}
                   loading={createTask.isPending}
@@ -169,6 +161,39 @@ const Index = () => {
           </div>
 
           <TabsContent value="active" className="space-y-3 mt-0">
+            <div className="flex justify-end">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className={cn(
+                      "h-7 w-7",
+                      sortByAssignee && "bg-accent text-accent-foreground"
+                    )}
+                    title="Sort options"
+                  >
+                    <SlidersHorizontal className="h-3.5 w-3.5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem
+                    onClick={() => setSortByAssignee(false)}
+                    className={cn(!sortByAssignee && "bg-accent")}
+                  >
+                    <Star className="h-3.5 w-3.5 mr-2" />
+                    Priority then due date
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => setSortByAssignee(true)}
+                    className={cn(sortByAssignee && "bg-accent")}
+                  >
+                    <UserCheck className="h-3.5 w-3.5 mr-2" />
+                    Assignee then due date
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
             {renderTaskList(
               sortedActive,
               <ListTodo className="h-10 w-10 mx-auto" />,
