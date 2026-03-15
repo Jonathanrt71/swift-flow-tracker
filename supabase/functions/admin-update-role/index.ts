@@ -53,8 +53,9 @@ Deno.serve(async (req) => {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (err) {
-    const status = err.message === "Forbidden: admin role required" ? 403 : 400;
-    return new Response(JSON.stringify({ error: err.message }), {
+    const error = err as Error;
+    const status = error.message === "Forbidden: admin role required" ? 403 : 400;
+    return new Response(JSON.stringify({ error: error.message }), {
       status,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

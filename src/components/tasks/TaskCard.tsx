@@ -57,7 +57,7 @@ const SwipeWrap = ({
 }: SwipeWrapProps) => {
   const contentRef = useRef<HTMLDivElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
-  const state = useRef({ sx: 0, offset: 0, dragging: false, didSwipe: false });
+  const state = useRef({ sx: 0, offset: 0, dragging: false, didSwipe: false, _current: 0 });
 
   const snap = useCallback(
     (target: number) => {
