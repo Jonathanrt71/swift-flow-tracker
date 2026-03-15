@@ -170,22 +170,22 @@ const SwipeWrap = ({
       )}
       <div ref={contentRef} className="relative z-[2]">
         {children}
+        {isOpen && (
+          <div
+            className="close-overlay absolute inset-0 z-[10]"
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              snap(0);
+            }}
+            onTouchEnd={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              snap(0);
+            }}
+          />
+        )}
       </div>
-      {isOpen && (
-        <div
-          className="close-overlay absolute inset-0 z-[3]"
-          onClick={(e) => {
-            e.stopPropagation();
-            e.preventDefault();
-            snap(0);
-          }}
-          onTouchEnd={(e) => {
-            e.stopPropagation();
-            e.preventDefault();
-            snap(0);
-          }}
-        />
-      )}
     </div>
   );
 };
