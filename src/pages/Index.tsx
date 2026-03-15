@@ -1,10 +1,10 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useTasks } from "@/hooks/useTasks";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LogOut, CheckCircle2, ListTodo, Shield, User, Star, UserCheck, Users } from "lucide-react";
 import TaskCard from "@/components/tasks/TaskCard";
 import CreateTaskDialog from "@/components/tasks/CreateTaskDialog";
@@ -94,102 +94,124 @@ const Index = () => {
     ));
   };
 
+  const [activeTab, setActiveTab] = useState("active");
+
   return (
-    <div className="min-h-screen bg-background">
-      <header className="bg-[hsl(33,22%,88%)]">
-        <div className="container flex items-center justify-between h-14 px-4">
-          <h1 className="text-lg font-semibold text-foreground">Tasks</h1>
-          <div className="flex items-center gap-1">
-            <span className="text-sm text-muted-foreground hidden sm:inline mr-2">
-              {user?.email}
-            </span>
-            <NotificationBell />
-            {isAdmin && (
-              <Link to="/admin">
-                <Button variant="ghost" size="icon" title="Admin Panel">
-                  <Shield className="h-4 w-4" />
+    <div className="min-h-screen bg-background flex flex-col">
+      <div className="sticky top-0 z-20">
+        <header className="bg-[hsl(33,22%,88%)]">
+          <div className="container flex items-center justify-between h-14 px-4">
+            <h1 className="text-lg font-semibold text-foreground">Tasks</h1>
+            <div className="flex items-center gap-1">
+              <span className="text-sm text-muted-foreground hidden sm:inline mr-2">
+                {user?.email}
+              </span>
+              <NotificationBell />
+              {isAdmin && (
+                <Link to="/admin">
+                  <Button variant="ghost" size="icon" title="Admin Panel">
+                    <Shield className="h-4 w-4" />
+                  </Button>
+                </Link>
+              )}
+              <Link to="/profile">
+                <Button variant="ghost" size="icon" title="Profile Settings">
+                  <User className="h-4 w-4" />
                 </Button>
               </Link>
-            )}
-            <Link to="/profile">
-              <Button variant="ghost" size="icon" title="Profile Settings">
-                <User className="h-4 w-4" />
+              <Button variant="ghost" size="icon" onClick={signOut}>
+                <LogOut className="h-4 w-4" />
               </Button>
-            </Link>
-            <Button variant="ghost" size="icon" onClick={signOut}>
-              <LogOut className="h-4 w-4" />
-            </Button>
+            </div>
+          </div>
+        </header>
+
+        <div className="bg-[hsl(33,22%,88%)]">
+          <div className="container max-w-2xl px-4 py-3">
+            <div className="flex items-center justify-between">
+              <div className="flex gap-1 p-1 bg-[hsl(33,18%,84%)] rounded-md">
+                {[
+                  { value: "active", icon: <ListTodo className="h-4 w-4" />, title: "All Tasks" },
+                  { value: "byAssignee", icon: <Users className="h-4 w-4" />, title: "By Assignee" },
+                  { value: "assigned", icon: <UserCheck className="h-4 w-4" />, title: "Assigned to Me" },
+                  { value: "starred", icon: <Star className="h-4 w-4" />, title: "Starred" },
+                  { value: "completed", icon: <CheckCircle2 className="h-4 w-4" />, title: "Done" },
+                ].map((tab) => (
+                  <button
+                    key={tab.value}
+                    onClick={() => setActiveTab(tab.value)}
+                    title={tab.title}
+                    className={cn(
+                      "h-8 w-8 p-0 flex items-center justify-center rounded-sm transition-colors border-none cursor-pointer",
+                      activeTab === tab.value
+                        ? "bg-background text-foreground shadow-sm"
+                        : "bg-transparent text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    {tab.icon}
+                  </button>
+                ))}
+              </div>
+              <CreateTaskDialog
+                onSubmit={(data) => createTask.mutate(data)}
+                loading={createTask.isPending}
+                inlineIcon
+              />
+            </div>
           </div>
         </div>
-      </header>
+      </div>
 
-      <main className="container max-w-2xl px-4 py-6">
-        <Tabs defaultValue="active">
-          <div className="flex items-center justify-between mb-4">
-            <TabsList className="gap-1 h-auto p-1 bg-muted">
-              <TabsTrigger value="active" className="h-8 w-8 p-0" title="All Tasks">
-                <ListTodo className="h-4 w-4" />
-              </TabsTrigger>
-              <TabsTrigger value="byAssignee" className="h-8 w-8 p-0" title="By Assignee">
-                <Users className="h-4 w-4" />
-              </TabsTrigger>
-              <TabsTrigger value="assigned" className="h-8 w-8 p-0" title="Assigned to Me">
-                <UserCheck className="h-4 w-4" />
-              </TabsTrigger>
-              <TabsTrigger value="starred" className="h-8 w-8 p-0" title="Starred">
-                <Star className="h-4 w-4" />
-              </TabsTrigger>
-              <TabsTrigger value="completed" className="h-8 w-8 p-0" title="Done">
-                <CheckCircle2 className="h-4 w-4" />
-              </TabsTrigger>
-            </TabsList>
-            <CreateTaskDialog
-              onSubmit={(data) => createTask.mutate(data)}
-              loading={createTask.isPending}
-              inlineIcon
-            />
-          </div>
-
-          <TabsContent value="active" className="space-y-3 mt-0">
+      <main className="container max-w-2xl px-4 py-4 flex-1">
+        {activeTab === "active" && (
+          <div className="space-y-3">
             {renderTaskList(
               sortedActive,
               <ListTodo className="h-10 w-10 mx-auto" />,
               "No active tasks. Create one to get started!"
             )}
-          </TabsContent>
+          </div>
+        )}
 
-          <TabsContent value="byAssignee" className="space-y-3 mt-0">
+        {activeTab === "byAssignee" && (
+          <div className="space-y-3">
             {renderTaskList(
               sortedByAssignee,
               <Users className="h-10 w-10 mx-auto" />,
               "No active tasks."
             )}
-          </TabsContent>
+          </div>
+        )}
 
-          <TabsContent value="assigned" className="space-y-3 mt-0">
+        {activeTab === "assigned" && (
+          <div className="space-y-3">
             {renderTaskList(
               assignedToMe,
               <UserCheck className="h-10 w-10 mx-auto" />,
               "No tasks assigned to you."
             )}
-          </TabsContent>
+          </div>
+        )}
 
-          <TabsContent value="starred" className="space-y-3 mt-0">
+        {activeTab === "starred" && (
+          <div className="space-y-3">
             {renderTaskList(
               starredTasks,
               <Star className="h-10 w-10 mx-auto" />,
-              "No starred tasks. Star a task to pin it here."
+              "No starred tasks."
             )}
-          </TabsContent>
+          </div>
+        )}
 
-          <TabsContent value="completed" className="space-y-3 mt-0">
+        {activeTab === "completed" && (
+          <div className="space-y-3">
             {renderTaskList(
               completedTasks,
               <CheckCircle2 className="h-10 w-10 mx-auto" />,
               "No completed tasks yet."
             )}
-          </TabsContent>
-        </Tabs>
+          </div>
+        )}
       </main>
     </div>
   );
