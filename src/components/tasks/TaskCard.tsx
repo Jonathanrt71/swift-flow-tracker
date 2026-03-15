@@ -1,6 +1,6 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card } from "@/components/ui/card";
-import { Star, MoreVertical, Plus, Pencil, Info } from "lucide-react";
+import { Star, MoreVertical } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import type { Task } from "@/hooks/useTasks";
@@ -32,32 +32,6 @@ interface TaskCardProps {
   onToggleStar: (data: { id: string; starred: boolean }) => void;
 }
 
-const ActionBar = ({
-  task,
-  onUpdate,
-  onDelete,
-  onCreateSubtask,
-  showAdd,
-}: {
-  task: Task;
-  onUpdate: TaskCardProps["onUpdate"];
-  onDelete: TaskCardProps["onDelete"];
-  onCreateSubtask?: TaskCardProps["onCreateSubtask"];
-  showAdd: boolean;
-}) => (
-  <div className="flex items-center justify-end px-2 py-1 gap-0">
-    {showAdd && onCreateSubtask && (
-      <CreateTaskDialog
-        onSubmit={onCreateSubtask}
-        parentId={task.id}
-        iconOnly
-      />
-    )}
-    <NotesEditorDialog task={task} onUpdate={onUpdate} />
-    <TaskDetailSheet task={task} onUpdate={onUpdate} onDelete={onDelete} />
-  </div>
-);
-
 const TaskCard = ({
   task,
   isOverdue,
@@ -69,29 +43,37 @@ const TaskCard = ({
   onToggleStar,
 }: TaskCardProps) => {
   const [expanded, setExpanded] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
   const hasChildren = task.subtasks && task.subtasks.length > 0;
   const canAddSubtasks =
     depth < MAX_DEPTH && (!task.subtasks || task.subtasks.length < 10);
   const hasNotes = !!task.description?.trim();
 
-  // Close action bar on outside click
+  // Strip to first line of text for preview, but keep HTML formatting
+  const getNotesPreviewHtml = (html: string) => {
+    // Get first <p>, <li>, or text block
+    const match = html.match(/<p>(.*?)<\/p>|<li>(.*?)<\/li>/);
+    if (match) return match[1] || match[2] || "";
+    // Fallback: strip all block tags, return first chunk
+    return html.replace(/<\/?(?:p|ul|ol|li|br)[^>]*>/gi, " ").trim();
+  };
+
+  // Close on outside click
   useEffect(() => {
-    if (!menuOpen) return;
+    if (!expanded) return;
     const handler = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setMenuOpen(false);
+      if (cardRef.current && !cardRef.current.contains(e.target as Node)) {
+        setExpanded(false);
       }
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
-  }, [menuOpen]);
+  }, [expanded]);
 
   // Subtask row (depth > 0)
   if (depth > 0) {
     return (
-      <div style={{ marginLeft: `${depth * 24}px` }} ref={menuRef}>
+      <div style={{ marginLeft: `${depth * 24}px` }} ref={cardRef}>
         <div className="flex items-center min-h-[44px]">
           <div className="flex items-center justify-center min-w-[44px] min-h-[44px]">
             <Checkbox
@@ -112,20 +94,21 @@ const TaskCard = ({
           <div className="flex items-center shrink-0">
             <button
               className="flex items-center justify-center min-w-[44px] min-h-[44px] text-muted-foreground hover:text-foreground transition-colors"
-              onClick={() => setMenuOpen(!menuOpen)}
+              onClick={() => setExpanded(!expanded)}
               aria-label="Task actions"
             >
               <MoreVertical className="h-4 w-4" />
             </button>
           </div>
         </div>
-        {menuOpen && (
-          <ActionBar
-            task={task}
-            onUpdate={onUpdate}
-            onDelete={onDelete}
-            showAdd={false}
-          />
+        {expanded && (
+          <div className="flex items-center min-h-[40px] px-2 mt-1">
+            <div className="flex-1" />
+            <div className="flex items-center shrink-0 gap-0">
+              <NotesEditorDialog task={task} onUpdate={onUpdate} />
+              <TaskDetailSheet task={task} onUpdate={onUpdate} onDelete={onDelete} />
+            </div>
+          </div>
         )}
       </div>
     );
@@ -134,7 +117,7 @@ const TaskCard = ({
   // Root-level card
   return (
     <Card
-      ref={menuRef}
+      ref={cardRef}
       className={cn(
         "transition-all overflow-hidden",
         task.starred && "border-starred/40 bg-starred/25",
@@ -165,7 +148,7 @@ const TaskCard = ({
         <div className="flex items-center shrink-0">
           <button
             className="flex items-center justify-center min-w-[44px] min-h-[44px] text-muted-foreground hover:text-foreground transition-colors"
-            onClick={() => setMenuOpen(!menuOpen)}
+            onClick={() => setExpanded(!expanded)}
             aria-label="Task actions"
           >
             <MoreVertical className="h-4 w-4" />
@@ -188,30 +171,22 @@ const TaskCard = ({
         </div>
       </div>
 
-      {/* Action bar from kebab menu */}
-      {menuOpen && (
-        <ActionBar
-          task={task}
-          onUpdate={onUpdate}
-          onDelete={onDelete}
-          onCreateSubtask={onCreateSubtask}
-          showAdd={canAddSubtasks}
-        />
-      )}
-
       {/* Expanded state */}
       {expanded && (
-        <div className="pb-2">
-          {/* Notes preview + action icons on one row */}
+        <div className="pb-2 pt-1">
+          {/* Notes preview + action icons row */}
           <div className="flex items-center min-h-[40px] px-2">
-            <div className="flex-1 min-w-0 pl-[44px]">
+            <div className="flex-1 min-w-0 pl-2">
               {hasNotes && (
-                <p className="text-xs text-muted-foreground truncate">
-                  {task.description!.replace(/<[^>]*>/g, "").trim()}
-                </p>
+                <p
+                  className="text-xs text-muted-foreground truncate [&_strong]:font-bold [&_em]:italic [&_a]:underline [&_a]:text-primary"
+                  dangerouslySetInnerHTML={{
+                    __html: getNotesPreviewHtml(task.description!),
+                  }}
+                />
               )}
             </div>
-            <div className="flex items-center shrink-0">
+            <div className="flex items-center shrink-0 gap-0">
               {canAddSubtasks && onCreateSubtask && (
                 <CreateTaskDialog
                   onSubmit={onCreateSubtask}
