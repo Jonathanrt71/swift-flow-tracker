@@ -168,31 +168,7 @@ const TaskCard = ({
               {task.title}
             </h3>
           </div>
-          <div className="flex items-center gap-1 shrink-0">
-            {expanded &&
-            <>
-                <EditTaskDialog task={task} onSubmit={onUpdate} />
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive">
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Delete task?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        This will permanently delete "{task.title}" and all its subtasks.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction onClick={() => onDelete(task.id)}>Delete</AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </>
-            }
+          <div className="flex items-center shrink-0">
             <Button
               variant="ghost"
               size="icon"
@@ -206,8 +182,8 @@ const TaskCard = ({
 
       {expanded &&
       <CardContent className="px-4 pb-3 pt-1 space-y-2">
-          {(task.description || task.due_date || task.assigned_to) && (
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground pl-1">
+          <div className="flex items-center gap-x-4 gap-y-1 text-xs text-muted-foreground pl-1">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 flex-1 min-w-0">
               {task.description && <span>{task.description}</span>}
               {task.due_date && <span>Due: {new Date(task.due_date).toLocaleDateString()}</span>}
               {task.assigned_to && members && (() => {
@@ -215,7 +191,29 @@ const TaskCard = ({
                 return member ? <span>Assigned: {member.display_name || "Unnamed"}</span> : null;
               })()}
             </div>
-          )}
+            <div className="flex items-center gap-1 shrink-0">
+              <EditTaskDialog task={task} onSubmit={onUpdate} />
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive">
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Delete task?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This will permanently delete "{task.title}" and all its subtasks.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={() => onDelete(task.id)}>Delete</AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+          </div>
           {task.subtasks?.map((sub) =>
         <TaskCard
           key={sub.id}
