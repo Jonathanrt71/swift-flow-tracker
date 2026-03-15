@@ -10,6 +10,7 @@ import TaskCard from "@/components/tasks/TaskCard";
 import CreateTaskDialog from "@/components/tasks/CreateTaskDialog";
 import NotificationBell from "@/components/NotificationBell";
 import type { Task } from "@/hooks/useTasks";
+import { useToast } from "@/components/ui/use-toast";
 
 const Index = () => {
   const { user, signOut } = useAuth();
