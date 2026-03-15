@@ -4,11 +4,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Camera, Loader2 } from "lucide-react";
+import { ArrowLeft, Camera, Loader2, Check } from "lucide-react";
 
 const Profile = () => {
   const { user } = useAuth();
@@ -126,68 +124,66 @@ const Profile = () => {
         </div>
       </header>
 
-      <main className="container max-w-lg px-4 py-8 space-y-6">
+      <main className="container max-w-lg px-4 py-12 flex flex-col items-center gap-8">
         {/* Avatar */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Avatar</CardTitle>
-            <CardDescription>Click to upload a new photo (max 2MB).</CardDescription>
-          </CardHeader>
-          <CardContent className="flex items-center gap-4">
-            <button
-              type="button"
-              className="relative group rounded-full focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={uploading}
-            >
-              <Avatar className="h-20 w-20">
-                <AvatarImage src={avatarUrl || undefined} />
-                <AvatarFallback className="text-lg bg-muted text-muted-foreground">
-                  {initials}
-                </AvatarFallback>
-              </Avatar>
-              <div className="absolute inset-0 flex items-center justify-center rounded-full bg-foreground/40 opacity-0 group-hover:opacity-100 transition-opacity">
-                {uploading ? (
-                  <Loader2 className="h-5 w-5 text-background animate-spin" />
-                ) : (
-                  <Camera className="h-5 w-5 text-background" />
-                )}
-              </div>
-            </button>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={handleAvatarUpload}
-            />
-            <div className="text-sm text-muted-foreground">
-              <p className="font-medium text-foreground">{displayName || "No name set"}</p>
-              <p>{user?.email}</p>
-            </div>
-          </CardContent>
-        </Card>
+        <button
+          type="button"
+          className="relative group rounded-full focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+          onClick={() => fileInputRef.current?.click()}
+          disabled={uploading}
+        >
+          <Avatar className="h-24 w-24">
+            <AvatarImage src={avatarUrl || undefined} />
+            <AvatarFallback className="text-xl bg-muted text-muted-foreground">
+              {initials}
+            </AvatarFallback>
+          </Avatar>
+          {/* Camera overlay on hover */}
+          <div className="absolute inset-0 flex items-center justify-center rounded-full bg-foreground/40 opacity-0 group-hover:opacity-100 transition-opacity">
+            {uploading ? (
+              <Loader2 className="h-5 w-5 text-background animate-spin" />
+            ) : (
+              <Camera className="h-5 w-5 text-background" />
+            )}
+          </div>
+          {/* Persistent camera badge */}
+          <div className="absolute bottom-0 right-0 flex items-center justify-center h-7 w-7 rounded-full bg-primary text-primary-foreground shadow-sm">
+            {uploading ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Camera className="h-3.5 w-3.5" />
+            )}
+          </div>
+        </button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handleAvatarUpload}
+        />
 
-        {/* Display Name */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Display Name</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="display-name">Name</Label>
-              <Input
-                id="display-name"
-                value={displayName}
-                onChange={(e) => setDisplayName(e.target.value)}
-                placeholder="Your name"
-              />
-            </div>
-            <Button onClick={handleSave} disabled={saving}>
-              {saving ? "Saving…" : "Save"}
-            </Button>
-          </CardContent>
-        </Card>
+        {/* Name input + save */}
+        <div className="w-full flex items-center gap-3">
+          <Input
+            value={displayName}
+            onChange={(e) => setDisplayName(e.target.value)}
+            placeholder="Your name"
+            className="flex-1"
+          />
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="flex items-center justify-center min-w-[44px] min-h-[44px] rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50"
+            aria-label="Save profile"
+          >
+            {saving ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Check className="h-4 w-4" />
+            )}
+          </button>
+        </div>
       </main>
     </div>
   );
