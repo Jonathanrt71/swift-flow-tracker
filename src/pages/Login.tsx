@@ -65,7 +65,7 @@ const Login = () => {
         <form onSubmit={showForgot ? handleForgotPassword : handleLogin}>
           <CardContent className="space-y-4 pt-0">
             <div className="space-y-1.5">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email" className="font-normal text-sm text-muted-foreground">Email</Label>
               <Input
                 id="email"
                 type="email"
