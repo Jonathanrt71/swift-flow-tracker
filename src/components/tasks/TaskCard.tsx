@@ -51,7 +51,7 @@ const TaskCard = ({
   // Subtask row (depth > 0): minimal — checkbox, tappable name, detail icon
   if (depth > 0) {
     return (
-      <div style={{ marginLeft: `${depth * 32}px` }}>
+      <div style={{ marginLeft: `${depth * 24}px` }}>
         <div className="flex items-center min-h-[44px]">
           {/* Checkbox */}
           <div className="flex items-center justify-center min-w-[44px] min-h-[44px]">
