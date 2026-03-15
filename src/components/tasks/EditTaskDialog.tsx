@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import RichTextEditor from "./RichTextEditor";
 import {
   Dialog,
   DialogContent,
@@ -72,13 +72,8 @@ const EditTaskDialog = ({ task, onSubmit, loading }: EditTaskDialogProps) => {
           </div>
           {!task.parent_id && (
             <div className="space-y-2">
-              <Label htmlFor="edit-desc">Description</Label>
-              <Textarea
-                id="edit-desc"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                rows={3}
-              />
+              <Label>Description</Label>
+              <RichTextEditor content={description} onChange={setDescription} />
             </div>
           )}
           <div className="space-y-2">
