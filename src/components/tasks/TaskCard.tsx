@@ -21,7 +21,7 @@ import {
   AlertDialogTrigger } from
 "@/components/ui/alert-dialog";
 
-const MAX_DEPTH = 2;
+const MAX_DEPTH = 1;
 
 interface TaskCardProps {
   task: Task;
