@@ -1,8 +1,10 @@
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import Link from "@tiptap/extension-link";
 import { Button } from "@/components/ui/button";
-import { Bold, Italic, List, ListOrdered } from "lucide-react";
+import { Bold, Italic, List, ListOrdered, Link as LinkIcon, Unlink } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useCallback } from "react";
 
 interface RichTextEditorProps {
   content: string;
@@ -11,12 +13,32 @@ interface RichTextEditorProps {
 
 const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
   const editor = useEditor({
-    extensions: [StarterKit],
+    extensions: [
+      StarterKit,
+      Link.configure({
+        openOnClick: false,
+        HTMLAttributes: {
+          class: "text-primary underline cursor-pointer",
+        },
+      }),
+    ],
     content,
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());
     },
   });
+
+  const setLink = useCallback(() => {
+    if (!editor) return;
+    const previousUrl = editor.getAttributes("link").href;
+    const url = window.prompt("URL", previousUrl || "https://");
+    if (url === null) return;
+    if (url === "") {
+      editor.chain().focus().extendMarkRange("link").unsetLink().run();
+      return;
+    }
+    editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
+  }, [editor]);
 
   if (!editor) return null;
 
@@ -59,6 +81,26 @@ const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
         >
           <ListOrdered className="h-3.5 w-3.5" />
         </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className={cn("h-7 w-7", editor.isActive("link") && "bg-muted")}
+          onClick={setLink}
+        >
+          <LinkIcon className="h-3.5 w-3.5" />
+        </Button>
+        {editor.isActive("link") && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7"
+            onClick={() => editor.chain().focus().unsetLink().run()}
+          >
+            <Unlink className="h-3.5 w-3.5" />
+          </Button>
+        )}
       </div>
       <EditorContent
         editor={editor}
