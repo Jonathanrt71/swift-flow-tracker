@@ -169,13 +169,13 @@ const TaskCard = ({
 
       {/* Expanded content */}
       {expanded && (
-        <div className="pb-3">
-          {/* Notes preview + action icons — single row */}
-          <div className="flex items-center min-h-[40px] px-4 mt-1">
-            <div className="flex-1 min-w-0 pr-2">
+        <div className="pb-2">
+          {/* Notes preview + action icons — single row, aligned with checkbox */}
+          <div className="flex items-center min-h-[40px] px-2">
+            <div className="flex-1 min-w-0 min-h-[40px] flex items-center pl-[12px]">
               {hasNotes && (
                 <p
-                  className="text-xs text-muted-foreground truncate [&_strong]:font-bold [&_em]:italic [&_a]:underline [&_a]:text-primary"
+                  className="text-xs text-muted-foreground truncate leading-none [&_strong]:font-bold [&_em]:italic [&_a]:underline [&_a]:text-primary"
                   dangerouslySetInnerHTML={{
                     __html: getNotesPreviewHtml(task.description!) + "…",
                   }}
