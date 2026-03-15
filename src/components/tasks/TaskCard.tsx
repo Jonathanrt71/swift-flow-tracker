@@ -100,7 +100,7 @@ const TaskCard = ({
               </div>
             </div>
           </div>
-          {expanded &&
+          {(expanded || !isExpandable) &&
           <div className="flex items-center gap-1 shrink-0">
               {canEdit && canAddSubtasks && !hasExpandedChild && !hideAddButton &&
                 <CreateTaskDialog onSubmit={onCreateSubtask} parentId={task.id} iconOnly buttonBg={parentStarred ? `rgba(220,38,38,${(depth + 1) * 0.02})` : `rgba(0,0,0,${(depth + 1) * 0.015})`} />
