@@ -18,6 +18,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -28,7 +34,9 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Info, Trash2 } from "lucide-react";
+import { Info, Trash2, Check, CalendarIcon, X } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { format, parseISO } from "date-fns";
 import type { Task } from "@/hooks/useTasks";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 
@@ -78,6 +86,8 @@ const TaskDetailSheet = ({ task, onUpdate, onDelete }: TaskDetailSheetProps) => 
     setOpen(false);
   };
 
+  const selectedDate = dueDate ? parseISO(dueDate) : undefined;
+
   return (
     <Sheet open={open} onOpenChange={handleOpenChange}>
       <SheetTrigger asChild>
@@ -88,36 +98,72 @@ const TaskDetailSheet = ({ task, onUpdate, onDelete }: TaskDetailSheetProps) => 
           <Info className="h-4 w-4" />
         </button>
       </SheetTrigger>
-      <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
-        <SheetHeader>
-          <SheetTitle>Task Details</SheetTitle>
-        </SheetHeader>
-        <div className="space-y-5 mt-6">
-          <div className="space-y-2">
-            <Label htmlFor="detail-title">Title</Label>
+      <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto bg-muted/40 p-0">
+        <div className="p-6">
+          <SheetHeader>
+            <SheetTitle>Task Details</SheetTitle>
+          </SheetHeader>
+        </div>
+        <div className="space-y-5 px-6 pb-6">
+          <div className="space-y-1.5">
+            <Label htmlFor="detail-title" className="text-xs text-muted-foreground">Title</Label>
             <Input
               id="detail-title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
+              className="bg-background rounded-lg"
             />
           </div>
-          <div className="space-y-2">
-            <Label>Description</Label>
-            <RichTextEditor content={description} onChange={setDescription} />
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground">Description</Label>
+            <div className="bg-background rounded-lg border border-input overflow-hidden">
+              <RichTextEditor content={description} onChange={setDescription} />
+            </div>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="detail-due">Due date</Label>
-            <Input
-              id="detail-due"
-              type="date"
-              value={dueDate}
-              onChange={(e) => setDueDate(e.target.value)}
-            />
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground">Due date</Label>
+            <div className="flex items-center gap-2">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "flex-1 justify-start text-left font-normal bg-background rounded-lg",
+                      !dueDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {dueDate ? format(selectedDate!, "PPP") : "No due date"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={(date) => {
+                      setDueDate(date ? format(date, "yyyy-MM-dd") : "");
+                    }}
+                    initialFocus
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
+              {dueDate && (
+                <button
+                  type="button"
+                  onClick={() => setDueDate("")}
+                  className="flex items-center justify-center min-w-[44px] min-h-[44px] text-muted-foreground hover:text-foreground transition-colors"
+                  aria-label="Clear due date"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+            </div>
           </div>
-          <div className="space-y-2">
-            <Label>Assign to</Label>
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground">Assign to</Label>
             <Select value={assignedTo} onValueChange={setAssignedTo}>
-              <SelectTrigger>
+              <SelectTrigger className="bg-background rounded-lg">
                 <SelectValue placeholder="Unassigned" />
               </SelectTrigger>
               <SelectContent>
@@ -131,13 +177,15 @@ const TaskDetailSheet = ({ task, onUpdate, onDelete }: TaskDetailSheetProps) => 
             </Select>
           </div>
 
-          <div className="flex items-center justify-between pt-4 border-t">
+          <div className="flex items-center justify-between pt-4 border-t border-border">
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button variant="destructive" size="sm">
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Delete
-                </Button>
+                <button
+                  className="flex items-center justify-center min-w-[44px] min-h-[44px] rounded-lg bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors"
+                  aria-label="Delete task"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
@@ -161,9 +209,14 @@ const TaskDetailSheet = ({ task, onUpdate, onDelete }: TaskDetailSheetProps) => 
               </AlertDialogContent>
             </AlertDialog>
 
-            <Button onClick={handleSave} disabled={!title.trim()}>
-              Save
-            </Button>
+            <button
+              onClick={handleSave}
+              disabled={!title.trim()}
+              className="flex items-center justify-center min-w-[44px] min-h-[44px] rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:pointer-events-none"
+              aria-label="Save task"
+            >
+              <Check className="h-4 w-4" />
+            </button>
           </div>
         </div>
       </SheetContent>
