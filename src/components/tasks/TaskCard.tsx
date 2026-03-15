@@ -37,29 +37,24 @@ const getNotesPreviewHtml = (html: string) => {
   const root = document.createElement("div");
   root.innerHTML = html;
 
-  const toInlineHtml = (element: Element) => {
-    const clone = element.cloneNode(true) as HTMLElement;
+  // Find the first meaningful content node
+  const firstLi = root.querySelector("li");
+  if (firstLi) {
+    // Preserve inline formatting (bold, italic, links) but strip block wrappers
+    const inner = firstLi.innerHTML.replace(/<br\s*\/?>/gi, " ").replace(/\s+/g, " ").trim();
+    return `• ${inner}`;
+  }
 
-    clone.querySelectorAll("p,div,ul,ol,li").forEach((node) => {
-      const fragment = document.createDocumentFragment();
-      while (node.firstChild) fragment.appendChild(node.firstChild);
-      node.replaceWith(fragment);
-    });
+  const firstP = root.querySelector("p");
+  if (firstP) {
+    return firstP.innerHTML.replace(/<br\s*\/?>/gi, " ").replace(/\s+/g, " ").trim();
+  }
 
-    clone.querySelectorAll("br").forEach((node) => {
-      node.replaceWith(document.createTextNode(" "));
-    });
-
-    return clone.innerHTML.replace(/\s+/g, " ").trim();
-  };
-
-  const firstListItem = root.querySelector("li");
-  if (firstListItem) return `• ${toInlineHtml(firstListItem)}`;
-
-  const firstParagraph = root.querySelector("p");
-  if (firstParagraph) return toInlineHtml(firstParagraph);
-
-  return toInlineHtml(root);
+  // Fallback: strip block tags but keep inline formatting
+  return root.innerHTML
+    .replace(/<\/?(?:p|div|ul|ol|li|br)\s*\/?>/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 };
 
 const TaskCard = ({

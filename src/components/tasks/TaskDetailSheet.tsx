@@ -94,7 +94,7 @@ const TaskDetailSheet = ({ task, onUpdate, onDelete }: TaskDetailSheetProps) => 
           <Info className="h-4 w-4" />
         </button>
       </DialogTrigger>
-      <DialogContent className="w-[calc(100%-2rem)] max-w-md overflow-y-auto bg-muted border-border rounded-xl p-0 max-h-[85vh]" overlayClassName="bg-background/60 backdrop-blur-sm">
+      <DialogContent className="w-[calc(100%-2rem)] max-w-md overflow-y-auto bg-[hsl(210,20%,92%)] border-border rounded-xl p-0 max-h-[85vh]" overlayClassName="bg-background/40 backdrop-blur-sm">
         <div className="p-6 pb-0">
           <DialogHeader>
             <DialogTitle>Task Details</DialogTitle>
@@ -102,7 +102,7 @@ const TaskDetailSheet = ({ task, onUpdate, onDelete }: TaskDetailSheetProps) => 
         </div>
         <div className="space-y-5 px-6 pb-6">
           <div className="space-y-1.5">
-            <Label htmlFor="detail-title" className="text-xs text-muted-foreground">Title</Label>
+            <Label htmlFor="detail-title" className="text-xs font-normal text-[hsl(215,15%,55%)]">Title</Label>
             <Input
               id="detail-title"
               value={title}
@@ -111,7 +111,7 @@ const TaskDetailSheet = ({ task, onUpdate, onDelete }: TaskDetailSheetProps) => 
             />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs text-muted-foreground">Due date</Label>
+            <Label className="text-xs font-normal text-[hsl(215,15%,55%)]">Due date</Label>
             <div className="flex items-center gap-2">
               <Popover>
                 <PopoverTrigger asChild>
@@ -151,7 +151,7 @@ const TaskDetailSheet = ({ task, onUpdate, onDelete }: TaskDetailSheetProps) => 
             </div>
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs text-muted-foreground">Assign to</Label>
+            <Label className="text-xs font-normal text-[hsl(215,15%,55%)]">Assign to</Label>
             <Select value={assignedTo} onValueChange={setAssignedTo}>
               <SelectTrigger className="bg-background rounded-lg">
                 <SelectValue placeholder="Unassigned" />
