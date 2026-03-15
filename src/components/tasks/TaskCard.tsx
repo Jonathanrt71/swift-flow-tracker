@@ -102,13 +102,15 @@ const TaskCard = ({
           </div>
           {expanded &&
           <div className="flex items-center gap-1 shrink-0">
+              {canEdit && canAddSubtasks && !hasExpandedChild && !hideAddButton &&
+                <CreateTaskDialog onSubmit={onCreateSubtask} parentId={task.id} iconOnly buttonBg={parentStarred ? `rgba(220,38,38,${(depth + 1) * 0.02})` : `rgba(0,0,0,${(depth + 1) * 0.015})`} />
+              }
               <EditTaskDialog task={task} onSubmit={onUpdate} />
               <Button
               variant="ghost"
               size="icon"
               className="h-8 w-8 text-muted-foreground hover:text-destructive"
               onClick={() => onDelete(task.id)}>
-              
                 <Trash2 className="h-3.5 w-3.5" />
               </Button>
             </div>
@@ -132,11 +134,6 @@ const TaskCard = ({
             onExpandChange={handleChildExpandChange}
             hideAddButton={hideAddButton} />
           )}
-            {canEdit && canAddSubtasks && !hasExpandedChild && !hideAddButton &&
-          <div style={{ marginLeft: `${(depth + 1) * 8}px` }}>
-                <CreateTaskDialog onSubmit={onCreateSubtask} parentId={task.id} iconOnly buttonBg={parentStarred ? `rgba(220,38,38,${(depth + 1) * 0.02})` : `rgba(0,0,0,${(depth + 1) * 0.015})`} />
-              </div>
-          }
           </div>
         }
       </div>);
