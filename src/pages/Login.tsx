@@ -58,9 +58,9 @@ const Login = () => {
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl">Sign in</CardTitle>
-          <CardDescription>
-            {showForgot ? "Enter your email to reset your password" : "Enter your credentials to continue"}
-          </CardDescription>
+          {showForgot && (
+            <CardDescription>Enter your email to reset your password</CardDescription>
+          )}
         </CardHeader>
         <form onSubmit={showForgot ? handleForgotPassword : handleLogin}>
           <CardContent className="space-y-4">
