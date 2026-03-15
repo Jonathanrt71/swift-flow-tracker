@@ -89,20 +89,20 @@ const TaskDetailSheet = ({ task, onUpdate, onDelete }: TaskDetailSheetProps) => 
   const selectedDate = dueDate ? parseISO(dueDate) : undefined;
 
   return (
-    <Sheet open={open} onOpenChange={handleOpenChange}>
-      <SheetTrigger asChild>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogTrigger asChild>
         <button
           className="flex items-center justify-center min-w-[44px] min-h-[44px] text-muted-foreground hover:text-foreground transition-colors"
           aria-label="View details"
         >
           <Info className="h-4 w-4" />
         </button>
-      </SheetTrigger>
-      <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto bg-muted/40 p-0">
-        <div className="p-6">
-          <SheetHeader>
-            <SheetTitle>Task Details</SheetTitle>
-          </SheetHeader>
+      </DialogTrigger>
+      <DialogContent className="w-[calc(100%-2rem)] max-w-md overflow-y-auto bg-muted border-border rounded-xl p-0 max-h-[85vh]">
+        <div className="p-6 pb-0">
+          <DialogHeader>
+            <DialogTitle>Task Details</DialogTitle>
+          </DialogHeader>
         </div>
         <div className="space-y-5 px-6 pb-6">
           <div className="space-y-1.5">
