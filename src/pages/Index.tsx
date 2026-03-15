@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { cn } from "@/lib/utils";
 import { useTasks } from "@/hooks/useTasks";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LogOut, CheckCircle2, ListTodo, Shield, User, Star, UserCheck } from "lucide-react";
+import { LogOut, CheckCircle2, ListTodo, Shield, User, Star, UserCheck, ArrowUpDown } from "lucide-react";
 import TaskCard from "@/components/tasks/TaskCard";
 import CreateTaskDialog from "@/components/tasks/CreateTaskDialog";
 import NotificationBell from "@/components/NotificationBell";
@@ -13,6 +14,7 @@ import type { Task } from "@/hooks/useTasks";
 import { useToast } from "@/components/ui/use-toast";
 
 const Index = () => {
+  const [sortByAssignee, setSortByAssignee] = useState(false);
   const { user, signOut } = useAuth();
   const { isAdmin } = useAdmin();
   const {
@@ -39,13 +41,28 @@ const Index = () => {
   const assignedToMe = activeTasks.filter(isAssignedToMe);
   const starredTasks = activeTasks.filter((t) => t.starred);
 
-  const overdueTasks = activeTasks.filter(
-    (t) => t.due_date && new Date(t.due_date) < now
-  );
-  const upcomingTasks = activeTasks.filter(
-    (t) => !t.due_date || new Date(t.due_date) >= now
-  );
-  const sortedActive = [...overdueTasks, ...upcomingTasks];
+  // Default sort: starred first, then due date (soonest first, no date last)
+  const sortByDueDate = (a: Task, b: Task) => {
+    if (!a.due_date && !b.due_date) return 0;
+    if (!a.due_date) return 1;
+    if (!b.due_date) return -1;
+    return new Date(a.due_date).getTime() - new Date(b.due_date).getTime();
+  };
+
+  const sortedActive = [...activeTasks].sort((a, b) => {
+    if (sortByAssignee) {
+      // Sort by assignee (assigned first, then alphabetically by id), then due date
+      if (a.assigned_to && !b.assigned_to) return -1;
+      if (!a.assigned_to && b.assigned_to) return 1;
+      if (a.assigned_to && b.assigned_to && a.assigned_to !== b.assigned_to) {
+        return a.assigned_to.localeCompare(b.assigned_to);
+      }
+      return sortByDueDate(a, b);
+    }
+    // Default: starred first, then due date
+    if (a.starred !== b.starred) return a.starred ? -1 : 1;
+    return sortByDueDate(a, b);
+  });
 
   const isOverdue = (task: { due_date: string | null; completed: boolean }) =>
     !task.completed && !!task.due_date && new Date(task.due_date) < now;
@@ -126,12 +143,28 @@ const Index = () => {
                 <CheckCircle2 className="h-4 w-4" />
               </TabsTrigger>
             </TabsList>
-            <div className="bg-muted rounded-lg p-1">
-              <CreateTaskDialog
-                onSubmit={(data) => createTask.mutate(data)}
-                loading={createTask.isPending}
-                inlineIcon
-              />
+            <div className="flex items-center gap-1">
+              <div className="bg-muted rounded-lg p-1">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className={cn(
+                    "h-8 w-8",
+                    sortByAssignee && "bg-background text-foreground shadow-sm"
+                  )}
+                  title="Sort by assignee"
+                  onClick={() => setSortByAssignee((v) => !v)}
+                >
+                  <ArrowUpDown className="h-4 w-4" />
+                </Button>
+              </div>
+              <div className="bg-muted rounded-lg p-1">
+                <CreateTaskDialog
+                  onSubmit={(data) => createTask.mutate(data)}
+                  loading={createTask.isPending}
+                  inlineIcon
+                />
+              </div>
             </div>
           </div>
 
