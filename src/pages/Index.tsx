@@ -143,15 +143,11 @@ const Index = () => {
                 <CheckCircle2 className="h-4 w-4" />
               </TabsTrigger>
             </TabsList>
-            <div className="flex items-center gap-1">
-              <div className="bg-muted rounded-lg p-1">
-                <CreateTaskDialog
-                  onSubmit={(data) => createTask.mutate(data)}
-                  loading={createTask.isPending}
-                  inlineIcon
-                />
-              </div>
-            </div>
+            <CreateTaskDialog
+              onSubmit={(data) => createTask.mutate(data)}
+              loading={createTask.isPending}
+              inlineIcon
+            />
           </div>
 
           <TabsContent value="active" className="space-y-3 mt-0">

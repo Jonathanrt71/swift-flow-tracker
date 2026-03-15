@@ -62,7 +62,6 @@ const TaskCard = ({
   onToggleStar,
 }: TaskCardProps) => {
   const [expanded, setExpanded] = useState(false);
-  const [showActions, setShowActions] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
   const hasChildren = task.subtasks && task.subtasks.length > 0;
   const canAddSubtasks =
@@ -72,16 +71,15 @@ const TaskCard = ({
     task.description.trim() !== "<p></p>";
 
   useEffect(() => {
-    if (!showActions && !expanded) return;
+    if (!expanded) return;
     const handler = (e: MouseEvent) => {
       if (cardRef.current && !cardRef.current.contains(e.target as Node)) {
-        setShowActions(false);
         setExpanded(false);
       }
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
-  }, [showActions, expanded]);
+  }, [expanded]);
 
   // ── Subtask row (depth > 0) ──
   if (depth > 0) {
@@ -107,14 +105,14 @@ const TaskCard = ({
           <div className="flex items-center shrink-0">
             <button
               className="flex items-center justify-center min-w-[44px] min-h-[44px] text-muted-foreground hover:text-foreground transition-colors"
-              onClick={() => setShowActions(!showActions)}
+              onClick={() => setExpanded(!expanded)}
               aria-label="Task actions"
             >
               <MoreVertical className="h-4 w-4" />
             </button>
           </div>
         </div>
-        {showActions && (
+        {expanded && (
           <div className="flex items-center justify-end min-h-[36px] px-2 pb-1">
             <NotesEditorDialog task={task} onUpdate={onUpdate} />
             <TaskDetailSheet task={task} onUpdate={onUpdate} onDelete={onDelete} />
@@ -159,14 +157,7 @@ const TaskCard = ({
         <div className="flex items-center shrink-0">
           <button
             className="flex items-center justify-center min-w-[44px] min-h-[44px] text-muted-foreground hover:text-foreground transition-colors"
-            onClick={() => {
-              if (!expanded) {
-                setExpanded(true);
-                setShowActions(true);
-              } else {
-                setShowActions(!showActions);
-              }
-            }}
+            onClick={() => setExpanded(!expanded)}
             aria-label="Task actions"
           >
             <MoreVertical className="h-4 w-4" />
@@ -205,9 +196,8 @@ const TaskCard = ({
                 />
               )}
             </div>
-            {showActions && (
-              <div className="flex items-center shrink-0">
-                {canAddSubtasks && onCreateSubtask && (
+            <div className="flex items-center shrink-0">
+              {canAddSubtasks && onCreateSubtask && (
                   <CreateTaskDialog
                     onSubmit={onCreateSubtask}
                     parentId={task.id}
@@ -216,8 +206,7 @@ const TaskCard = ({
                 )}
                 <NotesEditorDialog task={task} onUpdate={onUpdate} />
                 <TaskDetailSheet task={task} onUpdate={onUpdate} onDelete={onDelete} />
-              </div>
-            )}
+            </div>
           </div>
 
           {/* Subtasks */}
