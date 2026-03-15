@@ -234,6 +234,7 @@ const TaskCard = ({
             </div>
           }
 
+        </CardContent>
       }
     </Card>);
 
