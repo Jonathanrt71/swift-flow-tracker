@@ -232,7 +232,8 @@ const TaskCard = ({
           onCreateSubtask={onCreateSubtask}
           onToggleStar={onToggleStar}
           onExpandChange={handleChildExpandChange} />
-        )
+        )}
+
         </CardContent>
       }
     </Card>);
