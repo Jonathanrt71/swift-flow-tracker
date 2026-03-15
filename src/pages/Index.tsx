@@ -6,7 +6,13 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LogOut, CheckCircle2, ListTodo, Shield, User, Star, UserCheck, ArrowUpDown } from "lucide-react";
+import { LogOut, CheckCircle2, ListTodo, Shield, User, Star, UserCheck, SlidersHorizontal } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import TaskCard from "@/components/tasks/TaskCard";
 import CreateTaskDialog from "@/components/tasks/CreateTaskDialog";
 import NotificationBell from "@/components/NotificationBell";
