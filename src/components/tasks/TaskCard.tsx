@@ -198,7 +198,7 @@ const TaskCard = ({
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8"
+              className="p-1"
               onClick={() => onToggleStar({ id: task.id, starred: !task.starred })}>
               <Star className={cn("h-3.5 w-3.5", task.starred ? "fill-starred text-starred" : "text-muted-foreground")} />
             </Button>
