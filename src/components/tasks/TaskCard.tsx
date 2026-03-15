@@ -66,6 +66,7 @@ const TaskCard = ({
 
   const hasExpandedChild = expandedChildId !== null;
   const { user } = useAuth();
+  const { data: members } = useTeamMembers();
   const canEdit = user?.id === task.created_by || user?.id === task.assigned_to;
   const hasChildren = task.subtasks && task.subtasks.length > 0;
   const isExpandable = hasChildren || canEdit && depth < MAX_DEPTH;
@@ -207,7 +208,17 @@ const TaskCard = ({
       </CardHeader>
 
       {expanded &&
-      <CardContent className="px-4 pb-4 pt-0 space-y-1">
+      <CardContent className="px-4 pb-3 pt-1 space-y-2">
+          {(task.description || task.due_date || task.assigned_to) && (
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground pl-1">
+              {task.description && <span>{task.description}</span>}
+              {task.due_date && <span>Due: {new Date(task.due_date).toLocaleDateString()}</span>}
+              {task.assigned_to && members && (() => {
+                const member = members.find(m => m.id === task.assigned_to);
+                return member ? <span>Assigned: {member.display_name || "Unnamed"}</span> : null;
+              })()}
+            </div>
+          )}
           {task.subtasks?.map((sub) =>
         <TaskCard
           key={sub.id}
