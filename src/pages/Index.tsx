@@ -126,7 +126,7 @@ const Index = () => {
       <main className="container max-w-2xl px-4 py-6">
         <Tabs defaultValue="active">
           <div className="flex items-center justify-between mb-4">
-            <TabsList className="gap-1 h-auto p-1 bg-muted">
+            <TabsList className="gap-1 h-auto p-1 bg-transparent">
               <TabsTrigger value="active" className="h-8 w-8 p-0" title="All Tasks">
                 <ListTodo className="h-4 w-4" />
               </TabsTrigger>

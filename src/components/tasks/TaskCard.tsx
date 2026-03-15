@@ -459,7 +459,10 @@ const TaskCard = ({
 
       {/* Expanded: subtasks */}
       {expanded && hasChildren && (
-        <div className="pb-2 pl-8 pr-2">
+        <div className={cn(
+          "pb-2 pl-8 pr-2 pt-1 rounded-b-lg",
+          task.starred ? "bg-[hsl(0,55%,83%)]" : "bg-[hsl(210,25%,94%)]"
+        )}>
           {task.subtasks!.map((sub) => (
             <SubtaskRow
               key={sub.id}
