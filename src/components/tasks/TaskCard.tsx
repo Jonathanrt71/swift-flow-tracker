@@ -75,7 +75,7 @@ const TaskCard = ({
   // For nested subtasks, use a simpler inline layout
   if (depth > 0) {
     return (
-      <div className={cn("space-y-1 rounded", isOverdue && "bg-warning/5")} style={{ marginLeft: `${depth * 16}px`, backgroundColor: isOverdue ? undefined : parentStarred ? `rgba(220,38,38,${depth * 0.02})` : `rgba(0,0,0,${depth * 0.015})` }}>
+      <div className={cn("space-y-1 rounded", isOverdue && "bg-warning/5")} style={{ marginLeft: `${depth * 8}px`, backgroundColor: isOverdue ? undefined : parentStarred ? `rgba(220,38,38,${depth * 0.02})` : `rgba(0,0,0,${depth * 0.015})` }}>
         <div className="flex items-start gap-3 py-1">
           <div className="flex-1 min-w-0 flex items-start gap-2" style={{ paddingLeft: '2px' }}>
             <Checkbox
@@ -133,7 +133,7 @@ const TaskCard = ({
             hideAddButton={hideAddButton} />
           )}
             {canEdit && canAddSubtasks && !hasExpandedChild && !hideAddButton &&
-          <div style={{ marginLeft: `${(depth + 1) * 16}px` }}>
+          <div style={{ marginLeft: `${(depth + 1) * 8}px` }}>
                 <CreateTaskDialog onSubmit={onCreateSubtask} parentId={task.id} iconOnly buttonBg={parentStarred ? `rgba(220,38,38,${(depth + 1) * 0.02})` : `rgba(0,0,0,${(depth + 1) * 0.015})`} />
               </div>
           }
@@ -229,7 +229,7 @@ const TaskCard = ({
           onExpandChange={handleChildExpandChange} />
         )}
           {canEdit && canAddSubtasks && !hasExpandedChild &&
-            <div style={{ marginLeft: `${1 * 16}px` }}>
+            <div style={{ marginLeft: `${1 * 8}px` }}>
               <CreateTaskDialog onSubmit={onCreateSubtask} parentId={task.id} iconOnly buttonBg={task.starred ? `rgba(220,38,38,${1 * 0.02})` : `rgba(0,0,0,${1 * 0.015})`} />
             </div>
           }
