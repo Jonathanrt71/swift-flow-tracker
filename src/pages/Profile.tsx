@@ -90,7 +90,7 @@ const Profile = () => {
     const { data: { publicUrl } } = supabase.storage.from("avatars").getPublicUrl(path);
     const url = `${publicUrl}?t=${Date.now()}`;
 
-    const { error: updateErr } = await supabase
+    const { error: updateErr } = await (supabase as any)
       .from("profiles")
       .update({ avatar_url: url })
       .eq("id", user.id);
