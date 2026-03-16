@@ -380,8 +380,15 @@ const TaskCard = ({
         <div className="flex items-center shrink-0">
           <button
             className="bg-transparent border-none cursor-pointer p-0 mr-1.5 flex items-center"
+            onPointerDown={(e) => {
+              e.stopPropagation();
+              barToggleIntentRef.current = task.id;
+            }}
             onClick={(e) => {
               e.stopPropagation();
+              const isKeyboardActivation = e.detail === 0;
+              if (!isKeyboardActivation && barToggleIntentRef.current !== task.id) return;
+              barToggleIntentRef.current = null;
               toggleBar(task.id);
             }}
           >
