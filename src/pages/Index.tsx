@@ -57,7 +57,11 @@ const Index = () => {
   const sortedByAssignee = [...activeTasks].sort((a, b) => {
     const nameA = teamMembers?.find((m) => m.id === (a.assigned_to || a.created_by))?.display_name || "";
     const nameB = teamMembers?.find((m) => m.id === (b.assigned_to || b.created_by))?.display_name || "";
-    return nameA.localeCompare(nameB);
+    const nameCmp = nameA.localeCompare(nameB);
+    if (nameCmp !== 0) return nameCmp;
+    // Same assignee: starred first
+    if (a.starred !== b.starred) return a.starred ? -1 : 1;
+    return 0;
   });
 
   const isOverdue = (task: { due_date: string | null; completed: boolean }) =>
