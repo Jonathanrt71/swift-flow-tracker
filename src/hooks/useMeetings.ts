@@ -24,7 +24,7 @@ export function useMeetings() {
     enabled: !!user,
     queryFn: async () => {
       // Get all meetings where user is creator or attendee
-      const { data: myMeetings, error: mErr } = await supabase
+      const { data: myMeetings, error: mErr } = await (supabase as any)
         .from("meetings")
         .select("*")
         .order("meeting_date", { ascending: true });
