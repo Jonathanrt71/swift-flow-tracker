@@ -100,16 +100,10 @@ const Index = () => {
     const days = Math.ceil(
       (new Date(task.due_date).getTime() - now.getTime()) / 86400000
     );
-    if (days <= 7) return 0;
+    if (days <= 7) return 0; // overdue and this week
     if (days <= 30) return 1;
     return 2;
   };
-
-  const Separator = () => (
-    <div className="py-1">
-      <div className="h-px bg-border" />
-    </div>
-  );
 
   const renderGroupedTaskList = (taskList: Task[], emptyIcon: React.ReactNode, emptyText: string) => {
     if (isLoading) {
@@ -133,8 +127,12 @@ const Index = () => {
 
     taskList.forEach((task) => {
       const bucket = getDueBucket(task);
-      if (prevBucket !== -1 && bucket !== prevBucket && bucket > 0 && bucket <= 2) {
-        elements.push(<Separator key={`sep-${task.id}`} />);
+      if (prevBucket !== -1 && bucket !== prevBucket && bucket >= 1 && bucket <= 2) {
+        elements.push(
+          <div key={`sep-${task.id}`} className="py-1">
+            <div className="h-px bg-border" />
+          </div>
+        );
       }
       prevBucket = bucket;
       elements.push(
