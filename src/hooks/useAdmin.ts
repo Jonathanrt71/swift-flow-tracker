@@ -37,7 +37,7 @@ export function useAdmin() {
     queryFn: async () => {
       const { data: profiles, error: pErr } = await supabase
         .from("profiles")
-        .select("id, display_name, first_name, last_name, created_at");
+        .select("id, display_name, first_name, last_name, email, created_at");
       if (pErr) throw pErr;
 
       const { data: roles, error: rErr } = await supabase
@@ -49,7 +49,7 @@ export function useAdmin() {
 
       return (profiles || []).map((p) => ({
         id: p.id,
-        email: "",
+        email: p.email || "",
         display_name: p.display_name,
         first_name: p.first_name,
         last_name: p.last_name,
@@ -69,9 +69,10 @@ export function useAdmin() {
       if (res.error) throw new Error(res.error.message || "Failed to invite user");
       if (res.data?.error) throw new Error(res.data.error);
 
-      // Update first/last name on the new profile
-      if (res.data?.user?.id && (data.first_name || data.last_name)) {
+      // Update first/last name and email on the new profile
+      if (res.data?.user?.id) {
         await supabase.from("profiles").update({
+          email: data.email,
           first_name: data.first_name || null,
           last_name: data.last_name || null,
         }).eq("id", res.data.user.id);

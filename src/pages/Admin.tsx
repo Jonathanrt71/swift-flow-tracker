@@ -354,6 +354,9 @@ const Admin = () => {
                             <p className="font-medium text-foreground">
                               {u.display_name || "Unnamed"}
                             </p>
+                            {u.email && (
+                              <p className="text-xs text-muted-foreground">{u.email}</p>
+                            )}
                             {isSelf && (
                               <span className="text-xs text-muted-foreground">(you)</span>
                             )}
