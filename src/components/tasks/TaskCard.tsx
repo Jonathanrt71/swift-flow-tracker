@@ -429,11 +429,6 @@ const TaskCard = ({
               <Star className="h-3.5 w-3.5 fill-[#B56B6B] text-[#B56B6B] shrink-0 mr-2" />
             )}
 
-            {/* Dot indicator for notes/subtasks */}
-            {hasContent(task) && (
-              <div className="w-[7px] h-[7px] min-w-[7px] min-h-[7px] rounded-full bg-[#7A8FA0] shrink-0 mr-2" />
-            )}
-
             {/* Avatar */}
             <AssigneeAvatar
               assignedTo={task.assigned_to || task.created_by}
