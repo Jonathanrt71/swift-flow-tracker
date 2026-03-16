@@ -42,6 +42,13 @@ const Index = () => {
     return new Date(a.due_date).getTime() - new Date(b.due_date).getTime();
   };
 
+  // Helper to check if task or any subtask is assigned to current user
+  const isAssignedToMe = (t: Task): boolean =>
+    t.assigned_to === user?.id || (t.subtasks?.some(isAssignedToMe) ?? false);
+
+  const assignedToMe = activeTasks.filter(isAssignedToMe).sort(sortByDueDate);
+  const starredTasks = activeTasks.filter((t) => t.starred);
+
   const sortedActive = [...activeTasks].sort(sortByDueDate);
 
   const sortedByAssignee = [...activeTasks].sort((a, b) => {
