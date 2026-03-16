@@ -171,44 +171,46 @@ const MeetingNotesDialog = ({
 
         {/* Action bar */}
         <div className="px-5 pb-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <CreateTaskDialog
-              onSubmit={onCreateTask}
-              meetingId={meeting.id}
-            >
-              <button className="flex items-center gap-1.5 bg-transparent border border-border rounded-lg px-3 py-2 cursor-pointer text-foreground text-[13px]">
-                <Plus className="h-3.5 w-3.5" />
-                Create task
+          {/* Delete — left */}
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <button className="flex items-center justify-center w-11 h-11 rounded-lg bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors">
+                <Trash2 className="h-4 w-4" />
               </button>
-            </CreateTaskDialog>
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <button className="flex items-center justify-center w-11 h-11 rounded-lg bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors">
-                  <Trash2 className="h-4 w-4" />
-                </button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Delete meeting?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This will permanently delete "{meeting.title}" and all its notes. This action cannot be undone.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={() => {
-                      onDelete(meeting.id);
-                      setOpen(false);
-                    }}
-                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                  >
-                    Delete
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </div>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete meeting?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This will permanently delete "{meeting.title}" and all its notes. This action cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={() => {
+                    onDelete(meeting.id);
+                    setOpen(false);
+                  }}
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                >
+                  Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+
+          {/* Create task — center */}
+          <CreateTaskDialog
+            onSubmit={onCreateTask}
+            meetingId={meeting.id}
+          >
+            <button className="flex items-center justify-center w-11 h-11 rounded-lg border border-border bg-transparent cursor-pointer text-foreground hover:bg-black/5 transition-colors">
+              <Plus className="h-4 w-4" />
+            </button>
+          </CreateTaskDialog>
+
+          {/* Save — right */}
           <button
             onClick={handleSave}
             className="flex items-center justify-center w-11 h-11 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
