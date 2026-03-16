@@ -11,7 +11,6 @@ import CreateMeetingDialog from "@/components/meetings/CreateMeetingDialog";
 import MeetingNotesDialog from "@/components/meetings/MeetingNotesDialog";
 import NotificationBell from "@/components/NotificationBell";
 import type { Meeting } from "@/hooks/useMeetings";
-import { format, parseISO } from "date-fns";
 
 const getInitials = (name: string | null): string => {
   if (!name) return "?";
@@ -49,29 +48,6 @@ const MeetingCard = ({
   const creatorName = creator?.display_name || "Unknown";
   const attendeeMembers = members.filter((m) => meeting.attendees.includes(m.id));
 
-  const formattedDate = (() => {
-    try {
-      return format(parseISO(meeting.meeting_date), "MMM d, yyyy");
-    } catch {
-      return meeting.meeting_date;
-    }
-  })();
-
-  const hasNotes =
-    meeting.notes &&
-    meeting.notes.trim() !== "" &&
-    meeting.notes.trim() !== "<p></p>";
-
-  // Strip HTML for preview
-  const notesPreview = hasNotes
-    ? (() => {
-        // Split by block-level tags to respect paragraph breaks
-        const firstBlock = meeting.notes!
-          .split(/<\/(?:p|li|h[1-6]|div|br\s*\/?)>/i)[0];
-        return firstBlock.replace(/<[^>]*>/g, "").trim().slice(0, 120);
-      })()
-    : null;
-
   return (
     <MeetingNotesDialog
       meeting={meeting}
@@ -80,72 +56,63 @@ const MeetingCard = ({
       onDelete={onDelete}
       onCreateTask={onCreateTask}
     >
-      <div className="bg-muted border border-border rounded-[10px] p-3 flex gap-2.5 cursor-pointer transition-all hover:border-border/80">
-        {/* Creator avatar */}
-        {creator?.avatar_url ? (
-          <img
-            src={creator.avatar_url}
-            className="w-7 h-7 rounded-full object-cover shrink-0 mt-0.5"
-            alt=""
-          />
-        ) : (
-          <div
-            className="w-7 h-7 rounded-full flex items-center justify-center text-white shrink-0 mt-0.5"
-            style={{
-              fontSize: 10,
-              fontWeight: 500,
-              background: getColor(creatorName),
-            }}
-          >
-            {getInitials(creatorName)}
-          </div>
-        )}
+      <div className="bg-muted border border-border rounded-[10px] flex items-center min-h-[48px] px-2 cursor-pointer transition-all hover:border-border/80">
+        {/* Dot */}
+        <div className="flex items-center justify-center min-w-[44px] min-h-[44px]">
+          <div className="w-2 h-2 rounded-full bg-[#7A8FA0]" />
+        </div>
 
-        <div className="flex-1 min-w-0">
-          <div className="text-sm font-medium text-foreground truncate">
-            {meeting.title}
-          </div>
-          <div className="text-xs text-muted-foreground mt-0.5">
-            {formattedDate}
-          </div>
+        {/* Title */}
+        <div className="flex-1 min-w-0 px-1">
+          <span className="font-medium text-sm truncate block">{meeting.title}</span>
+        </div>
 
-          {/* Attendee stack */}
-          {attendeeMembers.length > 0 && (
-            <div className="flex items-center mt-1.5">
-              {attendeeMembers.slice(0, 5).map((m, i) =>
-                m.avatar_url ? (
-                  <img
-                    key={m.id}
-                    src={m.avatar_url}
-                    className="w-[22px] h-[22px] rounded-full object-cover border-[1.5px] border-muted"
-                    style={{ marginLeft: i > 0 ? -4 : 0 }}
-                    alt=""
-                  />
-                ) : (
-                  <div
-                    key={m.id}
-                    className="w-[22px] h-[22px] rounded-full flex items-center justify-center text-white text-[8px] font-medium border-[1.5px] border-muted"
-                    style={{
-                      background: getColor(m.display_name),
-                      marginLeft: i > 0 ? -4 : 0,
-                    }}
-                  >
-                    {getInitials(m.display_name)}
-                  </div>
-                )
-              )}
-              {attendeeMembers.length > 5 && (
-                <span className="text-[11px] text-muted-foreground ml-1.5">
-                  +{attendeeMembers.length - 5}
-                </span>
-              )}
-            </div>
+        {/* Attendees + Creator avatar */}
+        <div className="flex items-center shrink-0 pr-1">
+          {attendeeMembers.slice(0, 5).map((m, i) =>
+            m.avatar_url ? (
+              <img
+                key={m.id}
+                src={m.avatar_url}
+                className="w-[22px] h-[22px] rounded-full object-cover border-[1.5px] border-muted"
+                style={{ marginLeft: i > 0 ? -4 : 0 }}
+                alt=""
+              />
+            ) : (
+              <div
+                key={m.id}
+                className="w-[22px] h-[22px] rounded-full flex items-center justify-center text-white text-[8px] font-medium border-[1.5px] border-muted"
+                style={{
+                  background: getColor(m.display_name),
+                  marginLeft: i > 0 ? -4 : 0,
+                }}
+              >
+                {getInitials(m.display_name)}
+              </div>
+            )
           )}
-
-          {/* Notes preview */}
-          {notesPreview && (
-            <div className="text-xs text-muted-foreground mt-1.5 line-clamp-1">
-              {notesPreview}
+          {attendeeMembers.length > 5 && (
+            <span className="text-[10px] text-muted-foreground ml-1">
+              +{attendeeMembers.length - 5}
+            </span>
+          )}
+          {/* Creator avatar */}
+          {creator?.avatar_url ? (
+            <img
+              src={creator.avatar_url}
+              className="w-7 h-7 rounded-full object-cover shrink-0 ml-1.5"
+              alt=""
+            />
+          ) : (
+            <div
+              className="w-7 h-7 rounded-full flex items-center justify-center text-white shrink-0 ml-1.5"
+              style={{
+                fontSize: 10,
+                fontWeight: 500,
+                background: getColor(creatorName),
+              }}
+            >
+              {getInitials(creatorName)}
             </div>
           )}
         </div>
