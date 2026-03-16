@@ -27,7 +27,7 @@ export function useMeetings() {
       const { data: myMeetings, error: mErr } = await (supabase as any)
         .from("meetings")
         .select("*")
-        .order("meeting_date", { ascending: true });
+        .order("meeting_date", { ascending: false });
       if (mErr) throw mErr;
 
       // Get attendees for these meetings
