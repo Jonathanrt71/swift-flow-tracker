@@ -8,7 +8,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Shield, User, LogOut, Search } from "lucide-react";
+import { Shield, User, LogOut, Search, Pencil } from "lucide-react";
+import { format, parseISO } from "date-fns";
 import BottomNav from "@/components/BottomNav";
 import CreateMeetingDialog from "@/components/meetings/CreateMeetingDialog";
 import MeetingNotesDialog from "@/components/meetings/MeetingNotesDialog";
@@ -54,47 +55,31 @@ const MeetingCard = ({
   const creator = members.find((m) => m.id === meeting.created_by);
   const creatorName = creator?.display_name || "Unknown";
   const attendeeMembers = members.filter((m) => meeting.attendees.includes(m.id));
-  const hasLinkedTasks = linkedTasks.length > 0;
+
+  const formattedDate = (() => {
+    try {
+      return format(parseISO(meeting.meeting_date), "MMM d, yyyy");
+    } catch {
+      return meeting.meeting_date;
+    }
+  })();
 
   return (
     <div className="bg-muted border border-border rounded-[10px] overflow-hidden transition-all">
+      {/* Top row — tap to expand */}
       <div
         className="flex items-center min-h-[48px] px-2 cursor-pointer"
-        onClick={() => {
-          if (hasLinkedTasks) setExpanded(!expanded);
-        }}
+        onClick={() => setExpanded(!expanded)}
       >
-        {/* Dot — opens notes dialog */}
-        <MeetingNotesDialog
-          meeting={meeting}
-          teamMembers={members}
-          onUpdate={onUpdate}
-          onDelete={onDelete}
-          onCreateTask={onCreateTask}
-        >
-          <div
-            className="flex items-center justify-center min-w-[44px] min-h-[44px] cursor-pointer"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="w-2 h-2 rounded-full bg-[#7A8FA0]" />
-          </div>
-        </MeetingNotesDialog>
+        {/* Dot */}
+        <div className="flex items-center justify-center min-w-[44px] min-h-[44px]">
+          <div className="w-2 h-2 rounded-full bg-[#7A8FA0]" />
+        </div>
 
         {/* Title */}
-        <MeetingNotesDialog
-          meeting={meeting}
-          teamMembers={members}
-          onUpdate={onUpdate}
-          onDelete={onDelete}
-          onCreateTask={onCreateTask}
-        >
-          <div
-            className="flex-1 min-w-0 px-1 cursor-pointer"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <span className="font-medium text-sm truncate block">{meeting.title}</span>
-          </div>
-        </MeetingNotesDialog>
+        <div className="flex-1 min-w-0 px-1">
+          <span className="font-medium text-sm truncate block">{meeting.title}</span>
+        </div>
 
         {/* Attendees + Creator avatar */}
         <div className="flex items-center shrink-0 pr-1">
@@ -146,58 +131,79 @@ const MeetingCard = ({
         </div>
       </div>
 
-      {/* Expanded: linked tasks */}
-      {expanded && hasLinkedTasks && (
+      {/* Expanded: date + pencil + linked tasks */}
+      {expanded && (
         <div className="pb-2 pl-[52px] pr-3">
-          <div className="text-[11px] text-muted-foreground mb-1.5">
-            {linkedTasks.length} task{linkedTasks.length !== 1 ? "s" : ""}
-          </div>
-          {linkedTasks.map((t) => {
-            const assignee = members.find((m) => m.id === t.assigned_to);
-            return (
-              <div
-                key={t.id}
-                className="flex items-center gap-1.5 px-2 py-1.5 mb-1 bg-background/50 rounded-md"
+          {/* Date left, pencil right */}
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[11px] text-muted-foreground">{formattedDate}</span>
+            <MeetingNotesDialog
+              meeting={meeting}
+              teamMembers={members}
+              onUpdate={onUpdate}
+              onDelete={onDelete}
+              onCreateTask={onCreateTask}
+            >
+              <button
+                className="flex items-center justify-center w-8 h-8 bg-transparent border-none cursor-pointer text-muted-foreground hover:text-foreground transition-colors"
+                onClick={(e) => e.stopPropagation()}
               >
-                <div
-                  className={cn(
-                    "w-3 h-3 rounded-sm border shrink-0",
-                    t.completed
-                      ? "bg-muted-foreground border-muted-foreground"
-                      : "bg-background border-muted-foreground/40"
-                  )}
-                />
-                <span
-                  className={cn(
-                    "text-xs flex-1 min-w-0 truncate",
-                    t.completed && "line-through text-muted-foreground"
-                  )}
-                >
-                  {t.title}
-                </span>
-                {assignee && (
-                  assignee.avatar_url ? (
-                    <img
-                      src={assignee.avatar_url}
-                      className="w-[18px] h-[18px] rounded-full object-cover shrink-0"
-                      alt=""
-                    />
-                  ) : (
+                <Pencil className="h-3.5 w-3.5" />
+              </button>
+            </MeetingNotesDialog>
+          </div>
+
+          {/* Linked tasks */}
+          {linkedTasks.length > 0 && (
+            <>
+              {linkedTasks.map((t) => {
+                const assignee = members.find((m) => m.id === t.assigned_to);
+                return (
+                  <div
+                    key={t.id}
+                    className="flex items-center gap-1.5 px-2 py-1.5 mb-1 bg-background/50 rounded-md"
+                  >
                     <div
-                      className="w-[18px] h-[18px] rounded-full flex items-center justify-center text-white shrink-0"
-                      style={{
-                        fontSize: 7,
-                        fontWeight: 500,
-                        background: getColor(assignee.display_name),
-                      }}
+                      className={cn(
+                        "w-3 h-3 rounded-sm border shrink-0",
+                        t.completed
+                          ? "bg-muted-foreground border-muted-foreground"
+                          : "bg-background border-muted-foreground/40"
+                      )}
+                    />
+                    <span
+                      className={cn(
+                        "text-xs flex-1 min-w-0 truncate",
+                        t.completed && "line-through text-muted-foreground"
+                      )}
                     >
-                      {getInitials(assignee.display_name)}
-                    </div>
-                  )
-                )}
-              </div>
-            );
-          })}
+                      {t.title}
+                    </span>
+                    {assignee && (
+                      assignee.avatar_url ? (
+                        <img
+                          src={assignee.avatar_url}
+                          className="w-[18px] h-[18px] rounded-full object-cover shrink-0"
+                          alt=""
+                        />
+                      ) : (
+                        <div
+                          className="w-[18px] h-[18px] rounded-full flex items-center justify-center text-white shrink-0"
+                          style={{
+                            fontSize: 7,
+                            fontWeight: 500,
+                            background: getColor(assignee.display_name),
+                          }}
+                        >
+                          {getInitials(assignee.display_name)}
+                        </div>
+                      )
+                    )}
+                  </div>
+                );
+              })}
+            </>
+          )}
         </div>
       )}
     </div>
