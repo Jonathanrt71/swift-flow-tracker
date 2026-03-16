@@ -62,7 +62,12 @@ const MeetingCard = ({
 
   // Strip HTML for preview
   const notesPreview = hasNotes
-    ? meeting.notes!.replace(/<[^>]*>/g, "").slice(0, 120)
+    ? (() => {
+        // Split by block-level tags to respect paragraph breaks
+        const firstBlock = meeting.notes!
+          .split(/<\/(?:p|li|h[1-6]|div|br\s*\/?)>/i)[0];
+        return firstBlock.replace(/<[^>]*>/g, "").trim().slice(0, 120);
+      })()
     : null;
 
   return (
@@ -136,7 +141,7 @@ const MeetingCard = ({
 
           {/* Notes preview */}
           {notesPreview && (
-            <div className="text-xs text-muted-foreground mt-1.5 line-clamp-2">
+            <div className="text-xs text-muted-foreground mt-1.5 line-clamp-1">
               {notesPreview}
             </div>
           )}
