@@ -35,9 +35,10 @@ interface CreateTaskDialogProps {
   iconOnly?: boolean;
   inlineIcon?: boolean;
   iconTrigger?: boolean;
+  children?: React.ReactNode;
 }
 
-const CreateTaskDialog = ({ onSubmit, parentId, loading, iconOnly, inlineIcon, iconTrigger }: CreateTaskDialogProps) => {
+const CreateTaskDialog = ({ onSubmit, parentId, loading, iconOnly, inlineIcon, iconTrigger, children }: CreateTaskDialogProps) => {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -80,7 +81,9 @@ const CreateTaskDialog = ({ onSubmit, parentId, loading, iconOnly, inlineIcon, i
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        {iconTrigger ? (
+        {children ? (
+          children
+        ) : iconTrigger ? (
           <button data-no-swipe className="flex items-center justify-center w-full h-full bg-transparent border-none cursor-pointer" aria-label="Add subtask">
             <Plus className="h-4 w-4 text-foreground" />
           </button>

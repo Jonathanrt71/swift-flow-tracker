@@ -9,6 +9,7 @@ import { LogOut, CheckCircle2, ListTodo, Shield, User, Star, UserCheck, Users, H
 import TaskCard from "@/components/tasks/TaskCard";
 import CreateTaskDialog from "@/components/tasks/CreateTaskDialog";
 import NotificationBell from "@/components/NotificationBell";
+import BottomNav from "@/components/BottomNav";
 import type { Task } from "@/hooks/useTasks";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { useToast } from "@/components/ui/use-toast";
@@ -208,7 +209,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-16">
       <header className="bg-[hsl(33,22%,88%)]">
         <div className="container flex items-center justify-between h-14 px-4">
           <h1 className="text-lg font-semibold text-foreground">Tasks</h1>
@@ -312,6 +313,7 @@ const Index = () => {
           </TabsContent>
         </Tabs>
       </main>
+      <BottomNav />
     </div>
   );
 };
