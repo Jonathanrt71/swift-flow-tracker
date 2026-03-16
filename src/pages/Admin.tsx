@@ -15,17 +15,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import {
   Select,
   SelectContent,
   SelectItem,
@@ -41,7 +30,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ArrowLeft, Plus, Shield, Trash2, Pencil, Check, X } from "lucide-react";
+import { ArrowLeft, Plus, Shield, Pencil, Check, X } from "lucide-react";
 import type { UserRole, ManagedUser } from "@/hooks/useAdmin";
 
 /* ── Edit User Dialog ── */
@@ -50,13 +39,11 @@ const EditUserDialog = ({
   isSelf,
   onUpdateRole,
   onUpdateProfile,
-  onDelete,
 }: {
   u: ManagedUser;
   isSelf: boolean;
   onUpdateRole: (data: { user_id: string; role: UserRole }) => void;
   onUpdateProfile: (data: { id: string; display_name?: string; first_name?: string; last_name?: string }) => void;
-  onDelete: (id: string) => void;
 }) => {
   const [open, setOpen] = useState(false);
   const [role, setRole] = useState<UserRole>(u.role);
@@ -156,40 +143,7 @@ const EditUserDialog = ({
             )}
           </div>
 
-          <div className="flex items-center justify-between pt-3 border-t border-border">
-            {!isSelf ? (
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <button className="flex items-center justify-center w-11 h-11 rounded-lg bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors">
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Remove user?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This will permanently delete{" "}
-                      <strong>{u.display_name || "this user"}</strong> and all
-                      their data. This action cannot be undone.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={() => {
-                        onDelete(u.id);
-                        setOpen(false);
-                      }}
-                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                    >
-                      Delete
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            ) : (
-              <div />
-            )}
+          <div className="flex items-center justify-end pt-3 border-t border-border">
             <button
               onClick={handleSave}
               className="flex items-center justify-center w-11 h-11 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
@@ -326,7 +280,7 @@ const AddUserDialog = ({
 /* ── Admin Page ── */
 const Admin = () => {
   const { user } = useAuth();
-  const { isAdmin, isAdminLoading, users, inviteUser, updateRole, updateProfile, deleteUser } = useAdmin();
+  const { isAdmin, isAdminLoading, users, inviteUser, updateRole, updateProfile } = useAdmin();
   const { settings, updateSetting } = useAppSettings();
 
   const [facultyLimit, setFacultyLimit] = useState("");
@@ -414,7 +368,6 @@ const Admin = () => {
                             isSelf={isSelf}
                             onUpdateRole={(data) => updateRole.mutate(data)}
                             onUpdateProfile={(data) => updateProfile.mutate(data)}
-                            onDelete={(id) => deleteUser.mutate(id)}
                           />
                         </TableCell>
                       </TableRow>
