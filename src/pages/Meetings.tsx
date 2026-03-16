@@ -179,7 +179,7 @@ const Meetings = () => {
         </div>
       </header>
 
-      <main className="container px-4 py-2">
+      <main className="container max-w-2xl px-4 py-6">
         <div className="flex items-center justify-between py-2.5">
           <span className="text-[11px] font-medium text-muted-foreground">
             {meetings.data?.length || 0} meeting{(meetings.data?.length || 0) !== 1 ? "s" : ""}
