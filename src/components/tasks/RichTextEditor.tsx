@@ -1,8 +1,10 @@
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
+import TaskList from "@tiptap/extension-task-list";
+import TaskItem from "@tiptap/extension-task-item";
 import { Button } from "@/components/ui/button";
-import { Bold, Italic, List, ListOrdered, Link as LinkIcon, Unlink } from "lucide-react";
+import { Bold, Italic, List, ListOrdered, ListChecks, Link as LinkIcon, Unlink } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCallback } from "react";
 
@@ -20,6 +22,10 @@ const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
         HTMLAttributes: {
           class: "text-primary underline cursor-pointer",
         },
+      }),
+      TaskList,
+      TaskItem.configure({
+        nested: true,
       }),
     ],
     content,
@@ -85,6 +91,15 @@ const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
           type="button"
           variant="ghost"
           size="icon"
+          className={cn("h-7 w-7", editor.isActive("taskList") && "bg-muted")}
+          onClick={() => editor.chain().focus().toggleTaskList().run()}
+        >
+          <ListChecks className="h-3.5 w-3.5" />
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
           className={cn("h-7 w-7", editor.isActive("link") && "bg-muted")}
           onClick={setLink}
         >
@@ -110,7 +125,13 @@ const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
           "[&_.ProseMirror_ul]:list-disc [&_.ProseMirror_ul]:pl-5 [&_.ProseMirror_ul]:my-1",
           "[&_.ProseMirror_ol]:list-decimal [&_.ProseMirror_ol]:pl-5 [&_.ProseMirror_ol]:my-1",
           "[&_.ProseMirror_li]:my-0.5",
-          "[&_.ProseMirror_p]:my-1"
+          "[&_.ProseMirror_p]:my-1",
+          "[&_.ProseMirror_ul[data-type=taskList]]:list-none [&_.ProseMirror_ul[data-type=taskList]]:pl-0",
+          "[&_.ProseMirror_li[data-type=taskItem]]:flex [&_.ProseMirror_li[data-type=taskItem]]:items-start [&_.ProseMirror_li[data-type=taskItem]]:gap-2 [&_.ProseMirror_li[data-type=taskItem]]:my-1",
+          "[&_.ProseMirror_li[data-type=taskItem]>label]:mt-0.5",
+          "[&_.ProseMirror_li[data-type=taskItem]>label_input]:cursor-pointer",
+          "[&_.ProseMirror_li[data-type=taskItem]>div]:flex-1",
+          "[&_.ProseMirror_li[data-checked=true]>div]:line-through [&_.ProseMirror_li[data-checked=true]>div]:opacity-50"
         )}
       />
     </div>
