@@ -93,7 +93,7 @@ const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
           variant="ghost"
           size="icon"
           className={cn("h-7 w-7", editor.isActive("taskList") && "bg-muted")}
-          onClick={() => editor.chain().focus().toggleTaskList().run()}
+          onClick={() => (editor.chain().focus() as any).toggleTaskList().run()}
         >
           <ListChecks className="h-3.5 w-3.5" />
         </Button>
