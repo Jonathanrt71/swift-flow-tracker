@@ -64,16 +64,14 @@ const NotesEditorDialog = ({
   const handleOpenChange = (isOpen: boolean) => {
     if (isOpen) setDescription(task.description || "");
     setOpen(isOpen);
-    if (!isOpen) {
-      // Use setTimeout to ensure the dialog fully closes before closing action bar
-      setTimeout(() => onSaved?.(), 50);
-    }
   };
 
   const handleSave = () => {
-    onUpdate({ id: task.id, description: description.trim() });
+    const trimmed = description.trim();
+    // Close first, then update — so onSaved fires before re-render
     setOpen(false);
-    setTimeout(() => onSaved?.(), 50);
+    onSaved?.();
+    onUpdate({ id: task.id, description: trimmed });
   };
 
   const displayName = assigneeName || "Unassigned";
