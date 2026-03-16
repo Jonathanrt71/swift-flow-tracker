@@ -84,7 +84,7 @@ const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
           variant="ghost"
           size="icon"
           className={cn("h-7 w-7", editor.isActive("orderedList") && "bg-muted")}
-          onClick={() => editor.chain().focus().toggleOrderedList().run()}
+          onClick={() => (editor.chain().focus() as any).toggleOrderedList().run()}
         >
           <ListOrdered className="h-3.5 w-3.5" />
         </Button>
