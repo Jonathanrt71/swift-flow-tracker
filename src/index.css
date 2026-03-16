@@ -109,7 +109,6 @@ All colors MUST be HSL.
 /* force rebuild 1773630196 */
 
 /* TipTap task list / checklist styles */
-.ProseMirror ul[data-type="taskList"],
 ul[data-type="taskList"] {
   list-style: none !important;
   padding-left: 0 !important;
@@ -117,9 +116,7 @@ ul[data-type="taskList"] {
   margin: 4px 0;
 }
 
-.ProseMirror ul[data-type="taskList"] li[data-type="taskItem"],
-ul[data-type="taskList"] li[data-type="taskItem"],
-li[data-type="taskItem"] {
+ul[data-type="taskList"] > li {
   display: flex !important;
   flex-direction: row !important;
   align-items: flex-start !important;
@@ -128,29 +125,25 @@ li[data-type="taskItem"] {
   list-style: none !important;
 }
 
-.ProseMirror li[data-type="taskItem"] > label,
-li[data-type="taskItem"] > label {
+ul[data-type="taskList"] > li > label {
   margin-top: 3px;
   flex-shrink: 0 !important;
   display: inline-flex !important;
   align-items: center;
 }
 
-.ProseMirror li[data-type="taskItem"] > label input[type="checkbox"],
-li[data-type="taskItem"] > label input[type="checkbox"] {
+ul[data-type="taskList"] > li > label input[type="checkbox"] {
   cursor: pointer;
   width: 16px;
   height: 16px;
   margin: 0;
 }
 
-.ProseMirror li[data-type="taskItem"] > div,
-li[data-type="taskItem"] > div {
+ul[data-type="taskList"] > li > div {
   flex: 1 1 0% !important;
   min-width: 0;
 }
 
-.ProseMirror li[data-checked="true"] > div,
 li[data-checked="true"] > div {
   text-decoration: line-through;
   opacity: 0.5;
