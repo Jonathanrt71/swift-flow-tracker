@@ -29,11 +29,13 @@ const MeetingCard = ({
   meeting,
   teamMembers,
   onUpdate,
+  onDelete,
   onCreateTask,
 }: {
   meeting: Meeting;
   teamMembers: ReturnType<typeof useTeamMembers>["data"];
   onUpdate: (data: { id: string; notes?: string | null }) => void;
+  onDelete: (id: string) => void;
   onCreateTask: (data: {
     title: string;
     description?: string;
@@ -75,6 +77,7 @@ const MeetingCard = ({
       meeting={meeting}
       teamMembers={members}
       onUpdate={onUpdate}
+      onDelete={onDelete}
       onCreateTask={onCreateTask}
     >
       <div className="bg-muted border border-border rounded-[10px] p-3 flex gap-2.5 cursor-pointer transition-all hover:border-border/80">
@@ -154,7 +157,7 @@ const MeetingCard = ({
 const Meetings = () => {
   const { user, signOut } = useAuth();
   const { isAdmin } = useAdmin();
-  const { meetings, createMeeting, updateMeeting } = useMeetings();
+  const { meetings, createMeeting, updateMeeting, deleteMeeting } = useMeetings();
   const { createTask } = useTasks();
   const { data: teamMembers } = useTeamMembers();
 
@@ -210,6 +213,7 @@ const Meetings = () => {
                 meeting={meeting}
                 teamMembers={teamMembers}
                 onUpdate={(data) => updateMeeting.mutate(data)}
+                onDelete={(id) => deleteMeeting.mutate(id)}
                 onCreateTask={(data) => createTask.mutate(data)}
               />
             ))

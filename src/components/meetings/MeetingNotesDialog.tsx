@@ -4,7 +4,18 @@ import {
   DialogContent,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { X, Check, Plus } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { X, Check, Plus, Trash2 } from "lucide-react";
 import RichTextEditor from "@/components/tasks/RichTextEditor";
 import CreateTaskDialog from "@/components/tasks/CreateTaskDialog";
 import type { Meeting } from "@/hooks/useMeetings";
@@ -15,6 +26,7 @@ interface MeetingNotesDialogProps {
   meeting: Meeting;
   teamMembers: TeamMember[];
   onUpdate: (data: { id: string; notes?: string | null }) => void;
+  onDelete: (id: string) => void;
   onCreateTask: (data: {
     title: string;
     description?: string;
@@ -41,6 +53,7 @@ const MeetingNotesDialog = ({
   meeting,
   teamMembers,
   onUpdate,
+  onDelete,
   onCreateTask,
   children,
 }: MeetingNotesDialogProps) => {
@@ -158,14 +171,43 @@ const MeetingNotesDialog = ({
 
         {/* Action bar */}
         <div className="px-5 pb-4 flex items-center justify-between">
-          <CreateTaskDialog
-            onSubmit={onCreateTask}
-          >
-            <button className="flex items-center gap-1.5 bg-transparent border border-border rounded-lg px-3 py-2 cursor-pointer text-foreground text-[13px]">
-              <Plus className="h-3.5 w-3.5" />
-              Create task
-            </button>
-          </CreateTaskDialog>
+          <div className="flex items-center gap-2">
+            <CreateTaskDialog
+              onSubmit={onCreateTask}
+            >
+              <button className="flex items-center gap-1.5 bg-transparent border border-border rounded-lg px-3 py-2 cursor-pointer text-foreground text-[13px]">
+                <Plus className="h-3.5 w-3.5" />
+                Create task
+              </button>
+            </CreateTaskDialog>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <button className="flex items-center justify-center w-11 h-11 rounded-lg bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors">
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete meeting?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This will permanently delete "{meeting.title}" and all its notes. This action cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() => {
+                      onDelete(meeting.id);
+                      setOpen(false);
+                    }}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    Delete
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
           <button
             onClick={handleSave}
             className="flex items-center justify-center w-11 h-11 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
