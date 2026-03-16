@@ -6,15 +6,13 @@ import { Navigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogFooter,
-  DialogDescription,
 } from "@/components/ui/dialog";
 import {
   AlertDialog,
@@ -43,17 +41,222 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ArrowLeft, Plus, Shield, Trash2, UserPlus } from "lucide-react";
+import { ArrowLeft, Plus, Shield, Trash2, Pencil, Check, X } from "lucide-react";
+import type { UserRole, ManagedUser } from "@/hooks/useAdmin";
 
+/* ── Edit User Dialog ── */
+const EditUserDialog = ({
+  u,
+  isSelf,
+  onUpdateRole,
+  onDelete,
+}: {
+  u: ManagedUser;
+  isSelf: boolean;
+  onUpdateRole: (data: { user_id: string; role: UserRole }) => void;
+  onDelete: (id: string) => void;
+}) => {
+  const [open, setOpen] = useState(false);
+  const [role, setRole] = useState<UserRole>(u.role);
+
+  const handleOpen = (isOpen: boolean) => {
+    if (isOpen) setRole(u.role);
+    setOpen(isOpen);
+  };
+
+  const handleSave = () => {
+    if (role !== u.role) {
+      onUpdateRole({ user_id: u.id, role });
+    }
+    setOpen(false);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={handleOpen}>
+      <DialogTrigger asChild>
+        <button className="flex items-center justify-center w-9 h-9 bg-transparent border-none cursor-pointer text-muted-foreground hover:text-foreground transition-colors">
+          <Pencil className="h-3.5 w-3.5" />
+        </button>
+      </DialogTrigger>
+      <DialogContent className="w-[calc(100%-2rem)] max-w-sm bg-muted border-border rounded-xl p-0 [&>button[class*='absolute']]:hidden">
+        <div className="flex items-center justify-between px-5 pt-4 pb-2">
+          <DialogTitle className="text-base font-medium">
+            {u.display_name || "Unnamed"}
+          </DialogTitle>
+          <button
+            onClick={() => setOpen(false)}
+            className="flex items-center justify-center w-9 h-9 bg-transparent border-none cursor-pointer"
+          >
+            <X className="h-4 w-4 text-foreground" />
+          </button>
+        </div>
+
+        <div className="px-5 pb-5 flex flex-col gap-4">
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground">Role</Label>
+            <Select value={role} onValueChange={(v) => setRole(v as UserRole)} disabled={isSelf}>
+              <SelectTrigger className="bg-background rounded-lg">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="resident">Resident</SelectItem>
+                <SelectItem value="faculty">Faculty</SelectItem>
+                <SelectItem value="admin">Admin</SelectItem>
+              </SelectContent>
+            </Select>
+            {isSelf && (
+              <p className="text-xs text-muted-foreground">You cannot change your own role.</p>
+            )}
+          </div>
+
+          <div className="flex items-center justify-between pt-3 border-t border-border">
+            {!isSelf ? (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <button className="flex items-center justify-center w-11 h-11 rounded-lg bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors">
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Remove user?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This will permanently delete{" "}
+                      <strong>{u.display_name || "this user"}</strong> and all
+                      their data. This action cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => {
+                        onDelete(u.id);
+                        setOpen(false);
+                      }}
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    >
+                      Delete
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            ) : (
+              <div />
+            )}
+            <button
+              onClick={handleSave}
+              className="flex items-center justify-center w-11 h-11 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+            >
+              <Check className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+/* ── Add User Dialog ── */
+const AddUserDialog = ({
+  onSubmit,
+  isPending,
+}: {
+  onSubmit: (data: { email: string; password: string; display_name?: string }) => void;
+  isPending: boolean;
+}) => {
+  const [open, setOpen] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [displayName, setDisplayName] = useState("");
+
+  const handleOpen = (isOpen: boolean) => {
+    if (isOpen) {
+      setEmail("");
+      setPassword("");
+      setDisplayName("");
+    }
+    setOpen(isOpen);
+  };
+
+  const handleSubmit = () => {
+    if (!email || !password) return;
+    onSubmit({ email, password, display_name: displayName || undefined });
+    setOpen(false);
+    setEmail("");
+    setPassword("");
+    setDisplayName("");
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={handleOpen}>
+      <DialogTrigger asChild>
+        <button className="flex items-center justify-center w-8 h-8 bg-transparent border-none cursor-pointer text-muted-foreground hover:text-foreground transition-colors">
+          <Plus className="h-[18px] w-[18px]" />
+        </button>
+      </DialogTrigger>
+      <DialogContent className="w-[calc(100%-2rem)] max-w-sm bg-muted border-border rounded-xl p-0 [&>button[class*='absolute']]:hidden">
+        <div className="flex items-center justify-between px-5 pt-4 pb-2">
+          <DialogTitle className="text-base font-medium">Add user</DialogTitle>
+          <button
+            onClick={() => setOpen(false)}
+            className="flex items-center justify-center w-9 h-9 bg-transparent border-none cursor-pointer"
+          >
+            <X className="h-4 w-4 text-foreground" />
+          </button>
+        </div>
+
+        <div className="px-5 pb-5 flex flex-col gap-3.5">
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground">Email</Label>
+            <Input
+              type="email"
+              placeholder="user@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="bg-background rounded-lg"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground">Display name</Label>
+            <Input
+              placeholder="John Doe"
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+              className="bg-background rounded-lg"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground">Password</Label>
+            <Input
+              type="password"
+              placeholder="Min 6 characters"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="bg-background rounded-lg"
+            />
+          </div>
+
+          <div className="flex justify-end pt-3 border-t border-border">
+            <button
+              onClick={handleSubmit}
+              disabled={!email || !password || isPending}
+              className="flex items-center justify-center w-11 h-11 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50"
+            >
+              <Check className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+/* ── Admin Page ── */
 const Admin = () => {
   const { user } = useAuth();
   const { isAdmin, isAdminLoading, users, inviteUser, updateRole, deleteUser } = useAdmin();
   const { settings, updateSetting } = useAppSettings();
 
-  const [inviteOpen, setInviteOpen] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [displayName, setDisplayName] = useState("");
   const [facultyLimit, setFacultyLimit] = useState("");
   const [residentLimit, setResidentLimit] = useState("");
 
@@ -66,20 +269,6 @@ const Admin = () => {
   }
 
   if (!isAdmin) return <Navigate to="/" replace />;
-
-  const handleInvite = () => {
-    inviteUser.mutate(
-      { email, password, display_name: displayName || undefined },
-      {
-        onSuccess: () => {
-          setInviteOpen(false);
-          setEmail("");
-          setPassword("");
-          setDisplayName("");
-        },
-      }
-    );
-  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -99,65 +288,11 @@ const Admin = () => {
 
       <main className="container max-w-3xl px-4 py-6 space-y-6">
         <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-xl font-semibold text-foreground">Team Members</h2>
-          </div>
-
-          <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
-            <DialogTrigger asChild>
-              <Button className="gap-1.5">
-                <UserPlus className="h-4 w-4" />
-                Invite User
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Invite New User</DialogTitle>
-                <DialogDescription>
-                  Create credentials for a new team member.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4 py-2">
-                <div className="space-y-2">
-                  <Label htmlFor="invite-email">Email</Label>
-                  <Input
-                    id="invite-email"
-                    type="email"
-                    placeholder="user@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="invite-name">Display Name</Label>
-                  <Input
-                    id="invite-name"
-                    placeholder="John Doe"
-                    value={displayName}
-                    onChange={(e) => setDisplayName(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="invite-password">Temporary Password</Label>
-                  <Input
-                    id="invite-password"
-                    type="password"
-                    placeholder="Min 6 characters"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-                </div>
-              </div>
-              <DialogFooter>
-                <Button
-                  onClick={handleInvite}
-                  disabled={!email || !password || inviteUser.isPending}
-                >
-                  {inviteUser.isPending ? "Creating…" : "Create User"}
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+          <h2 className="text-xl font-semibold text-foreground">Team Members</h2>
+          <AddUserDialog
+            onSubmit={(data) => inviteUser.mutate(data)}
+            isPending={inviteUser.isPending}
+          />
         </div>
 
         <Card>
@@ -167,7 +302,7 @@ const Admin = () => {
                 <TableRow>
                   <TableHead>User</TableHead>
                   <TableHead>Role</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead className="text-right w-12"></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -199,58 +334,15 @@ const Admin = () => {
                           </div>
                         </TableCell>
                         <TableCell>
-                          {isSelf ? (
-                            <Badge variant="secondary">{u.role}</Badge>
-                          ) : (
-                            <Select
-                              value={u.role}
-                              onValueChange={(val) =>
-                                updateRole.mutate({
-                                  user_id: u.id,
-                                  role: val as "admin" | "faculty" | "resident",
-                                })
-                              }
-                            >
-                              <SelectTrigger className="w-28 h-8">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="resident">Resident</SelectItem>
-                                <SelectItem value="faculty">Faculty</SelectItem>
-                                <SelectItem value="admin">Admin</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          )}
+                          <Badge variant="secondary">{u.role}</Badge>
                         </TableCell>
                         <TableCell className="text-right">
-                          {!isSelf && (
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive">
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>Remove user?</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    This will permanently delete{" "}
-                                    <strong>{u.display_name || "this user"}</strong> and all their
-                                    data. This action cannot be undone.
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                  <AlertDialogAction
-                                    onClick={() => deleteUser.mutate(u.id)}
-                                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                                  >
-                                    Delete
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
-                          )}
+                          <EditUserDialog
+                            u={u}
+                            isSelf={isSelf}
+                            onUpdateRole={(data) => updateRole.mutate(data)}
+                            onDelete={(id) => deleteUser.mutate(id)}
+                          />
                         </TableCell>
                       </TableRow>
                     );
