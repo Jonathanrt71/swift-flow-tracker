@@ -51,27 +51,33 @@ const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
   return (
     <div className="rounded-md border border-input bg-background">
       <style>{`
-        .tiptap-editor ul[data-type="taskList"] {
-          list-style: none;
-          padding-left: 0;
+        .tiptap-editor .ProseMirror ul[data-type="taskList"] {
+          list-style: none !important;
+          padding-left: 0 !important;
+          margin: 4px 0;
         }
-        .tiptap-editor li[data-type="taskItem"] {
-          display: flex;
+        .tiptap-editor .ProseMirror li[data-type="taskItem"] {
+          display: flex !important;
+          flex-direction: row !important;
           align-items: flex-start;
           gap: 8px;
           margin: 4px 0;
         }
-        .tiptap-editor li[data-type="taskItem"] > label {
-          margin-top: 2px;
+        .tiptap-editor .ProseMirror li[data-type="taskItem"] > label {
+          margin-top: 3px;
           flex-shrink: 0;
+          display: inline-flex;
         }
-        .tiptap-editor li[data-type="taskItem"] > label input {
+        .tiptap-editor .ProseMirror li[data-type="taskItem"] > label input[type="checkbox"] {
           cursor: pointer;
+          width: 16px;
+          height: 16px;
         }
-        .tiptap-editor li[data-type="taskItem"] > div {
+        .tiptap-editor .ProseMirror li[data-type="taskItem"] > div {
           flex: 1;
+          min-width: 0;
         }
-        .tiptap-editor li[data-checked="true"] > div {
+        .tiptap-editor .ProseMirror li[data-checked="true"] > div {
           text-decoration: line-through;
           opacity: 0.5;
         }
