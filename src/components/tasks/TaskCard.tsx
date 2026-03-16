@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Star, Trash2, X } from "lucide-react";
 import { useRef, useState } from "react";
 import { cn } from "@/lib/utils";
+import { format, parseISO, differenceInCalendarDays } from "date-fns";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -48,6 +49,30 @@ const hasNotes = (desc: string | null): boolean =>
 
 const hasContent = (task: Task): boolean =>
   hasNotes(task.description) || (task.subtasks?.length ?? 0) > 0;
+
+const isExpandable = (task: Task): boolean =>
+  hasNotes(task.description) || (task.subtasks?.length ?? 0) > 0 || !!task.due_date;
+
+const formatDueDate = (d: string | null): { text: string; urgent: boolean } | null => {
+  if (!d) return null;
+  try {
+    const dt = parseISO(d.split("T")[0]);
+    const days = differenceInCalendarDays(dt, new Date());
+    if (days < 0) return { text: `Overdue (${format(dt, "MMM d")})`, urgent: true };
+    if (days === 0) return { text: "Due today", urgent: true };
+    if (days === 1) return { text: "Due tomorrow", urgent: true };
+    if (days <= 7) return { text: `Due ${format(dt, "EEE, MMM d")}`, urgent: false };
+    return { text: `Due ${format(dt, "MMM d")}`, urgent: false };
+  } catch {
+    return null;
+  }
+};
+
+const getNotesPreview = (desc: string | null): string | null => {
+  if (!hasNotes(desc)) return null;
+  const firstBlock = desc!.split(/<\/(?:p|li|h[1-6]|div|br\s*\/?)>/i)[0];
+  return firstBlock.replace(/<[^>]*>/g, "").trim().slice(0, 120) || null;
+};
 
 /* ── Avatar helpers ── */
 const getInitials = (name: string | null): string => {
@@ -358,7 +383,7 @@ const TaskCard = ({
           closeBar();
           return;
         }
-        if (hasChildren) setExpanded(!expanded);
+        if (isExpandable(task)) setExpanded(!expanded);
       }}
     >
       <div className="flex items-center min-h-[48px] px-2 relative">
@@ -431,25 +456,52 @@ const TaskCard = ({
         />
       </div>
 
-      {expanded && hasChildren && (
-        <div className="pb-2 pl-8 pr-2">
-          {task.subtasks!.map((sub) => (
-            <SubtaskRow
-              key={sub.id}
-              task={sub}
-              parentId={task.id}
-              isStarred={task.starred}
-              openBarId={openBarId}
-              onToggleBar={toggleBar}
-              teamMembers={teamMembers}
-              onToggleComplete={onToggleComplete}
-              onUpdate={onUpdate}
-              onDelete={onDelete}
-              onCreateSubtask={onCreateSubtask}
-              onToggleStar={onToggleStar}
-            />
-          ))}
-        </div>
+      {expanded && isExpandable(task) && (
+        <>
+          {/* Due date + notes preview */}
+          {(task.due_date || hasNotes(task.description)) && (
+            <div className="pb-2 pl-[52px] pr-3">
+              {(() => {
+                const dd = formatDueDate(task.due_date);
+                return dd ? (
+                  <div className={cn("text-[11px] mb-1", dd.urgent ? "text-destructive" : "text-muted-foreground")}>
+                    {dd.text}
+                  </div>
+                ) : null;
+              })()}
+              {(() => {
+                const preview = getNotesPreview(task.description);
+                return preview ? (
+                  <div className="text-xs text-muted-foreground line-clamp-1">
+                    {preview}
+                  </div>
+                ) : null;
+              })()}
+            </div>
+          )}
+
+          {/* Subtasks */}
+          {hasChildren && (
+            <div className="pb-2 pl-8 pr-2">
+              {task.subtasks!.map((sub) => (
+                <SubtaskRow
+                  key={sub.id}
+                  task={sub}
+                  parentId={task.id}
+                  isStarred={task.starred}
+                  openBarId={openBarId}
+                  onToggleBar={toggleBar}
+                  teamMembers={teamMembers}
+                  onToggleComplete={onToggleComplete}
+                  onUpdate={onUpdate}
+                  onDelete={onDelete}
+                  onCreateSubtask={onCreateSubtask}
+                  onToggleStar={onToggleStar}
+                />
+              ))}
+            </div>
+          )}
+        </>
       )}
     </Card>
   );
