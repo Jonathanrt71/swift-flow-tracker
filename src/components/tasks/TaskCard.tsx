@@ -315,16 +315,19 @@ const TaskCard = ({
   const [expanded, setExpanded] = useState(false);
   const [openBarId, setOpenBarId] = useState<string | null>(null);
   const barToggleIntentRef = useRef<string | null>(null);
+  const blockReopenUntilRef = useRef(0);
 
   const hasChildren = task.subtasks && task.subtasks.length > 0;
 
   const toggleBar = (id: string) => {
+    if (Date.now() < blockReopenUntilRef.current) return;
     setOpenBarId((prev) => (prev === id ? null : id));
   };
 
   const closeBar = () => {
     setOpenBarId(null);
     barToggleIntentRef.current = null;
+    blockReopenUntilRef.current = Date.now() + 500;
   };
 
   if (depth > 0) {
@@ -388,6 +391,10 @@ const TaskCard = ({
               e.stopPropagation();
               const isKeyboardActivation = e.detail === 0;
               if (!isKeyboardActivation && barToggleIntentRef.current !== task.id) return;
+              if (Date.now() < blockReopenUntilRef.current) {
+                barToggleIntentRef.current = null;
+                return;
+              }
               barToggleIntentRef.current = null;
               toggleBar(task.id);
             }}
