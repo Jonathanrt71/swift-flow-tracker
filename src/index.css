@@ -109,37 +109,48 @@ All colors MUST be HSL.
 /* force rebuild 1773630196 */
 
 /* TipTap task list / checklist styles */
+.ProseMirror ul[data-type="taskList"],
 ul[data-type="taskList"] {
   list-style: none !important;
   padding-left: 0 !important;
+  padding-inline-start: 0 !important;
   margin: 4px 0;
 }
 
+.ProseMirror ul[data-type="taskList"] li[data-type="taskItem"],
+ul[data-type="taskList"] li[data-type="taskItem"],
 li[data-type="taskItem"] {
   display: flex !important;
   flex-direction: row !important;
   align-items: flex-start !important;
-  gap: 8px;
-  margin: 4px 0;
+  gap: 8px !important;
+  margin: 4px 0 !important;
+  list-style: none !important;
 }
 
+.ProseMirror li[data-type="taskItem"] > label,
 li[data-type="taskItem"] > label {
   margin-top: 3px;
-  flex-shrink: 0;
+  flex-shrink: 0 !important;
   display: inline-flex !important;
+  align-items: center;
 }
 
+.ProseMirror li[data-type="taskItem"] > label input[type="checkbox"],
 li[data-type="taskItem"] > label input[type="checkbox"] {
   cursor: pointer;
   width: 16px;
   height: 16px;
+  margin: 0;
 }
 
+.ProseMirror li[data-type="taskItem"] > div,
 li[data-type="taskItem"] > div {
-  flex: 1;
+  flex: 1 1 0% !important;
   min-width: 0;
 }
 
+.ProseMirror li[data-checked="true"] > div,
 li[data-checked="true"] > div {
   text-decoration: line-through;
   opacity: 0.5;

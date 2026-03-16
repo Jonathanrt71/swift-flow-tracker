@@ -124,7 +124,7 @@ const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
           "[&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[140px] [&_.ProseMirror]:sm:min-h-[220px] [&_.ProseMirror]:md:min-h-[300px] [&_.ProseMirror]:font-normal",
           "[&_.ProseMirror_ul]:list-disc [&_.ProseMirror_ul]:pl-5 [&_.ProseMirror_ul]:my-1",
           "[&_.ProseMirror_ol]:list-decimal [&_.ProseMirror_ol]:pl-5 [&_.ProseMirror_ol]:my-1",
-          "[&_.ProseMirror_li]:my-0.5",
+          "[&_.ProseMirror_li:not([data-type=taskItem])]:my-0.5",
           "[&_.ProseMirror_p]:my-1"
         )}
       />
