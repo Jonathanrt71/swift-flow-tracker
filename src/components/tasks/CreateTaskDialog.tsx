@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import RichTextEditor from "./RichTextEditor";
-import { useAuth } from "@/contexts/AuthContext";
 import {
   Dialog,
   DialogContent,
@@ -40,12 +39,11 @@ interface CreateTaskDialogProps {
 }
 
 const CreateTaskDialog = ({ onSubmit, parentId, loading, iconOnly, inlineIcon, iconTrigger, children }: CreateTaskDialogProps) => {
-  const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [dueDate, setDueDate] = useState("");
-  const [assignedTo, setAssignedTo] = useState(user?.id || "unassigned");
+  const [assignedTo, setAssignedTo] = useState("unassigned");
   const [owedTo, setOwedTo] = useState("none");
   const { data: members } = useTeamMembers();
 
@@ -74,7 +72,7 @@ const CreateTaskDialog = ({ onSubmit, parentId, loading, iconOnly, inlineIcon, i
       setTitle("");
       setDescription("");
       setDueDate("");
-      setAssignedTo(user?.id || "unassigned");
+      setAssignedTo("unassigned");
       setOwedTo("none");
     }
     setOpen(isOpen);
