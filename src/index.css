@@ -126,10 +126,11 @@ ul[data-type="taskList"] > li {
 }
 
 ul[data-type="taskList"] > li > label {
-  margin-top: 3px;
+  margin-top: 1px;
   flex-shrink: 0 !important;
   display: inline-flex !important;
   align-items: center;
+  height: 24px;
 }
 
 ul[data-type="taskList"] > li > label input[type="checkbox"] {
