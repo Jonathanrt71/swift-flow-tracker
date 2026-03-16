@@ -1,3 +1,4 @@
+// Rich text editor component
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
@@ -56,7 +57,7 @@ const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
           variant="ghost"
           size="icon"
           className={cn("h-7 w-7", editor.isActive("bold") && "bg-muted")}
-          onClick={() => editor.chain().focus().toggleBold().run()}
+          onClick={() => (editor.chain().focus() as any).toggleBold().run()}
         >
           <Bold className="h-3.5 w-3.5" />
         </Button>
@@ -65,7 +66,7 @@ const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
           variant="ghost"
           size="icon"
           className={cn("h-7 w-7", editor.isActive("italic") && "bg-muted")}
-          onClick={() => editor.chain().focus().toggleItalic().run()}
+          onClick={() => (editor.chain().focus() as any).toggleItalic().run()}
         >
           <Italic className="h-3.5 w-3.5" />
         </Button>
@@ -74,7 +75,7 @@ const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
           variant="ghost"
           size="icon"
           className={cn("h-7 w-7", editor.isActive("bulletList") && "bg-muted")}
-          onClick={() => editor.chain().focus().toggleBulletList().run()}
+          onClick={() => (editor.chain().focus() as any).toggleBulletList().run()}
         >
           <List className="h-3.5 w-3.5" />
         </Button>
@@ -83,7 +84,7 @@ const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
           variant="ghost"
           size="icon"
           className={cn("h-7 w-7", editor.isActive("orderedList") && "bg-muted")}
-          onClick={() => editor.chain().focus().toggleOrderedList().run()}
+          onClick={() => (editor.chain().focus() as any).toggleOrderedList().run()}
         >
           <ListOrdered className="h-3.5 w-3.5" />
         </Button>
@@ -92,7 +93,7 @@ const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
           variant="ghost"
           size="icon"
           className={cn("h-7 w-7", editor.isActive("taskList") && "bg-muted")}
-          onClick={() => editor.chain().focus().toggleTaskList().run()}
+          onClick={() => (editor.chain().focus() as any).toggleTaskList().run()}
         >
           <ListChecks className="h-3.5 w-3.5" />
         </Button>
