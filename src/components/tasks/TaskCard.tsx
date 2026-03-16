@@ -347,7 +347,7 @@ const TaskCard = ({
 
         <div className="flex items-center shrink-0">
           <button
-            className="bg-transparent border-none cursor-pointer p-0 mr-1.5"
+            className="bg-transparent border-none cursor-pointer p-0 mr-1.5 flex items-center"
             onClick={(e) => {
               e.stopPropagation();
               toggleBar(task.id);
