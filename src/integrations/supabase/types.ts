@@ -126,6 +126,48 @@ export type Database = {
           },
         ]
       }
+      events: {
+        Row: {
+          id: string
+          title: string
+          event_date: string
+          start_time: string | null
+          end_time: string | null
+          description: string | null
+          category: string
+          assigned_to: string | null
+          created_by: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          title: string
+          event_date: string
+          start_time?: string | null
+          end_time?: string | null
+          description?: string | null
+          category: string
+          assigned_to?: string | null
+          created_by: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          title?: string
+          event_date?: string
+          start_time?: string | null
+          end_time?: string | null
+          description?: string | null
+          category?: string
+          assigned_to?: string | null
+          created_by?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           created_at: string

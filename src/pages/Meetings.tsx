@@ -8,7 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Shield, User, LogOut, Search, Pencil } from "lucide-react";
+import { Shield, User, LogOut, Search, Pencil, X as XIcon } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import BottomNav from "@/components/BottomNav";
 import CreateMeetingDialog from "@/components/meetings/CreateMeetingDialog";
@@ -232,12 +232,32 @@ const Meetings = () => {
     }
   });
 
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredMeetings = (meetings.data || []).filter((m) => {
+    if (!searchQuery.trim()) return true;
+    const q = searchQuery.toLowerCase();
+    return m.title.toLowerCase().includes(q) || (m.notes || "").toLowerCase().includes(q);
+  });
+
   return (
     <div className="min-h-screen bg-background pb-16">
       <header className="bg-[hsl(33,22%,88%)]">
         <div className="container flex items-center justify-between h-14 px-4">
           <h1 className="text-lg font-semibold text-foreground">Meetings</h1>
           <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              title="Search"
+              onClick={() => {
+                setSearchOpen(!searchOpen);
+                if (searchOpen) setSearchQuery("");
+              }}
+            >
+              {searchOpen ? <XIcon className="h-4 w-4" /> : <Search className="h-4 w-4" />}
+            </Button>
             <NotificationBell />
             {isAdmin && (
               <Link to="/admin">
@@ -256,12 +276,23 @@ const Meetings = () => {
             </Button>
           </div>
         </div>
+        {searchOpen && (
+          <div className="container px-4 pb-3">
+            <input
+              autoFocus
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search meetings..."
+              className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground outline-none"
+            />
+          </div>
+        )}
       </header>
 
       <main className="container max-w-2xl px-4 py-6">
         <div className="flex items-center justify-between py-2.5">
           <span className="text-[11px] font-medium text-muted-foreground">
-            {meetings.data?.length || 0} meeting{(meetings.data?.length || 0) !== 1 ? "s" : ""}
+            {filteredMeetings.length} meeting{filteredMeetings.length !== 1 ? "s" : ""}
           </span>
           <CreateMeetingDialog
             onSubmit={(data) => createMeeting.mutate(data)}
@@ -273,12 +304,12 @@ const Meetings = () => {
             <div className="flex justify-center py-12">
               <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
             </div>
-          ) : meetings.data?.length === 0 ? (
+          ) : filteredMeetings.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
-              <p className="text-sm">No meetings yet. Create one to get started!</p>
+              <p className="text-sm">{searchQuery ? "No meetings match your search." : "No meetings yet. Create one to get started!"}</p>
             </div>
           ) : (
-            meetings.data?.map((meeting) => (
+            filteredMeetings.map((meeting) => (
               <MeetingCard
                 key={meeting.id}
                 meeting={meeting}

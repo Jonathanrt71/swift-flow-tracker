@@ -1,4 +1,5 @@
 // force rebuild v2
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useTasks } from "@/hooks/useTasks";
@@ -6,7 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LogOut, CheckCircle2, ListTodo, Shield, User, Star, UserCheck, Users, HandCoins } from "lucide-react";
+import { LogOut, CheckCircle2, ListTodo, Shield, User, Star, UserCheck, Users, HandCoins, Search, X } from "lucide-react";
 import TaskCard from "@/components/tasks/TaskCard";
 import CreateTaskDialog from "@/components/tasks/CreateTaskDialog";
 import NotificationBell from "@/components/NotificationBell";
@@ -21,6 +22,8 @@ const Index = () => {
   const { isAdmin } = useAdmin();
   const { data: teamMembers } = useTeamMembers();
   const { meetings } = useMeetings();
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const meetingNames = new Map<string, string>();
   meetings.data?.forEach((m) => meetingNames.set(m.id, m.title));
@@ -36,9 +39,19 @@ const Index = () => {
 
   const now = new Date();
 
-  const activeTasks = tasks.filter((t) => !t.completed);
+  const searchFilter = (t: Task): boolean => {
+    if (!searchQuery.trim()) return true;
+    const q = searchQuery.toLowerCase();
+    return (
+      t.title.toLowerCase().includes(q) ||
+      (t.description || "").toLowerCase().includes(q) ||
+      (t.subtasks?.some((s) => s.title.toLowerCase().includes(q)) ?? false)
+    );
+  };
+
+  const activeTasks = tasks.filter((t) => !t.completed && searchFilter(t));
   const completedTasks = tasks
-    .filter((t) => t.completed)
+    .filter((t) => t.completed && searchFilter(t))
     .sort((a, b) => new Date(b.completed_at!).getTime() - new Date(a.completed_at!).getTime());
 
   // Default sort: due date (soonest first, no date last)
@@ -223,6 +236,17 @@ const Index = () => {
         <div className="container flex items-center justify-between h-14 px-4">
           <h1 className="text-lg font-semibold text-foreground">Tasks</h1>
           <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              title="Search"
+              onClick={() => {
+                setSearchOpen(!searchOpen);
+                if (searchOpen) setSearchQuery("");
+              }}
+            >
+              {searchOpen ? <X className="h-4 w-4" /> : <Search className="h-4 w-4" />}
+            </Button>
             <NotificationBell />
             {isAdmin && (
               <Link to="/admin">
@@ -241,6 +265,17 @@ const Index = () => {
             </Button>
           </div>
         </div>
+        {searchOpen && (
+          <div className="container px-4 pb-3">
+            <input
+              autoFocus
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search tasks..."
+              className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground outline-none"
+            />
+          </div>
+        )}
       </header>
 
       <main className="container max-w-2xl px-4 py-6">
