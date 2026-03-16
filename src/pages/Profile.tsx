@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Camera, Loader2, Check } from "lucide-react";
@@ -14,6 +15,8 @@ const Profile = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [displayName, setDisplayName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -23,12 +26,14 @@ const Profile = () => {
     if (!user) return;
     supabase
       .from("profiles")
-      .select("display_name, avatar_url")
+      .select("display_name, first_name, last_name, avatar_url")
       .eq("id", user.id)
       .single()
       .then(({ data }) => {
         if (data) {
           setDisplayName(data.display_name || "");
+          setFirstName((data as any).first_name || "");
+          setLastName((data as any).last_name || "");
           setAvatarUrl(data.avatar_url);
         }
         setLoading(false);
@@ -40,7 +45,11 @@ const Profile = () => {
     setSaving(true);
     const { error } = await supabase
       .from("profiles")
-      .update({ display_name: displayName })
+      .update({
+        display_name: displayName,
+        first_name: firstName,
+        last_name: lastName,
+      } as any)
       .eq("id", user.id);
     setSaving(false);
 
@@ -138,7 +147,6 @@ const Profile = () => {
               {initials}
             </AvatarFallback>
           </Avatar>
-          {/* Camera overlay on hover */}
           <div className="absolute inset-0 flex items-center justify-center rounded-full bg-foreground/40 opacity-0 group-hover:opacity-100 transition-opacity">
             {uploading ? (
               <Loader2 className="h-5 w-5 text-background animate-spin" />
@@ -146,7 +154,6 @@ const Profile = () => {
               <Camera className="h-5 w-5 text-background" />
             )}
           </div>
-          {/* Persistent camera badge */}
           <div className="absolute bottom-0 right-0 flex items-center justify-center h-7 w-7 rounded-full bg-primary text-primary-foreground shadow-sm">
             {uploading ? (
               <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -163,26 +170,49 @@ const Profile = () => {
           onChange={handleAvatarUpload}
         />
 
-        {/* Name input + save */}
-        <div className="w-full flex items-center gap-3">
-          <Input
-            value={displayName}
-            onChange={(e) => setDisplayName(e.target.value)}
-            placeholder="Your name"
-            className="flex-1"
-          />
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className="flex items-center justify-center min-w-[44px] min-h-[44px] rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50"
-            aria-label="Save profile"
-          >
-            {saving ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Check className="h-4 w-4" />
-            )}
-          </button>
+        {/* Form fields */}
+        <div className="w-full flex flex-col gap-4">
+          <div className="space-y-1.5">
+            <Label htmlFor="displayName" className="font-normal text-sm text-muted-foreground">Display name</Label>
+            <Input
+              id="displayName"
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+              placeholder="How your name appears to others"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="firstName" className="font-normal text-sm text-muted-foreground">First name</Label>
+            <Input
+              id="firstName"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              placeholder="First name"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="lastName" className="font-normal text-sm text-muted-foreground">Last name</Label>
+            <Input
+              id="lastName"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              placeholder="Last name"
+            />
+          </div>
+          <div className="flex justify-end pt-2">
+            <button
+              onClick={handleSave}
+              disabled={saving}
+              className="flex items-center justify-center min-w-[44px] min-h-[44px] rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50"
+              aria-label="Save profile"
+            >
+              {saving ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Check className="h-4 w-4" />
+              )}
+            </button>
+          </div>
         </div>
       </main>
     </div>
