@@ -208,30 +208,37 @@ const AddUserDialog = ({
   onSubmit,
   isPending,
 }: {
-  onSubmit: (data: { email: string; password: string; display_name?: string }) => void;
+  onSubmit: (data: { email: string; password: string; display_name?: string; first_name?: string; last_name?: string }) => void;
   isPending: boolean;
 }) => {
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
 
   const handleOpen = (isOpen: boolean) => {
     if (isOpen) {
       setEmail("");
       setPassword("");
       setDisplayName("");
+      setFirstName("");
+      setLastName("");
     }
     setOpen(isOpen);
   };
 
   const handleSubmit = () => {
     if (!email || !password) return;
-    onSubmit({ email, password, display_name: displayName || undefined });
+    onSubmit({
+      email,
+      password,
+      display_name: displayName || undefined,
+      first_name: firstName || undefined,
+      last_name: lastName || undefined,
+    });
     setOpen(false);
-    setEmail("");
-    setPassword("");
-    setDisplayName("");
   };
 
   return (
@@ -269,6 +276,24 @@ const AddUserDialog = ({
               placeholder="John Doe"
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
+              className="bg-background rounded-lg"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground">First name</Label>
+            <Input
+              placeholder="John"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              className="bg-background rounded-lg"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground">Last name</Label>
+            <Input
+              placeholder="Doe"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
               className="bg-background rounded-lg"
             />
           </div>

@@ -60,14 +60,23 @@ export function useAdmin() {
   });
 
   const inviteUser = useMutation({
-    mutationFn: async (data: { email: string; password: string; display_name?: string }) => {
+    mutationFn: async (data: { email: string; password: string; display_name?: string; first_name?: string; last_name?: string }) => {
       const { data: { session } } = await supabase.auth.getSession();
       const res = await supabase.functions.invoke("admin-invite-user", {
-        body: data,
+        body: { email: data.email, password: data.password, display_name: data.display_name },
         headers: { Authorization: `Bearer ${session?.access_token}` },
       });
       if (res.error) throw new Error(res.error.message || "Failed to invite user");
       if (res.data?.error) throw new Error(res.data.error);
+
+      // Update first/last name on the new profile
+      if (res.data?.user?.id && (data.first_name || data.last_name)) {
+        await supabase.from("profiles").update({
+          first_name: data.first_name || null,
+          last_name: data.last_name || null,
+        }).eq("id", res.data.user.id);
+      }
+
       return res.data;
     },
     onSuccess: () => {
