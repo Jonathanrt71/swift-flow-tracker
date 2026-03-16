@@ -148,7 +148,7 @@ export function useMeetings() {
 
   const deleteMeeting = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from("meetings").delete().eq("id", id);
+      const { error } = await (supabase as any).from("meetings").delete().eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {
