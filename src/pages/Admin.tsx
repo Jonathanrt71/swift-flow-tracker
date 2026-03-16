@@ -49,24 +49,46 @@ const EditUserDialog = ({
   u,
   isSelf,
   onUpdateRole,
+  onUpdateProfile,
   onDelete,
 }: {
   u: ManagedUser;
   isSelf: boolean;
   onUpdateRole: (data: { user_id: string; role: UserRole }) => void;
+  onUpdateProfile: (data: { id: string; display_name?: string; first_name?: string; last_name?: string }) => void;
   onDelete: (id: string) => void;
 }) => {
   const [open, setOpen] = useState(false);
   const [role, setRole] = useState<UserRole>(u.role);
+  const [displayName, setDisplayName] = useState(u.display_name || "");
+  const [firstName, setFirstName] = useState(u.first_name || "");
+  const [lastName, setLastName] = useState(u.last_name || "");
 
   const handleOpen = (isOpen: boolean) => {
-    if (isOpen) setRole(u.role);
+    if (isOpen) {
+      setRole(u.role);
+      setDisplayName(u.display_name || "");
+      setFirstName(u.first_name || "");
+      setLastName(u.last_name || "");
+    }
     setOpen(isOpen);
   };
 
   const handleSave = () => {
     if (role !== u.role) {
       onUpdateRole({ user_id: u.id, role });
+    }
+    const profileChanged =
+      displayName !== (u.display_name || "") ||
+      firstName !== (u.first_name || "") ||
+      lastName !== (u.last_name || "");
+    if (profileChanged) {
+      onUpdateProfile({
+        id: u.id,
+        display_name: displayName,
+        first_name: firstName,
+        last_name: lastName,
+      });
     }
     setOpen(false);
   };
@@ -80,9 +102,7 @@ const EditUserDialog = ({
       </DialogTrigger>
       <DialogContent className="w-[calc(100%-2rem)] max-w-sm bg-muted border-border rounded-xl p-0 [&>button[class*='absolute']]:hidden">
         <div className="flex items-center justify-between px-5 pt-4 pb-2">
-          <DialogTitle className="text-base font-medium">
-            {u.display_name || "Unnamed"}
-          </DialogTitle>
+          <DialogTitle className="text-base font-medium">Edit user</DialogTitle>
           <button
             onClick={() => setOpen(false)}
             className="flex items-center justify-center w-9 h-9 bg-transparent border-none cursor-pointer"
@@ -91,7 +111,34 @@ const EditUserDialog = ({
           </button>
         </div>
 
-        <div className="px-5 pb-5 flex flex-col gap-4">
+        <div className="px-5 pb-5 flex flex-col gap-3.5">
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground">Display name</Label>
+            <Input
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+              placeholder="Display name"
+              className="bg-background rounded-lg"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground">First name</Label>
+            <Input
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              placeholder="First name"
+              className="bg-background rounded-lg"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground">Last name</Label>
+            <Input
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              placeholder="Last name"
+              className="bg-background rounded-lg"
+            />
+          </div>
           <div className="space-y-1.5">
             <Label className="text-xs text-muted-foreground">Role</Label>
             <Select value={role} onValueChange={(v) => setRole(v as UserRole)} disabled={isSelf}>
@@ -254,7 +301,7 @@ const AddUserDialog = ({
 /* ── Admin Page ── */
 const Admin = () => {
   const { user } = useAuth();
-  const { isAdmin, isAdminLoading, users, inviteUser, updateRole, deleteUser } = useAdmin();
+  const { isAdmin, isAdminLoading, users, inviteUser, updateRole, updateProfile, deleteUser } = useAdmin();
   const { settings, updateSetting } = useAppSettings();
 
   const [facultyLimit, setFacultyLimit] = useState("");
@@ -341,6 +388,7 @@ const Admin = () => {
                             u={u}
                             isSelf={isSelf}
                             onUpdateRole={(data) => updateRole.mutate(data)}
+                            onUpdateProfile={(data) => updateProfile.mutate(data)}
                             onDelete={(id) => deleteUser.mutate(id)}
                           />
                         </TableCell>

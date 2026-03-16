@@ -8,6 +8,8 @@ export interface ManagedUser {
   id: string;
   email: string;
   display_name: string | null;
+  first_name: string | null;
+  last_name: string | null;
   role: UserRole;
   created_at: string;
 }
@@ -35,7 +37,7 @@ export function useAdmin() {
     queryFn: async () => {
       const { data: profiles, error: pErr } = await supabase
         .from("profiles")
-        .select("id, display_name, created_at");
+        .select("id, display_name, first_name, last_name, created_at");
       if (pErr) throw pErr;
 
       const { data: roles, error: rErr } = await supabase
@@ -49,6 +51,8 @@ export function useAdmin() {
         id: p.id,
         email: "",
         display_name: p.display_name,
+        first_name: p.first_name,
+        last_name: p.last_name,
         role: (roleMap.get(p.id) || "resident") as UserRole,
         created_at: p.created_at,
       })) as ManagedUser[];
@@ -115,5 +119,21 @@ export function useAdmin() {
     },
   });
 
-  return { isAdmin: isAdmin.data, isAdminLoading: isAdmin.isLoading, users, inviteUser, updateRole, deleteUser };
+  const updateProfile = useMutation({
+    mutationFn: async (data: { id: string; display_name?: string; first_name?: string; last_name?: string }) => {
+      const { id, ...fields } = data;
+      const { error } = await supabase.from("profiles").update(fields).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+      queryClient.invalidateQueries({ queryKey: ["team-members"] });
+      toast({ title: "Profile updated" });
+    },
+    onError: (err: Error) => {
+      toast({ title: "Failed to update profile", description: err.message, variant: "destructive" });
+    },
+  });
+
+  return { isAdmin: isAdmin.data, isAdminLoading: isAdmin.isLoading, users, inviteUser, updateRole, updateProfile, deleteUser };
 }
