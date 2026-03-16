@@ -17,6 +17,7 @@ const Profile = () => {
   const [displayName, setDisplayName] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -26,7 +27,7 @@ const Profile = () => {
     if (!user) return;
     (supabase as any)
       .from("profiles")
-      .select("display_name, first_name, last_name, avatar_url")
+      .select("display_name, first_name, last_name, email, avatar_url")
       .eq("id", user.id)
       .single()
       .then(({ data }) => {
@@ -34,6 +35,7 @@ const Profile = () => {
           setDisplayName(data.display_name || "");
           setFirstName((data as any).first_name || "");
           setLastName((data as any).last_name || "");
+          setEmail((data as any).email || user.email || "");
           setAvatarUrl(data.avatar_url);
         }
         setLoading(false);
@@ -172,6 +174,15 @@ const Profile = () => {
 
         {/* Form fields */}
         <div className="w-full flex flex-col gap-4">
+          <div className="space-y-1.5">
+            <Label htmlFor="email" className="font-normal text-sm text-muted-foreground">Email</Label>
+            <Input
+              id="email"
+              value={email}
+              disabled
+              className="opacity-60"
+            />
+          </div>
           <div className="space-y-1.5">
             <Label htmlFor="displayName" className="font-normal text-sm text-muted-foreground">Display name</Label>
             <Input
