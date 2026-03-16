@@ -56,9 +56,9 @@ const Index = () => {
     const nameB = teamMembers?.find((m) => m.id === (b.assigned_to || b.created_by))?.display_name || "";
     const nameCmp = nameA.localeCompare(nameB);
     if (nameCmp !== 0) return nameCmp;
-    // Same assignee: starred first
+    // Same assignee: starred first, then by due date
     if (a.starred !== b.starred) return a.starred ? -1 : 1;
-    return 0;
+    return sortByDueDate(a, b);
   });
 
   const isOverdue = (task: { due_date: string | null; completed: boolean }) =>
