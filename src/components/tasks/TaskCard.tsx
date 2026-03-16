@@ -3,6 +3,17 @@ import { Card } from "@/components/ui/card";
 import { Star, Trash2, X } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import type { Task } from "@/hooks/useTasks";
 import type { TeamMember } from "@/hooks/useTeamMembers";
 import CreateTaskDialog from "./CreateTaskDialog";
@@ -172,16 +183,36 @@ const ActionBar = ({
         </div>
       )}
 
-      <button
-        className={btnClass}
-        onClick={(e) => {
-          e.stopPropagation();
-          onDelete(task.id);
-          onClose();
-        }}
-      >
-        <Trash2 className="h-4 w-4 text-destructive" />
-      </button>
+      <AlertDialog>
+        <AlertDialogTrigger asChild>
+          <button
+            className={btnClass}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Trash2 className="h-4 w-4 text-destructive" />
+          </button>
+        </AlertDialogTrigger>
+        <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete task?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete "{task.title}". This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                onDelete(task.id);
+                onClose();
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <button
         className="flex items-center justify-center w-10 h-10 bg-transparent border-none cursor-pointer rounded-md"
