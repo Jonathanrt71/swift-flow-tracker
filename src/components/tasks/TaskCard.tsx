@@ -162,23 +162,24 @@ const ActionBar = ({
         </button>
       )}
 
-      <div className="w-10 h-10 flex items-center justify-center" onClick={onClose}>
+      <div className="w-10 h-10 flex items-center justify-center">
         <NotesEditorDialog
           task={task}
           onUpdate={onUpdate}
+          onTriggerOpen={onClose}
           iconTrigger
           assigneeName={assigneeName}
           assigneeAvatarUrl={assigneeAvatarUrl}
           dueDate={sourceTask.due_date}
         />
       </div>
-      <div className="w-10 h-10 flex items-center justify-center" onClick={onClose}>
-        <TaskDetailSheet task={task} onUpdate={onUpdate} onDelete={onDelete} iconTrigger />
+      <div className="w-10 h-10 flex items-center justify-center">
+        <TaskDetailSheet task={task} onUpdate={onUpdate} onDelete={onDelete} onTriggerOpen={onClose} iconTrigger />
       </div>
 
       {!isSubtask && (
-        <div className="w-10 h-10 flex items-center justify-center" onClick={onClose}>
-          <CreateTaskDialog onSubmit={onCreateSubtask} parentId={task.id} iconTrigger />
+        <div className="w-10 h-10 flex items-center justify-center">
+          <CreateTaskDialog onSubmit={onCreateSubtask} parentId={task.id} onTriggerOpen={onClose} iconTrigger />
         </div>
       )}
 
