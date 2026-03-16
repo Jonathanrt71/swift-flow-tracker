@@ -2,11 +2,13 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
+export type UserRole = "admin" | "faculty" | "resident";
+
 export interface ManagedUser {
   id: string;
   email: string;
   display_name: string | null;
-  role: "admin" | "user";
+  role: UserRole;
   created_at: string;
 }
 
@@ -31,13 +33,11 @@ export function useAdmin() {
     queryKey: ["admin-users"],
     enabled: !!isAdmin.data,
     queryFn: async () => {
-      // Get profiles (admin can see all via RLS)
       const { data: profiles, error: pErr } = await supabase
         .from("profiles")
         .select("id, display_name, created_at");
       if (pErr) throw pErr;
 
-      // Get all roles (admin can see all via RLS)
       const { data: roles, error: rErr } = await supabase
         .from("user_roles")
         .select("user_id, role");
@@ -45,13 +45,11 @@ export function useAdmin() {
 
       const roleMap = new Map(roles.map((r) => [r.user_id, r.role]));
 
-      // We need emails - get from auth via edge function or use display_name
-      // Since we can't query auth.users from client, we'll show profile info
       return (profiles || []).map((p) => ({
         id: p.id,
-        email: "", // Will be populated if we have it
+        email: "",
         display_name: p.display_name,
-        role: (roleMap.get(p.id) || "user") as "admin" | "user",
+        role: (roleMap.get(p.id) || "resident") as UserRole,
         created_at: p.created_at,
       })) as ManagedUser[];
     },
@@ -78,7 +76,7 @@ export function useAdmin() {
   });
 
   const updateRole = useMutation({
-    mutationFn: async (data: { user_id: string; role: "admin" | "user" }) => {
+    mutationFn: async (data: { user_id: string; role: UserRole }) => {
       const { data: { session } } = await supabase.auth.getSession();
       const res = await supabase.functions.invoke("admin-update-role", {
         body: data,

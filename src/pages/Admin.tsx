@@ -203,7 +203,7 @@ const Admin = () => {
                               onValueChange={(val) =>
                                 updateRole.mutate({
                                   user_id: u.id,
-                                  role: val as "admin" | "user",
+                                  role: val as "admin" | "faculty" | "resident",
                                 })
                               }
                             >
@@ -211,8 +211,9 @@ const Admin = () => {
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="user">user</SelectItem>
-                                <SelectItem value="admin">admin</SelectItem>
+                                <SelectItem value="resident">Resident</SelectItem>
+                                <SelectItem value="faculty">Faculty</SelectItem>
+                                <SelectItem value="admin">Admin</SelectItem>
                               </SelectContent>
                             </Select>
                           )}
