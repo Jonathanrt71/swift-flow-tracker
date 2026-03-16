@@ -55,20 +55,9 @@ const Index = () => {
   });
 
   const sortedByAssignee = [...activeTasks].sort((a, b) => {
-    // Assigned first, unassigned last
-    if (a.assigned_to && !b.assigned_to) return -1;
-    if (!a.assigned_to && b.assigned_to) return 1;
-    if (!a.assigned_to && !b.assigned_to) return sortByDueDate(a, b);
-    // Group by assignee — first by display name, fallback to ID
-    if (a.assigned_to !== b.assigned_to) {
-      const nameA = teamMembers?.find((m) => m.id === a.assigned_to)?.display_name || a.assigned_to || "";
-      const nameB = teamMembers?.find((m) => m.id === b.assigned_to)?.display_name || b.assigned_to || "";
-      return nameA.localeCompare(nameB);
-    }
-    // Same assignee: starred first
-    if (a.starred !== b.starred) return a.starred ? -1 : 1;
-    // Then by due date
-    return sortByDueDate(a, b);
+    const nameA = teamMembers?.find((m) => m.id === (a.assigned_to || a.created_by))?.display_name || "";
+    const nameB = teamMembers?.find((m) => m.id === (b.assigned_to || b.created_by))?.display_name || "";
+    return nameA.localeCompare(nameB);
   });
 
   const isOverdue = (task: { due_date: string | null; completed: boolean }) =>
