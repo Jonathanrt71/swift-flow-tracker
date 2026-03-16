@@ -63,13 +63,13 @@ const NotesEditorDialog = ({
 
   const handleOpenChange = (isOpen: boolean) => {
     if (isOpen) setDescription(task.description || "");
+    if (!isOpen) onSaved?.();
     setOpen(isOpen);
   };
 
   const handleSave = () => {
     onUpdate({ id: task.id, description: description.trim() });
     setOpen(false);
-    onSaved?.();
   };
 
   const displayName = assigneeName || "Unassigned";
