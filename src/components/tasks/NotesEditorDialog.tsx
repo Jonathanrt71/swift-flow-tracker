@@ -97,7 +97,7 @@ const NotesEditorDialog = ({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent
-        className="w-[calc(100%-2rem)] max-w-md bg-muted border-border rounded-xl p-0 [&>button[class*='absolute']]:hidden"
+        className="w-[calc(100%-2rem)] max-w-md sm:max-w-lg md:max-w-2xl bg-muted border-border rounded-xl p-0 [&>button[class*='absolute']]:hidden"
         overlayClassName="bg-background/60 backdrop-blur-sm"
         onPointerDownOutside={(e) => e.preventDefault()}
         onInteractOutside={(e) => e.preventDefault()}
