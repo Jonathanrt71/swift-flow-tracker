@@ -46,8 +46,12 @@ const Index = () => {
   const isAssignedToMe = (t: Task): boolean =>
     t.assigned_to === user?.id || (t.subtasks?.some(isAssignedToMe) ?? false);
 
+  // Helper to check if task or any subtask is owed to current user
+  const isOwedToMe = (t: Task): boolean =>
+    t.owed_to === user?.id || (t.subtasks?.some(isOwedToMe) ?? false);
+
   const assignedToMe = activeTasks.filter(isAssignedToMe).sort(sortByDueDate);
-  const owedToMe = activeTasks.filter((t) => t.owed_to === user?.id).sort(sortByDueDate);
+  const owedToMe = activeTasks.filter(isOwedToMe).sort(sortByDueDate);
   const starredTasks = activeTasks.filter((t) => t.starred).sort(sortByDueDate);
 
   const sortedActive = [...activeTasks].sort(sortByDueDate);
