@@ -63,13 +63,17 @@ const NotesEditorDialog = ({
 
   const handleOpenChange = (isOpen: boolean) => {
     if (isOpen) setDescription(task.description || "");
-    if (!isOpen) onSaved?.();
     setOpen(isOpen);
+    if (!isOpen) {
+      // Use setTimeout to ensure the dialog fully closes before closing action bar
+      setTimeout(() => onSaved?.(), 50);
+    }
   };
 
   const handleSave = () => {
     onUpdate({ id: task.id, description: description.trim() });
     setOpen(false);
+    setTimeout(() => onSaved?.(), 50);
   };
 
   const displayName = assigneeName || "Unassigned";
