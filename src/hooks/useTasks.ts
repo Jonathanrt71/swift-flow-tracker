@@ -15,6 +15,7 @@ export interface Task {
   created_by: string;
   assigned_to: string | null;
   owed_to: string | null;
+  meeting_id: string | null;
   starred: boolean;
   position: number;
   created_at: string;
@@ -58,7 +59,7 @@ export function useTasks() {
   });
 
   const createTask = useMutation({
-    mutationFn: async (data: { title: string; description?: string; due_date?: string; parent_id?: string; assigned_to?: string; owed_to?: string }) => {
+    mutationFn: async (data: { title: string; description?: string; due_date?: string; parent_id?: string; assigned_to?: string; owed_to?: string; meeting_id?: string }) => {
       const { error } = await supabase.from("tasks").insert({
         title: data.title,
         description: data.description || null,
@@ -66,6 +67,7 @@ export function useTasks() {
         parent_id: data.parent_id || null,
         assigned_to: data.assigned_to || user!.id,
         owed_to: data.owed_to || null,
+        meeting_id: data.meeting_id || null,
         created_by: user!.id,
       });
       if (error) throw error;

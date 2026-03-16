@@ -13,12 +13,17 @@ import NotificationBell from "@/components/NotificationBell";
 import BottomNav from "@/components/BottomNav";
 import type { Task } from "@/hooks/useTasks";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
+import { useMeetings } from "@/hooks/useMeetings";
 import { useToast } from "@/components/ui/use-toast";
 
 const Index = () => {
   const { user, signOut } = useAuth();
   const { isAdmin } = useAdmin();
   const { data: teamMembers } = useTeamMembers();
+  const { meetings } = useMeetings();
+
+  const meetingNames = new Map<string, string>();
+  meetings.data?.forEach((m) => meetingNames.set(m.id, m.title));
   const {
     tasks,
     isLoading,
@@ -93,6 +98,7 @@ const Index = () => {
         task={task}
         isOverdue={isOverdue(task)}
         teamMembers={teamMembers || []}
+        meetingNames={meetingNames}
         onToggleComplete={(d) => toggleComplete.mutate(d)}
         onUpdate={(d) => updateTask.mutate(d)}
         onDelete={(id) => deleteTask.mutate(id)}
@@ -148,6 +154,7 @@ const Index = () => {
           task={task}
           isOverdue={isOverdue(task)}
           teamMembers={teamMembers || []}
+        meetingNames={meetingNames}
           onToggleComplete={(d) => toggleComplete.mutate(d)}
           onUpdate={(d) => updateTask.mutate(d)}
           onDelete={(id) => deleteTask.mutate(id)}
@@ -197,6 +204,7 @@ const Index = () => {
           task={task}
           isOverdue={isOverdue(task)}
           teamMembers={teamMembers || []}
+        meetingNames={meetingNames}
           onToggleComplete={(d) => toggleComplete.mutate(d)}
           onUpdate={(d) => updateTask.mutate(d)}
           onDelete={(id) => deleteTask.mutate(id)}

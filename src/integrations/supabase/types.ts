@@ -210,6 +210,7 @@ export type Database = {
           description: string | null
           due_date: string | null
           id: string
+          meeting_id: string | null
           owed_to: string | null
           parent_id: string | null
           position: number
@@ -226,6 +227,7 @@ export type Database = {
           description?: string | null
           due_date?: string | null
           id?: string
+          meeting_id?: string | null
           owed_to?: string | null
           parent_id?: string | null
           position?: number
@@ -242,6 +244,7 @@ export type Database = {
           description?: string | null
           due_date?: string | null
           id?: string
+          meeting_id?: string | null
           owed_to?: string | null
           parent_id?: string | null
           position?: number

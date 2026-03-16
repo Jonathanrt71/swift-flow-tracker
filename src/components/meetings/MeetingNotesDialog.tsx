@@ -174,6 +174,7 @@ const MeetingNotesDialog = ({
           <div className="flex items-center gap-2">
             <CreateTaskDialog
               onSubmit={onCreateTask}
+              meetingId={meeting.id}
             >
               <button className="flex items-center gap-1.5 bg-transparent border border-border rounded-lg px-3 py-2 cursor-pointer text-foreground text-[13px]">
                 <Plus className="h-3.5 w-3.5" />

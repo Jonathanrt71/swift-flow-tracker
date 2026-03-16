@@ -1,5 +1,8 @@
+import { useState } from "react";
+import { cn } from "@/lib/utils";
 import { useMeetings } from "@/hooks/useMeetings";
 import { useTasks } from "@/hooks/useTasks";
+import type { Task } from "@/hooks/useTasks";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
@@ -27,12 +30,14 @@ const getColor = (name: string | null): string => {
 const MeetingCard = ({
   meeting,
   teamMembers,
+  linkedTasks,
   onUpdate,
   onDelete,
   onCreateTask,
 }: {
   meeting: Meeting;
   teamMembers: ReturnType<typeof useTeamMembers>["data"];
+  linkedTasks: Task[];
   onUpdate: (data: { id: string; notes?: string | null }) => void;
   onDelete: (id: string) => void;
   onCreateTask: (data: {
@@ -41,31 +46,55 @@ const MeetingCard = ({
     due_date?: string;
     assigned_to?: string;
     owed_to?: string;
+    meeting_id?: string;
   }) => void;
 }) => {
+  const [expanded, setExpanded] = useState(false);
   const members = teamMembers || [];
   const creator = members.find((m) => m.id === meeting.created_by);
   const creatorName = creator?.display_name || "Unknown";
   const attendeeMembers = members.filter((m) => meeting.attendees.includes(m.id));
+  const hasLinkedTasks = linkedTasks.length > 0;
 
   return (
-    <MeetingNotesDialog
-      meeting={meeting}
-      teamMembers={members}
-      onUpdate={onUpdate}
-      onDelete={onDelete}
-      onCreateTask={onCreateTask}
-    >
-      <div className="bg-muted border border-border rounded-[10px] flex items-center min-h-[48px] px-2 cursor-pointer transition-all hover:border-border/80">
-        {/* Dot */}
-        <div className="flex items-center justify-center min-w-[44px] min-h-[44px]">
-          <div className="w-2 h-2 rounded-full bg-[#7A8FA0]" />
-        </div>
+    <div className="bg-muted border border-border rounded-[10px] overflow-hidden transition-all">
+      <div
+        className="flex items-center min-h-[48px] px-2 cursor-pointer"
+        onClick={() => {
+          if (hasLinkedTasks) setExpanded(!expanded);
+        }}
+      >
+        {/* Dot — opens notes dialog */}
+        <MeetingNotesDialog
+          meeting={meeting}
+          teamMembers={members}
+          onUpdate={onUpdate}
+          onDelete={onDelete}
+          onCreateTask={onCreateTask}
+        >
+          <div
+            className="flex items-center justify-center min-w-[44px] min-h-[44px] cursor-pointer"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="w-2 h-2 rounded-full bg-[#7A8FA0]" />
+          </div>
+        </MeetingNotesDialog>
 
         {/* Title */}
-        <div className="flex-1 min-w-0 px-1">
-          <span className="font-medium text-sm truncate block">{meeting.title}</span>
-        </div>
+        <MeetingNotesDialog
+          meeting={meeting}
+          teamMembers={members}
+          onUpdate={onUpdate}
+          onDelete={onDelete}
+          onCreateTask={onCreateTask}
+        >
+          <div
+            className="flex-1 min-w-0 px-1 cursor-pointer"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <span className="font-medium text-sm truncate block">{meeting.title}</span>
+          </div>
+        </MeetingNotesDialog>
 
         {/* Attendees + Creator avatar */}
         <div className="flex items-center shrink-0 pr-1">
@@ -96,7 +125,6 @@ const MeetingCard = ({
               +{attendeeMembers.length - 5}
             </span>
           )}
-          {/* Creator avatar */}
           {creator?.avatar_url ? (
             <img
               src={creator.avatar_url}
@@ -117,7 +145,62 @@ const MeetingCard = ({
           )}
         </div>
       </div>
-    </MeetingNotesDialog>
+
+      {/* Expanded: linked tasks */}
+      {expanded && hasLinkedTasks && (
+        <div className="pb-2 pl-[52px] pr-3">
+          <div className="text-[11px] text-muted-foreground mb-1.5">
+            {linkedTasks.length} task{linkedTasks.length !== 1 ? "s" : ""}
+          </div>
+          {linkedTasks.map((t) => {
+            const assignee = members.find((m) => m.id === t.assigned_to);
+            return (
+              <div
+                key={t.id}
+                className="flex items-center gap-1.5 px-2 py-1.5 mb-1 bg-background/50 rounded-md"
+              >
+                <div
+                  className={cn(
+                    "w-3 h-3 rounded-sm border shrink-0",
+                    t.completed
+                      ? "bg-muted-foreground border-muted-foreground"
+                      : "bg-background border-muted-foreground/40"
+                  )}
+                />
+                <span
+                  className={cn(
+                    "text-xs flex-1 min-w-0 truncate",
+                    t.completed && "line-through text-muted-foreground"
+                  )}
+                >
+                  {t.title}
+                </span>
+                {assignee && (
+                  assignee.avatar_url ? (
+                    <img
+                      src={assignee.avatar_url}
+                      className="w-[18px] h-[18px] rounded-full object-cover shrink-0"
+                      alt=""
+                    />
+                  ) : (
+                    <div
+                      className="w-[18px] h-[18px] rounded-full flex items-center justify-center text-white shrink-0"
+                      style={{
+                        fontSize: 7,
+                        fontWeight: 500,
+                        background: getColor(assignee.display_name),
+                      }}
+                    >
+                      {getInitials(assignee.display_name)}
+                    </div>
+                  )
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
   );
 };
 
@@ -125,8 +208,23 @@ const Meetings = () => {
   const { user, signOut } = useAuth();
   const { isAdmin } = useAdmin();
   const { meetings, createMeeting, updateMeeting, deleteMeeting } = useMeetings();
-  const { createTask } = useTasks();
+  const { tasks, createTask } = useTasks();
   const { data: teamMembers } = useTeamMembers();
+
+  // Build a map of meeting_id -> linked tasks (flatten parent + subtasks)
+  const allTasks: Task[] = [];
+  (tasks || []).forEach((t) => {
+    allTasks.push(t);
+    t.subtasks?.forEach((s) => allTasks.push(s));
+  });
+  const tasksByMeeting = new Map<string, Task[]>();
+  allTasks.forEach((t) => {
+    if (t.meeting_id) {
+      const list = tasksByMeeting.get(t.meeting_id) || [];
+      list.push(t);
+      tasksByMeeting.set(t.meeting_id, list);
+    }
+  });
 
   return (
     <div className="min-h-screen bg-background pb-16">
@@ -179,6 +277,7 @@ const Meetings = () => {
                 key={meeting.id}
                 meeting={meeting}
                 teamMembers={teamMembers}
+                linkedTasks={tasksByMeeting.get(meeting.id) || []}
                 onUpdate={(data) => updateMeeting.mutate(data)}
                 onDelete={(id) => deleteMeeting.mutate(id)}
                 onCreateTask={(data) => createTask.mutate(data)}
