@@ -261,11 +261,12 @@ const Admin = () => {
           </CardContent>
         </Card>
 
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-semibold text-foreground">Task Limits</h2>
+        </div>
+
         <Card className="border-border">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-xl">Task limits</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 pt-6">
             <div className="flex items-center gap-3">
               <Label className="font-normal text-sm text-muted-foreground w-32 shrink-0">Faculty max tasks</Label>
               <Input

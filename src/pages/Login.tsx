@@ -55,11 +55,12 @@ const Login = () => {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <Card className="w-full max-w-md bg-card border-border shadow-sm">
-        <CardHeader className="text-center pt-12 pb-2 items-center justify-center">
-          <p className="text-sm text-muted-foreground mb-1">HMC Family Medicine</p>
-          <CardTitle className="text-xl">Sign in</CardTitle>
-        </CardHeader>
+      <div className="w-full max-w-md flex flex-col items-center">
+        <h1 className="text-2xl font-semibold text-foreground mb-4">HMC Family Medicine</h1>
+        <Card className="w-full bg-card border-border shadow-sm">
+          <CardHeader className="text-center pt-12 pb-2 items-center justify-center">
+            <CardTitle className="text-xl">Sign in</CardTitle>
+          </CardHeader>
         <form onSubmit={handleLogin}>
           <CardContent className="space-y-4 pt-0">
             <div className="space-y-1.5">
@@ -90,6 +91,7 @@ const Login = () => {
           </CardFooter>
         </form>
       </Card>
+      </div>
     </div>);
 
 };
