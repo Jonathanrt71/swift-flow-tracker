@@ -35,10 +35,11 @@ interface CreateTaskDialogProps {
   iconOnly?: boolean;
   inlineIcon?: boolean;
   iconTrigger?: boolean;
+  onTriggerOpen?: () => void;
   children?: React.ReactNode;
 }
 
-const CreateTaskDialog = ({ onSubmit, parentId, loading, iconOnly, inlineIcon, iconTrigger, children }: CreateTaskDialogProps) => {
+const CreateTaskDialog = ({ onSubmit, parentId, loading, iconOnly, inlineIcon, iconTrigger, onTriggerOpen, children }: CreateTaskDialogProps) => {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -74,6 +75,7 @@ const CreateTaskDialog = ({ onSubmit, parentId, loading, iconOnly, inlineIcon, i
       setDueDate("");
       setAssignedTo("unassigned");
       setOwedTo("none");
+      onTriggerOpen?.();
     }
     setOpen(isOpen);
   };

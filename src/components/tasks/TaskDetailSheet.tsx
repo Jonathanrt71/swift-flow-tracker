@@ -50,6 +50,7 @@ interface TaskDetailSheetProps {
     owed_to?: string | null;
   }) => void;
   onDelete: (id: string) => void;
+  onTriggerOpen?: () => void;
   iconTrigger?: boolean;
 }
 
@@ -57,6 +58,7 @@ const TaskDetailSheet = ({
   task,
   onUpdate,
   onDelete,
+  onTriggerOpen,
   iconTrigger,
 }: TaskDetailSheetProps) => {
   const [open, setOpen] = useState(false);
@@ -78,6 +80,7 @@ const TaskDetailSheet = ({
       setDueDate(task.due_date ? task.due_date.split("T")[0] : "");
       setAssignedTo(task.assigned_to || "unassigned");
       setOwedTo(task.owed_to || "none");
+      onTriggerOpen?.();
     }
     setOpen(isOpen);
   };

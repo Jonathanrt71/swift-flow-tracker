@@ -1,7 +1,7 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card } from "@/components/ui/card";
 import { Star, Trash2, X } from "lucide-react";
-import { useState, useRef, useCallback } from "react";
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 import {
   AlertDialog,
@@ -162,23 +162,24 @@ const ActionBar = ({
         </button>
       )}
 
-      <div className="w-10 h-10 flex items-center justify-center" onClick={onClose}>
+      <div className="w-10 h-10 flex items-center justify-center">
         <NotesEditorDialog
           task={task}
           onUpdate={onUpdate}
+          onTriggerOpen={onClose}
           iconTrigger
           assigneeName={assigneeName}
           assigneeAvatarUrl={assigneeAvatarUrl}
           dueDate={sourceTask.due_date}
         />
       </div>
-      <div className="w-10 h-10 flex items-center justify-center" onClick={onClose}>
-        <TaskDetailSheet task={task} onUpdate={onUpdate} onDelete={onDelete} iconTrigger />
+      <div className="w-10 h-10 flex items-center justify-center">
+        <TaskDetailSheet task={task} onUpdate={onUpdate} onDelete={onDelete} onTriggerOpen={onClose} iconTrigger />
       </div>
 
       {!isSubtask && (
-        <div className="w-10 h-10 flex items-center justify-center" onClick={onClose}>
-          <CreateTaskDialog onSubmit={onCreateSubtask} parentId={task.id} iconTrigger />
+        <div className="w-10 h-10 flex items-center justify-center">
+          <CreateTaskDialog onSubmit={onCreateSubtask} parentId={task.id} onTriggerOpen={onClose} iconTrigger />
         </div>
       )}
 
@@ -313,28 +314,16 @@ const TaskCard = ({
 }: TaskCardProps) => {
   const [expanded, setExpanded] = useState(false);
   const [openBarId, setOpenBarId] = useState<string | null>(null);
-  const barLockedRef = useRef(false);
 
   const hasChildren = task.subtasks && task.subtasks.length > 0;
 
-  const toggleBar = useCallback((id: string) => {
-    if (barLockedRef.current) {
-      barLockedRef.current = false;
-      return;
-    }
+  const toggleBar = (id: string) => {
     setOpenBarId((prev) => (prev === id ? null : id));
-  }, []);
+  };
 
-  const closeBar = useCallback(() => {
+  const closeBar = () => {
     setOpenBarId(null);
-    barLockedRef.current = true;
-    // Clear the lock after a tick so only the immediate focus-return click is blocked
-    requestAnimationFrame(() => {
-      setTimeout(() => {
-        barLockedRef.current = false;
-      }, 300);
-    });
-  }, []);
+  };
 
   if (depth > 0) {
     return (

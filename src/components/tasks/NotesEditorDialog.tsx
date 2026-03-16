@@ -14,6 +14,7 @@ interface NotesEditorDialogProps {
   task: Task;
   onUpdate: (data: { id: string; description?: string }) => void;
   onSaved?: () => void;
+  onTriggerOpen?: () => void;
   children?: ReactNode;
   iconTrigger?: boolean;
   assigneeName?: string;
@@ -52,6 +53,7 @@ const NotesEditorDialog = ({
   task,
   onUpdate,
   onSaved,
+  onTriggerOpen,
   children,
   iconTrigger,
   assigneeName,
@@ -62,7 +64,10 @@ const NotesEditorDialog = ({
   const [description, setDescription] = useState(task.description || "");
 
   const handleOpenChange = (isOpen: boolean) => {
-    if (isOpen) setDescription(task.description || "");
+    if (isOpen) {
+      setDescription(task.description || "");
+      onTriggerOpen?.();
+    }
     setOpen(isOpen);
   };
 
