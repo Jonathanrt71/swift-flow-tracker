@@ -155,6 +155,7 @@ const ActionBar = ({
         <NotesEditorDialog
           task={task}
           onUpdate={onUpdate}
+          onSaved={onClose}
           iconTrigger
           assigneeName={assigneeName}
           assigneeAvatarUrl={assigneeAvatarUrl}

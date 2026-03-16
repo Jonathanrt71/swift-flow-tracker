@@ -13,6 +13,7 @@ import { format, parseISO, differenceInCalendarDays } from "date-fns";
 interface NotesEditorDialogProps {
   task: Task;
   onUpdate: (data: { id: string; description?: string }) => void;
+  onSaved?: () => void;
   children?: ReactNode;
   iconTrigger?: boolean;
   assigneeName?: string;
@@ -50,6 +51,7 @@ const formatDueDate = (d: string | null): { text: string; overdue: boolean } | n
 const NotesEditorDialog = ({
   task,
   onUpdate,
+  onSaved,
   children,
   iconTrigger,
   assigneeName,
@@ -67,6 +69,7 @@ const NotesEditorDialog = ({
   const handleSave = () => {
     onUpdate({ id: task.id, description: description.trim() });
     setOpen(false);
+    onSaved?.();
   };
 
   const displayName = assigneeName || "Unassigned";
