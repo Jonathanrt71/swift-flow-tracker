@@ -97,9 +97,6 @@ const Admin = () => {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-xl font-semibold text-foreground">Team Members</h2>
-            <p className="text-sm text-muted-foreground">
-              Manage users, roles, and access to the workspace.
-            </p>
           </div>
 
           <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
