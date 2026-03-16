@@ -104,9 +104,6 @@ const Index = () => {
         <div className="container flex items-center justify-between h-14 px-4">
           <h1 className="text-lg font-semibold text-foreground">Tasks</h1>
           <div className="flex items-center gap-1">
-            <span className="text-sm text-muted-foreground hidden sm:inline mr-2">
-              {user?.email}
-            </span>
             <NotificationBell />
             {isAdmin && (
               <Link to="/admin">
