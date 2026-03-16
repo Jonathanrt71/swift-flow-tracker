@@ -353,37 +353,13 @@ const TaskCard = ({
               toggleBar(task.id);
             }}
           >
-            {task.starred && hasChildren ? (
-              /* Both rings: red outer, blue inner */
-              <div
-                className="rounded-full flex items-center justify-center"
-                style={{ width: 40, height: 40, border: "2.5px solid #B56B6B" }}
-              >
-                <div
-                  className="rounded-full flex items-center justify-center"
-                  style={{ width: 32, height: 32, border: "2px solid #7A8FA0" }}
-                >
-                  <AssigneeAvatar
-                    assignedTo={task.assigned_to || task.created_by}
-                    teamMembers={teamMembers}
-                    size={26}
-                  />
-                </div>
-              </div>
-            ) : task.starred ? (
-              /* Starred only: red ring */
-              <div
-                className="rounded-full flex items-center justify-center"
-                style={{ width: 34, height: 34, border: "2.5px solid #B56B6B" }}
-              >
-                <AssigneeAvatar
-                  assignedTo={task.assigned_to || task.created_by}
-                  teamMembers={teamMembers}
-                  size={28}
-                />
-              </div>
-            ) : hasChildren ? (
-              /* Subtasks only: blue ring */
+            {/* Star indicator */}
+            {task.starred && (
+              <Star className="h-3.5 w-3.5 fill-[#B56B6B] text-[#B56B6B] shrink-0 mr-1.5" />
+            )}
+
+            {/* Avatar with optional subtask ring */}
+            {hasChildren ? (
               <div
                 className="rounded-full flex items-center justify-center"
                 style={{ width: 34, height: 34, border: "2px solid #7A8FA0" }}
@@ -395,7 +371,6 @@ const TaskCard = ({
                 />
               </div>
             ) : (
-              /* Plain: no ring */
               <AssigneeAvatar
                 assignedTo={task.assigned_to || task.created_by}
                 teamMembers={teamMembers}
