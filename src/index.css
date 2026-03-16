@@ -107,3 +107,40 @@ All colors MUST be HSL.
   }
 }
 /* force rebuild 1773630196 */
+
+/* TipTap task list / checklist styles */
+ul[data-type="taskList"] {
+  list-style: none !important;
+  padding-left: 0 !important;
+  margin: 4px 0;
+}
+
+li[data-type="taskItem"] {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: flex-start !important;
+  gap: 8px;
+  margin: 4px 0;
+}
+
+li[data-type="taskItem"] > label {
+  margin-top: 3px;
+  flex-shrink: 0;
+  display: inline-flex !important;
+}
+
+li[data-type="taskItem"] > label input[type="checkbox"] {
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+}
+
+li[data-type="taskItem"] > div {
+  flex: 1;
+  min-width: 0;
+}
+
+li[data-checked="true"] > div {
+  text-decoration: line-through;
+  opacity: 0.5;
+}
