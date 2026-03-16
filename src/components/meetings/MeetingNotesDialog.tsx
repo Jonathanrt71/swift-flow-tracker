@@ -4,20 +4,8 @@ import {
   DialogContent,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { X, Check, Plus, Trash2 } from "lucide-react";
+import { X, Check } from "lucide-react";
 import RichTextEditor from "@/components/tasks/RichTextEditor";
-import CreateTaskDialog from "@/components/tasks/CreateTaskDialog";
 import type { Meeting } from "@/hooks/useMeetings";
 import type { TeamMember } from "@/hooks/useTeamMembers";
 import { format, parseISO } from "date-fns";
@@ -26,14 +14,6 @@ interface MeetingNotesDialogProps {
   meeting: Meeting;
   teamMembers: TeamMember[];
   onUpdate: (data: { id: string; notes?: string | null }) => void;
-  onDelete: (id: string) => void;
-  onCreateTask: (data: {
-    title: string;
-    description?: string;
-    due_date?: string;
-    assigned_to?: string;
-    owed_to?: string;
-  }) => void;
   children: React.ReactNode;
 }
 
@@ -53,8 +33,6 @@ const MeetingNotesDialog = ({
   meeting,
   teamMembers,
   onUpdate,
-  onDelete,
-  onCreateTask,
   children,
 }: MeetingNotesDialogProps) => {
   const [open, setOpen] = useState(false);
@@ -169,48 +147,8 @@ const MeetingNotesDialog = ({
           </div>
         </div>
 
-        {/* Action bar */}
-        <div className="px-5 pb-4 flex items-center justify-between">
-          {/* Delete — left */}
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <button className="flex items-center justify-center w-11 h-11 rounded-lg bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors">
-                <Trash2 className="h-4 w-4" />
-              </button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Delete meeting?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This will permanently delete "{meeting.title}" and all its notes. This action cannot be undone.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={() => {
-                    onDelete(meeting.id);
-                    setOpen(false);
-                  }}
-                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                >
-                  Delete
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-
-          {/* Create task — center */}
-          <CreateTaskDialog
-            onSubmit={onCreateTask}
-            meetingId={meeting.id}
-          >
-            <button className="flex items-center justify-center w-11 h-11 rounded-lg border border-border bg-transparent cursor-pointer text-foreground hover:bg-black/5 transition-colors">
-              <Plus className="h-4 w-4" />
-            </button>
-          </CreateTaskDialog>
-
-          {/* Save — right */}
+        {/* Save */}
+        <div className="px-5 pb-4 flex items-center justify-end">
           <button
             onClick={handleSave}
             className="flex items-center justify-center w-11 h-11 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"

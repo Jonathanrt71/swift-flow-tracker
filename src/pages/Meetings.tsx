@@ -8,11 +8,23 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Shield, User, LogOut, Search, Pencil, X as XIcon } from "lucide-react";
+import { Shield, User, LogOut, Search, Pencil, X as XIcon, Trash2, Plus } from "lucide-react";
 import { format, parseISO } from "date-fns";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import BottomNav from "@/components/BottomNav";
 import CreateMeetingDialog from "@/components/meetings/CreateMeetingDialog";
 import MeetingNotesDialog from "@/components/meetings/MeetingNotesDialog";
+import CreateTaskDialog from "@/components/tasks/CreateTaskDialog";
 import NotificationBell from "@/components/NotificationBell";
 import type { Meeting } from "@/hooks/useMeetings";
 
@@ -131,26 +143,67 @@ const MeetingCard = ({
         </div>
       </div>
 
-      {/* Expanded: date + pencil + linked tasks */}
+      {/* Expanded: date + actions + linked tasks */}
       {expanded && (
         <div className="pb-2 pl-[52px] pr-3">
-          {/* Date left, pencil right */}
+          {/* Date left, actions right: pencil, add task, delete */}
           <div className="flex items-center justify-between mb-2">
             <span className="text-[11px] text-muted-foreground">{formattedDate}</span>
-            <MeetingNotesDialog
-              meeting={meeting}
-              teamMembers={members}
-              onUpdate={onUpdate}
-              onDelete={onDelete}
-              onCreateTask={onCreateTask}
-            >
-              <button
-                className="flex items-center justify-center w-8 h-8 bg-transparent border-none cursor-pointer text-muted-foreground hover:text-foreground transition-colors"
-                onClick={(e) => e.stopPropagation()}
+            <div className="flex items-center gap-0.5">
+              {/* Pencil — opens notes */}
+              <MeetingNotesDialog
+                meeting={meeting}
+                teamMembers={members}
+                onUpdate={onUpdate}
               >
-                <Pencil className="h-3.5 w-3.5" />
-              </button>
-            </MeetingNotesDialog>
+                <button
+                  className="flex items-center justify-center w-8 h-8 bg-transparent border-none cursor-pointer text-muted-foreground hover:text-foreground transition-colors"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <Pencil className="h-3.5 w-3.5" />
+                </button>
+              </MeetingNotesDialog>
+              {/* Add task */}
+              <CreateTaskDialog
+                onSubmit={onCreateTask}
+                meetingId={meeting.id}
+              >
+                <button
+                  className="flex items-center justify-center w-8 h-8 bg-transparent border-none cursor-pointer text-muted-foreground hover:text-foreground transition-colors"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                </button>
+              </CreateTaskDialog>
+              {/* Delete */}
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <button
+                    className="flex items-center justify-center w-8 h-8 bg-transparent border-none cursor-pointer text-destructive hover:text-destructive/80 transition-colors"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </AlertDialogTrigger>
+                <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Delete meeting?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This will permanently delete "{meeting.title}" and all its notes. This action cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => onDelete(meeting.id)}
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    >
+                      Delete
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
           </div>
 
           {/* Linked tasks */}
