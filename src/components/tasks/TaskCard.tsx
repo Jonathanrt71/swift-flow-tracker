@@ -311,11 +311,19 @@ const TaskCard = ({
 }: TaskCardProps) => {
   const [expanded, setExpanded] = useState(false);
   const [openBarId, setOpenBarId] = useState<string | null>(null);
+  const [barClosedAt, setBarClosedAt] = useState(0);
 
   const hasChildren = task.subtasks && task.subtasks.length > 0;
 
   const toggleBar = (id: string) => {
+    // Prevent reopening within 500ms of closing (handles dialog focus return)
+    if (Date.now() - barClosedAt < 500) return;
     setOpenBarId((prev) => (prev === id ? null : id));
+  };
+
+  const closeBar = () => {
+    setOpenBarId(null);
+    setBarClosedAt(Date.now());
   };
 
   if (depth > 0) {
@@ -343,7 +351,7 @@ const TaskCard = ({
         const target = e.target as HTMLElement;
         if (target.closest("button, input, .checkbox-area, [data-no-swipe]")) return;
         if (openBarId) {
-          setOpenBarId(null);
+          closeBar();
           return;
         }
         if (hasChildren) setExpanded(!expanded);
@@ -399,7 +407,7 @@ const TaskCard = ({
           task={task}
           isSubtask={false}
           isOpen={openBarId === task.id}
-          onClose={() => setOpenBarId(null)}
+          onClose={closeBar}
           onUpdate={onUpdate}
           onDelete={onDelete}
           onCreateSubtask={onCreateSubtask}
