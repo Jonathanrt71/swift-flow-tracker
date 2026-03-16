@@ -231,7 +231,7 @@ const Index = () => {
           </TabsContent>
 
           <TabsContent value="starred" className="space-y-3 mt-0">
-            {renderTaskList(
+            {renderGroupedTaskList(
               starredTasks,
               <Star className="h-10 w-10 mx-auto" />,
               "No starred tasks. Star a task to pin it here."
