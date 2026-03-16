@@ -57,6 +57,7 @@ const Login = () => {
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <Card className="w-full max-w-md bg-card border-border shadow-sm">
         <CardHeader className="text-center pt-12 pb-2 items-center justify-center">
+          <p className="text-sm text-muted-foreground mb-1">HMC Family Medicine</p>
           <CardTitle className="text-xl">Sign in</CardTitle>
         </CardHeader>
         <form onSubmit={handleLogin}>

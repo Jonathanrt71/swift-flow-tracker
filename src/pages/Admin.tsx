@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAdmin } from "@/hooks/useAdmin";
+import { useAppSettings } from "@/hooks/useAppSettings";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -47,11 +48,14 @@ import { ArrowLeft, Plus, Shield, Trash2, UserPlus } from "lucide-react";
 const Admin = () => {
   const { user } = useAuth();
   const { isAdmin, isAdminLoading, users, inviteUser, updateRole, deleteUser } = useAdmin();
+  const { settings, updateSetting } = useAppSettings();
 
   const [inviteOpen, setInviteOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
+  const [facultyLimit, setFacultyLimit] = useState("");
+  const [residentLimit, setResidentLimit] = useState("");
 
   if (isAdminLoading) {
     return (
@@ -254,6 +258,50 @@ const Admin = () => {
                 )}
               </TableBody>
             </Table>
+          </CardContent>
+        </Card>
+
+        <Card className="border-border">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-xl">Task limits</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center gap-3">
+              <Label className="font-normal text-sm text-muted-foreground w-32 shrink-0">Faculty max tasks</Label>
+              <Input
+                type="number"
+                min="1"
+                className="w-20"
+                placeholder={String(settings.faculty_task_limit)}
+                value={facultyLimit}
+                onChange={(e) => setFacultyLimit(e.target.value)}
+                onBlur={() => {
+                  if (facultyLimit && parseInt(facultyLimit) > 0) {
+                    updateSetting.mutate({ key: "faculty_task_limit", value: facultyLimit });
+                  }
+                  setFacultyLimit("");
+                }}
+              />
+              <span className="text-sm text-muted-foreground">current: {settings.faculty_task_limit}</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <Label className="font-normal text-sm text-muted-foreground w-32 shrink-0">Resident max tasks</Label>
+              <Input
+                type="number"
+                min="1"
+                className="w-20"
+                placeholder={String(settings.resident_task_limit)}
+                value={residentLimit}
+                onChange={(e) => setResidentLimit(e.target.value)}
+                onBlur={() => {
+                  if (residentLimit && parseInt(residentLimit) > 0) {
+                    updateSetting.mutate({ key: "resident_task_limit", value: residentLimit });
+                  }
+                  setResidentLimit("");
+                }}
+              />
+              <span className="text-sm text-muted-foreground">current: {settings.resident_task_limit}</span>
+            </div>
           </CardContent>
         </Card>
       </main>
