@@ -391,6 +391,10 @@ const TaskCard = ({
               e.stopPropagation();
               const isKeyboardActivation = e.detail === 0;
               if (!isKeyboardActivation && barToggleIntentRef.current !== task.id) return;
+              if (Date.now() < blockReopenUntilRef.current) {
+                barToggleIntentRef.current = null;
+                return;
+              }
               barToggleIntentRef.current = null;
               toggleBar(task.id);
             }}
