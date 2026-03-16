@@ -130,7 +130,7 @@ const ActionBar = ({
         "absolute top-0 right-0 bottom-0 flex items-center gap-0.5 px-1.5 z-[5] transition-transform duration-200 ease-out",
         isSubtask ? "rounded-r-md" : "rounded-r-[10px]",
         isOpen ? "translate-x-0" : "translate-x-full",
-        task.starred ? "bg-[#DDA8A8]" : "bg-[#CDD6DE]"
+        "bg-[#CDD6DE]"
       )}
     >
       {!isSubtask && (
@@ -223,10 +223,7 @@ const SubtaskRow = ({
 }) => {
   return (
     <div
-      className={cn(
-        "rounded-md mb-0.5 overflow-hidden relative",
-        isStarred ? "bg-[hsl(0,60%,88%)]" : "bg-muted"
-      )}
+      className="rounded-md mb-0.5 overflow-hidden relative bg-muted"
     >
       <div className="flex items-center min-h-[40px] px-2 relative">
         <div className="checkbox-area flex items-center justify-center min-w-[44px] min-h-[44px]">
@@ -318,12 +315,7 @@ const TaskCard = ({
 
   return (
     <Card
-      className={cn(
-        "transition-all overflow-hidden border cursor-pointer",
-        task.starred
-          ? "bg-[hsl(0,60%,88%)] border-[hsl(0,50%,78%)]"
-          : "bg-muted border-border"
-      )}
+      className="transition-all overflow-hidden border cursor-pointer bg-muted border-border"
       onClick={(e) => {
         const target = e.target as HTMLElement;
         if (target.closest("button, input, .checkbox-area, [data-no-swipe]")) return;
@@ -361,22 +353,49 @@ const TaskCard = ({
               toggleBar(task.id);
             }}
           >
-            {hasChildren ? (
+            {task.starred && hasChildren ? (
+              /* Both rings: red outer, blue inner */
               <div
                 className="rounded-full flex items-center justify-center"
-                style={{
-                  width: 32,
-                  height: 32,
-                  border: `2px solid ${task.starred ? "#6B2020" : "#7A8FA0"}`,
-                }}
+                style={{ width: 40, height: 40, border: "2.5px solid #B56B6B" }}
+              >
+                <div
+                  className="rounded-full flex items-center justify-center"
+                  style={{ width: 32, height: 32, border: "2px solid #7A8FA0" }}
+                >
+                  <AssigneeAvatar
+                    assignedTo={task.assigned_to || task.created_by}
+                    teamMembers={teamMembers}
+                    size={26}
+                  />
+                </div>
+              </div>
+            ) : task.starred ? (
+              /* Starred only: red ring */
+              <div
+                className="rounded-full flex items-center justify-center"
+                style={{ width: 34, height: 34, border: "2.5px solid #B56B6B" }}
               >
                 <AssigneeAvatar
                   assignedTo={task.assigned_to || task.created_by}
                   teamMembers={teamMembers}
-                  size={26}
+                  size={28}
+                />
+              </div>
+            ) : hasChildren ? (
+              /* Subtasks only: blue ring */
+              <div
+                className="rounded-full flex items-center justify-center"
+                style={{ width: 34, height: 34, border: "2px solid #7A8FA0" }}
+              >
+                <AssigneeAvatar
+                  assignedTo={task.assigned_to || task.created_by}
+                  teamMembers={teamMembers}
+                  size={28}
                 />
               </div>
             ) : (
+              /* Plain: no ring */
               <AssigneeAvatar
                 assignedTo={task.assigned_to || task.created_by}
                 teamMembers={teamMembers}
