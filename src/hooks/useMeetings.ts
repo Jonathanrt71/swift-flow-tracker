@@ -34,7 +34,7 @@ export function useMeetings() {
       const meetingIds = (myMeetings || []).map((m: any) => m.id);
       if (meetingIds.length === 0) return [];
 
-      const { data: attendees, error: aErr } = await supabase
+      const { data: attendees, error: aErr } = await (supabase as any)
         .from("meeting_attendees")
         .select("meeting_id, user_id")
         .in("meeting_id", meetingIds);
