@@ -314,6 +314,7 @@ const TaskCard = ({
 }: TaskCardProps) => {
   const [expanded, setExpanded] = useState(false);
   const [openBarId, setOpenBarId] = useState<string | null>(null);
+  const barToggleIntentRef = useRef<string | null>(null);
 
   const hasChildren = task.subtasks && task.subtasks.length > 0;
 
@@ -323,6 +324,7 @@ const TaskCard = ({
 
   const closeBar = () => {
     setOpenBarId(null);
+    barToggleIntentRef.current = null;
   };
 
   if (depth > 0) {
