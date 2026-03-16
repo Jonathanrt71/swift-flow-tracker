@@ -125,7 +125,7 @@ export function useMeetings() {
 
       // Update attendees if provided
       if (data.attendee_ids !== undefined) {
-        await supabase.from("meeting_attendees").delete().eq("meeting_id", id);
+        await (supabase as any).from("meeting_attendees").delete().eq("meeting_id", id);
         if (data.attendee_ids.length > 0) {
           const rows = data.attendee_ids.map((uid) => ({
             meeting_id: id,
