@@ -24,7 +24,7 @@ const Profile = () => {
 
   useEffect(() => {
     if (!user) return;
-    supabase
+    (supabase as any)
       .from("profiles")
       .select("display_name, first_name, last_name, avatar_url")
       .eq("id", user.id)
