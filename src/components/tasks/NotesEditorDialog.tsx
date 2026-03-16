@@ -68,10 +68,12 @@ const NotesEditorDialog = ({
 
   const handleSave = () => {
     const trimmed = description.trim();
-    // Close first, then update — so onSaved fires before re-render
     setOpen(false);
-    onSaved?.();
-    onUpdate({ id: task.id, description: trimmed });
+    // Delay both callbacks to next tick so Dialog fully unmounts first
+    requestAnimationFrame(() => {
+      onSaved?.();
+      onUpdate({ id: task.id, description: trimmed });
+    });
   };
 
   const displayName = assigneeName || "Unassigned";
