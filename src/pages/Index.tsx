@@ -34,14 +34,7 @@ const Index = () => {
     .filter((t) => t.completed)
     .sort((a, b) => new Date(b.completed_at!).getTime() - new Date(a.completed_at!).getTime());
 
-  // Helper to check if task or any subtask is assigned to current user
-  const isAssignedToMe = (t: Task): boolean =>
-    t.assigned_to === user?.id || (t.subtasks?.some(isAssignedToMe) ?? false);
-
-  const assignedToMe = activeTasks.filter(isAssignedToMe).sort(sortByDueDate);
-  const starredTasks = activeTasks.filter((t) => t.starred);
-
-  // Default sort: starred first, then due date (soonest first, no date last)
+  // Default sort: due date (soonest first, no date last)
   const sortByDueDate = (a: Task, b: Task) => {
     if (!a.due_date && !b.due_date) return 0;
     if (!a.due_date) return 1;
