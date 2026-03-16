@@ -314,28 +314,16 @@ const TaskCard = ({
 }: TaskCardProps) => {
   const [expanded, setExpanded] = useState(false);
   const [openBarId, setOpenBarId] = useState<string | null>(null);
-  const barLockedRef = useRef(false);
 
   const hasChildren = task.subtasks && task.subtasks.length > 0;
 
-  const toggleBar = useCallback((id: string) => {
-    if (barLockedRef.current) {
-      barLockedRef.current = false;
-      return;
-    }
+  const toggleBar = (id: string) => {
     setOpenBarId((prev) => (prev === id ? null : id));
-  }, []);
+  };
 
-  const closeBar = useCallback(() => {
+  const closeBar = () => {
     setOpenBarId(null);
-    barLockedRef.current = true;
-    // Clear the lock after a tick so only the immediate focus-return click is blocked
-    requestAnimationFrame(() => {
-      setTimeout(() => {
-        barLockedRef.current = false;
-      }, 300);
-    });
-  }, []);
+  };
 
   if (depth > 0) {
     return (

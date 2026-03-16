@@ -75,6 +75,7 @@ const CreateTaskDialog = ({ onSubmit, parentId, loading, iconOnly, inlineIcon, i
       setDueDate("");
       setAssignedTo("unassigned");
       setOwedTo("none");
+      onTriggerOpen?.();
     }
     setOpen(isOpen);
   };

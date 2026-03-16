@@ -64,7 +64,10 @@ const NotesEditorDialog = ({
   const [description, setDescription] = useState(task.description || "");
 
   const handleOpenChange = (isOpen: boolean) => {
-    if (isOpen) setDescription(task.description || "");
+    if (isOpen) {
+      setDescription(task.description || "");
+      onTriggerOpen?.();
+    }
     setOpen(isOpen);
   };
 

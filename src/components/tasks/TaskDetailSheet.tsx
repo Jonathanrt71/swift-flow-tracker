@@ -80,6 +80,7 @@ const TaskDetailSheet = ({
       setDueDate(task.due_date ? task.due_date.split("T")[0] : "");
       setAssignedTo(task.assigned_to || "unassigned");
       setOwedTo(task.owed_to || "none");
+      onTriggerOpen?.();
     }
     setOpen(isOpen);
   };
