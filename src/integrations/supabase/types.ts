@@ -14,6 +14,83 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_settings: {
+        Row: {
+          key: string
+          updated_at: string | null
+          value: string
+        }
+        Insert: {
+          key: string
+          updated_at?: string | null
+          value: string
+        }
+        Update: {
+          key?: string
+          updated_at?: string | null
+          value?: string
+        }
+        Relationships: []
+      }
+      meeting_attendees: {
+        Row: {
+          created_at: string | null
+          id: string
+          meeting_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          meeting_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          meeting_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meeting_attendees_meeting_id_fkey"
+            columns: ["meeting_id"]
+            isOneToOne: false
+            referencedRelation: "meetings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      meetings: {
+        Row: {
+          created_at: string | null
+          created_by: string
+          id: string
+          meeting_date: string
+          notes: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by: string
+          id?: string
+          meeting_date: string
+          notes?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string
+          id?: string
+          meeting_date?: string
+          notes?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       milestones: {
         Row: {
           completed: boolean
@@ -95,21 +172,27 @@ export type Database = {
           avatar_url: string | null
           created_at: string
           display_name: string | null
+          first_name: string | null
           id: string
+          last_name: string | null
           updated_at: string
         }
         Insert: {
           avatar_url?: string | null
           created_at?: string
           display_name?: string | null
+          first_name?: string | null
           id: string
+          last_name?: string | null
           updated_at?: string
         }
         Update: {
           avatar_url?: string | null
           created_at?: string
           display_name?: string | null
+          first_name?: string | null
           id?: string
+          last_name?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -124,6 +207,7 @@ export type Database = {
           description: string | null
           due_date: string | null
           id: string
+          owed_to: string | null
           parent_id: string | null
           position: number
           starred: boolean
@@ -139,6 +223,7 @@ export type Database = {
           description?: string | null
           due_date?: string | null
           id?: string
+          owed_to?: string | null
           parent_id?: string | null
           position?: number
           starred?: boolean
@@ -154,6 +239,7 @@ export type Database = {
           description?: string | null
           due_date?: string | null
           id?: string
+          owed_to?: string | null
           parent_id?: string | null
           position?: number
           starred?: boolean
@@ -202,7 +288,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "faculty" | "resident"
+      app_role: "admin" | "user" | "faculty" | "resident"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -330,7 +416,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "faculty", "resident"],
+      app_role: ["admin", "user", "faculty", "resident"],
     },
   },
 } as const

@@ -24,7 +24,7 @@ const Profile = () => {
 
   useEffect(() => {
     if (!user) return;
-    supabase
+    (supabase as any)
       .from("profiles")
       .select("display_name, first_name, last_name, avatar_url")
       .eq("id", user.id)
@@ -43,7 +43,7 @@ const Profile = () => {
   const handleSave = async () => {
     if (!user) return;
     setSaving(true);
-    const { error } = await supabase
+    const { error } = await (supabase as any)
       .from("profiles")
       .update({
         display_name: displayName,
@@ -90,7 +90,7 @@ const Profile = () => {
     const { data: { publicUrl } } = supabase.storage.from("avatars").getPublicUrl(path);
     const url = `${publicUrl}?t=${Date.now()}`;
 
-    const { error: updateErr } = await supabase
+    const { error: updateErr } = await (supabase as any)
       .from("profiles")
       .update({ avatar_url: url })
       .eq("id", user.id);

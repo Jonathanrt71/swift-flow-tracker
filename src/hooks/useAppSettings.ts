@@ -19,7 +19,7 @@ export function useAppSettings() {
   const query = useQuery({
     queryKey: ["app-settings"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("app_settings")
         .select("key, value");
       if (error) throw error;
@@ -35,7 +35,7 @@ export function useAppSettings() {
 
   const updateSetting = useMutation({
     mutationFn: async ({ key, value }: { key: string; value: string }) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from("app_settings")
         .upsert({ key, value }, { onConflict: "key" });
       if (error) throw error;

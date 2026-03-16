@@ -24,7 +24,7 @@ export function useMeetings() {
     enabled: !!user,
     queryFn: async () => {
       // Get all meetings where user is creator or attendee
-      const { data: myMeetings, error: mErr } = await supabase
+      const { data: myMeetings, error: mErr } = await (supabase as any)
         .from("meetings")
         .select("*")
         .order("meeting_date", { ascending: true });
@@ -34,7 +34,7 @@ export function useMeetings() {
       const meetingIds = (myMeetings || []).map((m: any) => m.id);
       if (meetingIds.length === 0) return [];
 
-      const { data: attendees, error: aErr } = await supabase
+      const { data: attendees, error: aErr } = await (supabase as any)
         .from("meeting_attendees")
         .select("meeting_id, user_id")
         .in("meeting_id", meetingIds);
@@ -68,7 +68,7 @@ export function useMeetings() {
       attendee_ids: string[];
     }) => {
       // Create meeting
-      const { data: meeting, error: mErr } = await supabase
+      const { data: meeting, error: mErr } = await (supabase as any)
         .from("meetings")
         .insert({
           title: data.title,
@@ -86,7 +86,7 @@ export function useMeetings() {
           meeting_id: meeting.id,
           user_id: uid,
         }));
-        const { error: aErr } = await supabase
+        const { error: aErr } = await (supabase as any)
           .from("meeting_attendees")
           .insert(rows);
         if (aErr) throw aErr;
@@ -119,19 +119,19 @@ export function useMeetings() {
       if (data.notes !== undefined) updateData.notes = data.notes;
 
       if (Object.keys(updateData).length > 0) {
-        const { error } = await supabase.from("meetings").update(updateData).eq("id", id);
+        const { error } = await (supabase as any).from("meetings").update(updateData).eq("id", id);
         if (error) throw error;
       }
 
       // Update attendees if provided
       if (data.attendee_ids !== undefined) {
-        await supabase.from("meeting_attendees").delete().eq("meeting_id", id);
+        await (supabase as any).from("meeting_attendees").delete().eq("meeting_id", id);
         if (data.attendee_ids.length > 0) {
           const rows = data.attendee_ids.map((uid) => ({
             meeting_id: id,
             user_id: uid,
           }));
-          const { error: aErr } = await supabase
+          const { error: aErr } = await (supabase as any)
             .from("meeting_attendees")
             .insert(rows);
           if (aErr) throw aErr;
@@ -148,7 +148,7 @@ export function useMeetings() {
 
   const deleteMeeting = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from("meetings").delete().eq("id", id);
+      const { error } = await (supabase as any).from("meetings").delete().eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {
