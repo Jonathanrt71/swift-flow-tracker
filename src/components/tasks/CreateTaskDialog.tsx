@@ -113,12 +113,6 @@ const CreateTaskDialog = ({ onSubmit, parentId, loading, iconOnly, inlineIcon, i
             />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs text-muted-foreground">Notes</Label>
-            <div className="bg-background rounded-lg border border-input overflow-hidden">
-              <RichTextEditor content={description} onChange={setDescription} />
-            </div>
-          </div>
-          <div className="space-y-1.5">
             <Label className="text-xs text-muted-foreground">Due date</Label>
             <div className="flex items-center gap-2">
               <Popover>
