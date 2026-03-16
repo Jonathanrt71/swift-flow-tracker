@@ -119,7 +119,7 @@ export function useMeetings() {
       if (data.notes !== undefined) updateData.notes = data.notes;
 
       if (Object.keys(updateData).length > 0) {
-        const { error } = await supabase.from("meetings").update(updateData).eq("id", id);
+        const { error } = await (supabase as any).from("meetings").update(updateData).eq("id", id);
         if (error) throw error;
       }
 
