@@ -35,6 +35,7 @@ interface CreateTaskDialogProps {
   iconOnly?: boolean;
   inlineIcon?: boolean;
   iconTrigger?: boolean;
+  onTriggerOpen?: () => void;
   children?: React.ReactNode;
 }
 

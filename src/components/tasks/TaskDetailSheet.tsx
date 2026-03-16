@@ -50,6 +50,7 @@ interface TaskDetailSheetProps {
     owed_to?: string | null;
   }) => void;
   onDelete: (id: string) => void;
+  onTriggerOpen?: () => void;
   iconTrigger?: boolean;
 }
 

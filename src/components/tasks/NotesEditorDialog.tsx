@@ -14,6 +14,7 @@ interface NotesEditorDialogProps {
   task: Task;
   onUpdate: (data: { id: string; description?: string }) => void;
   onSaved?: () => void;
+  onTriggerOpen?: () => void;
   children?: ReactNode;
   iconTrigger?: boolean;
   assigneeName?: string;
