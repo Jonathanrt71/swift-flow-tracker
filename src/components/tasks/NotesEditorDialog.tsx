@@ -53,6 +53,7 @@ const NotesEditorDialog = ({
   task,
   onUpdate,
   onSaved,
+  onTriggerOpen,
   children,
   iconTrigger,
   assigneeName,
