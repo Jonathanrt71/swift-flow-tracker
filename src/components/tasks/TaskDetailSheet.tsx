@@ -47,6 +47,7 @@ interface TaskDetailSheetProps {
     description?: string;
     due_date?: string | null;
     assigned_to?: string | null;
+    owed_to?: string | null;
   }) => void;
   onDelete: (id: string) => void;
   iconTrigger?: boolean;
@@ -66,6 +67,9 @@ const TaskDetailSheet = ({
   const [assignedTo, setAssignedTo] = useState<string>(
     task.assigned_to || "unassigned"
   );
+  const [owedTo, setOwedTo] = useState<string>(
+    task.owed_to || "none"
+  );
   const { data: members } = useTeamMembers();
 
   const handleOpenChange = (isOpen: boolean) => {
@@ -73,6 +77,7 @@ const TaskDetailSheet = ({
       setTitle(task.title);
       setDueDate(task.due_date ? task.due_date.split("T")[0] : "");
       setAssignedTo(task.assigned_to || "unassigned");
+      setOwedTo(task.owed_to || "none");
     }
     setOpen(isOpen);
   };
@@ -84,6 +89,7 @@ const TaskDetailSheet = ({
       title: title.trim(),
       due_date: dueDate || null,
       assigned_to: assignedTo === "unassigned" ? null : assignedTo,
+      owed_to: owedTo === "none" ? null : owedTo,
     });
     setOpen(false);
   };
@@ -187,6 +193,24 @@ const TaskDetailSheet = ({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="unassigned">Unassigned</SelectItem>
+                {members?.map((m) => (
+                  <SelectItem key={m.id} value={m.id}>
+                    {m.display_name || "Unnamed"}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs font-normal text-muted-foreground">
+              Owed to
+            </Label>
+            <Select value={owedTo} onValueChange={setOwedTo}>
+              <SelectTrigger className="bg-background rounded-lg">
+                <SelectValue placeholder="None" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">None</SelectItem>
                 {members?.map((m) => (
                   <SelectItem key={m.id} value={m.id}>
                     {m.display_name || "Unnamed"}

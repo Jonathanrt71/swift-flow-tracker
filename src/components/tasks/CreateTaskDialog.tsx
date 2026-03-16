@@ -29,7 +29,7 @@ import { format, parseISO } from "date-fns";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 
 interface CreateTaskDialogProps {
-  onSubmit: (data: { title: string; description?: string; due_date?: string; parent_id?: string; assigned_to?: string }) => void;
+  onSubmit: (data: { title: string; description?: string; due_date?: string; parent_id?: string; assigned_to?: string; owed_to?: string }) => void;
   parentId?: string;
   loading?: boolean;
   iconOnly?: boolean;
@@ -43,6 +43,7 @@ const CreateTaskDialog = ({ onSubmit, parentId, loading, iconOnly, inlineIcon, i
   const [description, setDescription] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [assignedTo, setAssignedTo] = useState("unassigned");
+  const [owedTo, setOwedTo] = useState("none");
   const { data: members } = useTeamMembers();
 
   const selectedDate = dueDate ? parseISO(dueDate) : undefined;
@@ -55,11 +56,13 @@ const CreateTaskDialog = ({ onSubmit, parentId, loading, iconOnly, inlineIcon, i
       due_date: dueDate || undefined,
       parent_id: parentId,
       assigned_to: assignedTo === "unassigned" ? undefined : assignedTo,
+      owed_to: owedTo === "none" ? undefined : owedTo,
     });
     setTitle("");
     setDescription("");
     setDueDate("");
     setAssignedTo("unassigned");
+    setOwedTo("none");
     setOpen(false);
   };
 
@@ -69,6 +72,7 @@ const CreateTaskDialog = ({ onSubmit, parentId, loading, iconOnly, inlineIcon, i
       setDescription("");
       setDueDate("");
       setAssignedTo("unassigned");
+      setOwedTo("none");
     }
     setOpen(isOpen);
   };
@@ -159,6 +163,22 @@ const CreateTaskDialog = ({ onSubmit, parentId, loading, iconOnly, inlineIcon, i
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="unassigned">Unassigned</SelectItem>
+                {members?.map((m) => (
+                  <SelectItem key={m.id} value={m.id}>
+                    {m.display_name || "Unnamed"}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground">Owed to</Label>
+            <Select value={owedTo} onValueChange={setOwedTo}>
+              <SelectTrigger className="bg-background rounded-lg">
+                <SelectValue placeholder="None" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">None</SelectItem>
                 {members?.map((m) => (
                   <SelectItem key={m.id} value={m.id}>
                     {m.display_name || "Unnamed"}

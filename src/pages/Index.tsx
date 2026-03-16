@@ -5,7 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LogOut, CheckCircle2, ListTodo, Shield, User, Star, UserCheck, Users } from "lucide-react";
+import { LogOut, CheckCircle2, ListTodo, Shield, User, Star, UserCheck, Users, HandCoins } from "lucide-react";
 import TaskCard from "@/components/tasks/TaskCard";
 import CreateTaskDialog from "@/components/tasks/CreateTaskDialog";
 import NotificationBell from "@/components/NotificationBell";
@@ -47,6 +47,7 @@ const Index = () => {
     t.assigned_to === user?.id || (t.subtasks?.some(isAssignedToMe) ?? false);
 
   const assignedToMe = activeTasks.filter(isAssignedToMe).sort(sortByDueDate);
+  const owedToMe = activeTasks.filter((t) => t.owed_to === user?.id).sort(sortByDueDate);
   const starredTasks = activeTasks.filter((t) => t.starred).sort(sortByDueDate);
 
   const sortedActive = [...activeTasks].sort(sortByDueDate);
@@ -241,6 +242,9 @@ const Index = () => {
               <TabsTrigger value="assigned" className="h-8 w-8 p-0" title="Assigned to Me">
                 <UserCheck className="h-4 w-4" />
               </TabsTrigger>
+              <TabsTrigger value="owedToMe" className="h-8 w-8 p-0" title="Owed to Me">
+                <HandCoins className="h-4 w-4" />
+              </TabsTrigger>
               <TabsTrigger value="starred" className="h-8 w-8 p-0" title="Starred">
                 <Star className="h-4 w-4" />
               </TabsTrigger>
@@ -276,6 +280,14 @@ const Index = () => {
               assignedToMe,
               <UserCheck className="h-10 w-10 mx-auto" />,
               "No tasks assigned to you."
+            )}
+          </TabsContent>
+
+          <TabsContent value="owedToMe" className="space-y-3 mt-0">
+            {renderGroupedTaskList(
+              owedToMe,
+              <HandCoins className="h-10 w-10 mx-auto" />,
+              "No tasks owed to you."
             )}
           </TabsContent>
 

@@ -14,6 +14,7 @@ export interface Task {
   parent_id: string | null;
   created_by: string;
   assigned_to: string | null;
+  owed_to: string | null;
   starred: boolean;
   position: number;
   created_at: string;
@@ -57,13 +58,14 @@ export function useTasks() {
   });
 
   const createTask = useMutation({
-    mutationFn: async (data: { title: string; description?: string; due_date?: string; parent_id?: string; assigned_to?: string }) => {
+    mutationFn: async (data: { title: string; description?: string; due_date?: string; parent_id?: string; assigned_to?: string; owed_to?: string }) => {
       const { error } = await supabase.from("tasks").insert({
         title: data.title,
         description: data.description || null,
         due_date: data.due_date || null,
         parent_id: data.parent_id || null,
         assigned_to: data.assigned_to || user!.id,
+        owed_to: data.owed_to || null,
         created_by: user!.id,
       });
       if (error) throw error;
@@ -76,7 +78,7 @@ export function useTasks() {
   });
 
   const updateTask = useMutation({
-    mutationFn: async ({ id, ...data }: { id: string; title?: string; description?: string; due_date?: string | null; assigned_to?: string | null }) => {
+    mutationFn: async ({ id, ...data }: { id: string; title?: string; description?: string; due_date?: string | null; assigned_to?: string | null; owed_to?: string | null }) => {
       // Check if assignment changed to notify
       if (data.assigned_to && data.assigned_to !== user?.id) {
         const taskTitle = data.title || "a task";
