@@ -143,15 +143,15 @@ const ActionBar = ({
         isOpen ? "translate-x-0" : "translate-x-full",
         "bg-[#CDD6DE]"
       )}
-      onClick={(e) => {
-        e.stopPropagation();
-        onClose();
-      }}
+      onClick={(e) => e.stopPropagation()}
     >
       {!isSubtask && (
         <button
           className={btnClass}
-          onClick={() => onToggleStar({ id: task.id, starred: !task.starred })}
+          onClick={() => {
+            onToggleStar({ id: task.id, starred: !task.starred });
+            onClose();
+          }}
         >
           <Star
             className={cn(
@@ -162,7 +162,7 @@ const ActionBar = ({
         </button>
       )}
 
-      <div className="w-10 h-10 flex items-center justify-center">
+      <div className="w-10 h-10 flex items-center justify-center" onClick={onClose}>
         <NotesEditorDialog
           task={task}
           onUpdate={onUpdate}
@@ -172,12 +172,12 @@ const ActionBar = ({
           dueDate={sourceTask.due_date}
         />
       </div>
-      <div className="w-10 h-10 flex items-center justify-center">
+      <div className="w-10 h-10 flex items-center justify-center" onClick={onClose}>
         <TaskDetailSheet task={task} onUpdate={onUpdate} onDelete={onDelete} iconTrigger />
       </div>
 
       {!isSubtask && (
-        <div className="w-10 h-10 flex items-center justify-center">
+        <div className="w-10 h-10 flex items-center justify-center" onClick={onClose}>
           <CreateTaskDialog onSubmit={onCreateSubtask} parentId={task.id} iconTrigger />
         </div>
       )}
@@ -186,6 +186,7 @@ const ActionBar = ({
         <AlertDialogTrigger asChild>
           <button
             className={btnClass}
+            onClick={onClose}
           >
             <Trash2 className="h-4 w-4 text-destructive" />
           </button>
@@ -211,6 +212,7 @@ const ActionBar = ({
 
       <button
         className="flex items-center justify-center w-10 h-10 bg-transparent border-none cursor-pointer rounded-md"
+        onClick={onClose}
       >
         <X className="h-3.5 w-3.5 text-foreground" />
       </button>
