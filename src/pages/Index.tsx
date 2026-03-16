@@ -38,7 +38,7 @@ const Index = () => {
   const isAssignedToMe = (t: Task): boolean =>
     t.assigned_to === user?.id || (t.subtasks?.some(isAssignedToMe) ?? false);
 
-  const assignedToMe = activeTasks.filter(isAssignedToMe);
+  const assignedToMe = activeTasks.filter(isAssignedToMe).sort(sortByDueDate);
   const starredTasks = activeTasks.filter((t) => t.starred);
 
   // Default sort: starred first, then due date (soonest first, no date last)
@@ -49,10 +49,7 @@ const Index = () => {
     return new Date(a.due_date).getTime() - new Date(b.due_date).getTime();
   };
 
-  const sortedActive = [...activeTasks].sort((a, b) => {
-    if (a.starred !== b.starred) return a.starred ? -1 : 1;
-    return sortByDueDate(a, b);
-  });
+  const sortedActive = [...activeTasks].sort(sortByDueDate);
 
   const sortedByAssignee = [...activeTasks].sort((a, b) => {
     const nameA = teamMembers?.find((m) => m.id === (a.assigned_to || a.created_by))?.display_name || "";
