@@ -184,8 +184,9 @@ const ActionBar = ({
 
       <button
         className="flex items-center justify-center w-10 h-10 bg-transparent border-none cursor-pointer rounded-md"
-        onClick={(e) => {
+        onPointerDown={(e) => {
           e.stopPropagation();
+          e.preventDefault();
           onClose();
         }}
       >
