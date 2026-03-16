@@ -68,7 +68,7 @@ export function useMeetings() {
       attendee_ids: string[];
     }) => {
       // Create meeting
-      const { data: meeting, error: mErr } = await supabase
+      const { data: meeting, error: mErr } = await (supabase as any)
         .from("meetings")
         .insert({
           title: data.title,
