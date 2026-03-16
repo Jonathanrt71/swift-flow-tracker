@@ -131,7 +131,7 @@ export function useMeetings() {
             meeting_id: id,
             user_id: uid,
           }));
-          const { error: aErr } = await supabase
+          const { error: aErr } = await (supabase as any)
             .from("meeting_attendees")
             .insert(rows);
           if (aErr) throw aErr;
