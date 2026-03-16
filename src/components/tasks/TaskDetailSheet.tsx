@@ -58,6 +58,7 @@ const TaskDetailSheet = ({
   task,
   onUpdate,
   onDelete,
+  onTriggerOpen,
   iconTrigger,
 }: TaskDetailSheetProps) => {
   const [open, setOpen] = useState(false);
