@@ -39,7 +39,7 @@ const Index = () => {
     t.assigned_to === user?.id || (t.subtasks?.some(isAssignedToMe) ?? false);
 
   const assignedToMe = activeTasks.filter(isAssignedToMe).sort(sortByDueDate);
-  const starredTasks = activeTasks.filter((t) => t.starred);
+  const starredTasks = activeTasks.filter((t) => t.starred).sort(sortByDueDate);
 
   // Default sort: starred first, then due date (soonest first, no date last)
   const sortByDueDate = (a: Task, b: Task) => {
@@ -127,7 +127,7 @@ const Index = () => {
 
     taskList.forEach((task) => {
       const bucket = getDueBucket(task);
-      if (prevBucket !== -1 && bucket !== prevBucket && bucket >= 1 && bucket <= 2) {
+      if (prevBucket !== -1 && bucket !== prevBucket && bucket >= 1 && bucket <= 3) {
         elements.push(
           <div key={`sep-${task.id}`} className="py-1">
             <div className="h-px bg-border" />
