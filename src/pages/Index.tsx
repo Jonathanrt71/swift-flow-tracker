@@ -153,6 +153,55 @@ const Index = () => {
     return elements;
   };
 
+  const renderByAssigneeList = (taskList: Task[], emptyIcon: React.ReactNode, emptyText: string) => {
+    if (isLoading) {
+      return (
+        <div className="flex justify-center py-12">
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        </div>
+      );
+    }
+    if (taskList.length === 0) {
+      return (
+        <div className="text-center py-12 text-muted-foreground">
+          <div className="mx-auto mb-3 opacity-40">{emptyIcon}</div>
+          <p className="text-sm">{emptyText}</p>
+        </div>
+      );
+    }
+
+    const elements: React.ReactNode[] = [];
+    let prevAssignee = "";
+
+    taskList.forEach((task) => {
+      const assigneeId = task.assigned_to || task.created_by;
+      const assigneeName = teamMembers?.find((m) => m.id === assigneeId)?.display_name || assigneeId || "";
+      if (prevAssignee && assigneeName !== prevAssignee) {
+        elements.push(
+          <div key={`sep-assignee-${task.id}`} className="py-1">
+            <div className="h-px bg-border" />
+          </div>
+        );
+      }
+      prevAssignee = assigneeName;
+      elements.push(
+        <TaskCard
+          key={task.id}
+          task={task}
+          isOverdue={isOverdue(task)}
+          teamMembers={teamMembers || []}
+          onToggleComplete={(d) => toggleComplete.mutate(d)}
+          onUpdate={(d) => updateTask.mutate(d)}
+          onDelete={(id) => deleteTask.mutate(id)}
+          onCreateSubtask={(d) => createTask.mutate(d)}
+          onToggleStar={(d) => toggleStar.mutate(d)}
+        />
+      );
+    });
+
+    return elements;
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <header className="bg-[hsl(33,22%,88%)]">
@@ -215,7 +264,7 @@ const Index = () => {
           </TabsContent>
 
           <TabsContent value="byAssignee" className="space-y-3 mt-0">
-            {renderTaskList(
+            {renderByAssigneeList(
               sortedByAssignee,
               <Users className="h-10 w-10 mx-auto" />,
               "No active tasks."
