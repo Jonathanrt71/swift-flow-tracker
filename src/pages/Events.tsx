@@ -23,6 +23,7 @@ import { LogOut, Shield, User, Calendar, BookOpen, Search, X, Trash2 } from "luc
 import { format, parseISO } from "date-fns";
 import BottomNav from "@/components/BottomNav";
 import CreateEventDialog from "@/components/events/CreateEventDialog";
+import EditEventDialog from "@/components/events/EditEventDialog";
 import NotificationBell from "@/components/NotificationBell";
 
 const getInitials = (name: string | null): string => {
@@ -53,10 +54,23 @@ const formatTime = (t: string | null): string => {
 const EventCard = ({
   event,
   teamMembers,
+  canEdit,
+  onUpdate,
   onDelete,
 }: {
   event: ProgramEvent;
   teamMembers: ReturnType<typeof useTeamMembers>["data"];
+  canEdit: boolean;
+  onUpdate: (data: {
+    id: string;
+    title?: string;
+    event_date?: string;
+    start_time?: string | null;
+    end_time?: string | null;
+    description?: string | null;
+    category?: EventCategory;
+    assigned_to?: string | null;
+  }) => void;
   onDelete: (id: string) => void;
 }) => {
   const [expanded, setExpanded] = useState(false);
@@ -64,7 +78,7 @@ const EventCard = ({
   const assignee = members.find((m) => m.id === event.assigned_to);
   const assigneeName = assignee?.display_name || null;
 
-  const hasExpandContent = event.description || event.start_time;
+  const hasExpandContent = true; // Always expandable for edit/delete access
 
   const formattedDate = (() => {
     try {
@@ -126,35 +140,38 @@ const EventCard = ({
           {event.description && (
             <div className="text-xs text-muted-foreground line-clamp-2 mb-2">{event.description}</div>
           )}
-          <div className="flex justify-end">
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <button
-                  className="flex items-center justify-center w-8 h-8 rounded-md bg-transparent text-destructive hover:bg-destructive/10 transition-colors"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                </button>
-              </AlertDialogTrigger>
-              <AlertDialogContent onClick={(e) => e.stopPropagation()}>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Delete event?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This will permanently delete "{event.title}". This action cannot be undone.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={() => onDelete(event.id)}
-                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          {canEdit && (
+            <div className="flex items-center justify-end gap-1">
+              <EditEventDialog event={event} onUpdate={onUpdate} />
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <button
+                    className="flex items-center justify-center w-8 h-8 rounded-md bg-transparent text-destructive hover:bg-destructive/10 transition-colors"
+                    onClick={(e) => e.stopPropagation()}
                   >
-                    Delete
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </div>
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </AlertDialogTrigger>
+                <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Delete event?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This will permanently delete "{event.title}". This action cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => onDelete(event.id)}
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    >
+                      Delete
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -164,11 +181,26 @@ const EventCard = ({
 const GroupedEventList = ({
   events,
   teamMembers,
+  userId,
+  isAdmin,
+  onUpdate,
   onDelete,
   emptyMessage,
 }: {
   events: ProgramEvent[];
   teamMembers: ReturnType<typeof useTeamMembers>["data"];
+  userId: string | undefined;
+  isAdmin: boolean;
+  onUpdate: (data: {
+    id: string;
+    title?: string;
+    event_date?: string;
+    start_time?: string | null;
+    end_time?: string | null;
+    description?: string | null;
+    category?: EventCategory;
+    assigned_to?: string | null;
+  }) => void;
   onDelete: (id: string) => void;
   emptyMessage: string;
 }) => {
@@ -218,6 +250,8 @@ const GroupedEventList = ({
               key={ev.id}
               event={ev}
               teamMembers={teamMembers}
+              canEdit={isAdmin || ev.created_by === userId}
+              onUpdate={onUpdate}
               onDelete={onDelete}
             />
           ))}
@@ -230,7 +264,7 @@ const GroupedEventList = ({
 const Events = () => {
   const { user, signOut } = useAuth();
   const { isAdmin } = useAdmin();
-  const { events, createEvent, deleteEvent } = useEvents();
+  const { events, createEvent, updateEvent, deleteEvent } = useEvents();
   const { data: teamMembers } = useTeamMembers();
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -322,6 +356,9 @@ const Events = () => {
               <GroupedEventList
                 events={filteredEvents}
                 teamMembers={teamMembers}
+                userId={user?.id}
+                isAdmin={!!isAdmin}
+                onUpdate={(data) => updateEvent.mutate(data)}
                 onDelete={(id) => deleteEvent.mutate(id)}
                 emptyMessage="No program events. Create one to get started!"
               />
@@ -337,6 +374,9 @@ const Events = () => {
               <GroupedEventList
                 events={filteredEvents}
                 teamMembers={teamMembers}
+                userId={user?.id}
+                isAdmin={!!isAdmin}
+                onUpdate={(data) => updateEvent.mutate(data)}
                 onDelete={(id) => deleteEvent.mutate(id)}
                 emptyMessage="No didactics. Create one to get started!"
               />
