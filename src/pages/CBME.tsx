@@ -61,7 +61,7 @@ const CreateCompetencyDialog = ({
             <X className="h-4 w-4 text-white/70" />
           </button>
         </div>
-        <div className="px-4 pb-4">
+        <div className="px-4 pt-4 pb-4">
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
@@ -73,7 +73,7 @@ const CreateCompetencyDialog = ({
             }}
             placeholder="Competency title..."
             autoFocus
-            className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm outline-none"
+            style={{ width: "100%", padding: "8px 12px", background: "#E7EBEF", border: "0.5px solid #C9CED4", borderRadius: 8, fontSize: 14, color: "#333", outline: "none" }}
           />
         </div>
         <div className="px-4 pb-4 flex justify-end">
@@ -85,7 +85,7 @@ const CreateCompetencyDialog = ({
               }
             }}
             disabled={!title.trim()}
-            className="px-5 py-2 bg-primary text-primary-foreground border-none rounded-md text-[13px] font-medium cursor-pointer disabled:opacity-50"
+            style={{ padding: "8px 20px", background: title.trim() ? "#415162" : "#C9CED4", color: "#FFF", border: "none", borderRadius: 6, fontSize: 13, fontWeight: 500, cursor: title.trim() ? "pointer" : "default" }}
           >
             Create
           </button>
