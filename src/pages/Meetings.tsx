@@ -342,7 +342,7 @@ const Meetings = () => {
 
   return (
     <div className="min-h-screen bg-background pb-16">
-      <header className="bg-[#52657A]">
+      <header className="bg-[#415162]">
         <div className="container flex items-center justify-between h-14 px-4">
           <h1 className="text-lg font-semibold text-white">Meetings</h1>
           <div className="flex items-center gap-1 text-white">

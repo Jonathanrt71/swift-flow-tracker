@@ -7,7 +7,7 @@ const BottomNav = () => {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-[#52657A] flex">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-[#415162] flex">
       <Link
         to="/"
         className={cn(
