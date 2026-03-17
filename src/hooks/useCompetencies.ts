@@ -249,5 +249,18 @@ export function useCompetencies() {
     },
   });
 
-  return { competencies, myAssessments, createCompetency, deleteCompetency, saveSections, saveAssessment };
+  const allAssessments = useQuery({
+    queryKey: ["all_assessments"],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("competency_assessments")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return (data || []) as Assessment[];
+    },
+  });
+
+  return { competencies, myAssessments, allAssessments, createCompetency, deleteCompetency, saveSections, saveAssessment };
 }

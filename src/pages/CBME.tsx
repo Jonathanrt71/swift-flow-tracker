@@ -98,13 +98,14 @@ const CBME = () => {
   const { user, signOut } = useAuth();
   const { isAdmin } = useAdmin();
   const { isFaculty } = useUserRole();
-  const { competencies, myAssessments, createCompetency, deleteCompetency, saveSections, saveAssessment } =
+  const { competencies, myAssessments, allAssessments, createCompetency, deleteCompetency, saveSections, saveAssessment } =
     useCompetencies();
   const { data: teamMembers } = useTeamMembers();
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("list");
+  const [dashboardView, setDashboardView] = useState<"mine" | "all">("mine");
 
   const canCreate = isAdmin || isFaculty;
 
@@ -294,14 +295,36 @@ const CBME = () => {
 
           {canCreate && (
             <TabsContent value="dashboard" className="mt-0">
-              {myAssessments.isLoading ? (
+              <div className="flex gap-1 mb-3">
+                <button
+                  onClick={() => setDashboardView("mine")}
+                  className={`px-3 py-1 rounded-md text-[11px] font-medium border-none cursor-pointer transition-colors ${
+                    dashboardView === "mine"
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-muted-foreground"
+                  }`}
+                >
+                  My assessments
+                </button>
+                <button
+                  onClick={() => setDashboardView("all")}
+                  className={`px-3 py-1 rounded-md text-[11px] font-medium border-none cursor-pointer transition-colors ${
+                    dashboardView === "all"
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-muted-foreground"
+                  }`}
+                >
+                  All assessments
+                </button>
+              </div>
+              {(dashboardView === "mine" ? myAssessments : allAssessments).isLoading ? (
                 <div className="flex justify-center py-12">
                   <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
                 </div>
               ) : (
                 <CBMEDashboard
                   competencies={competencies.data || []}
-                  assessments={myAssessments.data || []}
+                  assessments={(dashboardView === "mine" ? myAssessments.data : allAssessments.data) || []}
                   teamMembers={teamMembers || []}
                 />
               )}
