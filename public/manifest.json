@@ -1,10 +1,10 @@
 {
-  "name": "Tasks",
+  "name": "FM Tasks",
   "short_name": "Tasks",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#F5EDE4",
-  "theme_color": "#E5DBCF",
+  "background_color": "#F5F3EE",
+  "theme_color": "#415162",
   "icons": [
     {
       "src": "/icon-192.png",

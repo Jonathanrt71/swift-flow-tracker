@@ -390,34 +390,31 @@ const Meetings = () => {
 
       <main className="container max-w-2xl px-4 py-6">
         {/* Filter bar */}
-        <div className="flex items-center gap-2 pb-2.5">
+        <div className="flex items-center gap-1 pb-2.5">
           {/* Person filter */}
           <Popover>
             <PopoverTrigger asChild>
               <button
                 className={cn(
-                  "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-[11px] cursor-pointer transition-colors",
+                  "h-8 w-8 p-0 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors",
                   personFilter
-                    ? "bg-primary text-primary-foreground border-primary"
-                    : "bg-muted text-muted-foreground border-border"
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-transparent text-muted-foreground hover:bg-accent"
                 )}
               >
-                <Filter className="h-3 w-3" />
-                {personFilter
-                  ? teamMembers?.find((m) => m.id === personFilter)?.display_name || "Person"
-                  : null}
-                {personFilter && (
-                  <XIcon
-                    className="h-2.5 w-2.5 opacity-70"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setPersonFilter(null);
-                    }}
-                  />
-                )}
+                <Filter className="h-4 w-4" />
               </button>
             </PopoverTrigger>
             <PopoverContent className="w-56 p-1" align="start">
+              {personFilter && (
+                <button
+                  onClick={() => setPersonFilter(null)}
+                  className="flex items-center gap-2 w-full px-2 py-1.5 rounded-md text-xs text-destructive cursor-pointer hover:bg-accent mb-1"
+                >
+                  <XIcon className="h-3 w-3" />
+                  Clear filter
+                </button>
+              )}
               <div className="max-h-60 overflow-y-auto">
                 {teamMembers?.map((m) => (
                   <button
@@ -453,26 +450,25 @@ const Meetings = () => {
               <PopoverTrigger asChild>
                 <button
                   className={cn(
-                    "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-[11px] cursor-pointer transition-colors",
+                    "h-8 w-8 p-0 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors",
                     tagFilter
-                      ? "bg-primary text-primary-foreground border-primary"
-                      : "bg-muted text-muted-foreground border-border"
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-transparent text-muted-foreground hover:bg-accent"
                   )}
                 >
-                  <Tag className="h-3 w-3" />
-                  {tagFilter ? tagNameMap.get(tagFilter) || "Tag" : null}
-                  {tagFilter && (
-                    <XIcon
-                      className="h-2.5 w-2.5 opacity-70"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setTagFilter(null);
-                      }}
-                    />
-                  )}
+                  <Tag className="h-4 w-4" />
                 </button>
               </PopoverTrigger>
               <PopoverContent className="w-48 p-1" align="start">
+                {tagFilter && (
+                  <button
+                    onClick={() => setTagFilter(null)}
+                    className="flex items-center gap-2 w-full px-2 py-1.5 rounded-md text-xs text-destructive cursor-pointer hover:bg-accent mb-1"
+                  >
+                    <XIcon className="h-3 w-3" />
+                    Clear filter
+                  </button>
+                )}
                 <div className="max-h-60 overflow-y-auto">
                   {allTags.data?.map((tag) => (
                     <button
