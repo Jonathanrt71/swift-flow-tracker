@@ -99,10 +99,10 @@ const ChecklistEditor = ({
         className="w-[calc(100%-2rem)] max-w-md overflow-y-auto bg-muted border-border rounded-xl p-0 max-h-[85vh] [&>button[class*='absolute']]:hidden"
         overlayClassName="bg-background/60 backdrop-blur-sm"
       >
-        <div className="flex items-center justify-between px-4 pt-4 pb-2">
-          <span className="text-sm font-medium">Edit: {competencyTitle}</span>
+        <div className="flex items-center justify-between px-4 py-3 bg-[#415162] rounded-t-xl">
+          <span className="text-sm font-medium text-white">Edit: {competencyTitle}</span>
           <button onClick={() => setOpen(false)} className="w-9 h-9 flex items-center justify-center bg-transparent border-none cursor-pointer">
-            <X className="h-4 w-4 text-foreground" />
+            <X className="h-4 w-4 text-white/70" />
           </button>
         </div>
 

@@ -54,10 +54,10 @@ const CreateCompetencyDialog = ({
         className="w-[calc(100%-2rem)] max-w-sm overflow-y-auto bg-muted border-border rounded-xl p-0 [&>button[class*='absolute']]:hidden"
         overlayClassName="bg-background/60 backdrop-blur-sm"
       >
-        <div className="flex items-center justify-between px-4 pt-4 pb-2">
-          <span className="text-sm font-medium">New competency</span>
+        <div className="flex items-center justify-between px-4 py-3 bg-[#415162] rounded-t-xl">
+          <span className="text-sm font-medium text-white">New competency</span>
           <button onClick={() => setOpen(false)} className="w-9 h-9 flex items-center justify-center bg-transparent border-none cursor-pointer">
-            <X className="h-4 w-4 text-foreground" />
+            <X className="h-4 w-4 text-white/70" />
           </button>
         </div>
         <div className="px-4 pb-4">
