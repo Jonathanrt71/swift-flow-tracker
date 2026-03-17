@@ -215,7 +215,10 @@ const GroupedEventList = ({
     );
   }
 
-  const grouped: { month: string; items: ProgramEvent[] }[] = [];
+  const now = new Date();
+  const currentMonthLabel = format(now, "MMMM yyyy");
+
+  const grouped: { month: string; isCurrentMonth: boolean; items: ProgramEvent[] }[] = [];
   events.forEach((ev) => {
     try {
       const m = format(parseISO(ev.event_date), "MMMM yyyy");
@@ -223,30 +226,27 @@ const GroupedEventList = ({
       if (last && last.month === m) {
         last.items.push(ev);
       } else {
-        grouped.push({ month: m, items: [ev] });
+        grouped.push({ month: m, isCurrentMonth: m === currentMonthLabel, items: [ev] });
       }
     } catch {
       const last = grouped[grouped.length - 1];
       if (last && last.month === "Other") {
         last.items.push(ev);
       } else {
-        grouped.push({ month: "Other", items: [ev] });
+        grouped.push({ month: "Other", isCurrentMonth: false, items: [ev] });
       }
     }
   });
 
   return (
     <>
-      {grouped.map((g, gi) => (
+      {grouped.map((g) => (
         <div key={g.month}>
-          {gi > 0 && (
-            <div className="py-1">
-              <div className="h-px bg-border" />
+          {!g.isCurrentMonth && (
+            <div className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider pt-3 pb-1">
+              {g.month}
             </div>
           )}
-          <div className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider py-2">
-            {g.month}
-          </div>
           {g.items.map((ev) => (
             <EventCard
               key={ev.id}

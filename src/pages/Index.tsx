@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { format, parseISO } from "date-fns";
 import { useTasks } from "@/hooks/useTasks";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
@@ -131,6 +132,27 @@ const Index = () => {
     return 2;
   };
 
+  const getMonthKey = (task: Task): string => {
+    if (!task.due_date) return "no-date";
+    try {
+      return format(parseISO(task.due_date.split("T")[0]), "yyyy-MM");
+    } catch {
+      return "no-date";
+    }
+  };
+
+  const getMonthLabel = (task: Task): string | null => {
+    if (!task.due_date) return null;
+    try {
+      const d = parseISO(task.due_date.split("T")[0]);
+      const now = new Date();
+      if (d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()) return null;
+      return format(d, "MMMM yyyy");
+    } catch {
+      return null;
+    }
+  };
+
   const renderGroupedTaskList = (taskList: Task[], emptyIcon: React.ReactNode, emptyText: string) => {
     if (isLoading) {
       return (
@@ -149,18 +171,19 @@ const Index = () => {
     }
 
     const elements: React.ReactNode[] = [];
-    let prevBucket = -1;
+    let prevMonth = "";
 
     taskList.forEach((task) => {
-      const bucket = getDueBucket(task);
-      if (prevBucket !== -1 && bucket !== prevBucket && bucket >= 1 && bucket <= 3) {
+      const monthKey = getMonthKey(task);
+      const monthLabel = getMonthLabel(task);
+      if (monthKey !== prevMonth && monthLabel) {
         elements.push(
-          <div key={`sep-${task.id}`} className="py-1">
-            <div className="h-px bg-border" />
+          <div key={`month-${monthKey}`} className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider pt-3 pb-1">
+            {monthLabel}
           </div>
         );
       }
-      prevBucket = bucket;
+      prevMonth = monthKey;
       elements.push(
         <TaskCard
           key={task.id}
@@ -203,10 +226,10 @@ const Index = () => {
     taskList.forEach((task) => {
       const assigneeId = task.assigned_to || task.created_by;
       const assigneeName = teamMembers?.find((m) => m.id === assigneeId)?.display_name || assigneeId || "";
-      if (prevAssignee && assigneeName !== prevAssignee) {
+      if (assigneeName !== prevAssignee) {
         elements.push(
-          <div key={`sep-assignee-${task.id}`} className="py-1">
-            <div className="h-px bg-border" />
+          <div key={`assignee-${assigneeId}-${task.id}`} className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider pt-3 pb-1">
+            {assigneeName}
           </div>
         );
       }
