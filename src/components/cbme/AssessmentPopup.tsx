@@ -89,7 +89,7 @@ const AssessmentPopup = ({
     <Dialog open={open} onOpenChange={handleOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent
-        className="w-[calc(100%-2rem)] max-w-md overflow-y-auto border-none rounded-xl p-0 max-h-[90vh] [&>button[class*='absolute']]:hidden"
+        className="w-[calc(100%-2rem)] max-w-md overflow-y-auto overflow-x-hidden border-none rounded-xl p-0 max-h-[90vh] [&>button[class*='absolute']]:hidden"
         style={{ background: "#F5F3EE" }}
         overlayClassName="bg-background/60 backdrop-blur-sm"
       >
@@ -175,13 +175,13 @@ const AssessmentPopup = ({
                         onClick={() => task.detail ? setExpandedDetailId(isDetailOpen ? null : task.id) : null}
                         className={`flex items-start px-4 py-2 ${task.detail ? "cursor-pointer" : ""}`}
                       >
-                        <div className="flex-1 min-w-0">
-                          <div className="text-[13px]">{task.title}</div>
+                        <div style={{ flex: 1, minWidth: 0, overflow: "hidden" }}>
+                          <div style={{ fontSize: 13, color: "#333" }}>{task.title}</div>
                           {task.detail && !isDetailOpen && (
-                            <div className="text-[11px] text-muted-foreground mt-0.5 truncate">{task.detail}...</div>
+                            <div style={{ fontSize: 11, color: "#888", marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{task.detail}</div>
                           )}
                         </div>
-                        <div className="flex gap-3 shrink-0 pt-0.5">
+                        <div className="flex gap-3 shrink-0 pt-0.5" style={{ marginLeft: 8 }}>
                           {[1, 2, 3].map((level) => (
                             <button
                               key={level}
@@ -200,7 +200,7 @@ const AssessmentPopup = ({
                         </div>
                       </div>
                       {isDetailOpen && task.detail && (
-                        <div className="px-4 pb-2 text-[11px] text-muted-foreground leading-relaxed">
+                        <div style={{ padding: "0 16px 8px", fontSize: 11, color: "#888", lineHeight: 1.4, wordWrap: "break-word" }}>
                           {task.detail}
                         </div>
                       )}
