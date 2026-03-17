@@ -169,19 +169,19 @@ const AssessmentPopup = ({
                     <div
                       key={task.id}
                       className={`${isDetailOpen ? "bg-[#415162]/[0.03]" : ""}`}
-                      style={{ borderBottom: "0.5px solid #E7EBEF" }}
+                      style={{ borderBottom: "0.5px solid #E7EBEF", overflow: "hidden" }}
                     >
                       <div
                         onClick={() => task.detail ? setExpandedDetailId(isDetailOpen ? null : task.id) : null}
-                        className={`flex items-start px-4 py-2 ${task.detail ? "cursor-pointer" : ""}`}
+                        style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 8, padding: "8px 16px", cursor: task.detail ? "pointer" : "default" }}
                       >
-                        <div style={{ flex: 1, minWidth: 0, overflow: "hidden" }}>
-                          <div style={{ fontSize: 13, color: "#333" }}>{task.title}</div>
+                        <div style={{ minWidth: 0 }}>
+                          <div style={{ fontSize: 13, color: "#333", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{task.title}</div>
                           {task.detail && !isDetailOpen && (
-                            <div style={{ fontSize: 11, color: "#888", marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{task.detail}</div>
+                            <div style={{ fontSize: 11, color: "#888", marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{task.detail}</div>
                           )}
                         </div>
-                        <div className="flex gap-3 shrink-0 pt-0.5" style={{ marginLeft: 8 }}>
+                        <div style={{ display: "flex", gap: 12, flexShrink: 0, paddingTop: 2 }}>
                           {[1, 2, 3].map((level) => (
                             <button
                               key={level}
