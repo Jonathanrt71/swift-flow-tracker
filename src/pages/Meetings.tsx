@@ -77,7 +77,7 @@ const MeetingCard = ({
   })();
 
   return (
-    <div className="bg-[#85929E] border border-[#728390] rounded-[10px] overflow-hidden transition-all">
+    <div className="bg-muted border border-border rounded-[10px] overflow-hidden transition-all">
       {/* Top row — tap to expand */}
       <div
         className="flex items-center min-h-[48px] px-2 cursor-pointer"
@@ -214,7 +214,7 @@ const MeetingCard = ({
                 return (
                   <div
                     key={t.id}
-                    className="flex items-center gap-1.5 px-2 py-1.5 mb-1 bg-[#9BA6B0] rounded-md"
+                    className="flex items-center gap-1.5 px-2 py-1.5 mb-1 bg-[#D0D0D0] rounded-md"
                   >
                     <div
                       className={cn(
@@ -296,10 +296,10 @@ const Meetings = () => {
 
   return (
     <div className="min-h-screen bg-background pb-16">
-      <header className="bg-[hsl(33,22%,88%)]">
+      <header className="bg-[#04324A]">
         <div className="container flex items-center justify-between h-14 px-4">
-          <h1 className="text-lg font-semibold text-foreground">Meetings</h1>
-          <div className="flex items-center gap-1">
+          <h1 className="text-lg font-semibold text-white">Meetings</h1>
+          <div className="flex items-center gap-1 text-white">
             <Button
               variant="ghost"
               size="icon"

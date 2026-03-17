@@ -97,7 +97,7 @@ const EventCard = ({
 
   return (
     <div
-      className="bg-[#85929E] border border-[#728390] rounded-[10px] overflow-hidden transition-all mb-2 cursor-pointer"
+      className="bg-muted border border-border rounded-[10px] overflow-hidden transition-all mb-2 cursor-pointer"
       onClick={() => {
         if (hasExpandContent) setExpanded(!expanded);
       }}
@@ -284,10 +284,10 @@ const Events = () => {
 
   return (
     <div className="min-h-screen bg-background pb-16">
-      <header className="bg-[hsl(33,22%,88%)]">
+      <header className="bg-[#04324A]">
         <div className="container flex items-center justify-between h-14 px-4">
-          <h1 className="text-lg font-semibold text-foreground">Events</h1>
-          <div className="flex items-center gap-1">
+          <h1 className="text-lg font-semibold text-white">Events</h1>
+          <div className="flex items-center gap-1 text-white">
             <Button
               variant="ghost"
               size="icon"

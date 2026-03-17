@@ -232,10 +232,10 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background pb-16">
-      <header className="bg-[hsl(33,22%,88%)]">
+      <header className="bg-[#04324A]">
         <div className="container flex items-center justify-between h-14 px-4">
-          <h1 className="text-lg font-semibold text-foreground">Tasks</h1>
-          <div className="flex items-center gap-1">
+          <h1 className="text-lg font-semibold text-white">Tasks</h1>
+          <div className="flex items-center gap-1 text-white">
             <Button
               variant="ghost"
               size="icon"

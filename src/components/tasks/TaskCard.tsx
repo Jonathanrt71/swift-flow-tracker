@@ -167,7 +167,7 @@ const ActionBar = ({
         "absolute top-0 right-0 bottom-0 flex items-center gap-0.5 px-1.5 z-[5] transition-transform duration-200 ease-out",
         isSubtask ? "rounded-r-md" : "rounded-r-[10px]",
         isOpen ? "translate-x-0" : "translate-x-full",
-        "bg-[#6E7B87]"
+        "bg-[#D0D0D0]"
       )}
       onClick={(e) => e.stopPropagation()}
     >
@@ -182,7 +182,7 @@ const ActionBar = ({
           <Star
             className={cn(
               "h-4 w-4",
-              task.starred ? "fill-[#6B2020] text-[#6B2020]" : "text-foreground"
+              task.starred ? "fill-[#AB2121] text-[#AB2121]" : "text-foreground"
             )}
           />
         </button>
@@ -275,7 +275,7 @@ const SubtaskRow = ({
 }) => {
   return (
     <div
-      className="rounded-md mb-0.5 overflow-hidden relative bg-[#85929E]"
+      className="rounded-md mb-0.5 overflow-hidden relative bg-muted"
     >
       <div className="flex items-center min-h-[40px] px-2 relative">
         <div className="checkbox-area flex items-center justify-center min-w-[44px] min-h-[44px]">
@@ -377,7 +377,7 @@ const TaskCard = ({
 
   return (
     <Card
-      className="transition-all overflow-hidden border cursor-pointer bg-[#85929E] border-[#728390]"
+      className="transition-all overflow-hidden border cursor-pointer bg-muted border-border"
       onClick={(e) => {
         const target = e.target as HTMLElement;
         if (target.closest("button, input, .checkbox-area, [data-no-swipe]")) return;
@@ -428,7 +428,7 @@ const TaskCard = ({
           >
             {/* Star indicator */}
             {task.starred && (
-              <Star className="h-3.5 w-3.5 fill-[#B56B6B] text-[#B56B6B] shrink-0 mr-2" />
+              <Star className="h-3.5 w-3.5 fill-[#AB2121] text-[#AB2121] shrink-0 mr-2" />
             )}
 
             {/* Avatar */}
@@ -475,7 +475,7 @@ const TaskCard = ({
                 ) : null;
               })()}
               {task.meeting_id && meetingNames?.get(task.meeting_id) && (
-                <div className="flex items-center gap-1.5 mt-1.5 px-2 py-1.5 bg-[#9BA6B0] rounded-md">
+                <div className="flex items-center gap-1.5 mt-1.5 px-2 py-1.5 bg-[#D0D0D0] rounded-md">
                   <Users className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                   <span className="text-xs text-muted-foreground truncate">
                     {meetingNames.get(task.meeting_id)}
