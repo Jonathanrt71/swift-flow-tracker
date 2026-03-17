@@ -357,17 +357,48 @@ const Meetings = () => {
               <p className="text-sm">{searchQuery ? "No meetings match your search." : "No meetings yet. Create one to get started!"}</p>
             </div>
           ) : (
-            filteredMeetings.map((meeting) => (
-              <MeetingCard
-                key={meeting.id}
-                meeting={meeting}
-                teamMembers={teamMembers}
-                linkedTasks={tasksByMeeting.get(meeting.id) || []}
-                onUpdate={(data) => updateMeeting.mutate(data)}
-                onDelete={(id) => deleteMeeting.mutate(id)}
-                onCreateTask={(data) => createTask.mutate(data)}
-              />
-            ))
+            (() => {
+              const now = new Date();
+              const currentMonthLabel = format(now, "MMMM yyyy");
+              let prevMonth = "";
+              const elements: React.ReactNode[] = [];
+
+              filteredMeetings.forEach((meeting) => {
+                let monthKey = "";
+                let monthLabel: string | null = null;
+                try {
+                  const d = parseISO(meeting.meeting_date);
+                  monthKey = format(d, "yyyy-MM");
+                  const label = format(d, "MMMM yyyy");
+                  if (label !== currentMonthLabel) monthLabel = label;
+                } catch {
+                  monthKey = "other";
+                }
+
+                if (monthKey !== prevMonth && monthLabel) {
+                  elements.push(
+                    <div key={`month-${monthKey}`} className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider pt-3 pb-1">
+                      {monthLabel}
+                    </div>
+                  );
+                }
+                prevMonth = monthKey;
+
+                elements.push(
+                  <MeetingCard
+                    key={meeting.id}
+                    meeting={meeting}
+                    teamMembers={teamMembers}
+                    linkedTasks={tasksByMeeting.get(meeting.id) || []}
+                    onUpdate={(data) => updateMeeting.mutate(data)}
+                    onDelete={(id) => deleteMeeting.mutate(id)}
+                    onCreateTask={(data) => createTask.mutate(data)}
+                  />
+                );
+              });
+
+              return elements;
+            })()
           )}
         </div>
       </main>
