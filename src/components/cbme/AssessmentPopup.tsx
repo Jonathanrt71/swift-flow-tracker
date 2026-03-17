@@ -89,7 +89,8 @@ const AssessmentPopup = ({
     <Dialog open={open} onOpenChange={handleOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent
-        className="w-[calc(100%-2rem)] max-w-md overflow-y-auto bg-background border-border rounded-xl p-0 max-h-[90vh] [&>button[class*='absolute']]:hidden"
+        className="w-[calc(100%-2rem)] max-w-md overflow-y-auto border-none rounded-xl p-0 max-h-[90vh] [&>button[class*='absolute']]:hidden"
+        style={{ background: "#F5F3EE" }}
         overlayClassName="bg-background/60 backdrop-blur-sm"
       >
         {!selectedResident ? (
@@ -132,7 +133,7 @@ const AssessmentPopup = ({
             </div>
 
             {/* Resident bar */}
-            <div className="flex items-center gap-2 px-4 pb-3 border-b border-border">
+            <div className="flex items-center gap-2 px-4 py-3" style={{ borderBottom: "0.5px solid #C9CED4" }}>
               {resident?.avatar_url ? (
                 <img src={resident.avatar_url} className="w-7 h-7 rounded-full object-cover" alt="" />
               ) : (
@@ -147,7 +148,7 @@ const AssessmentPopup = ({
             </div>
 
             {/* Column headers */}
-            <div className="flex items-center px-4 py-2 border-b border-border">
+            <div className="flex items-center px-4 py-2" style={{ borderBottom: "0.5px solid #C9CED4" }}>
               <div className="flex-1" />
               <div className="flex gap-3">
                 <div className="w-6 flex justify-center"><FaceNeutral /></div>
@@ -159,7 +160,7 @@ const AssessmentPopup = ({
             {/* Sections + tasks */}
             {competency.sections.map((sec) => (
               <div key={sec.id}>
-                <div className="px-4 pt-2.5 pb-1.5 text-xs font-semibold text-primary uppercase tracking-wider">
+                <div className="px-4 pt-2.5 pb-1" style={{ fontSize: 12, fontWeight: 600, color: "#415162", textTransform: "uppercase", letterSpacing: 0.5 }}>
                   {sec.name}
                 </div>
                 {sec.tasks.map((task) => {
@@ -167,7 +168,8 @@ const AssessmentPopup = ({
                   return (
                     <div
                       key={task.id}
-                      className={`border-b border-muted ${isDetailOpen ? "bg-primary/[0.03]" : ""}`}
+                      className={`${isDetailOpen ? "bg-[#415162]/[0.03]" : ""}`}
+                      style={{ borderBottom: "0.5px solid #E7EBEF" }}
                     >
                       <div
                         onClick={() => task.detail ? setExpandedDetailId(isDetailOpen ? null : task.id) : null}
@@ -209,9 +211,9 @@ const AssessmentPopup = ({
             ))}
 
             {/* Overall Assessment */}
-            <div className="border-t border-border px-4 py-3">
+            <div className="px-4 py-3" style={{ borderTop: "0.5px solid #C9CED4" }}>
               <div className="flex items-start mb-2.5">
-                <span className="flex-1 text-xs font-semibold text-primary uppercase tracking-wider pt-0.5">
+                <span className="flex-1 pt-0.5" style={{ fontSize: 12, fontWeight: 600, color: "#415162", textTransform: "uppercase", letterSpacing: 0.5 }}>
                   Overall Assessment
                 </span>
                 <div className="flex gap-3 shrink-0">
@@ -237,13 +239,14 @@ const AssessmentPopup = ({
                 onChange={(e) => setOverallComment(e.target.value)}
                 placeholder="Overall comments..."
                 rows={3}
-                className="w-full px-2.5 py-2 bg-muted border border-border rounded-md text-xs outline-none resize-none leading-relaxed"
+                className="w-full px-2.5 py-2 rounded-md text-xs outline-none resize-none leading-relaxed"
+                style={{ background: "#E7EBEF", border: "0.5px solid #C9CED4", color: "#333" }}
               />
             </div>
 
             {/* Footer */}
-            <div className="px-4 pb-4 pt-3 border-t border-border flex items-center justify-between">
-              <span className="text-[11px] text-muted-foreground">{graded}/{totalTasks} graded</span>
+            <div className="px-4 pb-4 pt-3 flex items-center justify-between" style={{ borderTop: "0.5px solid #C9CED4" }}>
+              <span style={{ fontSize: 11, color: "#888" }}>{graded}/{totalTasks} graded</span>
               <button
                 onClick={() => {
                   onSave({
@@ -255,7 +258,8 @@ const AssessmentPopup = ({
                   });
                   setOpen(false);
                 }}
-                className="px-5 py-2 bg-primary text-primary-foreground border-none rounded-md text-[13px] font-medium cursor-pointer"
+                className="px-5 py-2 border-none rounded-md text-[13px] font-medium cursor-pointer"
+                style={{ background: "#415162", color: "#FFF" }}
               >
                 Save assessment
               </button>
