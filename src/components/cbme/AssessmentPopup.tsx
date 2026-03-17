@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { X, CheckSquare } from "lucide-react";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
+import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import type { Competency } from "@/hooks/useCompetencies";
