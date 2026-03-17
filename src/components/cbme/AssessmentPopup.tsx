@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { X, CheckSquare } from "lucide-react";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 import type { Competency } from "@/hooks/useCompetencies";
 
 const getInitials = (name: string | null): string => {
@@ -63,6 +65,20 @@ const AssessmentPopup = ({
   const [overallComment, setOverallComment] = useState("");
   const [expandedDetailId, setExpandedDetailId] = useState<string | null>(null);
   const { data: teamMembers } = useTeamMembers();
+  const { user } = useAuth();
+
+  const { data: residentIds } = useQuery({
+    queryKey: ["resident_ids"],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("user_roles")
+        .select("user_id")
+        .eq("role", "resident");
+      if (error) throw error;
+      return (data || []).map((r) => r.user_id);
+    },
+  });
 
   const handleOpen = (isOpen: boolean) => {
     if (isOpen) {
@@ -81,7 +97,7 @@ const AssessmentPopup = ({
 
   const totalTasks = competency.sections.reduce((s, sec) => s + sec.tasks.length, 0);
   const graded = Object.values(grades).filter((v) => v != null).length;
-  const members = teamMembers || [];
+  const members = (teamMembers || []).filter((m) => (residentIds || []).includes(m.id));
 
   const resident = members.find((m) => m.id === selectedResident);
 
