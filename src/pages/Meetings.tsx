@@ -84,7 +84,7 @@ const MeetingCard = ({
         onClick={() => setExpanded(!expanded)}
       >
         {/* Title */}
-        <div className="flex-1 min-w-0 pl-3 pr-1">
+        <div className="flex-1 min-w-0 pl-2 pr-1">
           <span className="font-medium text-sm truncate block">{meeting.title}</span>
         </div>
 

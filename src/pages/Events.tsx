@@ -103,11 +103,10 @@ const EventCard = ({
       }}
     >
       <div className="flex items-center min-h-[48px] px-2">
-        <div className="flex-1 min-w-0 pl-1 pr-1">
+        <div className="flex-1 min-w-0 pl-2 pr-1">
           <span className="font-medium text-sm truncate block">{event.title}</span>
         </div>
         <div className="flex items-center shrink-0 gap-1.5 pr-1">
-          <span className="text-[11px] text-muted-foreground whitespace-nowrap">{formattedDate}</span>
           {assignee ? (
             assignee.avatar_url ? (
               <img
@@ -131,44 +130,50 @@ const EventCard = ({
 
       {expanded && (
         <div className="pb-2 pl-3 pr-3">
-          {timeRange && (
-            <div className="text-[11px] text-muted-foreground mb-1">{timeRange}</div>
-          )}
-          {event.description && (
-            <div className="text-xs text-muted-foreground line-clamp-2 mb-2">{event.description}</div>
-          )}
-          {canEdit && (
-            <div className="flex items-center justify-end gap-1">
-              <EditEventDialog event={event} onUpdate={onUpdate} />
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <button
-                    className="flex items-center justify-center w-8 h-8 rounded-md bg-transparent text-destructive hover:bg-destructive/10 transition-colors"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
-                </AlertDialogTrigger>
-                <AlertDialogContent onClick={(e) => e.stopPropagation()}>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Delete event?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This will permanently delete "{event.title}". This action cannot be undone.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={() => onDelete(event.id)}
-                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                    >
-                      Delete
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
+          <div className="flex items-center justify-between">
+            <div className="flex items-baseline gap-2 flex-1 min-w-0">
+              <span className="text-[11px] text-muted-foreground whitespace-nowrap shrink-0">
+                {formattedDate}{timeRange ? ` · ${timeRange}` : ""}
+              </span>
+              {event.description && (
+                <span className="text-xs text-muted-foreground truncate min-w-0">
+                  {event.description}
+                </span>
+              )}
             </div>
-          )}
+            {canEdit && (
+              <div className="flex items-center gap-0.5 shrink-0 ml-2">
+                <EditEventDialog event={event} onUpdate={onUpdate} />
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <button
+                      className="flex items-center justify-center w-8 h-8 rounded-md bg-transparent text-destructive hover:bg-destructive/10 transition-colors"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete event?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This will permanently delete "{event.title}". This action cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={() => onDelete(event.id)}
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      >
+                        Delete
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>

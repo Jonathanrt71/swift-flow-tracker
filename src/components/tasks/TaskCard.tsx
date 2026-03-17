@@ -278,7 +278,7 @@ const SubtaskRow = ({
       className="rounded-md mb-0.5 overflow-hidden relative bg-muted"
     >
       <div className="flex items-center min-h-[40px] px-2 relative">
-        <div className="checkbox-area flex items-center justify-center min-w-[44px] min-h-[44px]">
+        <div className="checkbox-area flex items-center justify-center min-w-[32px] min-h-[44px]">
           <Checkbox
             checked={task.completed}
             onCheckedChange={(checked) =>
@@ -388,8 +388,8 @@ const TaskCard = ({
         if (isExpandable(task)) setExpanded(!expanded);
       }}
     >
-      <div className="flex items-center min-h-[48px] px-2 relative">
-        <div className="checkbox-area flex items-center justify-center min-w-[44px] min-h-[44px]">
+      <div className="flex items-center min-h-[48px] px-1.5 relative">
+        <div className="checkbox-area flex items-center justify-center min-w-[32px] min-h-[44px]">
           <Checkbox
             checked={task.completed}
             onCheckedChange={(checked) =>
