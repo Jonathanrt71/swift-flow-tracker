@@ -164,7 +164,7 @@ const AddUserDialog = ({
   onSubmit,
   isPending,
 }: {
-  onSubmit: (data: { email: string; password: string; display_name?: string; first_name?: string; last_name?: string }) => void;
+  onSubmit: (data: { email: string; password: string; display_name?: string; first_name?: string; last_name?: string; role?: string }) => void;
   isPending: boolean;
 }) => {
   const [open, setOpen] = useState(false);
@@ -173,6 +173,7 @@ const AddUserDialog = ({
   const [displayName, setDisplayName] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const [role, setRole] = useState("resident");
 
   const handleOpen = (isOpen: boolean) => {
     if (isOpen) {
@@ -181,6 +182,7 @@ const AddUserDialog = ({
       setDisplayName("");
       setFirstName("");
       setLastName("");
+      setRole("resident");
     }
     setOpen(isOpen);
   };
@@ -193,6 +195,7 @@ const AddUserDialog = ({
       display_name: displayName || undefined,
       first_name: firstName || undefined,
       last_name: lastName || undefined,
+      role,
     });
     setOpen(false);
   };
@@ -252,6 +255,18 @@ const AddUserDialog = ({
               onChange={(e) => setLastName(e.target.value)}
               className="bg-background rounded-lg"
             />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground">Role</Label>
+            <select
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              className="w-full h-10 px-3 bg-background border border-border rounded-lg text-sm outline-none"
+            >
+              <option value="resident">Resident</option>
+              <option value="faculty">Faculty</option>
+              <option value="admin">Admin</option>
+            </select>
           </div>
           <div className="space-y-1.5">
             <Label className="text-xs text-muted-foreground">Password</Label>

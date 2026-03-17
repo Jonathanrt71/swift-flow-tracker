@@ -60,7 +60,7 @@ export function useAdmin() {
   });
 
   const inviteUser = useMutation({
-    mutationFn: async (data: { email: string; password: string; display_name?: string; first_name?: string; last_name?: string }) => {
+    mutationFn: async (data: { email: string; password: string; display_name?: string; first_name?: string; last_name?: string; role?: string }) => {
       const { data: { session } } = await supabase.auth.getSession();
       const res = await supabase.functions.invoke("admin-invite-user", {
         body: { email: data.email, password: data.password, display_name: data.display_name },
@@ -76,6 +76,20 @@ export function useAdmin() {
           first_name: data.first_name || null,
           last_name: data.last_name || null,
         }).eq("id", res.data.user.id);
+
+        // Set role
+        if (data.role) {
+          const { data: existingRole } = await supabase
+            .from("user_roles")
+            .select("id")
+            .eq("user_id", res.data.user.id)
+            .maybeSingle();
+          if (existingRole) {
+            await supabase.from("user_roles").update({ role: data.role }).eq("user_id", res.data.user.id);
+          } else {
+            await supabase.from("user_roles").insert({ user_id: res.data.user.id, role: data.role });
+          }
+        }
       }
 
       return res.data;
