@@ -89,7 +89,7 @@ const AssessmentPopup = ({
     <Dialog open={open} onOpenChange={handleOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent
-        className="w-[calc(100%-2rem)] max-w-md overflow-y-auto bg-muted border-border rounded-xl p-0 max-h-[90vh] [&>button[class*='absolute']]:hidden"
+        className="w-[calc(100%-2rem)] max-w-md overflow-y-auto bg-background border-border rounded-xl p-0 max-h-[90vh] [&>button[class*='absolute']]:hidden"
         overlayClassName="bg-background/60 backdrop-blur-sm"
       >
         {!selectedResident ? (
@@ -189,8 +189,8 @@ const AssessmentPopup = ({
                               <div
                                 className="w-4 h-4 rounded-full transition-all"
                                 style={{
-                                  border: `1.5px solid ${grades[task.id] === level ? "hsl(var(--primary))" : "hsl(var(--border))"}`,
-                                  background: grades[task.id] === level ? "hsl(var(--primary))" : "#FFF",
+                                  border: `1.5px solid ${grades[task.id] === level ? "#415162" : "#C9CED4"}`,
+                                  background: grades[task.id] === level ? "#415162" : "#FFF",
                                 }}
                               />
                             </button>
@@ -224,8 +224,8 @@ const AssessmentPopup = ({
                       <div
                         className="w-4 h-4 rounded-full transition-all"
                         style={{
-                          border: `1.5px solid ${overallGrade === level ? "hsl(var(--primary))" : "hsl(var(--border))"}`,
-                          background: overallGrade === level ? "hsl(var(--primary))" : "#FFF",
+                          border: `1.5px solid ${overallGrade === level ? "#415162" : "#C9CED4"}`,
+                          background: overallGrade === level ? "#415162" : "#FFF",
                         }}
                       />
                     </button>
@@ -237,7 +237,7 @@ const AssessmentPopup = ({
                 onChange={(e) => setOverallComment(e.target.value)}
                 placeholder="Overall comments..."
                 rows={3}
-                className="w-full px-2.5 py-2 bg-background border border-border rounded-md text-xs outline-none resize-none leading-relaxed"
+                className="w-full px-2.5 py-2 bg-muted border border-border rounded-md text-xs outline-none resize-none leading-relaxed"
               />
             </div>
 

@@ -96,7 +96,7 @@ const ChecklistEditor = ({
     <Dialog open={open} onOpenChange={handleOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent
-        className="w-[calc(100%-2rem)] max-w-md overflow-y-auto bg-muted border-border rounded-xl p-0 max-h-[85vh] [&>button[class*='absolute']]:hidden"
+        className="w-[calc(100%-2rem)] max-w-md overflow-y-auto bg-background border-border rounded-xl p-0 max-h-[85vh] [&>button[class*='absolute']]:hidden"
         overlayClassName="bg-background/60 backdrop-blur-sm"
       >
         <div className="flex items-center justify-between px-4 py-3 bg-[#415162] rounded-t-xl">

@@ -51,7 +51,7 @@ const CreateCompetencyDialog = ({
         </button>
       </DialogTrigger>
       <DialogContent
-        className="w-[calc(100%-2rem)] max-w-sm overflow-y-auto bg-muted border-border rounded-xl p-0 [&>button[class*='absolute']]:hidden"
+        className="w-[calc(100%-2rem)] max-w-sm overflow-y-auto bg-background border-border rounded-xl p-0 [&>button[class*='absolute']]:hidden"
         overlayClassName="bg-background/60 backdrop-blur-sm"
       >
         <div className="flex items-center justify-between px-4 py-3 bg-[#415162] rounded-t-xl">
