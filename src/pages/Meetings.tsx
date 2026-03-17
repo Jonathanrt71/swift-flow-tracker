@@ -77,7 +77,7 @@ const MeetingCard = ({
   })();
 
   return (
-    <div className="bg-muted border border-border rounded-[10px] overflow-hidden transition-all">
+    <div className="bg-[#85929E] border border-[#728390] rounded-[10px] overflow-hidden transition-all">
       {/* Top row — tap to expand */}
       <div
         className="flex items-center min-h-[48px] px-2 cursor-pointer"
@@ -214,7 +214,7 @@ const MeetingCard = ({
                 return (
                   <div
                     key={t.id}
-                    className="flex items-center gap-1.5 px-2 py-1.5 mb-1 bg-background/50 rounded-md"
+                    className="flex items-center gap-1.5 px-2 py-1.5 mb-1 bg-[#9BA6B0] rounded-md"
                   >
                     <div
                       className={cn(

@@ -97,7 +97,7 @@ const EventCard = ({
 
   return (
     <div
-      className="bg-muted border border-border rounded-[10px] overflow-hidden transition-all mb-2 cursor-pointer"
+      className="bg-[#85929E] border border-[#728390] rounded-[10px] overflow-hidden transition-all mb-2 cursor-pointer"
       onClick={() => {
         if (hasExpandContent) setExpanded(!expanded);
       }}
