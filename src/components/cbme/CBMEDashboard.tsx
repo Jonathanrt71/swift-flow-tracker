@@ -68,24 +68,16 @@ const CBMEDashboard = ({
     .map((id) => teamMembers.find((m) => m.id === id))
     .filter(Boolean) as TeamMember[];
 
-  // Also include residents with no assessments
-  const allResidents = teamMembers.filter(
-    (m) => residents.find((r) => r.id === m.id) || !residentIds.includes(m.id)
+  // Only show residents who have been assessed
+  const sortedResidents = residents.sort((a, b) =>
+    (a.display_name || "").localeCompare(b.display_name || "")
   );
-  // Sort: residents with assessments first, then alphabetical
-  const sortedResidents = [...teamMembers].sort((a, b) => {
-    const aCount = assessments.filter((ass) => ass.resident_id === a.id).length;
-    const bCount = assessments.filter((ass) => ass.resident_id === b.id).length;
-    if (aCount > 0 && bCount === 0) return -1;
-    if (aCount === 0 && bCount > 0) return 1;
-    return (a.display_name || "").localeCompare(b.display_name || "");
-  });
 
   return (
     <div className="space-y-2">
       {sortedResidents.length === 0 ? (
         <div className="text-center py-12 text-muted-foreground">
-          <p className="text-sm">No team members found.</p>
+          <p className="text-sm">No assessments yet.</p>
         </div>
       ) : (
         sortedResidents.map((resident) => {
