@@ -30,7 +30,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ArrowLeft, Plus, Shield, Pencil, Check, X } from "lucide-react";
+import { ArrowLeft, Plus, Shield, Pencil, Check, X, Tag, Trash2 } from "lucide-react";
+import { useMeetingTags } from "@/hooks/useMeetingTags";
+import { useMeetingTagLinks } from "@/hooks/useMeetingTags";
 import type { UserRole, ManagedUser } from "@/hooks/useAdmin";
 
 /* ── Edit User Dialog ── */
@@ -282,9 +284,12 @@ const Admin = () => {
   const { user } = useAuth();
   const { isAdmin, isAdminLoading, users, inviteUser, updateRole, updateProfile } = useAdmin();
   const { settings, updateSetting } = useAppSettings();
+  const { tags, createTag, deleteTag } = useMeetingTags();
+  const { links } = useMeetingTagLinks();
 
   const [facultyLimit, setFacultyLimit] = useState("");
   const [residentLimit, setResidentLimit] = useState("");
+  const [newTagName, setNewTagName] = useState("");
 
   if (isAdminLoading) {
     return (
@@ -423,6 +428,69 @@ const Admin = () => {
                 }}
               />
               <span className="text-sm text-muted-foreground">current: {settings.resident_task_limit}</span>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Meeting Tags */}
+        <Card className="bg-muted border-border">
+          <CardContent className="pt-6">
+            <h2 className="text-xl font-semibold text-foreground mb-4">Meeting Tags</h2>
+            <div className="space-y-2">
+              {tags.data?.map((tag) => {
+                const count = links.data?.filter((l) => l.tag_id === tag.id).length || 0;
+                return (
+                  <div
+                    key={tag.id}
+                    className="flex items-center justify-between px-3 py-2.5 bg-background rounded-lg border border-border"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Tag className="h-3.5 w-3.5 text-muted-foreground" />
+                      <span className="text-sm text-foreground">{tag.name}</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-[11px] text-muted-foreground">
+                        {count} meeting{count !== 1 ? "s" : ""}
+                      </span>
+                      <button
+                        onClick={() => deleteTag.mutate(tag.id)}
+                        className="flex items-center justify-center w-7 h-7 bg-transparent border-none cursor-pointer text-destructive hover:bg-destructive/10 rounded-md transition-colors"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+              {tags.data?.length === 0 && (
+                <p className="text-sm text-muted-foreground py-4 text-center">No tags yet</p>
+              )}
+            </div>
+            <div className="flex items-center gap-2 mt-3">
+              <Input
+                value={newTagName}
+                onChange={(e) => setNewTagName(e.target.value)}
+                placeholder="New tag name..."
+                className="bg-background rounded-lg flex-1"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && newTagName.trim()) {
+                    createTag.mutate(newTagName.trim());
+                    setNewTagName("");
+                  }
+                }}
+              />
+              <button
+                onClick={() => {
+                  if (newTagName.trim()) {
+                    createTag.mutate(newTagName.trim());
+                    setNewTagName("");
+                  }
+                }}
+                disabled={!newTagName.trim()}
+                className="flex items-center justify-center w-9 h-9 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50 shrink-0"
+              >
+                <Plus className="h-4 w-4" />
+              </button>
             </div>
           </CardContent>
         </Card>

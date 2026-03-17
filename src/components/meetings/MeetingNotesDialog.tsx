@@ -1,13 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { X, Check } from "lucide-react";
+import { X, Check, Tag } from "lucide-react";
 import RichTextEditor from "@/components/tasks/RichTextEditor";
 import type { Meeting } from "@/hooks/useMeetings";
 import type { TeamMember } from "@/hooks/useTeamMembers";
+import { useMeetingTags, useMeetingTagLinks } from "@/hooks/useMeetingTags";
 import { format, parseISO } from "date-fns";
 
 interface MeetingNotesDialogProps {
@@ -37,14 +38,37 @@ const MeetingNotesDialog = ({
 }: MeetingNotesDialogProps) => {
   const [open, setOpen] = useState(false);
   const [notes, setNotes] = useState(meeting.notes || "");
+  const { tags } = useMeetingTags();
+  const { links, setTagsForMeeting } = useMeetingTagLinks();
+  const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
+
+  const meetingTagIds = (links.data || [])
+    .filter((l) => l.meeting_id === meeting.id)
+    .map((l) => l.tag_id);
 
   const handleOpenChange = (isOpen: boolean) => {
-    if (isOpen) setNotes(meeting.notes || "");
+    if (isOpen) {
+      setNotes(meeting.notes || "");
+      setSelectedTagIds(meetingTagIds);
+    }
     setOpen(isOpen);
+  };
+
+  useEffect(() => {
+    if (open) {
+      setSelectedTagIds(meetingTagIds);
+    }
+  }, [links.data]);
+
+  const toggleTag = (tagId: string) => {
+    setSelectedTagIds((prev) =>
+      prev.includes(tagId) ? prev.filter((id) => id !== tagId) : [...prev, tagId]
+    );
   };
 
   const handleSave = () => {
     onUpdate({ id: meeting.id, notes: notes.trim() || null });
+    setTagsForMeeting.mutate({ meetingId: meeting.id, tagIds: selectedTagIds });
     setOpen(false);
   };
 
@@ -146,6 +170,31 @@ const MeetingNotesDialog = ({
             <RichTextEditor content={notes} onChange={setNotes} />
           </div>
         </div>
+
+        {/* Tags */}
+        {(tags.data?.length ?? 0) > 0 && (
+          <div className="px-5 pb-3">
+            <div className="flex items-center gap-1.5 mb-2">
+              <Tag className="h-3 w-3 text-muted-foreground" />
+              <span className="text-[11px] text-muted-foreground">Tags</span>
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {tags.data?.map((tag) => (
+                <button
+                  key={tag.id}
+                  onClick={() => toggleTag(tag.id)}
+                  className={`text-[11px] px-2.5 py-1 rounded-full border cursor-pointer transition-colors ${
+                    selectedTagIds.includes(tag.id)
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "bg-background text-muted-foreground border-border hover:border-foreground/30"
+                  }`}
+                >
+                  {tag.name}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Save */}
         <div className="px-5 pb-4 flex items-center justify-end">

@@ -61,6 +61,42 @@ export type Database = {
           },
         ]
       }
+      meeting_tags: {
+        Row: {
+          id: string
+          name: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          created_at?: string
+        }
+        Relationships: []
+      }
+      meeting_tag_links: {
+        Row: {
+          id: string
+          meeting_id: string
+          tag_id: string
+        }
+        Insert: {
+          id?: string
+          meeting_id: string
+          tag_id: string
+        }
+        Update: {
+          id?: string
+          meeting_id?: string
+          tag_id?: string
+        }
+        Relationships: []
+      }
       meetings: {
         Row: {
           created_at: string | null

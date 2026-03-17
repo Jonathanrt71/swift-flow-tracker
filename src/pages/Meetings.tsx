@@ -8,7 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Shield, User, LogOut, Search, Pencil, X as XIcon, Trash2, Plus } from "lucide-react";
+import { Shield, User, LogOut, Search, Pencil, X as XIcon, Trash2, Plus, Filter, Tag } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import {
   AlertDialog,
@@ -21,10 +21,16 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import BottomNav from "@/components/BottomNav";
 import CreateMeetingDialog from "@/components/meetings/CreateMeetingDialog";
 import MeetingNotesDialog from "@/components/meetings/MeetingNotesDialog";
 import CreateTaskDialog from "@/components/tasks/CreateTaskDialog";
+import { useMeetingTags, useMeetingTagLinks } from "@/hooks/useMeetingTags";
 import NotificationBell from "@/components/NotificationBell";
 import type { Meeting } from "@/hooks/useMeetings";
 
@@ -44,6 +50,7 @@ const MeetingCard = ({
   meeting,
   teamMembers,
   linkedTasks,
+  meetingTagNames,
   onUpdate,
   onDelete,
   onCreateTask,
@@ -51,6 +58,7 @@ const MeetingCard = ({
   meeting: Meeting;
   teamMembers: ReturnType<typeof useTeamMembers>["data"];
   linkedTasks: Task[];
+  meetingTagNames: string[];
   onUpdate: (data: { id: string; notes?: string | null }) => void;
   onDelete: (id: string) => void;
   onCreateTask: (data: {
@@ -201,6 +209,20 @@ const MeetingCard = ({
             </div>
           </div>
 
+          {/* Tags */}
+          {meetingTagNames.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mb-2">
+              {meetingTagNames.map((name) => (
+                <span
+                  key={name}
+                  className="text-[10px] px-2 py-0.5 rounded-full bg-[#D0D0D0] text-foreground/70"
+                >
+                  {name}
+                </span>
+              ))}
+            </div>
+          )}
+
           {/* Linked tasks */}
           {linkedTasks.length > 0 && (
             <>
@@ -282,11 +304,40 @@ const Meetings = () => {
 
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [personFilter, setPersonFilter] = useState<string | null>(null);
+  const [tagFilter, setTagFilter] = useState<string | null>(null);
+
+  const { tags: allTags } = useMeetingTags();
+  const { links: tagLinks } = useMeetingTagLinks();
+
+  // Build tag lookup: meeting_id -> tag_id[]
+  const tagsByMeeting = new Map<string, string[]>();
+  (tagLinks.data || []).forEach((l) => {
+    const list = tagsByMeeting.get(l.meeting_id) || [];
+    list.push(l.tag_id);
+    tagsByMeeting.set(l.meeting_id, list);
+  });
+
+  // Build tag name lookup
+  const tagNameMap = new Map<string, string>();
+  (allTags.data || []).forEach((t) => tagNameMap.set(t.id, t.name));
 
   const filteredMeetings = (meetings.data || []).filter((m) => {
-    if (!searchQuery.trim()) return true;
-    const q = searchQuery.toLowerCase();
-    return m.title.toLowerCase().includes(q) || (m.notes || "").toLowerCase().includes(q);
+    // Search filter
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      if (!m.title.toLowerCase().includes(q) && !(m.notes || "").toLowerCase().includes(q)) return false;
+    }
+    // Person filter
+    if (personFilter) {
+      if (m.created_by !== personFilter && !m.attendees.includes(personFilter)) return false;
+    }
+    // Tag filter
+    if (tagFilter) {
+      const mTags = tagsByMeeting.get(m.id) || [];
+      if (!mTags.includes(tagFilter)) return false;
+    }
+    return true;
   });
 
   return (
@@ -338,13 +389,116 @@ const Meetings = () => {
       </header>
 
       <main className="container max-w-2xl px-4 py-6">
-        <div className="flex items-center justify-between py-2.5">
-          <span className="text-[11px] font-medium text-muted-foreground">
-            {filteredMeetings.length} meeting{filteredMeetings.length !== 1 ? "s" : ""}
-          </span>
-          <CreateMeetingDialog
-            onSubmit={(data) => createMeeting.mutate(data)}
-          />
+        {/* Filter bar */}
+        <div className="flex items-center gap-2 pb-2.5">
+          {/* Person filter */}
+          <Popover>
+            <PopoverTrigger asChild>
+              <button
+                className={cn(
+                  "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-[11px] cursor-pointer transition-colors",
+                  personFilter
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-muted text-muted-foreground border-border"
+                )}
+              >
+                <Filter className="h-3 w-3" />
+                {personFilter
+                  ? teamMembers?.find((m) => m.id === personFilter)?.display_name || "Person"
+                  : null}
+                {personFilter && (
+                  <XIcon
+                    className="h-2.5 w-2.5 opacity-70"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setPersonFilter(null);
+                    }}
+                  />
+                )}
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-56 p-1" align="start">
+              <div className="max-h-60 overflow-y-auto">
+                {teamMembers?.map((m) => (
+                  <button
+                    key={m.id}
+                    onClick={() => {
+                      setPersonFilter(personFilter === m.id ? null : m.id);
+                    }}
+                    className={cn(
+                      "flex items-center gap-2 w-full px-2 py-1.5 rounded-md text-sm text-left cursor-pointer transition-colors",
+                      personFilter === m.id ? "bg-primary/10" : "hover:bg-accent"
+                    )}
+                  >
+                    {m.avatar_url ? (
+                      <img src={m.avatar_url} className="w-5 h-5 rounded-full object-cover" alt="" />
+                    ) : (
+                      <div
+                        className="w-5 h-5 rounded-full flex items-center justify-center text-white"
+                        style={{ fontSize: 8, fontWeight: 500, background: getColor(m.display_name) }}
+                      >
+                        {getInitials(m.display_name)}
+                      </div>
+                    )}
+                    <span className="text-foreground text-xs">{m.display_name}</span>
+                  </button>
+                ))}
+              </div>
+            </PopoverContent>
+          </Popover>
+
+          {/* Tag filter */}
+          {(allTags.data?.length ?? 0) > 0 && (
+            <Popover>
+              <PopoverTrigger asChild>
+                <button
+                  className={cn(
+                    "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-[11px] cursor-pointer transition-colors",
+                    tagFilter
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "bg-muted text-muted-foreground border-border"
+                  )}
+                >
+                  <Tag className="h-3 w-3" />
+                  {tagFilter ? tagNameMap.get(tagFilter) || "Tag" : null}
+                  {tagFilter && (
+                    <XIcon
+                      className="h-2.5 w-2.5 opacity-70"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setTagFilter(null);
+                      }}
+                    />
+                  )}
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-48 p-1" align="start">
+                <div className="max-h-60 overflow-y-auto">
+                  {allTags.data?.map((tag) => (
+                    <button
+                      key={tag.id}
+                      onClick={() => {
+                        setTagFilter(tagFilter === tag.id ? null : tag.id);
+                      }}
+                      className={cn(
+                        "flex items-center gap-2 w-full px-2 py-1.5 rounded-md text-sm text-left cursor-pointer transition-colors",
+                        tagFilter === tag.id ? "bg-primary/10" : "hover:bg-accent"
+                      )}
+                    >
+                      <Tag className="h-3 w-3 text-muted-foreground" />
+                      <span className="text-foreground text-xs">{tag.name}</span>
+                    </button>
+                  ))}
+                </div>
+              </PopoverContent>
+            </Popover>
+          )}
+
+          <div className="ml-auto">
+            <CreateMeetingDialog
+              onSubmit={(data) => createMeeting.mutate(data)}
+            />
+          </div>
         </div>
 
         <div className="space-y-2">
@@ -390,6 +544,7 @@ const Meetings = () => {
                     meeting={meeting}
                     teamMembers={teamMembers}
                     linkedTasks={tasksByMeeting.get(meeting.id) || []}
+                    meetingTagNames={(tagsByMeeting.get(meeting.id) || []).map((id) => tagNameMap.get(id) || "").filter(Boolean)}
                     onUpdate={(data) => updateMeeting.mutate(data)}
                     onDelete={(id) => deleteMeeting.mutate(id)}
                     onCreateTask={(data) => createTask.mutate(data)}
