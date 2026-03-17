@@ -215,7 +215,7 @@ const MeetingCard = ({
               {meetingTagNames.map((name) => (
                 <span
                   key={name}
-                  className="text-[10px] px-2 py-0.5 rounded-full bg-[#D0D0D0] text-foreground/70"
+                  className="text-[10px] px-2 py-0.5 rounded-full bg-[#D5DAE0] text-foreground/70"
                 >
                   {name}
                 </span>
@@ -231,7 +231,7 @@ const MeetingCard = ({
                 return (
                   <div
                     key={t.id}
-                    className="flex items-center gap-1.5 px-2 py-1.5 mb-1 bg-[#D0D0D0] rounded-md"
+                    className="flex items-center gap-1.5 px-2 py-1.5 mb-1 bg-[#D5DAE0] rounded-md"
                   >
                     <div
                       className={cn(
@@ -342,7 +342,7 @@ const Meetings = () => {
 
   return (
     <div className="min-h-screen bg-background pb-16">
-      <header className="bg-[#04324A]">
+      <header className="bg-[#52657A]">
         <div className="container flex items-center justify-between h-14 px-4">
           <h1 className="text-lg font-semibold text-white">Meetings</h1>
           <div className="flex items-center gap-1 text-white">
