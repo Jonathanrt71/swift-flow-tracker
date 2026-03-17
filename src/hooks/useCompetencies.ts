@@ -228,11 +228,26 @@ export function useCompetencies() {
       }
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["my_assessments"] });
       toast({ title: "Assessment saved" });
     },
     onError: (e: Error) =>
       toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
 
-  return { competencies, createCompetency, deleteCompetency, saveSections, saveAssessment };
+  const myAssessments = useQuery({
+    queryKey: ["my_assessments", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("competency_assessments")
+        .select("*")
+        .eq("assessor_id", user!.id)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return (data || []) as Assessment[];
+    },
+  });
+
+  return { competencies, myAssessments, createCompetency, deleteCompetency, saveSections, saveAssessment };
 }

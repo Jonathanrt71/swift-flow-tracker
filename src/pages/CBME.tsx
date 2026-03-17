@@ -21,11 +21,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { LogOut, Shield, User, Plus, Pencil, Trash2, CheckSquare, Search, X } from "lucide-react";
+import { LogOut, Shield, User, Plus, Pencil, Trash2, CheckSquare, Search, X, BarChart2, ListTodo } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import BottomNav from "@/components/BottomNav";
 import NotificationBell from "@/components/NotificationBell";
 import ChecklistEditor from "@/components/cbme/ChecklistEditor";
 import AssessmentPopup from "@/components/cbme/AssessmentPopup";
+import CBMEDashboard from "@/components/cbme/CBMEDashboard";
+import { useTeamMembers } from "@/hooks/useTeamMembers";
 
 const CreateCompetencyDialog = ({
   onSubmit,
@@ -95,11 +98,13 @@ const CBME = () => {
   const { user, signOut } = useAuth();
   const { isAdmin } = useAdmin();
   const { isFaculty } = useUserRole();
-  const { competencies, createCompetency, deleteCompetency, saveSections, saveAssessment } =
+  const { competencies, myAssessments, createCompetency, deleteCompetency, saveSections, saveAssessment } =
     useCompetencies();
+  const { data: teamMembers } = useTeamMembers();
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [activeTab, setActiveTab] = useState("list");
 
   const canCreate = isAdmin || isFaculty;
 
@@ -158,119 +163,151 @@ const CBME = () => {
       </header>
 
       <main className="container max-w-2xl px-4 py-6">
-        <div className="flex items-center justify-end pb-2.5">
-          {canCreate && (
-            <CreateCompetencyDialog
-              onSubmit={(title) => createCompetency.mutate(title)}
-            />
-          )}
-        </div>
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <div className="flex items-center pb-2.5">
+            <TabsList className="gap-1 h-auto p-1 bg-transparent">
+              <TabsTrigger value="list" className="h-8 w-8 p-0" title="Competency List">
+                <ListTodo className="h-4 w-4" />
+              </TabsTrigger>
+              {canCreate && (
+                <TabsTrigger value="dashboard" className="h-8 w-8 p-0" title="Dashboard">
+                  <BarChart2 className="h-4 w-4" />
+                </TabsTrigger>
+              )}
+            </TabsList>
+            {activeTab === "list" && canCreate && (
+              <div className="ml-auto">
+                <CreateCompetencyDialog
+                  onSubmit={(title) => createCompetency.mutate(title)}
+                />
+              </div>
+            )}
+          </div>
 
-        <div className="space-y-2">
-          {competencies.isLoading ? (
-            <div className="flex justify-center py-12">
-              <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-            </div>
-          ) : filteredCompetencies.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground">
-              <p className="text-sm">
-                {searchQuery ? "No competencies match your search." : "No competencies yet."}
-              </p>
-            </div>
-          ) : (
-            filteredCompetencies.map((comp) => {
-              const isExpanded = expandedId === comp.id;
-              const totalSections = comp.sections.length;
-              const totalTasks = comp.sections.reduce((s, sec) => s + sec.tasks.length, 0);
+          <TabsContent value="list" className="mt-0">
+            <div className="space-y-2">
+              {competencies.isLoading ? (
+                <div className="flex justify-center py-12">
+                  <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                </div>
+              ) : filteredCompetencies.length === 0 ? (
+                <div className="text-center py-12 text-muted-foreground">
+                  <p className="text-sm">
+                    {searchQuery ? "No competencies match your search." : "No competencies yet."}
+                  </p>
+                </div>
+              ) : (
+                filteredCompetencies.map((comp) => {
+                  const isExpanded = expandedId === comp.id;
+                  const totalSections = comp.sections.length;
+                  const totalTasks = comp.sections.reduce((s, sec) => s + sec.tasks.length, 0);
 
-              return (
-                <div
-                  key={comp.id}
-                  className="bg-muted border border-border rounded-[10px] overflow-hidden cursor-pointer"
-                  onClick={() => setExpandedId(isExpanded ? null : comp.id)}
-                >
-                  <div className="flex items-center min-h-[48px] px-2">
-                    <div className="flex-1 min-w-0 pl-2">
-                      <span className="font-medium text-sm truncate block">{comp.title}</span>
-                    </div>
-                  </div>
-
-                  {isExpanded && (
-                    <div className="px-3 pb-3" onClick={(e) => e.stopPropagation()}>
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-[11px] text-muted-foreground">
-                          {totalSections > 0
-                            ? `${totalSections} section${totalSections !== 1 ? "s" : ""} · ${totalTasks} task${totalTasks !== 1 ? "s" : ""}`
-                            : "No checklist yet"}
-                        </span>
-                        {canCreate && (
-                          <div className="flex gap-0.5">
-                            <ChecklistEditor
-                              competencyTitle={comp.title}
-                              initialSections={comp.sections}
-                              onSave={(sections) =>
-                                saveSections.mutate({
-                                  competencyId: comp.id,
-                                  sections: sections.map((s) => ({
-                                    name: s.name,
-                                    tasks: s.tasks.map((t) => ({
-                                      title: t.title,
-                                      detail: t.detail,
-                                    })),
-                                  })),
-                                })
-                              }
-                            >
-                              <button className="w-7 h-7 flex items-center justify-center bg-transparent border-none cursor-pointer text-muted-foreground rounded hover:text-foreground">
-                                <Pencil className="h-3.5 w-3.5" />
-                              </button>
-                            </ChecklistEditor>
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <button className="w-7 h-7 flex items-center justify-center bg-transparent border-none cursor-pointer text-destructive rounded hover:bg-destructive/10">
-                                  <Trash2 className="h-3.5 w-3.5" />
-                                </button>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>Delete competency?</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    This will permanently delete "{comp.title}" and all its sections, tasks, and assessments.
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                  <AlertDialogAction
-                                    onClick={() => deleteCompetency.mutate(comp.id)}
-                                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                                  >
-                                    Delete
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
-                          </div>
-                        )}
+                  return (
+                    <div
+                      key={comp.id}
+                      className="bg-muted border border-border rounded-[10px] overflow-hidden cursor-pointer"
+                      onClick={() => setExpandedId(isExpanded ? null : comp.id)}
+                    >
+                      <div className="flex items-center min-h-[48px] px-2">
+                        <div className="flex-1 min-w-0 pl-2">
+                          <span className="font-medium text-sm truncate block">{comp.title}</span>
+                        </div>
                       </div>
 
-                      {totalSections > 0 && canCreate && (
-                        <AssessmentPopup
-                          competency={comp}
-                          onSave={(data) => saveAssessment.mutate(data)}
-                        >
-                          <button className="flex items-center gap-1.5 px-3 py-1.5 bg-primary text-primary-foreground border-none rounded-md text-xs font-medium cursor-pointer">
-                            <CheckSquare className="h-3.5 w-3.5" />
-                            Assess resident
-                          </button>
-                        </AssessmentPopup>
+                      {isExpanded && (
+                        <div className="px-3 pb-3" onClick={(e) => e.stopPropagation()}>
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-[11px] text-muted-foreground">
+                              {totalSections > 0
+                                ? `${totalSections} section${totalSections !== 1 ? "s" : ""} · ${totalTasks} task${totalTasks !== 1 ? "s" : ""}`
+                                : "No checklist yet"}
+                            </span>
+                            {canCreate && (
+                              <div className="flex gap-0.5">
+                                <ChecklistEditor
+                                  competencyTitle={comp.title}
+                                  initialSections={comp.sections}
+                                  onSave={(sections) =>
+                                    saveSections.mutate({
+                                      competencyId: comp.id,
+                                      sections: sections.map((s) => ({
+                                        name: s.name,
+                                        tasks: s.tasks.map((t) => ({
+                                          title: t.title,
+                                          detail: t.detail,
+                                        })),
+                                      })),
+                                    })
+                                  }
+                                >
+                                  <button className="w-7 h-7 flex items-center justify-center bg-transparent border-none cursor-pointer text-muted-foreground rounded hover:text-foreground">
+                                    <Pencil className="h-3.5 w-3.5" />
+                                  </button>
+                                </ChecklistEditor>
+                                <AlertDialog>
+                                  <AlertDialogTrigger asChild>
+                                    <button className="w-7 h-7 flex items-center justify-center bg-transparent border-none cursor-pointer text-destructive rounded hover:bg-destructive/10">
+                                      <Trash2 className="h-3.5 w-3.5" />
+                                    </button>
+                                  </AlertDialogTrigger>
+                                  <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                      <AlertDialogTitle>Delete competency?</AlertDialogTitle>
+                                      <AlertDialogDescription>
+                                        This will permanently delete "{comp.title}" and all its sections, tasks, and assessments.
+                                      </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                      <AlertDialogAction
+                                        onClick={() => deleteCompetency.mutate(comp.id)}
+                                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                      >
+                                        Delete
+                                      </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                  </AlertDialogContent>
+                                </AlertDialog>
+                              </div>
+                            )}
+                          </div>
+
+                          {totalSections > 0 && canCreate && (
+                            <AssessmentPopup
+                              competency={comp}
+                              onSave={(data) => saveAssessment.mutate(data)}
+                            >
+                              <button className="flex items-center gap-1.5 px-3 py-1.5 bg-primary text-primary-foreground border-none rounded-md text-xs font-medium cursor-pointer">
+                                <CheckSquare className="h-3.5 w-3.5" />
+                                Assess resident
+                              </button>
+                            </AssessmentPopup>
+                          )}
+                        </div>
                       )}
                     </div>
-                  )}
+                  );
+                })
+              )}
+            </div>
+          </TabsContent>
+
+          {canCreate && (
+            <TabsContent value="dashboard" className="mt-0">
+              {myAssessments.isLoading ? (
+                <div className="flex justify-center py-12">
+                  <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
                 </div>
-              );
-            })
+              ) : (
+                <CBMEDashboard
+                  competencies={competencies.data || []}
+                  assessments={myAssessments.data || []}
+                  teamMembers={teamMembers || []}
+                />
+              )}
+            </TabsContent>
           )}
-        </div>
+        </Tabs>
       </main>
 
       <BottomNav />
