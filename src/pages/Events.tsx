@@ -103,10 +103,7 @@ const EventCard = ({
       }}
     >
       <div className="flex items-center min-h-[48px] px-2">
-        <div className="flex items-center justify-center min-w-[44px] min-h-[44px]">
-          <div className="w-2 h-2 rounded-full bg-[#7A8FA0]" />
-        </div>
-        <div className="flex-1 min-w-0 px-1">
+        <div className="flex-1 min-w-0 pl-1 pr-1">
           <span className="font-medium text-sm truncate block">{event.title}</span>
         </div>
         <div className="flex items-center shrink-0 gap-1.5 pr-1">
@@ -133,7 +130,7 @@ const EventCard = ({
       </div>
 
       {expanded && (
-        <div className="pb-2 pl-[52px] pr-3">
+        <div className="pb-2 pl-3 pr-3">
           {timeRange && (
             <div className="text-[11px] text-muted-foreground mb-1">{timeRange}</div>
           )}
