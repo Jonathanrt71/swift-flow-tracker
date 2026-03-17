@@ -32,6 +32,204 @@ export type Database = {
         }
         Relationships: []
       }
+      competencies: {
+        Row: {
+          created_at: string | null
+          created_by: string
+          id: string
+          title: string
+        }
+        Insert: {
+          created_at?: string | null
+          created_by: string
+          id?: string
+          title: string
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string
+          id?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      competency_assessment_grades: {
+        Row: {
+          assessment_id: string
+          grade: number
+          id: string
+          task_id: string
+        }
+        Insert: {
+          assessment_id: string
+          grade: number
+          id?: string
+          task_id: string
+        }
+        Update: {
+          assessment_id?: string
+          grade?: number
+          id?: string
+          task_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "competency_assessment_grades_assessment_id_fkey"
+            columns: ["assessment_id"]
+            isOneToOne: false
+            referencedRelation: "competency_assessments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "competency_assessment_grades_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "competency_tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      competency_assessments: {
+        Row: {
+          assessor_id: string
+          competency_id: string
+          created_at: string | null
+          id: string
+          overall_comment: string | null
+          overall_grade: number | null
+          resident_id: string
+        }
+        Insert: {
+          assessor_id: string
+          competency_id: string
+          created_at?: string | null
+          id?: string
+          overall_comment?: string | null
+          overall_grade?: number | null
+          resident_id: string
+        }
+        Update: {
+          assessor_id?: string
+          competency_id?: string
+          created_at?: string | null
+          id?: string
+          overall_comment?: string | null
+          overall_grade?: number | null
+          resident_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "competency_assessments_competency_id_fkey"
+            columns: ["competency_id"]
+            isOneToOne: false
+            referencedRelation: "competencies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      competency_sections: {
+        Row: {
+          competency_id: string
+          id: string
+          name: string
+          position: number
+        }
+        Insert: {
+          competency_id: string
+          id?: string
+          name: string
+          position?: number
+        }
+        Update: {
+          competency_id?: string
+          id?: string
+          name?: string
+          position?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "competency_sections_competency_id_fkey"
+            columns: ["competency_id"]
+            isOneToOne: false
+            referencedRelation: "competencies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      competency_tasks: {
+        Row: {
+          detail: string | null
+          id: string
+          position: number
+          section_id: string
+          title: string
+        }
+        Insert: {
+          detail?: string | null
+          id?: string
+          position?: number
+          section_id: string
+          title: string
+        }
+        Update: {
+          detail?: string | null
+          id?: string
+          position?: number
+          section_id?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "competency_tasks_section_id_fkey"
+            columns: ["section_id"]
+            isOneToOne: false
+            referencedRelation: "competency_sections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      events: {
+        Row: {
+          assigned_to: string | null
+          category: string
+          created_at: string | null
+          created_by: string
+          description: string | null
+          end_time: string | null
+          event_date: string
+          id: string
+          start_time: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          assigned_to?: string | null
+          category?: string
+          created_at?: string | null
+          created_by: string
+          description?: string | null
+          end_time?: string | null
+          event_date: string
+          id?: string
+          start_time?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          assigned_to?: string | null
+          category?: string
+          created_at?: string | null
+          created_by?: string
+          description?: string | null
+          end_time?: string | null
+          event_date?: string
+          id?: string
+          start_time?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       meeting_attendees: {
         Row: {
           created_at: string | null
@@ -61,24 +259,6 @@ export type Database = {
           },
         ]
       }
-      meeting_tags: {
-        Row: {
-          id: string
-          name: string
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          name: string
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          name?: string
-          created_at?: string
-        }
-        Relationships: []
-      }
       meeting_tag_links: {
         Row: {
           id: string
@@ -95,122 +275,38 @@ export type Database = {
           meeting_id?: string
           tag_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "meeting_tag_links_meeting_id_fkey"
+            columns: ["meeting_id"]
+            isOneToOne: false
+            referencedRelation: "meetings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "meeting_tag_links_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "meeting_tags"
+            referencedColumns: ["id"]
+          },
+        ]
       }
-      competencies: {
+      meeting_tags: {
         Row: {
+          created_at: string | null
           id: string
-          title: string
-          created_by: string
-          created_at: string
+          name: string
         }
         Insert: {
+          created_at?: string | null
           id?: string
-          title: string
-          created_by: string
-          created_at?: string
+          name: string
         }
         Update: {
+          created_at?: string | null
           id?: string
-          title?: string
-          created_by?: string
-          created_at?: string
-        }
-        Relationships: []
-      }
-      competency_sections: {
-        Row: {
-          id: string
-          competency_id: string
-          name: string
-          position: number
-        }
-        Insert: {
-          id?: string
-          competency_id: string
-          name: string
-          position: number
-        }
-        Update: {
-          id?: string
-          competency_id?: string
           name?: string
-          position?: number
-        }
-        Relationships: []
-      }
-      competency_tasks: {
-        Row: {
-          id: string
-          section_id: string
-          title: string
-          detail: string | null
-          position: number
-        }
-        Insert: {
-          id?: string
-          section_id: string
-          title: string
-          detail?: string | null
-          position: number
-        }
-        Update: {
-          id?: string
-          section_id?: string
-          title?: string
-          detail?: string | null
-          position?: number
-        }
-        Relationships: []
-      }
-      competency_assessments: {
-        Row: {
-          id: string
-          competency_id: string
-          resident_id: string
-          assessor_id: string
-          overall_grade: number | null
-          overall_comment: string | null
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          competency_id: string
-          resident_id: string
-          assessor_id: string
-          overall_grade?: number | null
-          overall_comment?: string | null
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          competency_id?: string
-          resident_id?: string
-          assessor_id?: string
-          overall_grade?: number | null
-          overall_comment?: string | null
-          created_at?: string
-        }
-        Relationships: []
-      }
-      competency_assessment_grades: {
-        Row: {
-          id: string
-          assessment_id: string
-          task_id: string
-          grade: number
-        }
-        Insert: {
-          id?: string
-          assessment_id: string
-          task_id: string
-          grade: number
-        }
-        Update: {
-          id?: string
-          assessment_id?: string
-          task_id?: string
-          grade?: number
         }
         Relationships: []
       }
@@ -278,48 +374,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      events: {
-        Row: {
-          id: string
-          title: string
-          event_date: string
-          start_time: string | null
-          end_time: string | null
-          description: string | null
-          category: string
-          assigned_to: string | null
-          created_by: string
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          title: string
-          event_date: string
-          start_time?: string | null
-          end_time?: string | null
-          description?: string | null
-          category: string
-          assigned_to?: string | null
-          created_by: string
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          title?: string
-          event_date?: string
-          start_time?: string | null
-          end_time?: string | null
-          description?: string | null
-          category?: string
-          assigned_to?: string | null
-          created_by?: string
-          created_at?: string
-          updated_at?: string
-        }
-        Relationships: []
       }
       notifications: {
         Row: {
@@ -448,6 +502,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "tasks_meeting_id_fkey"
+            columns: ["meeting_id"]
+            isOneToOne: false
+            referencedRelation: "meetings"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "tasks_parent_id_fkey"
             columns: ["parent_id"]
