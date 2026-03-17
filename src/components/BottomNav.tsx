@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { CheckSquare, Users, Calendar } from "lucide-react";
+import { CheckSquare, Users, Calendar, BookOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const BottomNav = () => {
@@ -37,6 +37,16 @@ const BottomNav = () => {
       >
         <Calendar className="h-5 w-5" />
         Events
+      </Link>
+      <Link
+        to="/cbme"
+        className={cn(
+          "flex-1 flex flex-col items-center gap-0.5 py-2 text-[10px]",
+          isActive("/cbme") ? "text-white" : "text-white/50"
+        )}
+      >
+        <BookOpen className="h-5 w-5" />
+        CBME
       </Link>
     </nav>
   );

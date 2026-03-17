@@ -13,6 +13,7 @@ import Admin from "./pages/Admin.tsx";
 import Profile from "./pages/Profile.tsx";
 import Meetings from "./pages/Meetings.tsx";
 import Events from "./pages/Events.tsx";
+import CBME from "./pages/CBME.tsx";
 
 const queryClient = new QueryClient();
 
@@ -31,6 +32,7 @@ const App = () => (
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="/meetings" element={<ProtectedRoute><Meetings /></ProtectedRoute>} />
             <Route path="/events" element={<ProtectedRoute><Events /></ProtectedRoute>} />
+            <Route path="/cbme" element={<ProtectedRoute><CBME /></ProtectedRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

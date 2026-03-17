@@ -97,6 +97,123 @@ export type Database = {
         }
         Relationships: []
       }
+      competencies: {
+        Row: {
+          id: string
+          title: string
+          created_by: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          title: string
+          created_by: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          title?: string
+          created_by?: string
+          created_at?: string
+        }
+        Relationships: []
+      }
+      competency_sections: {
+        Row: {
+          id: string
+          competency_id: string
+          name: string
+          position: number
+        }
+        Insert: {
+          id?: string
+          competency_id: string
+          name: string
+          position: number
+        }
+        Update: {
+          id?: string
+          competency_id?: string
+          name?: string
+          position?: number
+        }
+        Relationships: []
+      }
+      competency_tasks: {
+        Row: {
+          id: string
+          section_id: string
+          title: string
+          detail: string | null
+          position: number
+        }
+        Insert: {
+          id?: string
+          section_id: string
+          title: string
+          detail?: string | null
+          position: number
+        }
+        Update: {
+          id?: string
+          section_id?: string
+          title?: string
+          detail?: string | null
+          position?: number
+        }
+        Relationships: []
+      }
+      competency_assessments: {
+        Row: {
+          id: string
+          competency_id: string
+          resident_id: string
+          assessor_id: string
+          overall_grade: number | null
+          overall_comment: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          competency_id: string
+          resident_id: string
+          assessor_id: string
+          overall_grade?: number | null
+          overall_comment?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          competency_id?: string
+          resident_id?: string
+          assessor_id?: string
+          overall_grade?: number | null
+          overall_comment?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
+      competency_assessment_grades: {
+        Row: {
+          id: string
+          assessment_id: string
+          task_id: string
+          grade: number
+        }
+        Insert: {
+          id?: string
+          assessment_id: string
+          task_id: string
+          grade: number
+        }
+        Update: {
+          id?: string
+          assessment_id?: string
+          task_id?: string
+          grade?: number
+        }
+        Relationships: []
+      }
       meetings: {
         Row: {
           created_at: string | null
