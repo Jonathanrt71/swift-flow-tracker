@@ -54,16 +54,23 @@ const Feedback = () => {
   const [filterResident, setFilterResident] = useState<string | null>(null);
   const [filterSentiment, setFilterSentiment] = useState<"positive" | "negative" | null>(null);
 
+  // Fetch user IDs with the 'resident' role
+  const { data: residentRoles } = useQuery({
+    queryKey: ["resident-role-ids"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("user_roles")
+        .select("user_id")
+        .eq("role", "resident");
+      if (error) throw error;
+      return (data || []).map((r) => r.user_id);
+    },
+  });
+
   const members = teamMembers || [];
+  const residentIds = new Set(residentRoles || []);
+  const residents = members.filter((m) => residentIds.has(m.id));
   const allFeedback = feedbackQuery.data || [];
-
-  // Build a lookup for names
-  const nameMap = new Map<string, string>();
-  members.forEach((m) => nameMap.set(m.id, formatPersonName(m)));
-
-  // Get residents for the create dialog (we use user_roles if available, otherwise show all members)
-  // For simplicity, show all team members in the resident selector — the dialog is only accessible to faculty/admin
-  const residents = members;
 
   // Filter
   const filtered = allFeedback.filter((fb) => {
