@@ -241,9 +241,32 @@ const Feedback = () => {
         <div className="container flex items-center justify-between h-14 px-4">
           <HeaderLogo isAdmin={isAdmin} onSignOut={signOut} />
           <div className="flex items-center gap-1 text-white/50">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="hover:bg-transparent"
+              title="Search"
+              onClick={() => {
+                setSearchOpen(!searchOpen);
+                if (searchOpen) setSearchQuery("");
+              }}
+            >
+              {searchOpen ? <XIcon className="h-4 w-4" /> : <Search className="h-4 w-4" />}
+            </Button>
             <NotificationBell />
           </div>
         </div>
+        {searchOpen && (
+          <div className="container px-4 pb-3">
+            <input
+              autoFocus
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search feedback..."
+              className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground outline-none"
+            />
+          </div>
+        )}
       </header>
 
       <main className="container max-w-2xl px-4 py-6">
