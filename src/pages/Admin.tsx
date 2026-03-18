@@ -35,7 +35,7 @@ import { useMeetingTags } from "@/hooks/useMeetingTags";
 import { useMeetingTagLinks } from "@/hooks/useMeetingTags";
 import { useCompetencyCategories } from "@/hooks/useCompetencyCategories";
 import type { UserRole, ManagedUser } from "@/hooks/useAdmin";
-import { formatLastFirst } from "@/lib/dateFormat";
+import { formatPersonName } from "@/lib/dateFormat";
 
 /* ── Edit User Dialog ── */
 const EditUserDialog = ({
