@@ -20,27 +20,29 @@ const getColor = (name: string | null): string => {
   return cols[Math.abs(h) % cols.length];
 };
 
+const GRADE_COLORS = { 1: "#9F2929", 2: "#415162", 3: "#6B9080" };
+
 const FaceNeutral = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#999" strokeWidth="1.5" strokeLinecap="round">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9F2929" strokeWidth="1.5" strokeLinecap="round">
     <circle cx="12" cy="12" r="10"/>
-    <circle cx="9" cy="10" r="1" fill="#999" stroke="none"/>
-    <circle cx="15" cy="10" r="1" fill="#999" stroke="none"/>
+    <circle cx="9" cy="10" r="1" fill="#9F2929" stroke="none"/>
+    <circle cx="15" cy="10" r="1" fill="#9F2929" stroke="none"/>
     <line x1="8" y1="15" x2="16" y2="15"/>
   </svg>
 );
 const FaceModerate = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#999" strokeWidth="1.5" strokeLinecap="round">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#415162" strokeWidth="1.5" strokeLinecap="round">
     <circle cx="12" cy="12" r="10"/>
-    <circle cx="9" cy="10" r="1" fill="#999" stroke="none"/>
-    <circle cx="15" cy="10" r="1" fill="#999" stroke="none"/>
+    <circle cx="9" cy="10" r="1" fill="#415162" stroke="none"/>
+    <circle cx="15" cy="10" r="1" fill="#415162" stroke="none"/>
     <path d="M8 14.5Q12 17 16 14.5" fill="none"/>
   </svg>
 );
 const FaceHappy = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#999" strokeWidth="1.5" strokeLinecap="round">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6B9080" strokeWidth="1.5" strokeLinecap="round">
     <circle cx="12" cy="12" r="10"/>
-    <circle cx="9" cy="10" r="1" fill="#999" stroke="none"/>
-    <circle cx="15" cy="10" r="1" fill="#999" stroke="none"/>
+    <circle cx="9" cy="10" r="1" fill="#6B9080" stroke="none"/>
+    <circle cx="15" cy="10" r="1" fill="#6B9080" stroke="none"/>
     <path d="M7 14Q12 19 17 14" fill="none"/>
   </svg>
 );
@@ -211,8 +213,8 @@ const AssessmentPopup = ({
                               <div
                                 className="w-4 h-4 rounded-full transition-all"
                                 style={{
-                                  border: `1.5px solid ${grades[task.id] === level ? "#415162" : "#C9CED4"}`,
-                                  background: grades[task.id] === level ? "#415162" : "#FFF",
+                                  border: `1.5px solid ${grades[task.id] === level ? GRADE_COLORS[level as keyof typeof GRADE_COLORS] : "#C9CED4"}`,
+                                  background: grades[task.id] === level ? GRADE_COLORS[level as keyof typeof GRADE_COLORS] : "#FFF",
                                 }}
                               />
                             </button>
@@ -246,8 +248,8 @@ const AssessmentPopup = ({
                       <div
                         className="w-4 h-4 rounded-full transition-all"
                         style={{
-                          border: `1.5px solid ${overallGrade === level ? "#415162" : "#C9CED4"}`,
-                          background: overallGrade === level ? "#415162" : "#FFF",
+                          border: `1.5px solid ${overallGrade === level ? GRADE_COLORS[level as keyof typeof GRADE_COLORS] : "#C9CED4"}`,
+                          background: overallGrade === level ? GRADE_COLORS[level as keyof typeof GRADE_COLORS] : "#FFF",
                         }}
                       />
                     </button>

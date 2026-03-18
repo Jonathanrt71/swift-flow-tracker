@@ -14,26 +14,26 @@ const getColor = (name: string | null): string => {
 };
 
 const FaceNeutral = ({ size = 14 }: { size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="#888" strokeWidth="1.5" strokeLinecap="round">
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="#9F2929" strokeWidth="1.5" strokeLinecap="round">
     <circle cx="12" cy="12" r="10"/>
-    <circle cx="9" cy="10" r="1" fill="#888" stroke="none"/>
-    <circle cx="15" cy="10" r="1" fill="#888" stroke="none"/>
+    <circle cx="9" cy="10" r="1" fill="#9F2929" stroke="none"/>
+    <circle cx="15" cy="10" r="1" fill="#9F2929" stroke="none"/>
     <line x1="8" y1="15" x2="16" y2="15"/>
   </svg>
 );
 const FaceModerate = ({ size = 14 }: { size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="#888" strokeWidth="1.5" strokeLinecap="round">
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="#415162" strokeWidth="1.5" strokeLinecap="round">
     <circle cx="12" cy="12" r="10"/>
-    <circle cx="9" cy="10" r="1" fill="#888" stroke="none"/>
-    <circle cx="15" cy="10" r="1" fill="#888" stroke="none"/>
+    <circle cx="9" cy="10" r="1" fill="#415162" stroke="none"/>
+    <circle cx="15" cy="10" r="1" fill="#415162" stroke="none"/>
     <path d="M8 14.5Q12 17 16 14.5" fill="none"/>
   </svg>
 );
 const FaceHappy = ({ size = 14 }: { size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="#888" strokeWidth="1.5" strokeLinecap="round">
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="#6B9080" strokeWidth="1.5" strokeLinecap="round">
     <circle cx="12" cy="12" r="10"/>
-    <circle cx="9" cy="10" r="1" fill="#888" stroke="none"/>
-    <circle cx="15" cy="10" r="1" fill="#888" stroke="none"/>
+    <circle cx="9" cy="10" r="1" fill="#6B9080" stroke="none"/>
+    <circle cx="15" cy="10" r="1" fill="#6B9080" stroke="none"/>
     <path d="M7 14Q12 19 17 14" fill="none"/>
   </svg>
 );
