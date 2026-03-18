@@ -167,7 +167,7 @@ const CreateMeetingDialog = ({ onSubmit }: CreateMeetingDialogProps) => {
                       </div>
                     )}
                     <span className="text-xs text-foreground">
-                      {m.display_name || "Unnamed"}
+                      {formatPersonName(m)}
                     </span>
                     <button
                       onClick={() => toggleAttendee(m.id)}
