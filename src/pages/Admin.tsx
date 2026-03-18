@@ -30,9 +30,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ArrowLeft, Plus, Shield, Pencil, Check, X, Tag, Trash2 } from "lucide-react";
+import { ArrowLeft, Plus, Shield, Pencil, Check, X, Tag, Trash2, BookOpen } from "lucide-react";
 import { useMeetingTags } from "@/hooks/useMeetingTags";
 import { useMeetingTagLinks } from "@/hooks/useMeetingTags";
+import { useCompetencyCategories } from "@/hooks/useCompetencyCategories";
 import type { UserRole, ManagedUser } from "@/hooks/useAdmin";
 
 /* ── Edit User Dialog ── */
@@ -301,10 +302,12 @@ const Admin = () => {
   const { settings, updateSetting } = useAppSettings();
   const { tags, createTag, deleteTag } = useMeetingTags();
   const { links } = useMeetingTagLinks();
+  const { categories, createCategory, deleteCategory } = useCompetencyCategories();
 
   const [facultyLimit, setFacultyLimit] = useState("");
   const [residentLimit, setResidentLimit] = useState("");
   const [newTagName, setNewTagName] = useState("");
+  const [newCategoryName, setNewCategoryName] = useState("");
 
   if (isAdminLoading) {
     return (
@@ -502,6 +505,61 @@ const Admin = () => {
                   }
                 }}
                 disabled={!newTagName.trim()}
+                className="flex items-center justify-center w-9 h-9 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50 shrink-0"
+              >
+                <Plus className="h-4 w-4" />
+              </button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Competency Categories */}
+        <Card className="bg-muted border-border">
+          <CardContent className="pt-6">
+            <h2 className="text-xl font-semibold text-foreground mb-4">Competency Categories</h2>
+            <div className="space-y-2">
+              {categories.data?.map((cat) => (
+                <div
+                  key={cat.id}
+                  className="flex items-center justify-between px-3 py-2.5 bg-background rounded-lg border border-border"
+                >
+                  <div className="flex items-center gap-2">
+                    <BookOpen className="h-3.5 w-3.5 text-muted-foreground" />
+                    <span className="text-sm text-foreground">{cat.name}</span>
+                  </div>
+                  <button
+                    onClick={() => deleteCategory.mutate(cat.id)}
+                    className="flex items-center justify-center w-7 h-7 bg-transparent border-none cursor-pointer text-destructive hover:bg-destructive/10 rounded-md transition-colors"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              ))}
+              {categories.data?.length === 0 && (
+                <p className="text-sm text-muted-foreground py-4 text-center">No categories yet</p>
+              )}
+            </div>
+            <div className="flex items-center gap-2 mt-3">
+              <Input
+                value={newCategoryName}
+                onChange={(e) => setNewCategoryName(e.target.value)}
+                placeholder="New category name..."
+                className="bg-background rounded-lg flex-1"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && newCategoryName.trim()) {
+                    createCategory.mutate(newCategoryName.trim());
+                    setNewCategoryName("");
+                  }
+                }}
+              />
+              <button
+                onClick={() => {
+                  if (newCategoryName.trim()) {
+                    createCategory.mutate(newCategoryName.trim());
+                    setNewCategoryName("");
+                  }
+                }}
+                disabled={!newCategoryName.trim()}
                 className="flex items-center justify-center w-9 h-9 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50 shrink-0"
               >
                 <Plus className="h-4 w-4" />

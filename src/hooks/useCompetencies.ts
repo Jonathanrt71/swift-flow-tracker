@@ -24,6 +24,7 @@ export interface Competency {
   title: string;
   created_by: string;
   created_at: string;
+  category_id: string | null;
   sections: CompetencySection[];
 }
 
@@ -85,15 +86,31 @@ export function useCompetencies() {
   });
 
   const createCompetency = useMutation({
-    mutationFn: async (title: string) => {
+    mutationFn: async ({ title, category_id }: { title: string; category_id?: string | null }) => {
       const { error } = await supabase
         .from("competencies")
-        .insert({ title, created_by: user!.id });
+        .insert({ title, created_by: user!.id, category_id: category_id || null });
       if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["competencies"] });
       toast({ title: "Competency created" });
+    },
+    onError: (e: Error) =>
+      toast({ title: "Error", description: e.message, variant: "destructive" }),
+  });
+
+  const updateCompetency = useMutation({
+    mutationFn: async ({ id, category_id }: { id: string; category_id: string | null }) => {
+      const { error } = await supabase
+        .from("competencies")
+        .update({ category_id })
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["competencies"] });
+      toast({ title: "Category updated" });
     },
     onError: (e: Error) =>
       toast({ title: "Error", description: e.message, variant: "destructive" }),
@@ -262,5 +279,5 @@ export function useCompetencies() {
     },
   });
 
-  return { competencies, myAssessments, allAssessments, createCompetency, deleteCompetency, saveSections, saveAssessment };
+  return { competencies, myAssessments, allAssessments, createCompetency, updateCompetency, deleteCompetency, saveSections, saveAssessment };
 }

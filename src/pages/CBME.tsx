@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
 import { useUserRole } from "@/hooks/useUserRole";
 import { useCompetencies } from "@/hooks/useCompetencies";
+import { useCompetencyCategories } from "@/hooks/useCompetencyCategories";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -33,15 +34,24 @@ import HeaderLogo from "@/components/HeaderLogo";
 
 const CreateCompetencyDialog = ({
   onSubmit,
+  categories,
 }: {
-  onSubmit: (title: string) => void;
+  onSubmit: (data: { title: string; category_id?: string | null }) => void;
+  categories: { id: string; name: string }[];
 }) => {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
+  const [categoryId, setCategoryId] = useState<string>("");
 
   const handleOpen = (isOpen: boolean) => {
-    if (isOpen) setTitle("");
+    if (isOpen) { setTitle(""); setCategoryId(""); }
     setOpen(isOpen);
+  };
+
+  const handleSubmit = () => {
+    if (!title.trim()) return;
+    onSubmit({ title: title.trim(), category_id: categoryId || null });
+    setOpen(false);
   };
 
   return (
@@ -62,29 +72,29 @@ const CreateCompetencyDialog = ({
             <X className="h-4 w-4 text-white/70" />
           </button>
         </div>
-        <div className="px-4 pt-4 pb-4">
+        <div className="px-4 pt-4 pb-4 flex flex-col gap-3">
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && title.trim()) {
-                onSubmit(title.trim());
-                setOpen(false);
-              }
-            }}
+            onKeyDown={(e) => { if (e.key === "Enter") handleSubmit(); }}
             placeholder="Competency title..."
             autoFocus
             style={{ width: "100%", padding: "8px 12px", background: "#E7EBEF", border: "0.5px solid #C9CED4", borderRadius: 8, fontSize: 14, color: "#333", outline: "none" }}
           />
+          <select
+            value={categoryId}
+            onChange={(e) => setCategoryId(e.target.value)}
+            style={{ width: "100%", padding: "8px 12px", background: "#E7EBEF", border: "0.5px solid #C9CED4", borderRadius: 8, fontSize: 13, color: "#333", outline: "none" }}
+          >
+            <option value="">No category</option>
+            {categories.map((c) => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
+          </select>
         </div>
         <div className="px-4 pb-4 flex justify-end">
           <button
-            onClick={() => {
-              if (title.trim()) {
-                onSubmit(title.trim());
-                setOpen(false);
-              }
-            }}
+            onClick={handleSubmit}
             disabled={!title.trim()}
             style={{ padding: "8px 20px", background: title.trim() ? "#415162" : "#C9CED4", color: "#FFF", border: "none", borderRadius: 6, fontSize: 13, fontWeight: 500, cursor: title.trim() ? "pointer" : "default" }}
           >
@@ -100,9 +110,10 @@ const CBME = () => {
   const { user, signOut } = useAuth();
   const { isAdmin } = useAdmin();
   const { isFaculty } = useUserRole();
-  const { competencies, myAssessments, allAssessments, createCompetency, deleteCompetency, saveSections, saveAssessment } =
+  const { competencies, myAssessments, allAssessments, createCompetency, updateCompetency, deleteCompetency, saveSections, saveAssessment } =
     useCompetencies();
   const { data: teamMembers } = useTeamMembers();
+  const { categories } = useCompetencyCategories();
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -181,7 +192,8 @@ const CBME = () => {
             {activeTab === "list" && canCreate && (
               <div className="ml-auto">
                 <CreateCompetencyDialog
-                  onSubmit={(title) => createCompetency.mutate(title)}
+                  onSubmit={(data) => createCompetency.mutate(data)}
+                  categories={categories.data || []}
                 />
               </div>
             )}
@@ -200,97 +212,142 @@ const CBME = () => {
                   </p>
                 </div>
               ) : (
-                filteredCompetencies.map((comp) => {
-                  const isExpanded = expandedId === comp.id;
-                  const totalSections = comp.sections.length;
-                  const totalTasks = comp.sections.reduce((s, sec) => s + sec.tasks.length, 0);
-
-                  return (
-                    <div
-                      key={comp.id}
-                      className="bg-muted border border-border rounded-[10px] overflow-hidden cursor-pointer"
-                      onClick={() => setExpandedId(isExpanded ? null : comp.id)}
-                    >
-                      <div className="flex items-center min-h-[48px] px-2">
-                        <div className="flex-1 min-w-0 pl-2">
-                          <span className="font-medium text-sm truncate block">{comp.title}</span>
+                (() => {
+                  const catMap = new Map((categories.data || []).map((c) => [c.id, c.name]));
+                  const sorted = [...filteredCompetencies].sort((a, b) => {
+                    const catA = a.category_id ? catMap.get(a.category_id) || "zzz" : "zzz";
+                    const catB = b.category_id ? catMap.get(b.category_id) || "zzz" : "zzz";
+                    if (catA !== catB) return catA.localeCompare(catB);
+                    return a.title.localeCompare(b.title);
+                  });
+                  let prevCat = "";
+                  const elements: React.ReactNode[] = [];
+                  sorted.forEach((comp) => {
+                    const catName = comp.category_id ? catMap.get(comp.category_id) || null : null;
+                    const catKey = catName || "__uncategorized__";
+                    if (catKey !== prevCat && catName) {
+                      elements.push(
+                        <div key={`cat-${catKey}`} className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider pt-3 pb-1">
+                          {catName}
                         </div>
-                      </div>
+                      );
+                    }
+                    if (catKey !== prevCat && !catName && prevCat !== "") {
+                      elements.push(
+                        <div key="cat-uncategorized" className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider pt-3 pb-1">
+                          Uncategorized
+                        </div>
+                      );
+                    }
+                    prevCat = catKey;
 
-                      {isExpanded && (
-                        <div className="px-3 pb-3" onClick={(e) => e.stopPropagation()}>
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-[11px] text-muted-foreground">
-                              {totalSections > 0
-                                ? `${totalSections} section${totalSections !== 1 ? "s" : ""} · ${totalTasks} task${totalTasks !== 1 ? "s" : ""}`
-                                : "No checklist yet"}
-                            </span>
+                    const isExpanded = expandedId === comp.id;
+                    const totalSections = comp.sections.length;
+                    const totalTasks = comp.sections.reduce((s, sec) => s + sec.tasks.length, 0);
+
+                    elements.push(
+                      <div
+                        key={comp.id}
+                        className="bg-muted border border-border rounded-[10px] overflow-hidden cursor-pointer"
+                        onClick={() => setExpandedId(isExpanded ? null : comp.id)}
+                      >
+                        <div className="flex items-center min-h-[48px] px-2">
+                          <div className="flex-1 min-w-0 pl-2">
+                            <span className="font-medium text-sm truncate block">{comp.title}</span>
+                          </div>
+                        </div>
+
+                        {isExpanded && (
+                          <div className="px-3 pb-3" onClick={(e) => e.stopPropagation()}>
+                            {/* Category selector */}
                             {canCreate && (
-                              <div className="flex gap-0.5">
-                                <ChecklistEditor
-                                  competencyTitle={comp.title}
-                                  initialSections={comp.sections}
-                                  onSave={(sections) =>
-                                    saveSections.mutate({
-                                      competencyId: comp.id,
-                                      sections: sections.map((s) => ({
-                                        name: s.name,
-                                        tasks: s.tasks.map((t) => ({
-                                          title: t.title,
-                                          detail: t.detail,
+                              <select
+                                value={comp.category_id || ""}
+                                onChange={(e) => updateCompetency.mutate({ id: comp.id, category_id: e.target.value || null })}
+                                className="w-full mb-2 px-2.5 py-1.5 text-xs rounded-md outline-none"
+                                style={{ background: "#E7EBEF", border: "0.5px solid #C9CED4", color: "#555" }}
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <option value="">No category</option>
+                                {(categories.data || []).map((c) => (
+                                  <option key={c.id} value={c.id}>{c.name}</option>
+                                ))}
+                              </select>
+                            )}
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-[11px] text-muted-foreground">
+                                {totalSections > 0
+                                  ? `${totalSections} section${totalSections !== 1 ? "s" : ""} · ${totalTasks} task${totalTasks !== 1 ? "s" : ""}`
+                                  : "No checklist yet"}
+                              </span>
+                              {canCreate && (
+                                <div className="flex gap-0.5">
+                                  <ChecklistEditor
+                                    competencyTitle={comp.title}
+                                    initialSections={comp.sections}
+                                    onSave={(sections) =>
+                                      saveSections.mutate({
+                                        competencyId: comp.id,
+                                        sections: sections.map((s) => ({
+                                          name: s.name,
+                                          tasks: s.tasks.map((t) => ({
+                                            title: t.title,
+                                            detail: t.detail,
+                                          })),
                                         })),
-                                      })),
-                                    })
-                                  }
-                                >
-                                  <button className="w-7 h-7 flex items-center justify-center bg-transparent border-none cursor-pointer text-muted-foreground rounded hover:text-foreground">
-                                    <Pencil className="h-3.5 w-3.5" />
-                                  </button>
-                                </ChecklistEditor>
-                                <AlertDialog>
-                                  <AlertDialogTrigger asChild>
-                                    <button className="w-7 h-7 flex items-center justify-center bg-transparent border-none cursor-pointer text-destructive rounded hover:bg-destructive/10">
-                                      <Trash2 className="h-3.5 w-3.5" />
+                                      })
+                                    }
+                                  >
+                                    <button className="w-7 h-7 flex items-center justify-center bg-transparent border-none cursor-pointer text-muted-foreground rounded hover:text-foreground">
+                                      <Pencil className="h-3.5 w-3.5" />
                                     </button>
-                                  </AlertDialogTrigger>
-                                  <AlertDialogContent>
-                                    <AlertDialogHeader>
-                                      <AlertDialogTitle>Delete competency?</AlertDialogTitle>
-                                      <AlertDialogDescription>
-                                        This will permanently delete "{comp.title}" and all its sections, tasks, and assessments.
-                                      </AlertDialogDescription>
-                                    </AlertDialogHeader>
-                                    <AlertDialogFooter>
-                                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                      <AlertDialogAction
-                                        onClick={() => deleteCompetency.mutate(comp.id)}
-                                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                                      >
-                                        Delete
-                                      </AlertDialogAction>
-                                    </AlertDialogFooter>
-                                  </AlertDialogContent>
-                                </AlertDialog>
-                              </div>
+                                  </ChecklistEditor>
+                                  <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                      <button className="w-7 h-7 flex items-center justify-center bg-transparent border-none cursor-pointer text-destructive rounded hover:bg-destructive/10">
+                                        <Trash2 className="h-3.5 w-3.5" />
+                                      </button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                      <AlertDialogHeader>
+                                        <AlertDialogTitle>Delete competency?</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                          This will permanently delete "{comp.title}" and all its sections, tasks, and assessments.
+                                        </AlertDialogDescription>
+                                      </AlertDialogHeader>
+                                      <AlertDialogFooter>
+                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                        <AlertDialogAction
+                                          onClick={() => deleteCompetency.mutate(comp.id)}
+                                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                        >
+                                          Delete
+                                        </AlertDialogAction>
+                                      </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                  </AlertDialog>
+                                </div>
+                              )}
+                            </div>
+
+                            {totalSections > 0 && canCreate && (
+                              <AssessmentPopup
+                                competency={comp}
+                                onSave={(data) => saveAssessment.mutate(data)}
+                              >
+                                <button className="flex items-center gap-1.5 px-3 py-1.5 bg-primary text-primary-foreground border-none rounded-md text-xs font-medium cursor-pointer">
+                                  <CheckSquare className="h-3.5 w-3.5" />
+                                  Assess resident
+                                </button>
+                              </AssessmentPopup>
                             )}
                           </div>
-
-                          {totalSections > 0 && canCreate && (
-                            <AssessmentPopup
-                              competency={comp}
-                              onSave={(data) => saveAssessment.mutate(data)}
-                            >
-                              <button className="flex items-center gap-1.5 px-3 py-1.5 bg-primary text-primary-foreground border-none rounded-md text-xs font-medium cursor-pointer">
-                                <CheckSquare className="h-3.5 w-3.5" />
-                                Assess resident
-                              </button>
-                            </AssessmentPopup>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })
+                        )}
+                      </div>
+                    );
+                  });
+                  return elements;
+                })()
               )}
             </div>
           </TabsContent>
