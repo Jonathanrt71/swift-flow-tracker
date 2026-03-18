@@ -61,7 +61,7 @@ const CreateMeetingDialog = ({ onSubmit }: CreateMeetingDialogProps) => {
     (m) =>
       m.id !== user?.id &&
       !selectedAttendees.includes(m.id) &&
-      (m.display_name || "").toLowerCase().includes(search.toLowerCase())
+      formatPersonName(m).toLowerCase().includes(search.toLowerCase())
   );
 
   const selectedMembers = (members || []).filter((m) =>
