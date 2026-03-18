@@ -1,5 +1,11 @@
 import { format, parseISO, differenceInCalendarDays } from "date-fns";
 
+export interface PersonNameLike {
+  display_name?: string | null;
+  first_name?: string | null;
+  last_name?: string | null;
+}
+
 const ordinalSuffix = (d: number): string => {
   if (d > 3 && d < 21) return "th";
   switch (d % 10) {
@@ -29,9 +35,26 @@ export const formatCardDate = (
 
 export const formatLastFirst = (name: string | null | undefined): string => {
   if (!name) return "?";
-  const parts = name.trim().split(/\s+/);
+  const trimmed = name.trim();
+  if (!trimmed) return "?";
+  if (trimmed.includes(",")) return trimmed;
+
+  const parts = trimmed.split(/\s+/);
   if (parts.length === 1) return parts[0];
   const last = parts[parts.length - 1];
   const firstInitial = parts[0][0];
   return `${last}, ${firstInitial}`;
+};
+
+export const formatPersonName = (person: PersonNameLike | null | undefined): string => {
+  if (!person) return "?";
+
+  const first = person.first_name?.trim() || "";
+  const last = person.last_name?.trim() || "";
+
+  if (last && first) return `${last}, ${first[0]}`;
+  if (last) return last;
+  if (first) return first;
+
+  return formatLastFirst(person.display_name);
 };

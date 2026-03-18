@@ -12,6 +12,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { format, parseISO } from "date-fns";
+import { formatPersonName } from "@/lib/dateFormat";
 
 interface CreateMeetingDialogProps {
   onSubmit: (data: {
@@ -60,7 +61,7 @@ const CreateMeetingDialog = ({ onSubmit }: CreateMeetingDialogProps) => {
     (m) =>
       m.id !== user?.id &&
       !selectedAttendees.includes(m.id) &&
-      (m.display_name || "").toLowerCase().includes(search.toLowerCase())
+      formatPersonName(m).toLowerCase().includes(search.toLowerCase())
   );
 
   const selectedMembers = (members || []).filter((m) =>
@@ -166,7 +167,7 @@ const CreateMeetingDialog = ({ onSubmit }: CreateMeetingDialogProps) => {
                       </div>
                     )}
                     <span className="text-xs text-foreground">
-                      {m.display_name || "Unnamed"}
+                      {formatPersonName(m)}
                     </span>
                     <button
                       onClick={() => toggleAttendee(m.id)}
@@ -219,7 +220,7 @@ const CreateMeetingDialog = ({ onSubmit }: CreateMeetingDialogProps) => {
                           {getInitials(m.display_name)}
                         </div>
                       )}
-                      <span className="text-sm">{m.display_name || "Unnamed"}</span>
+                      <span className="text-sm">{formatPersonName(m)}</span>
                     </button>
                   ))
                 )}

@@ -38,7 +38,7 @@ import { cn } from "@/lib/utils";
 import { format, parseISO } from "date-fns";
 import type { Task } from "@/hooks/useTasks";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
-import { formatLastFirst } from "@/lib/dateFormat";
+import { formatPersonName } from "@/lib/dateFormat";
 
 interface TaskDetailSheetProps {
   task: Task;
@@ -200,7 +200,7 @@ const TaskDetailSheet = ({
                 <SelectItem value="unassigned">Unassigned</SelectItem>
                 {members?.map((m) => (
                   <SelectItem key={m.id} value={m.id}>
-                    {formatLastFirst(m.display_name)}
+                    {formatPersonName(m)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -218,7 +218,7 @@ const TaskDetailSheet = ({
                 <SelectItem value="none">None</SelectItem>
                 {members?.map((m) => (
                   <SelectItem key={m.id} value={m.id}>
-                    {formatLastFirst(m.display_name)}
+                    {formatPersonName(m)}
                   </SelectItem>
                 ))}
               </SelectContent>

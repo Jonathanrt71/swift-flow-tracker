@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Shield, User, LogOut, Search, Pencil, X as XIcon, Trash2, Plus, Filter, Tag } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { DetailReadOnly } from "@/components/cbme/DetailField";
-import { formatCardDate, formatLastFirst } from "@/lib/dateFormat";
+import { formatCardDate, formatPersonName } from "@/lib/dateFormat";
 import HeaderLogo from "@/components/HeaderLogo";
 import {
   AlertDialog,
@@ -443,7 +443,7 @@ const Meetings = () => {
                         {getInitials(m.display_name)}
                       </div>
                     )}
-                    <span className="text-foreground text-xs">{formatLastFirst(m.display_name)}</span>
+                    <span className="text-foreground text-xs">{formatPersonName(m)}</span>
                   </button>
                 ))}
               </div>

@@ -18,6 +18,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { format, parseISO } from "date-fns";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
+import { formatPersonName } from "@/lib/dateFormat";
 import type { ProgramEvent, EventCategory } from "@/hooks/useEvents";
 
 interface EditEventDialogProps {
@@ -177,7 +178,7 @@ const EditEventDialog = ({ event, onUpdate }: EditEventDialogProps) => {
                 <SelectItem value="unassigned">Unassigned</SelectItem>
                 {members?.map((m) => (
                   <SelectItem key={m.id} value={m.id}>
-                    {m.display_name || "Unnamed"}
+                    {formatPersonName(m)}
                   </SelectItem>
                 ))}
               </SelectContent>
