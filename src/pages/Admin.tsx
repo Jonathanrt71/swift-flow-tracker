@@ -376,7 +376,7 @@ const Admin = () => {
                         <TableCell>
                           <div>
                             <p className="font-medium text-foreground">
-                              {formatLastFirst(u.display_name)}
+                              {formatPersonName(u)}
                             </p>
                             {u.email && (
                               <p className="text-xs text-muted-foreground">{u.email}</p>

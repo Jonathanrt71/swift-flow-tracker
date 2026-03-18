@@ -1,9 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { formatPersonName } from "@/lib/dateFormat";
 
 export interface TeamMember {
   id: string;
   display_name: string | null;
+  first_name: string | null;
+  last_name: string | null;
   avatar_url: string | null;
 }
 
@@ -11,15 +14,17 @@ export function useTeamMembers() {
   return useQuery({
     queryKey: ["team-members"],
     queryFn: async () => {
-      // Admins can see all profiles; regular users see only their own.
-      // For assignment we need all profiles, so this works when the user
-      // can see them (admin) or we fall back gracefully.
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, display_name, avatar_url")
-        .order("display_name");
+        .select("id, display_name, first_name, last_name, avatar_url");
       if (error) throw error;
-      return (data || []) as TeamMember[];
+
+      return ((data || []) as TeamMember[])
+        .map((member) => ({
+          ...member,
+          display_name: formatPersonName(member),
+        }))
+        .sort((a, b) => formatPersonName(a).localeCompare(formatPersonName(b)));
     },
   });
 }
