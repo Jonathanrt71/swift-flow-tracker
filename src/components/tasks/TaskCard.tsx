@@ -4,6 +4,7 @@ import { Star, Trash2, X, Users } from "lucide-react";
 import { useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { format, parseISO, differenceInCalendarDays } from "date-fns";
+import { DetailReadOnly } from "@/components/cbme/DetailField";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -467,10 +468,9 @@ const TaskCard = ({
                 ) : null;
               })()}
               {(() => {
-                const preview = getNotesPreview(task.description);
-                return preview ? (
-                  <div className="text-xs text-muted-foreground line-clamp-1">
-                    {preview}
+                return hasNotes(task.description) ? (
+                  <div className="mb-1">
+                    <DetailReadOnly html={task.description!} />
                   </div>
                 ) : null;
               })()}
