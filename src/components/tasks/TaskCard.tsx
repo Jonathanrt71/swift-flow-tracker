@@ -445,7 +445,8 @@ const TaskCard = ({
                   ) : null;
                 })()}
               </div>
-              <div className="flex items-center gap-1 shrink-0 ml-2" onClick={(e) => e.stopPropagation()}>
+            </div>
+            <div className="flex items-center justify-end -mr-1.5" onClick={(e) => e.stopPropagation()}>
                 <button
                   className="flex items-center justify-center w-8 h-8 rounded-md bg-transparent hover:bg-black/5 transition-colors"
                   onClick={() => onToggleStar({ id: task.id, starred: !task.starred })}
@@ -457,13 +458,17 @@ const TaskCard = ({
                     )}
                   />
                 </button>
+                <div className="flex-1" />
                 <NotesEditorDialog
                   task={task}
                   onUpdate={onUpdate}
                   iconTrigger
                 />
+                <div className="flex-1" />
                 <TaskDetailSheet task={task} onUpdate={onUpdate} onDelete={onDelete} iconTrigger />
+                <div className="flex-1" />
                 <CreateTaskDialog onSubmit={onCreateSubtask} parentId={task.id} iconTrigger />
+                <div className="flex-1" />
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <button
@@ -490,7 +495,6 @@ const TaskCard = ({
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>
-              </div>
             </div>
 
             {/* Notes preview */}
