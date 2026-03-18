@@ -527,8 +527,7 @@ const Meetings = () => {
                 try {
                   const d = parseISO(meeting.meeting_date);
                   monthKey = format(d, "yyyy-MM");
-                  const label = format(d, "MMMM yyyy");
-                  if (label !== currentMonthLabel) monthLabel = label;
+                  monthLabel = format(d, "MMMM yyyy");
                 } catch {
                   monthKey = "other";
                 }

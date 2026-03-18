@@ -242,7 +242,7 @@ const GroupedEventList = ({
     <>
       {grouped.map((g) => (
         <div key={g.month}>
-          {!g.isCurrentMonth && (
+          {(
             <div className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider pt-3 pb-1">
               {g.month}
             </div>

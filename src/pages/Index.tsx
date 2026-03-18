@@ -145,8 +145,6 @@ const Index = () => {
     if (!task.due_date) return null;
     try {
       const d = parseISO(task.due_date.split("T")[0]);
-      const now = new Date();
-      if (d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()) return null;
       return format(d, "MMMM yyyy");
     } catch {
       return null;
