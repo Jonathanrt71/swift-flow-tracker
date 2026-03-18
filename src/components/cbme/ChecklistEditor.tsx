@@ -116,7 +116,7 @@ const ChecklistEditor = ({
           </button>
         </div>
 
-        <div className="px-4 pb-4">
+        <div className="px-4 pt-4 pb-4">
           {/* Category selector */}
           {categories && categories.length > 0 && (
             <div className="mb-4">
