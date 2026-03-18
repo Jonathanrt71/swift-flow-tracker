@@ -112,9 +112,6 @@ const CreateFeedbackDialog = ({ onSubmit, residents }: CreateFeedbackDialogProps
 
         {/* Sentiment buttons */}
         <div className="mb-5">
-          <label className="text-xs block mb-2" style={{ color: "#5F7285" }}>
-            Sentiment
-          </label>
           <div className="flex gap-3">
             <button
               type="button"
