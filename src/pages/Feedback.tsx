@@ -80,7 +80,7 @@ const Feedback = () => {
 
   // Filter
   const filtered = allFeedback.filter((fb) => {
-    if (filterResident && fb.resident_id !== filterResident) return false;
+    if (filterSentiment && fb.sentiment !== filterSentiment) return false;
     if (filterSentiment && fb.sentiment !== filterSentiment) return false;
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
