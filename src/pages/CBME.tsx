@@ -31,6 +31,9 @@ import AssessmentPopup from "@/components/cbme/AssessmentPopup";
 import CBMEDashboard from "@/components/cbme/CBMEDashboard";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import HeaderLogo from "@/components/HeaderLogo";
+import { format, parseISO } from "date-fns";
+import { formatCardDate, formatPersonName } from "@/lib/dateFormat";
+import { cn } from "@/lib/utils";
 
 const CreateCompetencyDialog = ({
   onSubmit,
