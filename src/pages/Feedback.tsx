@@ -272,20 +272,51 @@ const Feedback = () => {
         {/* Filter row */}
         <div className="flex items-center justify-between pb-2.5">
           <div className="flex gap-2 items-center">
-          {/* Filter positive with percentage */}
           {(() => {
             const total = allFeedback.length;
             const posCount = allFeedback.filter((fb) => fb.sentiment === "positive").length;
             const negCount = allFeedback.filter((fb) => fb.sentiment === "negative").length;
-            const posPct = total > 0 ? Math.round((posCount / total) * 100) : 0;
-            const negPct = total > 0 ? Math.round((negCount / total) * 100) : 0;
+            const posPct = total > 0 ? (posCount / total) * 100 : 50;
+            const negPct = total > 0 ? (negCount / total) * 100 : 50;
+            // SVG pie chart using conic gradient via two arc segments
+            const posAngle = (posPct / 100) * 360;
+            const r = 12;
+            const cx = 14;
+            const cy = 14;
+            const toRad = (deg: number) => (deg - 90) * (Math.PI / 180);
+            const posEndX = cx + r * Math.cos(toRad(posAngle));
+            const posEndY = cy + r * Math.sin(toRad(posAngle));
+            const largePos = posAngle > 180 ? 1 : 0;
+            const largeNeg = posAngle <= 180 ? 1 : 0;
+
             return (
               <>
+                {total > 0 && (
+                  <svg width="28" height="28" viewBox="0 0 28 28" className="shrink-0">
+                    {posCount === total ? (
+                      <circle cx={cx} cy={cy} r={r} fill="#5E9E82" />
+                    ) : negCount === total ? (
+                      <circle cx={cx} cy={cy} r={r} fill="#A63333" />
+                    ) : (
+                      <>
+                        <path
+                          d={`M${cx},${cy - r} A${r},${r} 0 ${largePos},1 ${posEndX},${posEndY} L${cx},${cy} Z`}
+                          fill="#5E9E82"
+                        />
+                        <path
+                          d={`M${posEndX},${posEndY} A${r},${r} 0 ${largeNeg},1 ${cx},${cy - r} L${cx},${cy} Z`}
+                          fill="#A63333"
+                        />
+                      </>
+                    )}
+                  </svg>
+                )}
+
                 <button
                   onClick={() =>
                     setFilterSentiment(filterSentiment === "positive" ? null : "positive")
                   }
-                  className="flex items-center gap-1 p-0.5"
+                  className="p-0.5"
                 >
                   <ThumbsUp
                     className="h-5 w-5"
@@ -293,14 +324,13 @@ const Feedback = () => {
                       color: filterSentiment === "positive" ? "#5E9E82" : "#8A9AAB",
                     }}
                   />
-                  <span className="text-[11px] text-muted-foreground">{posPct}%</span>
                 </button>
 
                 <button
                   onClick={() =>
                     setFilterSentiment(filterSentiment === "negative" ? null : "negative")
                   }
-                  className="flex items-center gap-1 p-0.5"
+                  className="p-0.5"
                 >
                   <ThumbsDown
                     className="h-5 w-5"
@@ -308,7 +338,6 @@ const Feedback = () => {
                       color: filterSentiment === "negative" ? "#A63333" : "#8A9AAB",
                     }}
                   />
-                  <span className="text-[11px] text-muted-foreground">{negPct}%</span>
                 </button>
               </>
             );
