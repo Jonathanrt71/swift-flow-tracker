@@ -20,31 +20,10 @@ const getColor = (name: string | null): string => {
   return cols[Math.abs(h) % cols.length];
 };
 
-const GRADE_COLORS = { 1: "#415162", 2: "#415162", 3: "#415162" };
+const GRADE_COLORS = { 1: "#5F7285", 2: "#6B9080", 3: "#8A8A8A" };
 
-const FaceNeutral = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#415162" strokeWidth="1.5" strokeLinecap="round">
-    <circle cx="12" cy="12" r="10"/>
-    <circle cx="9" cy="10" r="1" fill="#415162" stroke="none"/>
-    <circle cx="15" cy="10" r="1" fill="#415162" stroke="none"/>
-    <line x1="8" y1="15" x2="16" y2="15"/>
-  </svg>
-);
-const FaceModerate = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#415162" strokeWidth="1.5" strokeLinecap="round">
-    <circle cx="12" cy="12" r="10"/>
-    <circle cx="9" cy="10" r="1" fill="#415162" stroke="none"/>
-    <circle cx="15" cy="10" r="1" fill="#415162" stroke="none"/>
-    <path d="M8 14.5Q12 17 16 14.5" fill="none"/>
-  </svg>
-);
-const FaceHappy = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#415162" strokeWidth="1.5" strokeLinecap="round">
-    <circle cx="12" cy="12" r="10"/>
-    <circle cx="9" cy="10" r="1" fill="#415162" stroke="none"/>
-    <circle cx="15" cy="10" r="1" fill="#415162" stroke="none"/>
-    <path d="M7 14Q12 19 17 14" fill="none"/>
-  </svg>
+const GradeDot = ({ color, size = 16 }: { color: string; size?: number }) => (
+  <div style={{ width: size, height: size, borderRadius: "50%", background: color, flexShrink: 0 }} />
 );
 
 const AssessmentPopup = ({
@@ -171,9 +150,9 @@ const AssessmentPopup = ({
             <div className="flex items-center px-4 py-2" style={{ borderBottom: "0.5px solid #C9CED4" }}>
               <div className="flex-1" />
               <div className="flex gap-3">
-                <div className="w-6 flex justify-center"><FaceNeutral /></div>
-                <div className="w-6 flex justify-center"><FaceModerate /></div>
-                <div className="w-6 flex justify-center"><FaceHappy /></div>
+                <div className="w-6 flex justify-center"><GradeDot color="#5F7285" /></div>
+                <div className="w-6 flex justify-center"><GradeDot color="#6B9080" /></div>
+                <div className="w-6 flex justify-center"><GradeDot color="#8A8A8A" /></div>
               </div>
             </div>
 

@@ -13,35 +13,14 @@ const getColor = (name: string | null): string => {
   return cols[Math.abs(h) % cols.length];
 };
 
-const FaceNeutral = ({ size = 14 }: { size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="#415162" strokeWidth="1.5" strokeLinecap="round">
-    <circle cx="12" cy="12" r="10"/>
-    <circle cx="9" cy="10" r="1" fill="#415162" stroke="none"/>
-    <circle cx="15" cy="10" r="1" fill="#415162" stroke="none"/>
-    <line x1="8" y1="15" x2="16" y2="15"/>
-  </svg>
-);
-const FaceModerate = ({ size = 14 }: { size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="#415162" strokeWidth="1.5" strokeLinecap="round">
-    <circle cx="12" cy="12" r="10"/>
-    <circle cx="9" cy="10" r="1" fill="#415162" stroke="none"/>
-    <circle cx="15" cy="10" r="1" fill="#415162" stroke="none"/>
-    <path d="M8 14.5Q12 17 16 14.5" fill="none"/>
-  </svg>
-);
-const FaceHappy = ({ size = 14 }: { size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="#415162" strokeWidth="1.5" strokeLinecap="round">
-    <circle cx="12" cy="12" r="10"/>
-    <circle cx="9" cy="10" r="1" fill="#415162" stroke="none"/>
-    <circle cx="15" cy="10" r="1" fill="#415162" stroke="none"/>
-    <path d="M7 14Q12 19 17 14" fill="none"/>
-  </svg>
+const GRADE_COLORS: Record<number, string> = { 1: "#5F7285", 2: "#6B9080", 3: "#8A8A8A" };
+
+const GradeDot = ({ color, size = 16 }: { color: string; size?: number }) => (
+  <div style={{ width: size, height: size, borderRadius: "50%", background: color, flexShrink: 0 }} />
 );
 
 const GradeIcon = ({ grade }: { grade: number | null }) => {
-  if (grade === 3) return <FaceHappy />;
-  if (grade === 2) return <FaceModerate />;
-  if (grade === 1) return <FaceNeutral />;
+  if (grade && GRADE_COLORS[grade]) return <GradeDot color={GRADE_COLORS[grade]} />;
   return <span className="text-[11px] text-muted-foreground">—</span>;
 };
 
@@ -127,16 +106,16 @@ const CBMEDashboard = ({
                 )}
                 <span className="flex-1 min-w-0 text-sm font-medium truncate">{formatLastFirst(resident.display_name)}</span>
                 <div className="flex items-center gap-2 shrink-0">
-                  <div className="flex items-center gap-0.5">
-                    <FaceNeutral size={22} />
+                  <div className="flex items-center gap-1">
+                    <GradeDot color="#5F7285" />
                     <span style={{ fontSize: 12, fontWeight: 600, color: "#415162", minWidth: 12, textAlign: "center" }}>{neutralCount}</span>
                   </div>
-                  <div className="flex items-center gap-0.5">
-                    <FaceModerate size={22} />
+                  <div className="flex items-center gap-1">
+                    <GradeDot color="#6B9080" />
                     <span style={{ fontSize: 12, fontWeight: 600, color: "#415162", minWidth: 12, textAlign: "center" }}>{moderateCount}</span>
                   </div>
-                  <div className="flex items-center gap-0.5">
-                    <FaceHappy size={22} />
+                  <div className="flex items-center gap-1">
+                    <GradeDot color="#8A8A8A" />
                     <span style={{ fontSize: 12, fontWeight: 600, color: "#415162", minWidth: 12, textAlign: "center" }}>{minimalCount}</span>
                   </div>
                 </div>
