@@ -59,7 +59,7 @@ const HeaderLogo = () => {
       >
         <img src="/yosemite-header.png" alt="" className="w-8 h-8 rounded-md object-cover pointer-events-none" draggable={false} />
       </button>
-      <Icon className="h-[18px] w-[18px] text-white" />
+      <Icon className="h-[18px] w-[18px] text-white/50" />
 
       {menuOpen && (
         <>
