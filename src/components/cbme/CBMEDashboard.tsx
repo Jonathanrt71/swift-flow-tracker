@@ -14,7 +14,7 @@ const getColor = (name: string | null): string => {
   return cols[Math.abs(h) % cols.length];
 };
 
-const GRADE_COLORS: Record<number, string> = { 1: "#5F7285", 2: "#6B9080", 3: "#8A8A8A" };
+const GRADE_COLORS: Record<number, string> = { 1: "#A63333", 2: "#D4B820", 3: "#5E9E82" };
 
 const GradeDot = ({ color, size = 16 }: { color: string; size?: number }) => (
   <div style={{ width: size, height: size, borderRadius: "50%", background: color, flexShrink: 0 }} />
