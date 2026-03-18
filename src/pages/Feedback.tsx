@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { format, parseISO } from "date-fns";
-import { User, ThumbsUp, ThumbsDown, Pencil, Trash2 } from "lucide-react";
+import { User, ThumbsUp, ThumbsDown, Pencil, Trash2, X as XIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
@@ -14,6 +14,11 @@ import NotificationBell from "@/components/NotificationBell";
 import CreateFeedbackDialog from "@/components/feedback/CreateFeedbackDialog";
 import EditFeedbackDialog from "@/components/feedback/EditFeedbackDialog";
 import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -24,6 +29,18 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+
+const getInitials = (name: string | null): string => {
+  if (!name) return "?";
+  return name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2);
+};
+
+const getColor = (name: string | null): string => {
+  const cols = ["#378ADD", "#1D9E75", "#D85A30", "#534AB7", "#993556"];
+  let h = 0;
+  if (name) for (let i = 0; i < name.length; i++) h = name.charCodeAt(i) + ((h << 5) - h);
+  return cols[Math.abs(h) % cols.length];
+};
 
 const Feedback = () => {
   const { user, signOut } = useAuth();
@@ -205,31 +222,57 @@ const Feedback = () => {
 
       {/* Filter row */}
       <div className="flex items-center justify-between px-4 pt-3 pb-1">
-        <div className="flex gap-3.5">
+        <div className="flex gap-1">
           {/* Filter by resident */}
-          <button
-            onClick={() => {
-              if (filterResident) {
-                setFilterResident(null);
-              } else {
-                // Cycle through residents or just toggle — for now, use a simple popover approach
-                // Simple approach: cycle through residents on each tap
-                const residentIds = members.map((m) => m.id);
-                if (residentIds.length === 0) return;
-                const currentIdx = filterResident
-                  ? residentIds.indexOf(filterResident)
-                  : -1;
-                const nextIdx = (currentIdx + 1) % residentIds.length;
-                setFilterResident(residentIds[nextIdx]);
-              }
-            }}
-            className="p-0.5"
-          >
-            <User
-              className="h-5 w-5"
-              style={{ color: filterResident ? "#415162" : "#8A9AAB" }}
-            />
-          </button>
+          <Popover>
+            <PopoverTrigger asChild>
+              <button
+                className={cn(
+                  "h-8 w-8 p-0 inline-flex items-center justify-center rounded-md transition-colors",
+                  filterResident
+                    ? "text-[#415162]"
+                    : "text-[#8A9AAB]"
+                )}
+              >
+                <User className="h-5 w-5" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-56 p-1" align="start">
+              {filterResident && (
+                <button
+                  onClick={() => setFilterResident(null)}
+                  className="flex items-center gap-2 w-full px-2 py-1.5 rounded-md text-xs text-destructive cursor-pointer hover:bg-accent mb-1"
+                >
+                  <XIcon className="h-3 w-3" />
+                  Clear filter
+                </button>
+              )}
+              <div className="max-h-60 overflow-y-auto">
+                {members.map((m) => (
+                  <button
+                    key={m.id}
+                    onClick={() => setFilterResident(filterResident === m.id ? null : m.id)}
+                    className={cn(
+                      "flex items-center gap-2 w-full px-2 py-1.5 rounded-md text-sm text-left cursor-pointer transition-colors",
+                      filterResident === m.id ? "bg-primary/10" : "hover:bg-accent"
+                    )}
+                  >
+                    {m.avatar_url ? (
+                      <img src={m.avatar_url} className="w-5 h-5 rounded-full object-cover" alt="" />
+                    ) : (
+                      <div
+                        className="w-5 h-5 rounded-full flex items-center justify-center text-white"
+                        style={{ fontSize: 8, fontWeight: 500, background: getColor(m.display_name) }}
+                      >
+                        {getInitials(m.display_name)}
+                      </div>
+                    )}
+                    <span className="text-foreground text-xs">{formatLastFirst(m.display_name)}</span>
+                  </button>
+                ))}
+              </div>
+            </PopoverContent>
+          </Popover>
 
           {/* Filter positive */}
           <button
