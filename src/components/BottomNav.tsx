@@ -7,7 +7,8 @@ const BottomNav = () => {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-[#415162] flex">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-[#415162]">
+      <div className="mx-auto max-w-[768px] flex">
       <Link
         to="/"
         className={cn(
@@ -44,6 +45,7 @@ const BottomNav = () => {
       >
         <BookOpen className="h-5 w-5" />
       </Link>
+      </div>
     </nav>
   );
 };
