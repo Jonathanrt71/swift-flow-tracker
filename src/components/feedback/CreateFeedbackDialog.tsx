@@ -57,7 +57,7 @@ const CreateFeedbackDialog = ({ onSubmit, residents }: CreateFeedbackDialogProps
   };
 
   const sortedResidents = [...residents].sort((a, b) =>
-    formatNameFromParts(a.first_name, a.last_name).localeCompare(formatNameFromParts(b.first_name, b.last_name))
+    formatPersonName(a).localeCompare(formatPersonName(b))
   );
 
   return (
