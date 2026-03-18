@@ -222,21 +222,21 @@ const Feedback = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: "#F5F3EE" }}>
+    <div className="min-h-screen bg-background pb-20" style={{ background: "#F5F3EE" }}>
       {/* Header */}
-      <div
-        className="flex items-center justify-between px-4 pt-4 pb-3"
-        style={{ background: "#415162" }}
-      >
-        <HeaderLogo isAdmin={isAdmin} onSignOut={signOut} />
-        <div className="flex items-center gap-3">
-          <NotificationBell />
+      <header style={{ background: "#415162" }}>
+        <div className="container flex items-center justify-between h-14 px-4">
+          <HeaderLogo isAdmin={isAdmin} onSignOut={signOut} />
+          <div className="flex items-center gap-1 text-white/50">
+            <NotificationBell />
+          </div>
         </div>
-      </div>
+      </header>
 
-      {/* Filter row */}
-      <div className="flex items-center justify-between px-4 pt-3 pb-1">
-        <div className="flex gap-1">
+      <main className="container max-w-2xl px-4 py-6">
+        {/* Filter row */}
+        <div className="flex items-center justify-between pb-2.5">
+          <div className="flex gap-1">
           {/* Filter by resident */}
           <Popover>
             <PopoverTrigger asChild>
@@ -326,10 +326,11 @@ const Feedback = () => {
         />
       </div>
 
-      {/* Cards */}
-      <div className="flex-1 px-4 pb-20 flex flex-col gap-2">
-        {renderCards()}
-      </div>
+        {/* Cards */}
+        <div className="flex flex-col gap-2">
+          {renderCards()}
+        </div>
+      </main>
 
       <BottomNav />
     </div>
