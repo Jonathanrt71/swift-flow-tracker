@@ -7,12 +7,12 @@ const BottomNav = () => {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-[#415162]">
-      <div className="mx-auto max-w-[768px] flex">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-[#415162]">
+      <div className="mx-auto max-w-[768px] flex border-t border-border">
       <Link
         to="/"
         className={cn(
-          "flex-1 flex items-center justify-center py-2.5",
+          "flex-1 flex items-center justify-center py-4",
           isActive("/") ? "text-white" : "text-white/50"
         )}
       >
@@ -21,7 +21,7 @@ const BottomNav = () => {
       <Link
         to="/meetings"
         className={cn(
-          "flex-1 flex items-center justify-center py-2.5",
+          "flex-1 flex items-center justify-center py-4",
           isActive("/meetings") ? "text-white" : "text-white/50"
         )}
       >
@@ -30,7 +30,7 @@ const BottomNav = () => {
       <Link
         to="/events"
         className={cn(
-          "flex-1 flex items-center justify-center py-2.5",
+          "flex-1 flex items-center justify-center py-4",
           isActive("/events") ? "text-white" : "text-white/50"
         )}
       >
@@ -39,7 +39,7 @@ const BottomNav = () => {
       <Link
         to="/cbme"
         className={cn(
-          "flex-1 flex items-center justify-center py-2.5",
+          "flex-1 flex items-center justify-center py-4",
           isActive("/cbme") ? "text-white" : "text-white/50"
         )}
       >

@@ -129,7 +129,7 @@ const CBME = () => {
   });
 
   return (
-    <div className="min-h-screen bg-background pb-16">
+    <div className="min-h-screen bg-background pb-20">
       <header className="bg-[#415162]">
         <div className="container flex items-center justify-between h-14 px-4">
           <HeaderLogo />
