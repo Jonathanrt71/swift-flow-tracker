@@ -417,49 +417,17 @@ const TaskCard = ({
               </span>
             ) : null;
           })()}
-          <button
-            className="bg-transparent border-none cursor-pointer p-0 mr-1.5 flex items-center"
-            onPointerDown={(e) => {
-              e.stopPropagation();
-              barToggleIntentRef.current = task.id;
-            }}
-            onClick={(e) => {
-              e.stopPropagation();
-              const isKeyboardActivation = e.detail === 0;
-              if (!isKeyboardActivation && barToggleIntentRef.current !== task.id) return;
-              if (Date.now() < blockReopenUntilRef.current) {
-                barToggleIntentRef.current = null;
-                return;
-              }
-              barToggleIntentRef.current = null;
-              toggleBar(task.id);
-            }}
-          >
-            {/* Star indicator */}
+          <div className="mr-1.5 flex items-center">
             {task.starred && (
               <Star className="h-3.5 w-3.5 fill-[#9F2929] text-[#9F2929] shrink-0 mr-2" />
             )}
-
-            {/* Avatar */}
             <AssigneeAvatar
               assignedTo={task.assigned_to || task.created_by}
               teamMembers={teamMembers}
               size={28}
             />
-          </button>
+          </div>
         </div>
-
-        <ActionBar
-          task={task}
-          isSubtask={false}
-          isOpen={openBarId === task.id}
-          onClose={closeBar}
-          onUpdate={onUpdate}
-          onDelete={onDelete}
-          onCreateSubtask={onCreateSubtask}
-          onToggleStar={onToggleStar}
-          teamMembers={teamMembers}
-        />
       </div>
 
       {expanded && isExpandable(task) && (
@@ -478,12 +446,24 @@ const TaskCard = ({
                 })()}
               </div>
               <div className="flex items-center gap-0.5 shrink-0 ml-2" onClick={(e) => e.stopPropagation()}>
+                <button
+                  className="flex items-center justify-center w-8 h-8 rounded-md bg-transparent hover:bg-black/5 transition-colors"
+                  onClick={() => onToggleStar({ id: task.id, starred: !task.starred })}
+                >
+                  <Star
+                    className={cn(
+                      "h-3.5 w-3.5",
+                      task.starred ? "fill-[#9F2929] text-[#9F2929]" : "text-muted-foreground"
+                    )}
+                  />
+                </button>
                 <NotesEditorDialog
                   task={task}
                   onUpdate={onUpdate}
                   iconTrigger
                 />
                 <TaskDetailSheet task={task} onUpdate={onUpdate} onDelete={onDelete} iconTrigger />
+                <CreateTaskDialog onSubmit={onCreateSubtask} parentId={task.id} iconTrigger />
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <button
