@@ -3,7 +3,7 @@ import { CheckSquare, Users, Calendar, BookOpen } from "lucide-react";
 
 const BottomNav = () => {
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-[#415162]">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-[#415162]" style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}>
       <div className="mx-auto max-w-[768px] flex border-t border-border">
       <Link to="/cbme" className="flex-1 flex items-center justify-center py-4 text-white/50">
         <BookOpen className="h-5 w-5" />
