@@ -53,8 +53,7 @@ const hasNotes = (desc: string | null): boolean =>
 const hasContent = (task: Task): boolean =>
   hasNotes(task.description) || (task.subtasks?.length ?? 0) > 0;
 
-const isExpandable = (task: Task): boolean =>
-  hasNotes(task.description) || (task.subtasks?.length ?? 0) > 0 || !!task.due_date || !!task.meeting_id;
+const isExpandable = (_task: Task): boolean => true; // Always expandable for edit/delete access
 
 const formatDueDate = (d: string | null): { text: string; urgent: boolean } | null => {
   if (!d) return null;
