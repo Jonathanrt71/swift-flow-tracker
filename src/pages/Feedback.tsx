@@ -40,7 +40,7 @@ const Feedback = () => {
 
   // Build a lookup for names
   const nameMap = new Map<string, string>();
-  members.forEach((m) => nameMap.set(m.id, formatNameFromParts(m.first_name, m.last_name)));
+  members.forEach((m) => nameMap.set(m.id, formatPersonName(m)));
 
   // Get residents for the create dialog (we use user_roles if available, otherwise show all members)
   // For simplicity, show all team members in the resident selector — the dialog is only accessible to faculty/admin

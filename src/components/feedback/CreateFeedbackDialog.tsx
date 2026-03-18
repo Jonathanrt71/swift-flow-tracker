@@ -91,7 +91,7 @@ const CreateFeedbackDialog = ({ onSubmit, residents }: CreateFeedbackDialogProps
             <option value="">Select resident...</option>
             {sortedResidents.map((r) => (
               <option key={r.id} value={r.id}>
-                {formatNameFromParts(r.first_name, r.last_name)}
+                {formatPersonName(r)}
               </option>
             ))}
           </select>

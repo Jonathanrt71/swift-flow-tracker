@@ -92,7 +92,7 @@ const EditFeedbackDialog = ({ feedback, residents, onSubmit }: EditFeedbackDialo
             <option value="">Select resident...</option>
             {sortedResidents.map((r) => (
               <option key={r.id} value={r.id}>
-                {formatLastFirst(r.display_name)}
+                {formatPersonName(r)}
               </option>
             ))}
           </select>
