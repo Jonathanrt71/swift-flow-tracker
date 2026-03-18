@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
@@ -22,7 +22,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { LogOut, Shield, User, Plus, Pencil, Trash2, CheckSquare, Search, X, BarChart2, ListTodo } from "lucide-react";
+import { LogOut, Shield, User, Plus, Pencil, Trash2, CheckSquare, Search, X, BarChart2, ListTodo, ClipboardList } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import BottomNav from "@/components/BottomNav";
 import NotificationBell from "@/components/NotificationBell";
@@ -31,6 +31,9 @@ import AssessmentPopup from "@/components/cbme/AssessmentPopup";
 import CBMEDashboard from "@/components/cbme/CBMEDashboard";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import HeaderLogo from "@/components/HeaderLogo";
+import { format, parseISO } from "date-fns";
+import { formatCardDate, formatPersonName } from "@/lib/dateFormat";
+import { cn } from "@/lib/utils";
 
 const CreateCompetencyDialog = ({
   onSubmit,
@@ -106,6 +109,90 @@ const CreateCompetencyDialog = ({
   );
 };
 
+const getInitials = (name: string | null): string => {
+  if (!name) return "?";
+  return name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2);
+};
+
+const getColor = (name: string | null): string => {
+  const cols = ["#378ADD", "#1D9E75", "#D85A30", "#534AB7", "#993556"];
+  let h = 0;
+  if (name) for (let i = 0; i < name.length; i++) h = name.charCodeAt(i) + ((h << 5) - h);
+  return cols[Math.abs(h) % cols.length];
+};
+
+const AssessmentHistoryCard = ({
+  compTitle,
+  residentName,
+  assessor,
+  gradeColor,
+  dateInfo,
+  comment,
+}: {
+  compTitle: string;
+  residentName: string;
+  assessor?: { id: string; display_name: string; avatar_url: string | null } | null;
+  gradeColor?: string;
+  dateInfo: { text: string; urgent: boolean } | null;
+  comment: string | null;
+}) => {
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <div
+      className="bg-muted border border-border rounded-[10px] overflow-hidden cursor-pointer"
+      onClick={() => setExpanded(!expanded)}
+    >
+      <div className="flex items-center min-h-[48px] px-2">
+        {/* Grade dot */}
+        {gradeColor && (
+          <div
+            className="w-4 h-4 rounded-full shrink-0 ml-1 mr-2"
+            style={{ background: gradeColor }}
+          />
+        )}
+        <div className="flex-1 min-w-0 pl-1 pr-1 flex items-center gap-2">
+          <span className="font-medium text-sm truncate">{compTitle}</span>
+          <span className="text-[11px] text-muted-foreground whitespace-nowrap shrink-0">
+            {residentName}
+          </span>
+          {dateInfo && (
+            <span className="text-[11px] text-muted-foreground whitespace-nowrap shrink-0">
+              {dateInfo.text}
+            </span>
+          )}
+        </div>
+        <div className="flex items-center shrink-0 pr-1">
+          {assessor ? (
+            assessor.avatar_url ? (
+              <img
+                src={assessor.avatar_url}
+                className="w-7 h-7 rounded-full object-cover shrink-0"
+                alt=""
+              />
+            ) : (
+              <div
+                className="w-7 h-7 rounded-full flex items-center justify-center text-white shrink-0"
+                style={{ fontSize: 10, fontWeight: 500, background: getColor(assessor.display_name) }}
+              >
+                {getInitials(assessor.display_name)}
+              </div>
+            )
+          ) : (
+            <div className="w-7 h-7 rounded-full bg-border/50 shrink-0" />
+          )}
+        </div>
+      </div>
+
+      {expanded && comment && comment.trim() !== "" && (
+        <div className="pb-2 pl-3 pr-3">
+          <p className="text-xs text-muted-foreground whitespace-pre-wrap">{comment}</p>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const CBME = () => {
   const { user, signOut } = useAuth();
   const { isAdmin } = useAdmin();
@@ -174,6 +261,9 @@ const CBME = () => {
                   <BarChart2 className="h-4 w-4" />
                 </TabsTrigger>
               )}
+              <TabsTrigger value="history" className="h-8 w-8 p-0" title="Assessment History">
+                <ClipboardList className="h-4 w-4" />
+              </TabsTrigger>
             </TabsList>
             {activeTab === "list" && canCreate && (
               <div className="ml-auto">
@@ -363,6 +453,91 @@ const CBME = () => {
               )}
             </TabsContent>
           )}
+
+          <TabsContent value="history" className="mt-0">
+            {allAssessments.isLoading ? (
+              <div className="flex justify-center py-12">
+                <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+              </div>
+            ) : (() => {
+              const assessments = allAssessments.data || [];
+              const compMap = new Map((competencies.data || []).map((c) => [c.id, c.title]));
+              const members = teamMembers || [];
+              const GRADE_COLORS: Record<number, string> = { 1: "#A63333", 2: "#D4B820", 3: "#5E9E82" };
+
+              const sorted = [...assessments].sort(
+                (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+              );
+
+              // Filter by search
+              const filtered = sorted.filter((a) => {
+                if (!searchQuery.trim()) return true;
+                const q = searchQuery.toLowerCase();
+                const compTitle = (compMap.get(a.competency_id) || "").toLowerCase();
+                const resident = members.find((m) => m.id === a.resident_id);
+                const assessor = members.find((m) => m.id === a.assessor_id);
+                return (
+                  compTitle.includes(q) ||
+                  (resident?.display_name || "").toLowerCase().includes(q) ||
+                  (assessor?.display_name || "").toLowerCase().includes(q) ||
+                  (a.overall_comment || "").toLowerCase().includes(q)
+                );
+              });
+
+              if (filtered.length === 0) {
+                return (
+                  <div className="text-center py-12 text-muted-foreground">
+                    <p className="text-sm">{searchQuery ? "No assessments match your search." : "No assessments yet."}</p>
+                  </div>
+                );
+              }
+
+              // Group by month
+              let prevMonth = "";
+              const elements: React.ReactNode[] = [];
+
+              filtered.forEach((a) => {
+                let monthKey = "";
+                let monthLabel: string | null = null;
+                try {
+                  const d = parseISO(a.created_at);
+                  monthKey = format(d, "yyyy-MM");
+                  monthLabel = format(d, "MMMM yyyy");
+                } catch {
+                  monthKey = "other";
+                }
+
+                if (monthKey !== prevMonth && monthLabel) {
+                  elements.push(
+                    <div key={`month-${monthKey}`} className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider pt-3 pb-1">
+                      {monthLabel}
+                    </div>
+                  );
+                }
+                prevMonth = monthKey;
+
+                const compTitle = compMap.get(a.competency_id) || "Unknown";
+                const assessor = members.find((m) => m.id === a.assessor_id);
+                const resident = members.find((m) => m.id === a.resident_id);
+                const gradeColor = a.overall_grade ? GRADE_COLORS[a.overall_grade] : undefined;
+                const dd = formatCardDate(a.created_at);
+
+                elements.push(
+                  <AssessmentHistoryCard
+                    key={a.id}
+                    compTitle={compTitle}
+                    residentName={resident ? formatPersonName(resident) : "Unknown"}
+                    assessor={assessor}
+                    gradeColor={gradeColor}
+                    dateInfo={dd}
+                    comment={a.overall_comment}
+                  />
+                );
+              });
+
+              return <div className="space-y-2">{elements}</div>;
+            })()}
+          </TabsContent>
         </Tabs>
       </main>
 
