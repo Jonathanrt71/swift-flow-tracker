@@ -5,6 +5,7 @@ import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { DetailReadOnly, detailPreviewText } from "./DetailField";
+import { formatLastFirst } from "@/lib/dateFormat";
 import { useQuery } from "@tanstack/react-query";
 import type { Competency } from "@/hooks/useCompetencies";
 
@@ -117,7 +118,7 @@ const AssessmentPopup = ({
                       {getInitials(m.display_name)}
                     </div>
                   )}
-                  <span className="text-sm font-medium text-foreground">{m.display_name}</span>
+                  <span className="text-sm font-medium text-foreground">{formatLastFirst(m.display_name)}</span>
                 </button>
               ))}
             </div>
@@ -143,7 +144,7 @@ const AssessmentPopup = ({
                   {getInitials(resident?.display_name || null)}
                 </div>
               )}
-              <span className="text-[13px] font-medium">{resident?.display_name}</span>
+              <span className="text-[13px] font-medium">{formatLastFirst(resident?.display_name)}</span>
             </div>
 
             {/* Column headers */}

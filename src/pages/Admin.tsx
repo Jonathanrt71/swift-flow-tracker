@@ -35,6 +35,7 @@ import { useMeetingTags } from "@/hooks/useMeetingTags";
 import { useMeetingTagLinks } from "@/hooks/useMeetingTags";
 import { useCompetencyCategories } from "@/hooks/useCompetencyCategories";
 import type { UserRole, ManagedUser } from "@/hooks/useAdmin";
+import { formatLastFirst } from "@/lib/dateFormat";
 
 /* ── Edit User Dialog ── */
 const EditUserDialog = ({
@@ -375,7 +376,7 @@ const Admin = () => {
                         <TableCell>
                           <div>
                             <p className="font-medium text-foreground">
-                              {u.display_name || "Unnamed"}
+                              {formatLastFirst(u.display_name)}
                             </p>
                             {u.email && (
                               <p className="text-xs text-muted-foreground">{u.email}</p>

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { Competency, Assessment } from "@/hooks/useCompetencies";
+import { formatLastFirst } from "@/lib/dateFormat";
 
 const getInitials = (name: string | null): string => {
   if (!name) return "?";
@@ -30,14 +31,6 @@ interface TeamMember {
   avatar_url: string | null;
 }
 
-const formatLastFirst = (name: string | null): string => {
-  if (!name) return "?";
-  const parts = name.trim().split(/\s+/);
-  if (parts.length === 1) return parts[0];
-  const last = parts[parts.length - 1];
-  const firstInitial = parts[0][0];
-  return `${last}, ${firstInitial}`;
-};
 
 const CBMEDashboard = ({
   competencies,

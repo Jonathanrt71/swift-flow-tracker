@@ -26,3 +26,12 @@ export const formatCardDate = (
     return null;
   }
 };
+
+export const formatLastFirst = (name: string | null | undefined): string => {
+  if (!name) return "?";
+  const parts = name.trim().split(/\s+/);
+  if (parts.length === 1) return parts[0];
+  const last = parts[parts.length - 1];
+  const firstInitial = parts[0][0];
+  return `${last}, ${firstInitial}`;
+};

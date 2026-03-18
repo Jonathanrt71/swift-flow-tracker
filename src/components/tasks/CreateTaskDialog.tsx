@@ -27,6 +27,7 @@ import { Plus, CalendarIcon, X, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format, parseISO } from "date-fns";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
+import { formatLastFirst } from "@/lib/dateFormat";
 
 interface CreateTaskDialogProps {
   onSubmit: (data: { title: string; description?: string; due_date?: string; parent_id?: string; assigned_to?: string; owed_to?: string; meeting_id?: string }) => void;
@@ -166,7 +167,7 @@ const CreateTaskDialog = ({ onSubmit, parentId, meetingId, loading, iconOnly, in
                 <SelectItem value="unassigned">Unassigned</SelectItem>
                 {members?.map((m) => (
                   <SelectItem key={m.id} value={m.id}>
-                    {m.display_name || "Unnamed"}
+                    {formatLastFirst(m.display_name)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -182,7 +183,7 @@ const CreateTaskDialog = ({ onSubmit, parentId, meetingId, loading, iconOnly, in
                 <SelectItem value="none">None</SelectItem>
                 {members?.map((m) => (
                   <SelectItem key={m.id} value={m.id}>
-                    {m.display_name || "Unnamed"}
+                    {formatLastFirst(m.display_name)}
                   </SelectItem>
                 ))}
               </SelectContent>

@@ -157,7 +157,7 @@ const ActionBar = ({
 }) => {
   const sourceTask = parentTask || task;
   const member = teamMembers.find((m) => m.id === sourceTask.assigned_to);
-  const assigneeName = member?.display_name || (sourceTask.assigned_to ? "Unknown" : undefined);
+  const assigneeName = member?.display_name ? formatLastFirst(member.display_name) : (sourceTask.assigned_to ? "Unknown" : undefined);
   const assigneeAvatarUrl = member?.avatar_url;
 
   const btnClass =
