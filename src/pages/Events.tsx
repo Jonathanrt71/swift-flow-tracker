@@ -105,17 +105,17 @@ const EventCard = ({
       }}
     >
       <div className="flex items-center min-h-[48px] px-2">
-        <div className="flex-1 min-w-0 pl-2 pr-1">
-          <span className="font-medium text-sm truncate block">{event.title}</span>
+        <div className="flex-1 min-w-0 pl-2 pr-1 flex items-center gap-2">
+          <span className="font-medium text-sm truncate">{event.title}</span>
+          {(() => {
+            const dd = formatCardDate(event.event_date);
+            return dd ? (
+              <span className={cn("text-[11px] whitespace-nowrap shrink-0", dd.urgent ? "text-destructive" : "text-muted-foreground")}>
+                {dd.text}
+              </span>
+            ) : null;
+          })()}
         </div>
-        {(() => {
-          const dd = formatCardDate(event.event_date);
-          return dd ? (
-            <span className={cn("text-[11px] whitespace-nowrap mr-1.5", dd.urgent ? "text-destructive" : "text-muted-foreground")}>
-              {dd.text}
-            </span>
-          ) : null;
-        })()}
         <div className="flex items-center shrink-0 gap-1.5 pr-1">
           {assignee ? (
             assignee.avatar_url ? (
