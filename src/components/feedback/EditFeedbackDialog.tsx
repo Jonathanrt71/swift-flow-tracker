@@ -58,7 +58,7 @@ const EditFeedbackDialog = ({ feedback, residents, onSubmit }: EditFeedbackDialo
   };
 
   const sortedResidents = [...residents].sort((a, b) =>
-    formatLastFirst(a.display_name).localeCompare(formatLastFirst(b.display_name))
+    formatPersonName(a).localeCompare(formatPersonName(b))
   );
 
   return (
