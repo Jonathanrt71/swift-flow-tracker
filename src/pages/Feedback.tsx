@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { format, parseISO } from "date-fns";
+import { useQuery } from "@tanstack/react-query";
 import { User, ThumbsUp, ThumbsDown, Pencil, Trash2, X as XIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
