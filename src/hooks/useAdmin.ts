@@ -71,7 +71,11 @@ export function useAdmin() {
 
       // Update first/last name and email on the new profile
       if (res.data?.user?.id) {
+        const displayName = (data.first_name && data.last_name)
+          ? `${data.first_name} ${data.last_name}`
+          : data.display_name || data.email;
         await supabase.from("profiles").update({
+          display_name: displayName,
           email: data.email,
           first_name: data.first_name || null,
           last_name: data.last_name || null,

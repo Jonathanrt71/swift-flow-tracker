@@ -6,7 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { useFeedback } from "@/hooks/useFeedback";
-import { formatCardDate, formatLastFirst } from "@/lib/dateFormat";
+import { formatCardDate, formatLastFirst, formatNameFromParts } from "@/lib/dateFormat";
 import { DetailReadOnly } from "@/components/cbme/DetailField";
 import HeaderLogo from "@/components/HeaderLogo";
 import BottomNav from "@/components/BottomNav";
@@ -40,7 +40,7 @@ const Feedback = () => {
 
   // Build a lookup for names
   const nameMap = new Map<string, string>();
-  members.forEach((m) => nameMap.set(m.id, m.display_name || "?"));
+  members.forEach((m) => nameMap.set(m.id, formatNameFromParts(m.first_name, m.last_name)));
 
   // Get residents for the create dialog (we use user_roles if available, otherwise show all members)
   // For simplicity, show all team members in the resident selector — the dialog is only accessible to faculty/admin
@@ -104,8 +104,8 @@ const Feedback = () => {
 
       const isExpanded = expandedId === fb.id;
       const dateInfo = formatCardDate(fb.created_at);
-      const residentName = formatLastFirst(nameMap.get(fb.resident_id) || null);
-      const facultyName = formatLastFirst(nameMap.get(fb.faculty_id) || null);
+      const residentName = nameMap.get(fb.resident_id) || "?";
+      const facultyName = nameMap.get(fb.faculty_id) || "?";
       const dotColor = fb.sentiment === "positive" ? "#5E9E82" : "#A63333";
 
       elements.push(

@@ -5,14 +5,14 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Pencil, ThumbsUp, ThumbsDown } from "lucide-react";
-import { formatLastFirst } from "@/lib/dateFormat";
+import { formatNameFromParts } from "@/lib/dateFormat";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import type { Feedback } from "@/hooks/useFeedback";
 
 interface EditFeedbackDialogProps {
   feedback: Feedback;
-  residents: { id: string; display_name: string | null }[];
+  residents: { id: string; first_name: string | null; last_name: string | null }[];
   onSubmit: (data: {
     resident_id: string;
     comment: string;

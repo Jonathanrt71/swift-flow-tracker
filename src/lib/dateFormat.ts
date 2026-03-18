@@ -58,3 +58,16 @@ export const formatPersonName = (person: PersonNameLike | null | undefined): str
 
   return formatLastFirst(person.display_name);
 };
+
+/** Build initials from first_name / last_name */
+export const getInitialsFromParts = (
+  firstName: string | null | undefined,
+  lastName: string | null | undefined
+): string => {
+  const f = firstName?.trim();
+  const l = lastName?.trim();
+  if (f && l) return `${f[0]}${l[0]}`.toUpperCase();
+  if (f) return f[0].toUpperCase();
+  if (l) return l[0].toUpperCase();
+  return "?";
+};
