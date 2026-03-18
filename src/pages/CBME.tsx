@@ -109,6 +109,90 @@ const CreateCompetencyDialog = ({
   );
 };
 
+const getInitials = (name: string | null): string => {
+  if (!name) return "?";
+  return name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2);
+};
+
+const getColor = (name: string | null): string => {
+  const cols = ["#378ADD", "#1D9E75", "#D85A30", "#534AB7", "#993556"];
+  let h = 0;
+  if (name) for (let i = 0; i < name.length; i++) h = name.charCodeAt(i) + ((h << 5) - h);
+  return cols[Math.abs(h) % cols.length];
+};
+
+const AssessmentHistoryCard = ({
+  compTitle,
+  residentName,
+  assessor,
+  gradeColor,
+  dateInfo,
+  comment,
+}: {
+  compTitle: string;
+  residentName: string;
+  assessor?: { id: string; display_name: string; avatar_url: string | null } | null;
+  gradeColor?: string;
+  dateInfo: { text: string; urgent: boolean } | null;
+  comment: string | null;
+}) => {
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <div
+      className="bg-muted border border-border rounded-[10px] overflow-hidden cursor-pointer"
+      onClick={() => setExpanded(!expanded)}
+    >
+      <div className="flex items-center min-h-[48px] px-2">
+        {/* Grade dot */}
+        {gradeColor && (
+          <div
+            className="w-4 h-4 rounded-full shrink-0 ml-1 mr-2"
+            style={{ background: gradeColor }}
+          />
+        )}
+        <div className="flex-1 min-w-0 pl-1 pr-1 flex items-center gap-2">
+          <span className="font-medium text-sm truncate">{compTitle}</span>
+          <span className="text-[11px] text-muted-foreground whitespace-nowrap shrink-0">
+            {residentName}
+          </span>
+          {dateInfo && (
+            <span className="text-[11px] text-muted-foreground whitespace-nowrap shrink-0">
+              {dateInfo.text}
+            </span>
+          )}
+        </div>
+        <div className="flex items-center shrink-0 pr-1">
+          {assessor ? (
+            assessor.avatar_url ? (
+              <img
+                src={assessor.avatar_url}
+                className="w-7 h-7 rounded-full object-cover shrink-0"
+                alt=""
+              />
+            ) : (
+              <div
+                className="w-7 h-7 rounded-full flex items-center justify-center text-white shrink-0"
+                style={{ fontSize: 10, fontWeight: 500, background: getColor(assessor.display_name) }}
+              >
+                {getInitials(assessor.display_name)}
+              </div>
+            )
+          ) : (
+            <div className="w-7 h-7 rounded-full bg-border/50 shrink-0" />
+          )}
+        </div>
+      </div>
+
+      {expanded && comment && comment.trim() !== "" && (
+        <div className="pb-2 pl-3 pr-3">
+          <p className="text-xs text-muted-foreground whitespace-pre-wrap">{comment}</p>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const CBME = () => {
   const { user, signOut } = useAuth();
   const { isAdmin } = useAdmin();
