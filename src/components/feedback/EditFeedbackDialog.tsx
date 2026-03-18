@@ -5,7 +5,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Pencil, ThumbsUp, ThumbsDown } from "lucide-react";
-import { formatNameFromParts } from "@/lib/dateFormat";
+import { formatPersonName } from "@/lib/dateFormat";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import type { Feedback } from "@/hooks/useFeedback";
