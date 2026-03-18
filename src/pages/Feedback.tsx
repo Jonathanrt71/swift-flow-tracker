@@ -52,7 +52,6 @@ const Feedback = () => {
   const { feedbackQuery, createFeedback, updateFeedback, deleteFeedback } = useFeedback();
 
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [filterResident, setFilterResident] = useState<string | null>(null);
   const [filterSentiment, setFilterSentiment] = useState<"positive" | "negative" | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
