@@ -177,6 +177,9 @@ const CBME = () => {
                   <BarChart2 className="h-4 w-4" />
                 </TabsTrigger>
               )}
+              <TabsTrigger value="history" className="h-8 w-8 p-0" title="Assessment History">
+                <ClipboardList className="h-4 w-4" />
+              </TabsTrigger>
             </TabsList>
             {activeTab === "list" && canCreate && (
               <div className="ml-auto">
