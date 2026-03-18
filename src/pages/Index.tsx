@@ -255,7 +255,10 @@ const Index = () => {
     <div className="min-h-screen bg-background pb-16">
       <header className="bg-[#415162]">
         <div className="container flex items-center justify-between h-14 px-4">
-          <h1 className="text-lg font-semibold text-white">Tasks</h1>
+          <div className="flex items-center gap-2.5">
+            <img src="/yosemite-header.png" alt="" className="w-8 h-8 rounded-md object-cover" />
+            <h1 className="text-lg font-semibold text-white">Tasks</h1>
+          </div>
           <div className="flex items-center gap-1 text-white">
             <Button
               variant="ghost"
