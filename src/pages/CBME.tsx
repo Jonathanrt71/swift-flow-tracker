@@ -369,6 +369,91 @@ const CBME = () => {
               )}
             </TabsContent>
           )}
+
+          <TabsContent value="history" className="mt-0">
+            {allAssessments.isLoading ? (
+              <div className="flex justify-center py-12">
+                <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+              </div>
+            ) : (() => {
+              const assessments = allAssessments.data || [];
+              const compMap = new Map((competencies.data || []).map((c) => [c.id, c.title]));
+              const members = teamMembers || [];
+              const GRADE_COLORS: Record<number, string> = { 1: "#A63333", 2: "#D4B820", 3: "#5E9E82" };
+
+              const sorted = [...assessments].sort(
+                (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+              );
+
+              // Filter by search
+              const filtered = sorted.filter((a) => {
+                if (!searchQuery.trim()) return true;
+                const q = searchQuery.toLowerCase();
+                const compTitle = (compMap.get(a.competency_id) || "").toLowerCase();
+                const resident = members.find((m) => m.id === a.resident_id);
+                const assessor = members.find((m) => m.id === a.assessor_id);
+                return (
+                  compTitle.includes(q) ||
+                  (resident?.display_name || "").toLowerCase().includes(q) ||
+                  (assessor?.display_name || "").toLowerCase().includes(q) ||
+                  (a.overall_comment || "").toLowerCase().includes(q)
+                );
+              });
+
+              if (filtered.length === 0) {
+                return (
+                  <div className="text-center py-12 text-muted-foreground">
+                    <p className="text-sm">{searchQuery ? "No assessments match your search." : "No assessments yet."}</p>
+                  </div>
+                );
+              }
+
+              // Group by month
+              let prevMonth = "";
+              const elements: React.ReactNode[] = [];
+
+              filtered.forEach((a) => {
+                let monthKey = "";
+                let monthLabel: string | null = null;
+                try {
+                  const d = parseISO(a.created_at);
+                  monthKey = format(d, "yyyy-MM");
+                  monthLabel = format(d, "MMMM yyyy");
+                } catch {
+                  monthKey = "other";
+                }
+
+                if (monthKey !== prevMonth && monthLabel) {
+                  elements.push(
+                    <div key={`month-${monthKey}`} className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider pt-3 pb-1">
+                      {monthLabel}
+                    </div>
+                  );
+                }
+                prevMonth = monthKey;
+
+                const compTitle = compMap.get(a.competency_id) || "Unknown";
+                const assessor = members.find((m) => m.id === a.assessor_id);
+                const resident = members.find((m) => m.id === a.resident_id);
+                const gradeColor = a.overall_grade ? GRADE_COLORS[a.overall_grade] : undefined;
+                const dd = formatCardDate(a.created_at);
+
+                elements.push(
+                  <AssessmentHistoryCard
+                    key={a.id}
+                    compTitle={compTitle}
+                    residentName={resident ? formatPersonName(resident) : "Unknown"}
+                    assessor={assessor}
+                    gradeColor={gradeColor}
+                    dateInfo={dd}
+                    comment={a.overall_comment}
+                  />
+                );
+              });
+
+              return <div className="space-y-2">{elements}</div>;
+            })()}
+          </TabsContent>
         </Tabs>
       </main>
 
