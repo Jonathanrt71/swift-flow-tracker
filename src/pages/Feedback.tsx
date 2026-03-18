@@ -261,7 +261,7 @@ const Feedback = () => {
                 </button>
               )}
               <div className="max-h-60 overflow-y-auto">
-                {members.map((m) => (
+                {residents.map((m) => (
                   <button
                     key={m.id}
                     onClick={() => setFilterResident(filterResident === m.id ? null : m.id)}
