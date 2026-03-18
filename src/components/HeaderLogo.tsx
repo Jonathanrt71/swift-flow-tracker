@@ -37,13 +37,10 @@ const HeaderLogo = ({
     }, 500);
   }, []);
 
-  const endPress = useCallback(() => {
+  const endLongPress = useCallback(() => {
     if (longPressTimer.current) {
       clearTimeout(longPressTimer.current);
       longPressTimer.current = null;
-    }
-    if (!didLongPress.current) {
-      setMenuOpen((prev) => !prev);
     }
   }, []);
 
@@ -64,10 +61,10 @@ const HeaderLogo = ({
     <div className="relative flex items-center gap-2.5">
       <button
         onMouseDown={startPress}
-        onMouseUp={endPress}
+        onMouseUp={endLongPress}
         onMouseLeave={cancelPress}
         onTouchStart={startPress}
-        onTouchEnd={(e) => { e.preventDefault(); endPress(); }}
+        onTouchEnd={(e) => { e.preventDefault(); endLongPress(); }}
         onTouchCancel={cancelPress}
         onContextMenu={(e) => e.preventDefault()}
         className="w-8 h-8 rounded-md overflow-hidden border-none cursor-pointer p-0 bg-transparent select-none"
