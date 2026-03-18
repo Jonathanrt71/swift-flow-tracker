@@ -6,7 +6,7 @@ import {
 } from "@/components/ui/dialog";
 import { Plus, ThumbsUp, ThumbsDown } from "lucide-react";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
-import { formatNameFromParts } from "@/lib/dateFormat";
+import { formatPersonName } from "@/lib/dateFormat";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 
