@@ -174,7 +174,7 @@ const AddUserDialog = ({
   const [displayName, setDisplayName] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [role, setRole] = useState("resident");
+  const [role, setRole] = useState<UserRole>("resident");
 
   const handleOpen = (isOpen: boolean) => {
     if (isOpen) {
