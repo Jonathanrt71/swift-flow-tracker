@@ -10,6 +10,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Shield, User, LogOut, Search, Pencil, X as XIcon, Trash2, Plus, Filter, Tag } from "lucide-react";
 import { format, parseISO } from "date-fns";
+import { DetailReadOnly } from "@/components/cbme/DetailField";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -208,6 +209,13 @@ const MeetingCard = ({
               </AlertDialog>
             </div>
           </div>
+
+          {/* Notes preview (read-only) */}
+          {meeting.notes && meeting.notes !== "<p></p>" && meeting.notes.trim() !== "" && (
+            <div className="mb-2 px-1" onClick={(e) => e.stopPropagation()}>
+              <DetailReadOnly html={meeting.notes} />
+            </div>
+          )}
 
           {/* Tags */}
           {meetingTagNames.length > 0 && (
