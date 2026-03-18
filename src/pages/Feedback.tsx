@@ -292,24 +292,43 @@ const Feedback = () => {
             return (
               <>
                 {total > 0 && (
-                  <svg width="28" height="28" viewBox="0 0 28 28" className="shrink-0">
-                    {posCount === total ? (
-                      <circle cx={cx} cy={cy} r={r} fill="#5E9E82" />
-                    ) : negCount === total ? (
-                      <circle cx={cx} cy={cy} r={r} fill="#A63333" />
-                    ) : (
-                      <>
-                        <path
-                          d={`M${cx},${cy - r} A${r},${r} 0 ${largePos},1 ${posEndX},${posEndY} L${cx},${cy} Z`}
-                          fill="#5E9E82"
-                        />
-                        <path
-                          d={`M${posEndX},${posEndY} A${r},${r} 0 ${largeNeg},1 ${cx},${cy - r} L${cx},${cy} Z`}
-                          fill="#A63333"
-                        />
-                      </>
-                    )}
-                  </svg>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button className="shrink-0 bg-transparent border-none cursor-pointer p-0">
+                        <svg width="28" height="28" viewBox="0 0 28 28">
+                          {posCount === total ? (
+                            <circle cx={cx} cy={cy} r={r} fill="#5E9E82" />
+                          ) : negCount === total ? (
+                            <circle cx={cx} cy={cy} r={r} fill="#A63333" />
+                          ) : (
+                            <>
+                              <path
+                                d={`M${cx},${cy - r} A${r},${r} 0 ${largePos},1 ${posEndX},${posEndY} L${cx},${cy} Z`}
+                                fill="#5E9E82"
+                              />
+                              <path
+                                d={`M${posEndX},${posEndY} A${r},${r} 0 ${largeNeg},1 ${cx},${cy - r} L${cx},${cy} Z`}
+                                fill="#A63333"
+                              />
+                            </>
+                          )}
+                        </svg>
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-3" align="start">
+                      <div className="flex flex-col gap-1.5 text-sm">
+                        <div className="flex items-center gap-2">
+                          <div className="w-3 h-3 rounded-full" style={{ background: "#5E9E82" }} />
+                          <span>Positive: {Math.round(posPct)}% ({posCount})</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-3 h-3 rounded-full" style={{ background: "#A63333" }} />
+                          <span>Negative: {Math.round(negPct)}% ({negCount})</span>
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-1">Total: {total}</div>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
                 )}
 
                 <button
