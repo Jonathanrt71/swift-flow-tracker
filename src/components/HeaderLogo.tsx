@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { CheckSquare, Users, Calendar, BookOpen } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { CheckSquare, Users, Calendar, BookOpen, Shield, User, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -10,10 +10,17 @@ const navItems = [
   { path: "/", label: "Tasks", icon: CheckSquare },
 ];
 
-const HeaderLogo = () => {
+const HeaderLogo = ({
+  isAdmin,
+  onSignOut,
+}: {
+  isAdmin?: boolean;
+  onSignOut?: () => void;
+}) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [imageOpen, setImageOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const currentItem = navItems.find((n) => n.path === location.pathname);
   const Icon = currentItem?.icon || CheckSquare;
 
@@ -85,8 +92,8 @@ const HeaderLogo = () => {
                   to={item.path}
                   onClick={() => setMenuOpen(false)}
                   className={cn(
-                    "flex items-center gap-3 px-4 py-3 text-sm transition-colors",
-                    isActive ? "text-white bg-white/10" : "text-white/70 hover:text-white hover:bg-white/5"
+                    "flex items-center gap-3 px-4 py-3 text-sm",
+                    isActive ? "text-white bg-white/10" : "text-white/70"
                   )}
                 >
                   <ItemIcon className="h-4 w-4" />
@@ -94,6 +101,42 @@ const HeaderLogo = () => {
                 </Link>
               );
             })}
+
+            <div style={{ height: 0.5, background: "rgba(255,255,255,0.15)", margin: "0" }} />
+
+            {isAdmin && (
+              <Link
+                to="/admin"
+                onClick={() => setMenuOpen(false)}
+                className={cn(
+                  "flex items-center gap-3 px-4 py-3 text-sm",
+                  location.pathname === "/admin" ? "text-white bg-white/10" : "text-white/70"
+                )}
+              >
+                <Shield className="h-4 w-4" />
+                Admin
+              </Link>
+            )}
+            <Link
+              to="/profile"
+              onClick={() => setMenuOpen(false)}
+              className={cn(
+                "flex items-center gap-3 px-4 py-3 text-sm",
+                location.pathname === "/profile" ? "text-white bg-white/10" : "text-white/70"
+              )}
+            >
+              <User className="h-4 w-4" />
+              Profile
+            </Link>
+            {onSignOut && (
+              <button
+                onClick={() => { onSignOut(); setMenuOpen(false); }}
+                className="flex items-center gap-3 px-4 py-3 text-sm text-white/70 w-full border-none bg-transparent cursor-pointer text-left"
+              >
+                <LogOut className="h-4 w-4" />
+                Log out
+              </button>
+            )}
           </div>
         </>
       )}
