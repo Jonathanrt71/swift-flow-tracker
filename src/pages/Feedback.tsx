@@ -53,6 +53,8 @@ const Feedback = () => {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [filterResident, setFilterResident] = useState<string | null>(null);
   const [filterSentiment, setFilterSentiment] = useState<"positive" | "negative" | null>(null);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Fetch user IDs with the 'resident' role
   const { data: residentRoles } = useQuery({
