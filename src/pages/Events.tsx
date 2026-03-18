@@ -294,6 +294,7 @@ const Events = () => {
             <Button
               variant="ghost"
               size="icon"
+              className="hover:bg-transparent"
               title="Search"
               onClick={() => {
                 setSearchOpen(!searchOpen);
@@ -305,17 +306,17 @@ const Events = () => {
             <NotificationBell />
             {isAdmin && (
               <Link to="/admin">
-                <Button variant="ghost" size="icon" title="Admin Panel">
+                <Button variant="ghost" size="icon" className="hover:bg-transparent" title="Admin Panel">
                   <Shield className="h-4 w-4" />
                 </Button>
               </Link>
             )}
             <Link to="/profile">
-              <Button variant="ghost" size="icon" title="Profile">
+              <Button variant="ghost" size="icon" className="hover:bg-transparent" title="Profile">
                 <User className="h-4 w-4" />
               </Button>
             </Link>
-            <Button variant="ghost" size="icon" title="Sign out" onClick={() => signOut()}>
+            <Button variant="ghost" size="icon" className="hover:bg-transparent" title="Sign out" onClick={() => signOut()}>
               <LogOut className="h-4 w-4" />
             </Button>
           </div>
