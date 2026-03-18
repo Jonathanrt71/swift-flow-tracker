@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Shield, User, LogOut, Search, Pencil, X as XIcon, Trash2, Plus, Filter, Tag } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { DetailReadOnly } from "@/components/cbme/DetailField";
+import HeaderLogo from "@/components/HeaderLogo";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -352,10 +353,7 @@ const Meetings = () => {
     <div className="min-h-screen bg-background pb-16">
       <header className="bg-[#415162]">
         <div className="container flex items-center justify-between h-14 px-4">
-          <div className="flex items-center gap-2.5">
-            <img src="/yosemite-header.png" alt="" className="w-8 h-8 rounded-md object-cover" />
-            <h1 className="text-lg font-semibold text-white">Meetings</h1>
-          </div>
+          <HeaderLogo />
           <div className="flex items-center gap-1 text-white">
             <Button
               variant="ghost"

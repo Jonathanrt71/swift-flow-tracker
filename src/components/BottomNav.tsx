@@ -11,42 +11,38 @@ const BottomNav = () => {
       <Link
         to="/"
         className={cn(
-          "flex-1 flex flex-col items-center gap-0.5 py-2 text-[10px]",
+          "flex-1 flex items-center justify-center py-2.5",
           isActive("/") ? "text-white" : "text-white/50"
         )}
       >
         <CheckSquare className="h-5 w-5" />
-        Tasks
       </Link>
       <Link
         to="/meetings"
         className={cn(
-          "flex-1 flex flex-col items-center gap-0.5 py-2 text-[10px]",
+          "flex-1 flex items-center justify-center py-2.5",
           isActive("/meetings") ? "text-white" : "text-white/50"
         )}
       >
         <Users className="h-5 w-5" />
-        Meetings
       </Link>
       <Link
         to="/events"
         className={cn(
-          "flex-1 flex flex-col items-center gap-0.5 py-2 text-[10px]",
+          "flex-1 flex items-center justify-center py-2.5",
           isActive("/events") ? "text-white" : "text-white/50"
         )}
       >
         <Calendar className="h-5 w-5" />
-        Events
       </Link>
       <Link
         to="/cbme"
         className={cn(
-          "flex-1 flex flex-col items-center gap-0.5 py-2 text-[10px]",
+          "flex-1 flex items-center justify-center py-2.5",
           isActive("/cbme") ? "text-white" : "text-white/50"
         )}
       >
         <BookOpen className="h-5 w-5" />
-        CBME
       </Link>
     </nav>
   );
