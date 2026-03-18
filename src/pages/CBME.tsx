@@ -152,10 +152,7 @@ const AssessmentHistoryCard = ({
           />
         )}
         <div className="flex-1 min-w-0 pl-1 pr-1 flex items-center gap-2">
-          <span className="font-medium text-sm truncate">{compTitle}</span>
-          <span className="text-[11px] text-muted-foreground whitespace-nowrap shrink-0">
-            {residentName}
-          </span>
+          <span className="font-medium text-sm truncate">{residentName}</span>
           {dateInfo && (
             <span className="text-[11px] text-muted-foreground whitespace-nowrap shrink-0">
               {dateInfo.text}
@@ -184,9 +181,12 @@ const AssessmentHistoryCard = ({
         </div>
       </div>
 
-      {expanded && comment && comment.trim() !== "" && (
+      {expanded && (
         <div className="pb-2 pl-3 pr-3">
-          <p className="text-xs text-muted-foreground whitespace-pre-wrap">{comment}</p>
+          <span className="text-xs text-muted-foreground">{compTitle}</span>
+          {comment && comment.trim() !== "" && (
+            <p className="text-xs text-muted-foreground mt-1 whitespace-pre-wrap">{comment}</p>
+          )}
         </div>
       )}
     </div>
