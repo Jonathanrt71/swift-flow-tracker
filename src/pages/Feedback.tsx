@@ -82,6 +82,16 @@ const Feedback = () => {
   const filtered = allFeedback.filter((fb) => {
     if (filterResident && fb.resident_id !== filterResident) return false;
     if (filterSentiment && fb.sentiment !== filterSentiment) return false;
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      const residentName = (nameMap.get(fb.resident_id) || "").toLowerCase();
+      const facultyName = (nameMap.get(fb.faculty_id) || "").toLowerCase();
+      if (
+        !fb.comment.toLowerCase().includes(q) &&
+        !residentName.includes(q) &&
+        !facultyName.includes(q)
+      ) return false;
+    }
     return true;
   });
 
