@@ -21,7 +21,6 @@ export const formatCardDate = (
     const dayText = `${format(dt, "EEE")} ${day}${ordinalSuffix(day)}`;
 
     if (days < 0) return { text: dayText, urgent: true };
-    if (days <= 7) return { text: dayText, urgent: true };
     return { text: dayText, urgent: false };
   } catch {
     return null;
