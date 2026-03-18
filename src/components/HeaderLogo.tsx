@@ -75,7 +75,7 @@ const HeaderLogo = ({
         onClick={() => setMenuOpen(!menuOpen)}
         className="border-none cursor-pointer p-0 bg-transparent"
       >
-        <span className="text-base font-medium text-white/50">{currentItem?.label || "Tasks"}</span>
+        <span className="text-base font-medium text-white/85">{currentItem?.label || "Tasks"}</span>
       </button>
 
       {menuOpen && (
