@@ -261,7 +261,7 @@ const AddUserDialog = ({
             <Label className="text-xs text-muted-foreground">Role</Label>
             <select
               value={role}
-              onChange={(e) => setRole(e.target.value)}
+              onChange={(e) => setRole(e.target.value as UserRole)}
               className="w-full h-10 px-3 bg-background border border-border rounded-lg text-sm outline-none"
             >
               <option value="resident">Resident</option>
