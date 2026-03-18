@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { CheckSquare, Users, Calendar, BookOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -12,17 +12,52 @@ const navItems = [
 
 const HeaderLogo = () => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [imageOpen, setImageOpen] = useState(false);
   const location = useLocation();
   const currentItem = navItems.find((n) => n.path === location.pathname);
   const Icon = currentItem?.icon || CheckSquare;
 
+  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const didLongPress = useRef(false);
+
+  const startPress = useCallback(() => {
+    didLongPress.current = false;
+    longPressTimer.current = setTimeout(() => {
+      didLongPress.current = true;
+      setImageOpen(true);
+    }, 500);
+  }, []);
+
+  const endPress = useCallback(() => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+    if (!didLongPress.current) {
+      setMenuOpen((prev) => !prev);
+    }
+  }, []);
+
+  const cancelPress = useCallback(() => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+  }, []);
+
   return (
     <div className="relative flex items-center gap-2.5">
       <button
-        onClick={() => setMenuOpen(!menuOpen)}
-        className="w-8 h-8 rounded-md overflow-hidden border-none cursor-pointer p-0 bg-transparent"
+        onMouseDown={startPress}
+        onMouseUp={endPress}
+        onMouseLeave={cancelPress}
+        onTouchStart={startPress}
+        onTouchEnd={(e) => { e.preventDefault(); endPress(); }}
+        onTouchCancel={cancelPress}
+        onContextMenu={(e) => e.preventDefault()}
+        className="w-8 h-8 rounded-md overflow-hidden border-none cursor-pointer p-0 bg-transparent select-none"
       >
-        <img src="/yosemite-header.png" alt="" className="w-8 h-8 rounded-md object-cover" />
+        <img src="/yosemite-header.png" alt="" className="w-8 h-8 rounded-md object-cover pointer-events-none" draggable={false} />
       </button>
       <Icon className="h-[18px] w-[18px] text-white" />
 
@@ -54,6 +89,22 @@ const HeaderLogo = () => {
                 </Link>
               );
             })}
+          </div>
+        </>
+      )}
+
+      {imageOpen && (
+        <>
+          <div
+            className="fixed inset-0 z-[80] bg-black/70 flex items-center justify-center"
+            onClick={() => setImageOpen(false)}
+          >
+            <img
+              src="/yosemite-header.png"
+              alt="Yosemite"
+              className="max-w-[90vw] max-h-[90vh] rounded-xl shadow-2xl object-contain"
+              onClick={(e) => e.stopPropagation()}
+            />
           </div>
         </>
       )}
