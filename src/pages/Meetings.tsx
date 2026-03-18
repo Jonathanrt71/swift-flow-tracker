@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Shield, User, LogOut, Search, Pencil, X as XIcon, Trash2, Plus, Filter, Tag } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { DetailReadOnly } from "@/components/cbme/DetailField";
+import { formatCardDate } from "@/lib/dateFormat";
 import HeaderLogo from "@/components/HeaderLogo";
 import {
   AlertDialog,
@@ -97,6 +98,16 @@ const MeetingCard = ({
         <div className="flex-1 min-w-0 pl-2 pr-1">
           <span className="font-medium text-sm truncate block">{meeting.title}</span>
         </div>
+
+        {/* Date preview */}
+        {(() => {
+          const dd = formatCardDate(meeting.meeting_date);
+          return dd ? (
+            <span className={cn("text-[11px] whitespace-nowrap mr-1.5", dd.urgent ? "text-destructive" : "text-muted-foreground")}>
+              {dd.text}
+            </span>
+          ) : null;
+        })()}
 
         {/* Attendees + Creator avatar */}
         <div className="flex items-center shrink-0 pr-1">

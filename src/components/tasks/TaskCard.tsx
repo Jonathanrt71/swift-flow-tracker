@@ -4,6 +4,7 @@ import { Star, Trash2, X, Users } from "lucide-react";
 import { useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { format, parseISO, differenceInCalendarDays } from "date-fns";
+import { formatCardDate } from "@/lib/dateFormat";
 import { DetailReadOnly } from "@/components/cbme/DetailField";
 import {
   AlertDialog,
@@ -409,6 +410,14 @@ const TaskCard = ({
         </div>
 
         <div className="flex items-center shrink-0">
+          {(() => {
+            const dd = formatCardDate(task.due_date);
+            return dd ? (
+              <span className={cn("text-[11px] whitespace-nowrap mr-1.5", dd.urgent ? "text-destructive" : "text-muted-foreground")}>
+                {dd.text}
+              </span>
+            ) : null;
+          })()}
           <button
             className="bg-transparent border-none cursor-pointer p-0 mr-1.5 flex items-center"
             onPointerDown={(e) => {

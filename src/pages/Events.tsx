@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { LogOut, Shield, User, Calendar, BookOpen, Search, X, Trash2 } from "lucide-react";
 import { format, parseISO } from "date-fns";
+import { formatCardDate } from "@/lib/dateFormat";
 import BottomNav from "@/components/BottomNav";
 import CreateEventDialog from "@/components/events/CreateEventDialog";
 import EditEventDialog from "@/components/events/EditEventDialog";
@@ -107,6 +108,14 @@ const EventCard = ({
         <div className="flex-1 min-w-0 pl-2 pr-1">
           <span className="font-medium text-sm truncate block">{event.title}</span>
         </div>
+        {(() => {
+          const dd = formatCardDate(event.event_date);
+          return dd ? (
+            <span className={cn("text-[11px] whitespace-nowrap mr-1.5", dd.urgent ? "text-destructive" : "text-muted-foreground")}>
+              {dd.text}
+            </span>
+          ) : null;
+        })()}
         <div className="flex items-center shrink-0 gap-1.5 pr-1">
           {assignee ? (
             assignee.avatar_url ? (
