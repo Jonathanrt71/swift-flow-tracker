@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { format, parseISO } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
-import { User, ThumbsUp, ThumbsDown, Pencil, Trash2, X as XIcon } from "lucide-react";
+import { User, ThumbsUp, ThumbsDown, Pencil, Trash2, X as XIcon, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { formatCardDate, formatPersonName } from "@/lib/dateFormat";
 import { DetailReadOnly } from "@/components/cbme/DetailField";
 import HeaderLogo from "@/components/HeaderLogo";
+import { Button } from "@/components/ui/button";
 import BottomNav from "@/components/BottomNav";
 import NotificationBell from "@/components/NotificationBell";
 import CreateFeedbackDialog from "@/components/feedback/CreateFeedbackDialog";
@@ -53,6 +54,8 @@ const Feedback = () => {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [filterResident, setFilterResident] = useState<string | null>(null);
   const [filterSentiment, setFilterSentiment] = useState<"positive" | "negative" | null>(null);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Fetch user IDs with the 'resident' role
   const { data: residentRoles } = useQuery({
@@ -80,6 +83,16 @@ const Feedback = () => {
   const filtered = allFeedback.filter((fb) => {
     if (filterResident && fb.resident_id !== filterResident) return false;
     if (filterSentiment && fb.sentiment !== filterSentiment) return false;
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      const residentName = (nameMap.get(fb.resident_id) || "").toLowerCase();
+      const facultyName = (nameMap.get(fb.faculty_id) || "").toLowerCase();
+      if (
+        !fb.comment.toLowerCase().includes(q) &&
+        !residentName.includes(q) &&
+        !facultyName.includes(q)
+      ) return false;
+    }
     return true;
   });
 
@@ -228,9 +241,32 @@ const Feedback = () => {
         <div className="container flex items-center justify-between h-14 px-4">
           <HeaderLogo isAdmin={isAdmin} onSignOut={signOut} />
           <div className="flex items-center gap-1 text-white/50">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="hover:bg-transparent"
+              title="Search"
+              onClick={() => {
+                setSearchOpen(!searchOpen);
+                if (searchOpen) setSearchQuery("");
+              }}
+            >
+              {searchOpen ? <XIcon className="h-4 w-4" /> : <Search className="h-4 w-4" />}
+            </Button>
             <NotificationBell />
           </div>
         </div>
+        {searchOpen && (
+          <div className="container px-4 pb-3">
+            <input
+              autoFocus
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search feedback..."
+              className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground outline-none"
+            />
+          </div>
+        )}
       </header>
 
       <main className="container max-w-2xl px-4 py-6">
