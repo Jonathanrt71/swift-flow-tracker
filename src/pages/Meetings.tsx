@@ -103,7 +103,7 @@ const MeetingCard = ({
         {(() => {
           const dd = formatCardDate(meeting.meeting_date);
           return dd ? (
-            <span className={cn("text-[11px] whitespace-nowrap mr-1.5", dd.urgent ? "text-destructive" : "text-muted-foreground")}>
+            <span className="text-[11px] whitespace-nowrap mr-1.5 text-muted-foreground">
               {dd.text}
             </span>
           ) : null;
