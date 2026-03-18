@@ -389,7 +389,7 @@ const TaskCard = ({
         if (isExpandable(task)) setExpanded(!expanded);
       }}
     >
-      <div className={cn("flex min-h-[48px] px-1.5 relative", expanded ? "items-start" : "items-center")}>
+      <div className="flex min-h-[48px] px-1.5 relative items-center">
         <div className="checkbox-area flex items-center justify-center min-w-[32px] min-h-[44px]">
           <Checkbox
             checked={task.completed}
