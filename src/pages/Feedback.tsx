@@ -6,7 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { useFeedback } from "@/hooks/useFeedback";
-import { formatCardDate, formatLastFirst, formatNameFromParts } from "@/lib/dateFormat";
+import { formatCardDate, formatPersonName } from "@/lib/dateFormat";
 import { DetailReadOnly } from "@/components/cbme/DetailField";
 import HeaderLogo from "@/components/HeaderLogo";
 import BottomNav from "@/components/BottomNav";
@@ -40,7 +40,7 @@ const Feedback = () => {
 
   // Build a lookup for names
   const nameMap = new Map<string, string>();
-  members.forEach((m) => nameMap.set(m.id, formatNameFromParts(m.first_name, m.last_name)));
+  members.forEach((m) => nameMap.set(m.id, formatPersonName(m)));
 
   // Get residents for the create dialog (we use user_roles if available, otherwise show all members)
   // For simplicity, show all team members in the resident selector — the dialog is only accessible to faculty/admin

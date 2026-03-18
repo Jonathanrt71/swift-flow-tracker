@@ -6,7 +6,7 @@ import {
 } from "@/components/ui/dialog";
 import { Plus, ThumbsUp, ThumbsDown } from "lucide-react";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
-import { formatNameFromParts } from "@/lib/dateFormat";
+import { formatPersonName } from "@/lib/dateFormat";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 
@@ -57,7 +57,7 @@ const CreateFeedbackDialog = ({ onSubmit, residents }: CreateFeedbackDialogProps
   };
 
   const sortedResidents = [...residents].sort((a, b) =>
-    formatNameFromParts(a.first_name, a.last_name).localeCompare(formatNameFromParts(b.first_name, b.last_name))
+    formatPersonName(a).localeCompare(formatPersonName(b))
   );
 
   return (
@@ -91,7 +91,7 @@ const CreateFeedbackDialog = ({ onSubmit, residents }: CreateFeedbackDialogProps
             <option value="">Select resident...</option>
             {sortedResidents.map((r) => (
               <option key={r.id} value={r.id}>
-                {formatNameFromParts(r.first_name, r.last_name)}
+                {formatPersonName(r)}
               </option>
             ))}
           </select>

@@ -5,7 +5,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Pencil, ThumbsUp, ThumbsDown } from "lucide-react";
-import { formatNameFromParts } from "@/lib/dateFormat";
+import { formatPersonName } from "@/lib/dateFormat";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import type { Feedback } from "@/hooks/useFeedback";
@@ -58,7 +58,7 @@ const EditFeedbackDialog = ({ feedback, residents, onSubmit }: EditFeedbackDialo
   };
 
   const sortedResidents = [...residents].sort((a, b) =>
-    formatLastFirst(a.display_name).localeCompare(formatLastFirst(b.display_name))
+    formatPersonName(a).localeCompare(formatPersonName(b))
   );
 
   return (
@@ -92,7 +92,7 @@ const EditFeedbackDialog = ({ feedback, residents, onSubmit }: EditFeedbackDialo
             <option value="">Select resident...</option>
             {sortedResidents.map((r) => (
               <option key={r.id} value={r.id}>
-                {formatLastFirst(r.display_name)}
+                {formatPersonName(r)}
               </option>
             ))}
           </select>
