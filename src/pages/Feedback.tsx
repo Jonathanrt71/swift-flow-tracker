@@ -70,7 +70,11 @@ const Feedback = () => {
   const members = teamMembers || [];
   const residentIds = new Set(residentRoles || []);
   const residents = members.filter((m) => residentIds.has(m.id));
-  const allFeedback = feedbackQuery.data || [];
+
+  // Build a lookup for names
+  const nameMap = new Map<string, string>();
+  members.forEach((m) => nameMap.set(m.id, formatPersonName(m)));
+
 
   // Filter
   const filtered = allFeedback.filter((fb) => {
