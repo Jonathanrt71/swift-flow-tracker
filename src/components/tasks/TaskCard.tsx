@@ -1,6 +1,6 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card } from "@/components/ui/card";
-import { Star, Trash2, X, Users } from "lucide-react";
+import { Star, Trash2, X, Users, Pencil } from "lucide-react";
 import { useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { format, parseISO, differenceInCalendarDays } from "date-fns";
@@ -53,8 +53,7 @@ const hasNotes = (desc: string | null): boolean =>
 const hasContent = (task: Task): boolean =>
   hasNotes(task.description) || (task.subtasks?.length ?? 0) > 0;
 
-const isExpandable = (task: Task): boolean =>
-  hasNotes(task.description) || (task.subtasks?.length ?? 0) > 0 || !!task.due_date || !!task.meeting_id;
+const isExpandable = (_task: Task): boolean => true; // Always expandable for edit/delete access
 
 const formatDueDate = (d: string | null): { text: string; urgent: boolean } | null => {
   if (!d) return null;
@@ -465,34 +464,72 @@ const TaskCard = ({
 
       {expanded && isExpandable(task) && (
         <>
-          {/* Due date + notes preview + meeting link */}
-          {(task.due_date || hasNotes(task.description) || task.meeting_id) && (
-            <div className="pb-2 pl-[52px] pr-3">
-              {(() => {
-                const dd = formatDueDate(task.due_date);
-                return dd ? (
-                  <div className={cn("text-[11px] mb-1", dd.urgent ? "text-destructive" : "text-muted-foreground")}>
-                    {dd.text}
-                  </div>
-                ) : null;
-              })()}
-              {(() => {
-                return hasNotes(task.description) ? (
-                  <div className="mb-1">
-                    <DetailReadOnly html={task.description!} />
-                  </div>
-                ) : null;
-              })()}
-              {task.meeting_id && meetingNames?.get(task.meeting_id) && (
-                <div className="flex items-center gap-1.5 mt-1.5 px-2 py-1.5 bg-[#D5DAE0] rounded-md">
-                  <Users className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                  <span className="text-xs text-muted-foreground truncate">
-                    {meetingNames.get(task.meeting_id)}
-                  </span>
-                </div>
-              )}
+          {/* Action row: due date left, edit/delete right — matches events pattern */}
+          <div className="pb-2 pl-[52px] pr-3">
+            <div className="flex items-center justify-between mb-1">
+              <div className="flex items-baseline gap-2 flex-1 min-w-0">
+                {(() => {
+                  const dd = formatDueDate(task.due_date);
+                  return dd ? (
+                    <span className={cn("text-[11px]", dd.urgent ? "text-destructive" : "text-muted-foreground")}>
+                      {dd.text}
+                    </span>
+                  ) : null;
+                })()}
+              </div>
+              <div className="flex items-center gap-0.5 shrink-0 ml-2" onClick={(e) => e.stopPropagation()}>
+                <NotesEditorDialog
+                  task={task}
+                  onUpdate={onUpdate}
+                  iconTrigger
+                />
+                <TaskDetailSheet task={task} onUpdate={onUpdate} onDelete={onDelete} iconTrigger />
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <button
+                      className="flex items-center justify-center w-8 h-8 rounded-md bg-transparent text-destructive hover:bg-destructive/10 transition-colors"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete task?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This will permanently delete "{task.title}". This action cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={() => onDelete(task.id)}
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      >
+                        Delete
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
             </div>
-          )}
+
+            {/* Notes preview */}
+            {hasNotes(task.description) && (
+              <div className="mb-1">
+                <DetailReadOnly html={task.description!} />
+              </div>
+            )}
+
+            {/* Meeting link */}
+            {task.meeting_id && meetingNames?.get(task.meeting_id) && (
+              <div className="flex items-center gap-1.5 mt-1.5 px-2 py-1.5 bg-[#D5DAE0] rounded-md">
+                <Users className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                <span className="text-xs text-muted-foreground truncate">
+                  {meetingNames.get(task.meeting_id)}
+                </span>
+              </div>
+            )}
+          </div>
 
           {/* Subtasks */}
           {hasChildren && (
