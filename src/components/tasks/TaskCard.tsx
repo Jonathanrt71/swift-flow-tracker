@@ -446,12 +446,24 @@ const TaskCard = ({
                 })()}
               </div>
               <div className="flex items-center gap-0.5 shrink-0 ml-2" onClick={(e) => e.stopPropagation()}>
+                <button
+                  className="flex items-center justify-center w-8 h-8 rounded-md bg-transparent hover:bg-black/5 transition-colors"
+                  onClick={() => onToggleStar({ id: task.id, starred: !task.starred })}
+                >
+                  <Star
+                    className={cn(
+                      "h-3.5 w-3.5",
+                      task.starred ? "fill-[#9F2929] text-[#9F2929]" : "text-muted-foreground"
+                    )}
+                  />
+                </button>
                 <NotesEditorDialog
                   task={task}
                   onUpdate={onUpdate}
                   iconTrigger
                 />
                 <TaskDetailSheet task={task} onUpdate={onUpdate} onDelete={onDelete} iconTrigger />
+                <CreateTaskDialog onSubmit={onCreateSubtask} parentId={task.id} iconTrigger />
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <button
