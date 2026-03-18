@@ -495,7 +495,6 @@ const TaskCard = ({
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>
-              </div>
             </div>
 
             {/* Notes preview */}
