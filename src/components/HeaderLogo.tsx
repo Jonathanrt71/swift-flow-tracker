@@ -4,10 +4,10 @@ import { CheckSquare, Users, Calendar, BookOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { path: "/", label: "Tasks", icon: CheckSquare },
-  { path: "/meetings", label: "Meetings", icon: Users },
-  { path: "/events", label: "Events", icon: Calendar },
   { path: "/cbme", label: "CBME", icon: BookOpen },
+  { path: "/events", label: "Events", icon: Calendar },
+  { path: "/meetings", label: "Meetings", icon: Users },
+  { path: "/", label: "Tasks", icon: CheckSquare },
 ];
 
 const HeaderLogo = () => {
