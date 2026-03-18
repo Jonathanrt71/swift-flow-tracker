@@ -445,7 +445,7 @@ const TaskCard = ({
                   ) : null;
                 })()}
               </div>
-              <div className="flex items-center gap-0.5 shrink-0 ml-2" onClick={(e) => e.stopPropagation()}>
+              <div className="flex items-center gap-1 shrink-0 ml-2" onClick={(e) => e.stopPropagation()}>
                 <button
                   className="flex items-center justify-center w-8 h-8 rounded-md bg-transparent hover:bg-black/5 transition-colors"
                   onClick={() => onToggleStar({ id: task.id, starred: !task.starred })}
