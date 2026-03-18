@@ -18,6 +18,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { format, parseISO } from "date-fns";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
+import { formatPersonName } from "@/lib/dateFormat";
 import { useAuth } from "@/contexts/AuthContext";
 import type { EventCategory } from "@/hooks/useEvents";
 
