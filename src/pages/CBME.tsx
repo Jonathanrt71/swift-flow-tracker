@@ -330,16 +330,6 @@ const CBME = () => {
             <TabsContent value="dashboard" className="mt-0">
               <div className="flex gap-1 mb-3">
                 <button
-                  onClick={() => setDashboardView("mine")}
-                  className={`px-3 py-1 rounded-md text-[11px] font-medium border-none cursor-pointer transition-colors ${
-                    dashboardView === "mine"
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted text-muted-foreground"
-                  }`}
-                >
-                  My assessments
-                </button>
-                <button
                   onClick={() => setDashboardView("all")}
                   className={`px-3 py-1 rounded-md text-[11px] font-medium border-none cursor-pointer transition-colors ${
                     dashboardView === "all"
@@ -348,6 +338,16 @@ const CBME = () => {
                   }`}
                 >
                   All assessments
+                </button>
+                <button
+                  onClick={() => setDashboardView("mine")}
+                  className={`px-3 py-1 rounded-md text-[11px] font-medium border-none cursor-pointer transition-colors ${
+                    dashboardView === "mine"
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-muted-foreground"
+                  }`}
+                >
+                  My assessments
                 </button>
               </div>
               {(dashboardView === "mine" ? myAssessments : allAssessments).isLoading ? (
