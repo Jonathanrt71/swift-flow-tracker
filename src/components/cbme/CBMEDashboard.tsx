@@ -14,10 +14,10 @@ const getColor = (name: string | null): string => {
 };
 
 const FaceNeutral = ({ size = 14 }: { size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="#9F2929" strokeWidth="1.5" strokeLinecap="round">
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="#415162" strokeWidth="1.5" strokeLinecap="round">
     <circle cx="12" cy="12" r="10"/>
-    <circle cx="9" cy="10" r="1" fill="#9F2929" stroke="none"/>
-    <circle cx="15" cy="10" r="1" fill="#9F2929" stroke="none"/>
+    <circle cx="9" cy="10" r="1" fill="#415162" stroke="none"/>
+    <circle cx="15" cy="10" r="1" fill="#415162" stroke="none"/>
     <line x1="8" y1="15" x2="16" y2="15"/>
   </svg>
 );
@@ -30,10 +30,10 @@ const FaceModerate = ({ size = 14 }: { size?: number }) => (
   </svg>
 );
 const FaceHappy = ({ size = 14 }: { size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="#6B9080" strokeWidth="1.5" strokeLinecap="round">
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="#415162" strokeWidth="1.5" strokeLinecap="round">
     <circle cx="12" cy="12" r="10"/>
-    <circle cx="9" cy="10" r="1" fill="#6B9080" stroke="none"/>
-    <circle cx="15" cy="10" r="1" fill="#6B9080" stroke="none"/>
+    <circle cx="9" cy="10" r="1" fill="#415162" stroke="none"/>
+    <circle cx="15" cy="10" r="1" fill="#415162" stroke="none"/>
     <path d="M7 14Q12 19 17 14" fill="none"/>
   </svg>
 );
@@ -50,6 +50,15 @@ interface TeamMember {
   display_name: string;
   avatar_url: string | null;
 }
+
+const formatLastFirst = (name: string | null): string => {
+  if (!name) return "?";
+  const parts = name.trim().split(/\s+/);
+  if (parts.length === 1) return parts[0];
+  const last = parts[parts.length - 1];
+  const firstInitial = parts[0][0];
+  return `${last}, ${firstInitial}`;
+};
 
 const CBMEDashboard = ({
   competencies,
@@ -82,7 +91,8 @@ const CBMEDashboard = ({
       ) : (
         sortedResidents.map((resident) => {
           const resAssessments = assessments.filter((a) => a.resident_id === resident.id);
-          const totalAssessed = new Set(resAssessments.map((a) => a.competency_id)).size;
+          const neutralCount = resAssessments.filter((a) => a.overall_grade === 1).length;
+          const moderateCount = resAssessments.filter((a) => a.overall_grade === 2).length;
           const minimalCount = resAssessments.filter((a) => a.overall_grade === 3).length;
           const isExpanded = expandedId === resident.id;
 
@@ -104,7 +114,7 @@ const CBMEDashboard = ({
               className="bg-muted border border-border rounded-[10px] overflow-hidden cursor-pointer"
               onClick={() => setExpandedId(isExpanded ? null : resident.id)}
             >
-              <div className="flex items-center min-h-[52px] px-2.5 gap-2">
+              <div className="flex items-center min-h-[48px] px-2.5 gap-2">
                 {resident.avatar_url ? (
                   <img src={resident.avatar_url} className="w-8 h-8 rounded-full object-cover shrink-0" alt="" />
                 ) : (
@@ -115,16 +125,19 @@ const CBMEDashboard = ({
                     {getInitials(resident.display_name)}
                   </div>
                 )}
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium truncate">{resident.display_name}</div>
-                  <div className="flex items-center gap-2.5 mt-0.5">
-                    <span className="text-[11px] text-muted-foreground">
-                      <span className="font-semibold text-primary">{totalAssessed}</span> assessed
-                    </span>
-                    <span className="text-[11px] text-muted-foreground flex items-center gap-1">
-                      <span className="font-semibold text-primary">{minimalCount}</span>
-                      <FaceHappy />
-                    </span>
+                <span className="flex-1 min-w-0 text-sm font-medium truncate">{formatLastFirst(resident.display_name)}</span>
+                <div className="flex items-center gap-2 shrink-0">
+                  <div className="flex items-center gap-0.5">
+                    <FaceNeutral size={22} />
+                    <span style={{ fontSize: 12, fontWeight: 600, color: "#415162", minWidth: 12, textAlign: "center" }}>{neutralCount}</span>
+                  </div>
+                  <div className="flex items-center gap-0.5">
+                    <FaceModerate size={22} />
+                    <span style={{ fontSize: 12, fontWeight: 600, color: "#415162", minWidth: 12, textAlign: "center" }}>{moderateCount}</span>
+                  </div>
+                  <div className="flex items-center gap-0.5">
+                    <FaceHappy size={22} />
+                    <span style={{ fontSize: 12, fontWeight: 600, color: "#415162", minWidth: 12, textAlign: "center" }}>{minimalCount}</span>
                   </div>
                 </div>
               </div>
