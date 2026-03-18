@@ -259,21 +259,6 @@ const CBME = () => {
 
                         {isExpanded && (
                           <div className="px-3 pb-3" onClick={(e) => e.stopPropagation()}>
-                            {/* Category selector */}
-                            {canCreate && (
-                              <select
-                                value={comp.category_id || ""}
-                                onChange={(e) => updateCompetency.mutate({ id: comp.id, category_id: e.target.value || null })}
-                                className="w-full mb-2 px-2.5 py-1.5 text-xs rounded-md outline-none"
-                                style={{ background: "#E7EBEF", border: "0.5px solid #C9CED4", color: "#555" }}
-                                onClick={(e) => e.stopPropagation()}
-                              >
-                                <option value="">No category</option>
-                                {(categories.data || []).map((c) => (
-                                  <option key={c.id} value={c.id}>{c.name}</option>
-                                ))}
-                              </select>
-                            )}
                             <div className="flex items-center justify-between mb-2">
                               <span className="text-[11px] text-muted-foreground">
                                 {totalSections > 0
@@ -285,6 +270,9 @@ const CBME = () => {
                                   <ChecklistEditor
                                     competencyTitle={comp.title}
                                     initialSections={comp.sections}
+                                    categories={categories.data || []}
+                                    currentCategoryId={comp.category_id}
+                                    onSaveCategory={(catId) => updateCompetency.mutate({ id: comp.id, category_id: catId })}
                                     onSave={(sections) =>
                                       saveSections.mutate({
                                         competencyId: comp.id,

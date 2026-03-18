@@ -22,15 +22,22 @@ const ChecklistEditor = ({
   competencyTitle,
   initialSections,
   onSave,
+  categories,
+  currentCategoryId,
+  onSaveCategory,
   children,
 }: {
   competencyTitle: string;
   initialSections: Section[];
   onSave: (sections: Section[]) => void;
+  categories?: { id: string; name: string }[];
+  currentCategoryId?: string | null;
+  onSaveCategory?: (categoryId: string | null) => void;
   children: React.ReactNode;
 }) => {
   const [open, setOpen] = useState(false);
   const [sections, setSections] = useState<Section[]>([]);
+  const [categoryId, setCategoryId] = useState<string>(currentCategoryId || "");
   const [newSectionName, setNewSectionName] = useState("");
   const [newTaskInputs, setNewTaskInputs] = useState<Record<string, string>>({});
   const [expandedTask, setExpandedTask] = useState<string | null>(null);
@@ -40,6 +47,7 @@ const ChecklistEditor = ({
   const handleOpen = (isOpen: boolean) => {
     if (isOpen) {
       setSections(JSON.parse(JSON.stringify(initialSections)));
+      setCategoryId(currentCategoryId || "");
       setNewSectionName("");
       setNewTaskInputs({});
       setExpandedTask(null);
@@ -109,6 +117,23 @@ const ChecklistEditor = ({
         </div>
 
         <div className="px-4 pb-4">
+          {/* Category selector */}
+          {categories && categories.length > 0 && (
+            <div className="mb-4">
+              <div style={{ fontSize: 11, color: "#888", marginBottom: 4 }}>Category</div>
+              <select
+                value={categoryId}
+                onChange={(e) => setCategoryId(e.target.value)}
+                style={{ width: "100%", padding: "7px 10px", background: "#E7EBEF", border: "0.5px solid #C9CED4", borderRadius: 6, fontSize: 12, color: "#333", outline: "none" }}
+              >
+                <option value="">No category</option>
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </select>
+            </div>
+          )}
+
           {sections.map((sec) => (
             <div key={sec.id} className="mb-4">
               <div className="flex items-center gap-2 mb-2">
@@ -204,7 +229,11 @@ const ChecklistEditor = ({
 
         <div className="px-4 pb-4 flex justify-end border-t border-border pt-3">
           <button
-            onClick={() => { onSave(sections); setOpen(false); }}
+            onClick={() => {
+              onSave(sections);
+              if (onSaveCategory) onSaveCategory(categoryId || null);
+              setOpen(false);
+            }}
             className="px-5 py-2 bg-primary text-primary-foreground border-none rounded-md text-[13px] font-medium cursor-pointer"
           >
             Save
