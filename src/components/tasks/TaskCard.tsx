@@ -405,7 +405,7 @@ const TaskCard = ({
             task.completed && "line-through text-muted-foreground"
           )}
         >
-          <span className="font-medium text-sm truncate">{task.title}</span>
+          <span className={cn("font-medium text-sm", expanded ? "break-words" : "truncate")}>{task.title}</span>
         </div>
 
         <div className="flex items-center shrink-0">
