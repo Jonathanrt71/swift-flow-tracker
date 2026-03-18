@@ -34,45 +34,35 @@ export type Database = {
       }
       competencies: {
         Row: {
+          category_id: string | null
           created_at: string | null
           created_by: string
           id: string
           title: string
-          category_id: string | null
         }
         Insert: {
+          category_id?: string | null
           created_at?: string | null
           created_by: string
           id?: string
           title: string
-          category_id?: string | null
         }
         Update: {
+          category_id?: string | null
           created_at?: string | null
           created_by?: string
           id?: string
           title?: string
-          category_id?: string | null
         }
-        Relationships: []
-      }
-      competency_categories: {
-        Row: {
-          id: string
-          name: string
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          name: string
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          name?: string
-          created_at?: string
-        }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "competencies_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "competency_categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       competency_assessment_grades: {
         Row: {
@@ -147,6 +137,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      competency_categories: {
+        Row: {
+          created_at: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
       }
       competency_sections: {
         Row: {

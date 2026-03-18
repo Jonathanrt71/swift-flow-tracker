@@ -165,7 +165,7 @@ const AddUserDialog = ({
   onSubmit,
   isPending,
 }: {
-  onSubmit: (data: { email: string; password: string; display_name?: string; first_name?: string; last_name?: string; role?: string }) => void;
+  onSubmit: (data: { email: string; password: string; display_name?: string; first_name?: string; last_name?: string; role?: UserRole }) => void;
   isPending: boolean;
 }) => {
   const [open, setOpen] = useState(false);
@@ -174,7 +174,7 @@ const AddUserDialog = ({
   const [displayName, setDisplayName] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [role, setRole] = useState("resident");
+  const [role, setRole] = useState<UserRole>("resident");
 
   const handleOpen = (isOpen: boolean) => {
     if (isOpen) {
@@ -261,7 +261,7 @@ const AddUserDialog = ({
             <Label className="text-xs text-muted-foreground">Role</Label>
             <select
               value={role}
-              onChange={(e) => setRole(e.target.value)}
+              onChange={(e) => setRole(e.target.value as UserRole)}
               className="w-full h-10 px-3 bg-background border border-border rounded-lg text-sm outline-none"
             >
               <option value="resident">Resident</option>
