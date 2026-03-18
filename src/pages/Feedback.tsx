@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { format, parseISO } from "date-fns";
-import { User, ThumbsUp, ThumbsDown } from "lucide-react";
+import { User, ThumbsUp, ThumbsDown, Pencil, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
@@ -12,12 +12,24 @@ import HeaderLogo from "@/components/HeaderLogo";
 import BottomNav from "@/components/BottomNav";
 import NotificationBell from "@/components/NotificationBell";
 import CreateFeedbackDialog from "@/components/feedback/CreateFeedbackDialog";
+import EditFeedbackDialog from "@/components/feedback/EditFeedbackDialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const Feedback = () => {
   const { user, signOut } = useAuth();
   const { isAdmin } = useAdmin();
   const { data: teamMembers } = useTeamMembers();
-  const { feedbackQuery, createFeedback } = useFeedback();
+  const { feedbackQuery, createFeedback, updateFeedback, deleteFeedback } = useFeedback();
 
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [filterResident, setFilterResident] = useState<string | null>(null);
@@ -130,8 +142,44 @@ const Feedback = () => {
                   <DetailReadOnly html={fb.comment} />
                 </div>
               )}
-              <div className="text-xs" style={{ color: "#8A9AAB" }}>
-                {facultyName}
+              <div className="flex items-center justify-between">
+                <div className="text-xs" style={{ color: "#8A9AAB" }}>
+                  {facultyName}
+                </div>
+                <div className="flex items-center gap-2">
+                  <EditFeedbackDialog
+                    feedback={fb}
+                    residents={residents}
+                    onSubmit={(data) => updateFeedback.mutate({ id: fb.id, ...data })}
+                  />
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <button className="p-1 text-[#8A9AAB] hover:text-[#A63333]">
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete feedback?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This will permanently delete this feedback entry. This action cannot be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() => {
+                            deleteFeedback.mutate(fb.id);
+                            setExpandedId(null);
+                          }}
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                          Delete
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
               </div>
             </div>
           )}

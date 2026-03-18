@@ -53,5 +53,45 @@ export function useFeedback() {
     },
   });
 
-  return { feedbackQuery, createFeedback };
+  const updateFeedback = useMutation({
+    mutationFn: async (input: {
+      id: string;
+      resident_id?: string;
+      comment?: string;
+      sentiment?: "positive" | "negative";
+    }) => {
+      const { id, ...updates } = input;
+      const { error } = await (supabase as any)
+        .from("feedback")
+        .update(updates)
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["feedback"] });
+      toast({ title: "Feedback updated" });
+    },
+    onError: () => {
+      toast({ title: "Failed to update feedback", variant: "destructive" });
+    },
+  });
+
+  const deleteFeedback = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await (supabase as any)
+        .from("feedback")
+        .delete()
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["feedback"] });
+      toast({ title: "Feedback deleted" });
+    },
+    onError: () => {
+      toast({ title: "Failed to delete feedback", variant: "destructive" });
+    },
+  });
+
+  return { feedbackQuery, createFeedback, updateFeedback, deleteFeedback };
 }
