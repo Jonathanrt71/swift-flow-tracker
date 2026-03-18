@@ -262,12 +262,12 @@ const Feedback = () => {
                     ) : (
                       <div
                         className="w-5 h-5 rounded-full flex items-center justify-center text-white"
-                        style={{ fontSize: 8, fontWeight: 500, background: getColor(m.display_name) }}
+                        style={{ fontSize: 8, fontWeight: 500, background: getColor(formatPersonName(m)) }}
                       >
-                        {getInitials(m.display_name)}
+                        {getInitials(formatPersonName(m))}
                       </div>
                     )}
-                    <span className="text-foreground text-xs">{formatLastFirst(m.display_name)}</span>
+                    <span className="text-foreground text-xs">{formatPersonName(m)}</span>
                   </button>
                 ))}
               </div>
