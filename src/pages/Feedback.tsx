@@ -147,17 +147,18 @@ const Feedback = () => {
         >
           {/* Collapsed row */}
           <div className="flex items-center gap-2.5 px-3.5 py-3">
-            <span className="text-sm flex-1 min-w-0 truncate" style={{ color: "#2D3748" }}>
-              {residentName}
-            </span>
-            {dateInfo && (
-              <span
-                className="text-[13px] whitespace-nowrap"
-                style={{ color: dateInfo.urgent ? "#E24B4A" : "#8A9AAB" }}
-              >
-                {dateInfo.text}
+            <div className="flex-1 min-w-0 flex items-center gap-2">
+              <span className="text-sm truncate" style={{ color: "#2D3748" }}>
+                {residentName}
               </span>
-            )}
+              {dateInfo && (
+                <span
+                  className={cn("text-[11px] whitespace-nowrap shrink-0", dateInfo.urgent ? "text-destructive" : "text-muted-foreground")}
+                >
+                  {dateInfo.text}
+                </span>
+              )}
+            </div>
             <div
               className="w-3.5 h-3.5 rounded-full shrink-0"
               style={{ background: dotColor }}
