@@ -74,7 +74,7 @@ const Feedback = () => {
   // Build a lookup for names
   const nameMap = new Map<string, string>();
   members.forEach((m) => nameMap.set(m.id, formatPersonName(m)));
-
+  const allFeedback = feedbackQuery.data || [];
 
   // Filter
   const filtered = allFeedback.filter((fb) => {
