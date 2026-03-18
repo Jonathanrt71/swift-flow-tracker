@@ -443,7 +443,7 @@ const Meetings = () => {
                         {getInitials(m.display_name)}
                       </div>
                     )}
-                    <span className="text-foreground text-xs">{formatLastFirst(m.display_name)}</span>
+                    <span className="text-foreground text-xs">{formatPersonName(m)}</span>
                   </button>
                 ))}
               </div>

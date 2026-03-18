@@ -176,7 +176,7 @@ const CreateEventDialog = ({ onSubmit, defaultCategory }: CreateEventDialogProps
                 <SelectItem value="unassigned">Unassigned</SelectItem>
                 {members?.map((m) => (
                   <SelectItem key={m.id} value={m.id}>
-                    {m.display_name || "Unnamed"}
+                    {formatPersonName(m)}
                   </SelectItem>
                 ))}
               </SelectContent>

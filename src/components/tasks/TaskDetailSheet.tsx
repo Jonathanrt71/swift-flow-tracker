@@ -200,7 +200,7 @@ const TaskDetailSheet = ({
                 <SelectItem value="unassigned">Unassigned</SelectItem>
                 {members?.map((m) => (
                   <SelectItem key={m.id} value={m.id}>
-                    {formatLastFirst(m.display_name)}
+                    {formatPersonName(m)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -218,7 +218,7 @@ const TaskDetailSheet = ({
                 <SelectItem value="none">None</SelectItem>
                 {members?.map((m) => (
                   <SelectItem key={m.id} value={m.id}>
-                    {formatLastFirst(m.display_name)}
+                    {formatPersonName(m)}
                   </SelectItem>
                 ))}
               </SelectContent>

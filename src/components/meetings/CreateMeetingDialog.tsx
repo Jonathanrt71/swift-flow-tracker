@@ -220,7 +220,7 @@ const CreateMeetingDialog = ({ onSubmit }: CreateMeetingDialogProps) => {
                           {getInitials(m.display_name)}
                         </div>
                       )}
-                      <span className="text-sm">{m.display_name || "Unnamed"}</span>
+                      <span className="text-sm">{formatPersonName(m)}</span>
                     </button>
                   ))
                 )}

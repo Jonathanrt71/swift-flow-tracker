@@ -167,7 +167,7 @@ const CreateTaskDialog = ({ onSubmit, parentId, meetingId, loading, iconOnly, in
                 <SelectItem value="unassigned">Unassigned</SelectItem>
                 {members?.map((m) => (
                   <SelectItem key={m.id} value={m.id}>
-                    {formatLastFirst(m.display_name)}
+                    {formatPersonName(m)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -183,7 +183,7 @@ const CreateTaskDialog = ({ onSubmit, parentId, meetingId, loading, iconOnly, in
                 <SelectItem value="none">None</SelectItem>
                 {members?.map((m) => (
                   <SelectItem key={m.id} value={m.id}>
-                    {formatLastFirst(m.display_name)}
+                    {formatPersonName(m)}
                   </SelectItem>
                 ))}
               </SelectContent>
