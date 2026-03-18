@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { X, Plus, Pencil, Trash2, GripVertical } from "lucide-react";
+import { DetailEditor } from "./DetailField";
 
 interface Task {
   id: string;
@@ -155,12 +156,9 @@ const ChecklistEditor = ({
                   </div>
                   {expandedTask === task.id && (
                     <div className="px-2.5 pb-2 pl-7">
-                      <textarea
-                        value={task.detail || ""}
-                        onChange={(e) => updateTaskDetail(sec.id, task.id, e.target.value)}
-                        placeholder="Add detail..."
-                        rows={2}
-                        className="w-full px-2 py-1 bg-background border border-border rounded text-[11px] text-muted-foreground outline-none resize-none leading-relaxed"
+                      <DetailEditor
+                        content={task.detail || ""}
+                        onChange={(html) => updateTaskDetail(sec.id, task.id, html)}
                       />
                     </div>
                   )}

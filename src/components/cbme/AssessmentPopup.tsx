@@ -4,6 +4,7 @@ import { X, CheckSquare } from "lucide-react";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { DetailReadOnly, detailPreviewText } from "./DetailField";
 import { useQuery } from "@tanstack/react-query";
 import type { Competency } from "@/hooks/useCompetencies";
 
@@ -182,6 +183,8 @@ const AssessmentPopup = ({
                 </div>
                 {sec.tasks.map((task) => {
                   const isDetailOpen = expandedDetailId === task.id;
+                  const hasDetail = task.detail && task.detail !== "<p></p>" && task.detail.trim() !== "";
+                  const previewText = detailPreviewText(task.detail);
                   return (
                     <div
                       key={task.id}
@@ -189,13 +192,13 @@ const AssessmentPopup = ({
                       style={{ borderBottom: "0.5px solid #E7EBEF", overflow: "hidden" }}
                     >
                       <div
-                        onClick={() => task.detail ? setExpandedDetailId(isDetailOpen ? null : task.id) : null}
-                        style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 8, padding: "8px 16px", cursor: task.detail ? "pointer" : "default" }}
+                        onClick={() => hasDetail ? setExpandedDetailId(isDetailOpen ? null : task.id) : null}
+                        style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 8, padding: "8px 16px", cursor: hasDetail ? "pointer" : "default" }}
                       >
                         <div style={{ minWidth: 0 }}>
                           <div style={{ fontSize: 13, color: "#333", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{task.title}</div>
-                          {task.detail && !isDetailOpen && (
-                            <div style={{ fontSize: 11, color: "#888", marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{task.detail}</div>
+                          {hasDetail && !isDetailOpen && previewText && (
+                            <div style={{ fontSize: 11, color: "#888", marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{previewText}</div>
                           )}
                         </div>
                         <div style={{ display: "flex", gap: 12, flexShrink: 0, paddingTop: 2 }}>
@@ -216,9 +219,9 @@ const AssessmentPopup = ({
                           ))}
                         </div>
                       </div>
-                      {isDetailOpen && task.detail && (
-                        <div style={{ padding: "0 16px 8px", fontSize: 11, color: "#888", lineHeight: 1.4, wordWrap: "break-word" }}>
-                          {task.detail}
+                      {isDetailOpen && hasDetail && (
+                        <div style={{ padding: "0 16px 8px" }}>
+                          <DetailReadOnly html={task.detail!} />
                         </div>
                       )}
                     </div>
