@@ -182,7 +182,7 @@ const AssessmentHistoryCard = ({
       </div>
 
       {expanded && (
-        <div className="pb-2 pl-3 pr-3">
+        <div className="pb-2 pl-3 pr-3 -mt-1">
           <span className="text-xs text-muted-foreground">{compTitle}</span>
           {comment && comment.trim() !== "" && (
             <p className="text-xs text-muted-foreground mt-1 whitespace-pre-wrap">{comment}</p>
