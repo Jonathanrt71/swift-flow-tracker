@@ -6,7 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { useFeedback } from "@/hooks/useFeedback";
-import { formatCardDate, formatLastFirst, formatNameFromParts } from "@/lib/dateFormat";
+import { formatCardDate, formatPersonName } from "@/lib/dateFormat";
 import { DetailReadOnly } from "@/components/cbme/DetailField";
 import HeaderLogo from "@/components/HeaderLogo";
 import BottomNav from "@/components/BottomNav";
