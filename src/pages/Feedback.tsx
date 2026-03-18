@@ -52,7 +52,6 @@ const Feedback = () => {
   const { feedbackQuery, createFeedback, updateFeedback, deleteFeedback } = useFeedback();
 
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [filterResident, setFilterResident] = useState<string | null>(null);
   const [filterSentiment, setFilterSentiment] = useState<"positive" | "negative" | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -81,7 +80,7 @@ const Feedback = () => {
 
   // Filter
   const filtered = allFeedback.filter((fb) => {
-    if (filterResident && fb.resident_id !== filterResident) return false;
+    if (filterSentiment && fb.sentiment !== filterSentiment) return false;
     if (filterSentiment && fb.sentiment !== filterSentiment) return false;
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
@@ -272,87 +271,48 @@ const Feedback = () => {
       <main className="container max-w-2xl px-4 py-6">
         {/* Filter row */}
         <div className="flex items-center justify-between pb-2.5">
-          <div className="flex gap-1">
-          {/* Filter by resident */}
-          <Popover>
-            <PopoverTrigger asChild>
-              <button
-                className={cn(
-                  "h-8 w-8 p-0 inline-flex items-center justify-center rounded-md transition-colors",
-                  filterResident
-                    ? "text-[#415162]"
-                    : "text-[#8A9AAB]"
-                )}
-              >
-                <User className="h-5 w-5" />
-              </button>
-            </PopoverTrigger>
-            <PopoverContent className="w-56 p-1" align="start">
-              {filterResident && (
+          <div className="flex gap-2 items-center">
+          {/* Filter positive with percentage */}
+          {(() => {
+            const total = allFeedback.length;
+            const posCount = allFeedback.filter((fb) => fb.sentiment === "positive").length;
+            const negCount = allFeedback.filter((fb) => fb.sentiment === "negative").length;
+            const posPct = total > 0 ? Math.round((posCount / total) * 100) : 0;
+            const negPct = total > 0 ? Math.round((negCount / total) * 100) : 0;
+            return (
+              <>
                 <button
-                  onClick={() => setFilterResident(null)}
-                  className="flex items-center gap-2 w-full px-2 py-1.5 rounded-md text-xs text-destructive cursor-pointer hover:bg-accent mb-1"
+                  onClick={() =>
+                    setFilterSentiment(filterSentiment === "positive" ? null : "positive")
+                  }
+                  className="flex items-center gap-1 p-0.5"
                 >
-                  <XIcon className="h-3 w-3" />
-                  Clear filter
+                  <ThumbsUp
+                    className="h-5 w-5"
+                    style={{
+                      color: filterSentiment === "positive" ? "#5E9E82" : "#8A9AAB",
+                    }}
+                  />
+                  <span className="text-[11px] text-muted-foreground">{posPct}%</span>
                 </button>
-              )}
-              <div className="max-h-60 overflow-y-auto">
-                {residents.map((m) => (
-                  <button
-                    key={m.id}
-                    onClick={() => setFilterResident(filterResident === m.id ? null : m.id)}
-                    className={cn(
-                      "flex items-center gap-2 w-full px-2 py-1.5 rounded-md text-sm text-left cursor-pointer transition-colors",
-                      filterResident === m.id ? "bg-primary/10" : "hover:bg-accent"
-                    )}
-                  >
-                    {m.avatar_url ? (
-                      <img src={m.avatar_url} className="w-5 h-5 rounded-full object-cover" alt="" />
-                    ) : (
-                      <div
-                        className="w-5 h-5 rounded-full flex items-center justify-center text-white"
-                        style={{ fontSize: 8, fontWeight: 500, background: getColor(formatPersonName(m)) }}
-                      >
-                        {getInitials(formatPersonName(m))}
-                      </div>
-                    )}
-                    <span className="text-foreground text-xs">{formatPersonName(m)}</span>
-                  </button>
-                ))}
-              </div>
-            </PopoverContent>
-          </Popover>
 
-          {/* Filter positive */}
-          <button
-            onClick={() =>
-              setFilterSentiment(filterSentiment === "positive" ? null : "positive")
-            }
-            className="p-0.5"
-          >
-            <ThumbsUp
-              className="h-5 w-5"
-              style={{
-                color: filterSentiment === "positive" ? "#5E9E82" : "#8A9AAB",
-              }}
-            />
-          </button>
-
-          {/* Filter negative */}
-          <button
-            onClick={() =>
-              setFilterSentiment(filterSentiment === "negative" ? null : "negative")
-            }
-            className="p-0.5"
-          >
-            <ThumbsDown
-              className="h-5 w-5"
-              style={{
-                color: filterSentiment === "negative" ? "#A63333" : "#8A9AAB",
-              }}
-            />
-          </button>
+                <button
+                  onClick={() =>
+                    setFilterSentiment(filterSentiment === "negative" ? null : "negative")
+                  }
+                  className="flex items-center gap-1 p-0.5"
+                >
+                  <ThumbsDown
+                    className="h-5 w-5"
+                    style={{
+                      color: filterSentiment === "negative" ? "#A63333" : "#8A9AAB",
+                    }}
+                  />
+                  <span className="text-[11px] text-muted-foreground">{negPct}%</span>
+                </button>
+              </>
+            );
+          })()}
         </div>
 
         {/* Add button */}
