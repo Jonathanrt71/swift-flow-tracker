@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { formatCardDate, formatPersonName } from "@/lib/dateFormat";
 import { DetailReadOnly } from "@/components/cbme/DetailField";
 import HeaderLogo from "@/components/HeaderLogo";
+import { Button } from "@/components/ui/button";
 import BottomNav from "@/components/BottomNav";
 import NotificationBell from "@/components/NotificationBell";
 import CreateFeedbackDialog from "@/components/feedback/CreateFeedbackDialog";
