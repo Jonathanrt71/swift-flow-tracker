@@ -1,11 +1,12 @@
 import { useState, useRef, useCallback } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { CheckSquare, Users, Calendar, BookOpen, Shield, User, LogOut } from "lucide-react";
+import { CheckSquare, Users, Calendar, BookOpen, MessageSquare, Shield, User, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { path: "/cbme", label: "CBME", icon: BookOpen },
   { path: "/events", label: "Events", icon: Calendar },
+  { path: "/feedback", label: "Feedback", icon: MessageSquare },
   { path: "/meetings", label: "Meetings", icon: Users },
   { path: "/", label: "Tasks", icon: CheckSquare },
 ];
