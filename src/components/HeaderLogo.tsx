@@ -52,8 +52,7 @@ const HeaderLogo = ({
   }, []);
 
   const closeImage = useCallback(() => {
-    // Ignore clicks within 300ms of opening (prevents touch release from closing)
-    if (Date.now() - imageOpenedAt.current < 300) return;
+    if (Date.now() - imageOpenedAt.current < 600) return;
     setImageOpen(false);
   }, []);
 
@@ -151,6 +150,12 @@ const HeaderLogo = ({
           <div
             className="fixed inset-0 z-[80] bg-black/70 flex items-center justify-center"
             onClick={closeImage}
+            onTouchEnd={(e) => {
+              if (Date.now() - imageOpenedAt.current < 600) {
+                e.preventDefault();
+                e.stopPropagation();
+              }
+            }}
           >
             <img
               src="/yosemite-header.png"
