@@ -1,11 +1,13 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { format, parseISO } from "date-fns";
+import { useQuery } from "@tanstack/react-query";
 import { User, ThumbsUp, ThumbsDown, Pencil, Trash2, X as XIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { useFeedback } from "@/hooks/useFeedback";
+import { supabase } from "@/integrations/supabase/client";
 import { formatCardDate, formatPersonName } from "@/lib/dateFormat";
 import { DetailReadOnly } from "@/components/cbme/DetailField";
 import HeaderLogo from "@/components/HeaderLogo";
@@ -52,16 +54,27 @@ const Feedback = () => {
   const [filterResident, setFilterResident] = useState<string | null>(null);
   const [filterSentiment, setFilterSentiment] = useState<"positive" | "negative" | null>(null);
 
+  // Fetch user IDs with the 'resident' role
+  const { data: residentRoles } = useQuery({
+    queryKey: ["resident-role-ids"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("user_roles")
+        .select("user_id")
+        .eq("role", "resident");
+      if (error) throw error;
+      return (data || []).map((r) => r.user_id);
+    },
+  });
+
   const members = teamMembers || [];
-  const allFeedback = feedbackQuery.data || [];
+  const residentIds = new Set(residentRoles || []);
+  const residents = members.filter((m) => residentIds.has(m.id));
 
   // Build a lookup for names
   const nameMap = new Map<string, string>();
   members.forEach((m) => nameMap.set(m.id, formatPersonName(m)));
-
-  // Get residents for the create dialog (we use user_roles if available, otherwise show all members)
-  // For simplicity, show all team members in the resident selector — the dialog is only accessible to faculty/admin
-  const residents = members;
+  const allFeedback = feedbackQuery.data || [];
 
   // Filter
   const filtered = allFeedback.filter((fb) => {
@@ -248,7 +261,7 @@ const Feedback = () => {
                 </button>
               )}
               <div className="max-h-60 overflow-y-auto">
-                {members.map((m) => (
+                {residents.map((m) => (
                   <button
                     key={m.id}
                     onClick={() => setFilterResident(filterResident === m.id ? null : m.id)}
