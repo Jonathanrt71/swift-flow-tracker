@@ -26,11 +26,13 @@ const HeaderLogo = ({
 
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const didLongPress = useRef(false);
+  const imageOpenedAt = useRef(0);
 
   const startPress = useCallback(() => {
     didLongPress.current = false;
     longPressTimer.current = setTimeout(() => {
       didLongPress.current = true;
+      imageOpenedAt.current = Date.now();
       setImageOpen(true);
     }, 500);
   }, []);
@@ -50,6 +52,12 @@ const HeaderLogo = ({
       clearTimeout(longPressTimer.current);
       longPressTimer.current = null;
     }
+  }, []);
+
+  const closeImage = useCallback(() => {
+    // Ignore clicks within 300ms of opening (prevents touch release from closing)
+    if (Date.now() - imageOpenedAt.current < 300) return;
+    setImageOpen(false);
   }, []);
 
   return (
@@ -145,7 +153,7 @@ const HeaderLogo = ({
         <>
           <div
             className="fixed inset-0 z-[80] bg-black/70 flex items-center justify-center"
-            onClick={() => setImageOpen(false)}
+            onClick={closeImage}
           >
             <img
               src="/yosemite-header.png"
