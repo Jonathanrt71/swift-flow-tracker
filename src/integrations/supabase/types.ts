@@ -259,6 +259,41 @@ export type Database = {
         }
         Relationships: []
       }
+      feedback: {
+        Row: {
+          comment: string
+          created_at: string | null
+          faculty_id: string
+          id: string
+          resident_id: string
+          sentiment: string
+        }
+        Insert: {
+          comment: string
+          created_at?: string | null
+          faculty_id: string
+          id?: string
+          resident_id: string
+          sentiment: string
+        }
+        Update: {
+          comment?: string
+          created_at?: string | null
+          faculty_id?: string
+          id?: string
+          resident_id?: string
+          sentiment?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feedback_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       meeting_attendees: {
         Row: {
           created_at: string | null
