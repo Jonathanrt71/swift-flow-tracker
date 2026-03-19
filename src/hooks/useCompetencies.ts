@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { useUserRole } from "@/hooks/useUserRole";
 
 export interface CompetencyTask {
   id: string;
@@ -48,6 +49,7 @@ export interface AssessmentGrade {
 
 export function useCompetencies() {
   const { user } = useAuth();
+  const { isResident, isFaculty } = useUserRole();
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -252,23 +254,35 @@ export function useCompetencies() {
       toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
 
+  // For residents: show assessments about them (as the resident being assessed)
+  // For faculty/admin: show assessments they created
   const myAssessments = useQuery({
-    queryKey: ["my_assessments", user?.id],
+    queryKey: ["my_assessments", user?.id, isResident],
     enabled: !!user,
     queryFn: async () => {
-      const { data, error } = await supabase
+      const query = supabase
         .from("competency_assessments")
         .select("*")
-        .eq("assessor_id", user!.id)
         .order("created_at", { ascending: false });
-      if (error) throw error;
-      return (data || []) as Assessment[];
+
+      if (isResident) {
+        // Residents see assessments about themselves
+        const { data, error } = await query.eq("resident_id", user!.id);
+        if (error) throw error;
+        return (data || []) as Assessment[];
+      } else {
+        // Faculty/admin see assessments they performed
+        const { data, error } = await query.eq("assessor_id", user!.id);
+        if (error) throw error;
+        return (data || []) as Assessment[];
+      }
     },
   });
 
+  // Only faculty and admin can see all assessments
   const allAssessments = useQuery({
     queryKey: ["all_assessments"],
-    enabled: !!user,
+    enabled: !!user && !isResident,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("competency_assessments")

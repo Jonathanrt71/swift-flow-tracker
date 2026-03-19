@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Bold, Italic, List, ListOrdered, ListChecks } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useEffect } from "react";
+import DOMPurify from "dompurify";
 
 const proseMirrorClasses = [
   "[&_.ProseMirror]:outline-none [&_.ProseMirror]:font-normal",
@@ -121,7 +122,7 @@ export const DetailReadOnly = ({ html }: { html: string }) => {
         "[&_ul[data-type=taskList]]:list-none [&_ul[data-type=taskList]]:pl-0",
       )}
       style={{ color: "#666" }}
-      dangerouslySetInnerHTML={{ __html: html }}
+      dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(html) }}
     />
   );
 };
