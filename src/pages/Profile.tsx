@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Camera, Loader2, Check } from "lucide-react";
+import { Camera, Loader2, Check, User, X } from "lucide-react";
 
 const Profile = () => {
   const { user } = useAuth();
@@ -123,15 +123,18 @@ const Profile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b">
-        <div className="container flex items-center gap-3 h-14 px-4">
+    <div className="min-h-screen" style={{ background: "#F5F3EE" }}>
+      <header style={{ background: "#415162" }}>
+        <div className="container flex items-center justify-between h-14 px-4">
+          <div className="flex items-center gap-2">
+            <User className="h-5 w-5 text-white/50" />
+            <span className="text-base font-medium text-white">Profile</span>
+          </div>
           <Link to="/">
-            <Button variant="ghost" size="icon">
-              <ArrowLeft className="h-4 w-4" />
+            <Button variant="ghost" size="icon" className="text-white/50 hover:bg-transparent">
+              <X className="h-4 w-4" />
             </Button>
           </Link>
-          <h1 className="text-lg font-semibold text-foreground">Profile Settings</h1>
         </div>
       </header>
 

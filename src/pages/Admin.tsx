@@ -423,20 +423,17 @@ const Admin = () => {
           style={{ background: "#E7EBEF", border: "0.5px solid #C9CED4" }}
         >
           <div
-            className="flex items-center px-3.5 py-3"
+            className="flex items-center justify-between px-3.5 py-3"
             onClick={() => toggleSection("team")}
           >
             <span className="text-sm font-medium" style={{ color: "#2D3748" }}>Team members</span>
+            <AddUserDialog
+              onSubmit={(data) => inviteUser.mutate(data)}
+              isPending={inviteUser.isPending}
+            />
           </div>
           {expandedSection === "team" && (
             <div className="px-3.5 pb-3 space-y-1.5">
-              {/* Add user — top row */}
-              <div className="flex justify-end" onClick={(e) => e.stopPropagation()}>
-                <AddUserDialog
-                  onSubmit={(data) => inviteUser.mutate(data)}
-                  isPending={inviteUser.isPending}
-                />
-              </div>
               {users.isLoading ? (
                 <div className="flex justify-center py-4">
                   <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
@@ -455,7 +452,7 @@ const Admin = () => {
                         <span className="text-sm font-medium text-foreground">
                           {formatPersonName(u)}
                         </span>
-                        <span className="ml-2 text-[11px] text-muted-foreground">{{ admin: "Adm", faculty: "Fac", resident: "Res" }[u.role] || u.role}</span>
+                        <span className="ml-2 text-[11px] text-muted-foreground">{u.role}</span>
                         {isSelf && (
                           <span className="ml-1 text-[11px] text-muted-foreground">(you)</span>
                         )}
