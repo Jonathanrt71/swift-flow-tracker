@@ -433,58 +433,58 @@ const TaskCard = ({
       {expanded && isExpandable(task) && (
         <>
           <div className="pb-2 pl-[52px] pr-3">
-            {/* Due date */}
-            {(() => {
-              const dd = formatDueDate(task.due_date);
-              return dd ? (
-                <div className="mb-1">
-                  <span className={cn("text-[11px]", dd.urgent ? "text-destructive" : "text-muted-foreground")}>
-                    {dd.text}
-                  </span>
-                </div>
-              ) : null;
-            })()}
-
-            {/* Action icons row — evenly spaced */}
-            <div className="flex items-center gap-3 mb-1" onClick={(e) => e.stopPropagation()}>
-              <button
-                className="flex items-center justify-center w-8 h-8 rounded-md bg-transparent hover:bg-black/5 transition-colors"
-                onClick={() => onToggleStar({ id: task.id, starred: !task.starred })}
-              >
-                <Star
-                  className={cn(
-                    "h-4 w-4",
-                    task.starred ? "fill-[#9F2929] text-[#9F2929]" : "text-muted-foreground"
-                  )}
-                />
-              </button>
-              <NotesEditorDialog task={task} onUpdate={onUpdate} iconTrigger />
-              <TaskDetailSheet task={task} onUpdate={onUpdate} onDelete={onDelete} iconTrigger />
-              <CreateTaskDialog onSubmit={onCreateSubtask} parentId={task.id} iconTrigger />
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <button className="flex items-center justify-center w-8 h-8 rounded-md bg-transparent text-destructive hover:bg-destructive/10 transition-colors">
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </AlertDialogTrigger>
-                <AlertDialogContent onClick={(e) => e.stopPropagation()}>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Delete task?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This will permanently delete "{task.title}". This action cannot be undone.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={() => onDelete(task.id)}
-                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                    >
-                      Delete
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
+            {/* Due date + action icons on same line */}
+            <div className="flex items-center mb-1">
+              <div className="flex-1 min-w-0">
+                {(() => {
+                  const dd = formatDueDate(task.due_date);
+                  return dd ? (
+                    <span className={cn("text-[11px]", dd.urgent ? "text-destructive" : "text-muted-foreground")}>
+                      {dd.text}
+                    </span>
+                  ) : null;
+                })()}
+              </div>
+              <div className="flex items-center gap-3 shrink-0" onClick={(e) => e.stopPropagation()}>
+                <button
+                  className="flex items-center justify-center w-8 h-8 rounded-md bg-transparent hover:bg-black/5 transition-colors"
+                  onClick={() => onToggleStar({ id: task.id, starred: !task.starred })}
+                >
+                  <Star
+                    className={cn(
+                      "h-4 w-4",
+                      task.starred ? "fill-[#9F2929] text-[#9F2929]" : "text-muted-foreground"
+                    )}
+                  />
+                </button>
+                <NotesEditorDialog task={task} onUpdate={onUpdate} iconTrigger />
+                <TaskDetailSheet task={task} onUpdate={onUpdate} onDelete={onDelete} iconTrigger />
+                <CreateTaskDialog onSubmit={onCreateSubtask} parentId={task.id} iconTrigger />
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <button className="flex items-center justify-center w-8 h-8 rounded-md bg-transparent text-destructive hover:bg-destructive/10 transition-colors">
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete task?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This will permanently delete "{task.title}". This action cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={() => onDelete(task.id)}
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      >
+                        Delete
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
             </div>
 
             {/* Notes preview */}
