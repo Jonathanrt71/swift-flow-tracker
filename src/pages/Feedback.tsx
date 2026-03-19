@@ -165,7 +165,7 @@ const Feedback = () => {
               </span>
               {dateInfo && (
                 <span
-                  className={cn("text-[11px] whitespace-nowrap shrink-0", dateInfo.urgent ? "text-destructive" : "text-muted-foreground")}
+                  className="text-[11px] whitespace-nowrap shrink-0 text-muted-foreground"
                 >
                   {dateInfo.text}
                 </span>
