@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useAdmin } from "@/hooks/useAdmin";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate, Link } from "react-router-dom";
@@ -338,21 +338,23 @@ const RoleAccessSection = () => {
         <span className="flex items-center gap-1">{dot("#D4B820")} View only</span>
         <span className="flex items-center gap-1">{dot("#A63333")} None</span>
       </div>
-      {sections.map((s) => (
-        <div key={s.name}>
-          <div className="text-xs font-medium text-foreground pt-2 pb-1 border-b" style={{ borderColor: "#C9CED4" }}>
-            {s.name}
-          </div>
-          <table className="w-full text-[11px]" style={{ borderCollapse: "collapse" }}>
-            <thead>
+      <table className="w-full text-[11px]" style={{ borderCollapse: "collapse" }}>
+        <thead>
+          <tr>
+            <th className="text-left font-normal text-muted-foreground py-1" style={{ width: "52%" }} />
+            <th className="text-center font-normal text-muted-foreground py-1" style={{ width: "16%" }}>Adm</th>
+            <th className="text-center font-normal text-muted-foreground py-1" style={{ width: "16%" }}>Fac</th>
+            <th className="text-center font-normal text-muted-foreground py-1" style={{ width: "16%" }}>Res</th>
+          </tr>
+        </thead>
+        <tbody>
+          {sections.map((s) => (
+            <React.Fragment key={s.name}>
               <tr>
-                <th className="text-left font-normal text-muted-foreground py-1" style={{ width: "52%" }} />
-                <th className="text-center font-normal text-muted-foreground py-1" style={{ width: "16%" }}>Adm</th>
-                <th className="text-center font-normal text-muted-foreground py-1" style={{ width: "16%" }}>Fac</th>
-                <th className="text-center font-normal text-muted-foreground py-1" style={{ width: "16%" }}>Res</th>
+                <td colSpan={4} className="text-xs font-medium text-foreground pt-2 pb-1 border-b" style={{ borderColor: "#C9CED4" }}>
+                  {s.name}
+                </td>
               </tr>
-            </thead>
-            <tbody>
               {s.rows.map((row) => (
                 <tr key={row.action}>
                   <td className="py-1 text-muted-foreground">{row.action}</td>
@@ -361,10 +363,10 @@ const RoleAccessSection = () => {
                   <td className="py-1 text-center">{row.r}</td>
                 </tr>
               ))}
-            </tbody>
-          </table>
-        </div>
-      ))}
+            </React.Fragment>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 };
