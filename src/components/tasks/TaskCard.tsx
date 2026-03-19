@@ -408,26 +408,80 @@ const TaskCard = ({
           <span className={cn("font-medium text-sm", expanded ? "break-words" : "truncate")}>{task.title}</span>
         </div>
 
-        <div className="flex items-center shrink-0">
-          {(() => {
-            const dd = formatCardDate(task.due_date);
-            return dd ? (
-              <span className={cn("text-[11px] whitespace-nowrap mr-1.5", dd.urgent ? "text-destructive" : "text-muted-foreground")}>
-                {dd.text}
-              </span>
-            ) : null;
-          })()}
-          <div className="mr-1.5 flex items-center">
-            {task.starred && (
-              <Star className="h-3.5 w-3.5 fill-[#9F2929] text-[#9F2929] shrink-0 mr-2" />
-            )}
-            <AssigneeAvatar
-              assignedTo={task.assigned_to || task.created_by}
-              teamMembers={teamMembers}
-              size={28}
-            />
+        {!expanded && (
+          <div className="flex items-center shrink-0">
+            {(() => {
+              const dd = formatCardDate(task.due_date);
+              return dd ? (
+                <span className={cn("text-[11px] whitespace-nowrap mr-1.5", dd.urgent ? "text-destructive" : "text-muted-foreground")}>
+                  {dd.text}
+                </span>
+              ) : null;
+            })()}
+            <div className="mr-1.5 flex items-center">
+              {task.starred && (
+                <Star className="h-3.5 w-3.5 fill-[#9F2929] text-[#9F2929] shrink-0 mr-2" />
+              )}
+              <AssigneeAvatar
+                assignedTo={task.assigned_to || task.created_by}
+                teamMembers={teamMembers}
+                size={28}
+              />
+            </div>
           </div>
-        </div>
+        )}
+
+        {expanded && (
+          <div
+            className="absolute right-0 top-0 bottom-0 flex items-center gap-3 px-3 rounded-r-[10px] bg-accent/80"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className="flex items-center justify-center w-8 h-8 rounded-md bg-transparent hover:bg-black/5 transition-colors"
+              onClick={() => onToggleStar({ id: task.id, starred: !task.starred })}
+            >
+              <Star
+                className={cn(
+                  "h-4 w-4",
+                  task.starred ? "fill-[#9F2929] text-[#9F2929]" : "text-foreground"
+                )}
+              />
+            </button>
+            <NotesEditorDialog task={task} onUpdate={onUpdate} iconTrigger />
+            <TaskDetailSheet task={task} onUpdate={onUpdate} onDelete={onDelete} iconTrigger />
+            <CreateTaskDialog onSubmit={onCreateSubtask} parentId={task.id} iconTrigger />
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <button className="flex items-center justify-center w-8 h-8 rounded-md bg-transparent text-destructive hover:bg-destructive/10 transition-colors">
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </AlertDialogTrigger>
+              <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete task?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This will permanently delete "{task.title}". This action cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() => onDelete(task.id)}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    Delete
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+            <button
+              className="flex items-center justify-center w-8 h-8 rounded-md bg-transparent hover:bg-black/5 transition-colors"
+              onClick={() => setExpanded(false)}
+            >
+              <X className="h-3.5 w-3.5 text-foreground" />
+            </button>
+          </div>
+        )}
       </div>
 
       {expanded && isExpandable(task) && (
@@ -435,66 +489,14 @@ const TaskCard = ({
           {/* Action row: due date left, edit/delete right — matches events pattern */}
           <div className="pb-2 pl-[52px] pr-3">
             <div className="flex items-center justify-between mb-1">
-              <div className="flex items-baseline gap-2 flex-1 min-w-0">
-                {(() => {
-                  const dd = formatDueDate(task.due_date);
-                  return dd ? (
-                    <span className={cn("text-[11px]", dd.urgent ? "text-destructive" : "text-muted-foreground")}>
-                      {dd.text}
-                    </span>
-                  ) : null;
-                })()}
-              </div>
-            </div>
-            <div className="flex items-center justify-end -mr-1.5" onClick={(e) => e.stopPropagation()}>
-                <button
-                  className="flex items-center justify-center w-8 h-8 rounded-md bg-transparent hover:bg-black/5 transition-colors"
-                  onClick={() => onToggleStar({ id: task.id, starred: !task.starred })}
-                >
-                  <Star
-                    className={cn(
-                      "h-3.5 w-3.5",
-                      task.starred ? "fill-[#9F2929] text-[#9F2929]" : "text-muted-foreground"
-                    )}
-                  />
-                </button>
-                <div className="flex-1" />
-                <NotesEditorDialog
-                  task={task}
-                  onUpdate={onUpdate}
-                  iconTrigger
-                />
-                <div className="flex-1" />
-                <TaskDetailSheet task={task} onUpdate={onUpdate} onDelete={onDelete} iconTrigger />
-                <div className="flex-1" />
-                <CreateTaskDialog onSubmit={onCreateSubtask} parentId={task.id} iconTrigger />
-                <div className="flex-1" />
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <button
-                      className="flex items-center justify-center w-8 h-8 rounded-md bg-transparent text-destructive hover:bg-destructive/10 transition-colors"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent onClick={(e) => e.stopPropagation()}>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Delete task?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        This will permanently delete "{task.title}". This action cannot be undone.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction
-                        onClick={() => onDelete(task.id)}
-                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                      >
-                        Delete
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
+              {(() => {
+                const dd = formatDueDate(task.due_date);
+                return dd ? (
+                  <span className={cn("text-[11px]", dd.urgent ? "text-destructive" : "text-muted-foreground")}>
+                    {dd.text}
+                  </span>
+                ) : null;
+              })()}
             </div>
 
             {/* Notes preview */}
