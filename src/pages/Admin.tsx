@@ -290,24 +290,23 @@ const RoleAccessSection = () => {
 
   const sections = [
     {
-      name: "Tasks",
+      name: "Admin",
       rows: [
-        { action: "View / create / edit", a: <G />, f: <G />, r: <G /> },
+        { action: "All actions", a: <G />, f: <R />, r: <R /> },
       ],
     },
     {
-      name: "Meetings",
+      name: "CBME",
       rows: [
-        { action: "View page", a: <G />, f: <G />, r: <G /> },
-        { action: "Create / edit / delete", a: <G />, f: <G />, r: <R /> },
-        { action: "View notes", a: <G />, f: <G />, r: <Y /> },
+        { action: "Assess / edit / all scores", a: <G />, f: <G />, r: <R /> },
+        { action: "View / own scores", a: <G />, f: <G />, r: <G /> },
       ],
     },
     {
       name: "Events",
       rows: [
-        { action: "View page", a: <G />, f: <G />, r: <G /> },
         { action: "Create / edit / delete", a: <G />, f: <G />, r: <R /> },
+        { action: "View page", a: <G />, f: <G />, r: <G /> },
       ],
     },
     {
@@ -317,16 +316,17 @@ const RoleAccessSection = () => {
       ],
     },
     {
-      name: "CBME",
+      name: "Meetings",
       rows: [
-        { action: "View / own scores", a: <G />, f: <G />, r: <G /> },
-        { action: "Assess / edit / all scores", a: <G />, f: <G />, r: <R /> },
+        { action: "Create / edit / delete", a: <G />, f: <G />, r: <R /> },
+        { action: "View notes", a: <G />, f: <G />, r: <Y /> },
+        { action: "View page", a: <G />, f: <G />, r: <G /> },
       ],
     },
     {
-      name: "Admin",
+      name: "Tasks",
       rows: [
-        { action: "All actions", a: <G />, f: <R />, r: <R /> },
+        { action: "View / create / edit", a: <G />, f: <G />, r: <G /> },
       ],
     },
   ];
@@ -339,21 +339,26 @@ const RoleAccessSection = () => {
         <span className="flex items-center gap-1">{dot("#A63333")} None</span>
       </div>
       <table className="w-full text-[11px]" style={{ borderCollapse: "collapse" }}>
-        <thead>
-          <tr>
-            <th className="text-left font-normal text-muted-foreground py-1" style={{ width: "52%" }} />
-            <th className="text-center font-normal text-muted-foreground py-1" style={{ width: "16%" }}>Adm</th>
-            <th className="text-center font-normal text-muted-foreground py-1" style={{ width: "16%" }}>Fac</th>
-            <th className="text-center font-normal text-muted-foreground py-1" style={{ width: "16%" }}>Res</th>
-          </tr>
-        </thead>
         <tbody>
-          {sections.map((s) => (
+          {sections.map((s, i) => (
             <React.Fragment key={s.name}>
               <tr>
-                <td colSpan={4} className="text-xs font-medium text-foreground pt-2 pb-1 border-b" style={{ borderColor: "#C9CED4" }}>
+                <td className="text-xs font-medium text-foreground pt-2 pb-1 border-b" style={{ width: "52%", borderColor: "#C9CED4" }}>
                   {s.name}
                 </td>
+                {i === 0 ? (
+                  <>
+                    <td className="text-center font-normal text-muted-foreground pt-2 pb-1 border-b" style={{ width: "16%", borderColor: "#C9CED4" }}>Adm</td>
+                    <td className="text-center font-normal text-muted-foreground pt-2 pb-1 border-b" style={{ width: "16%", borderColor: "#C9CED4" }}>Fac</td>
+                    <td className="text-center font-normal text-muted-foreground pt-2 pb-1 border-b" style={{ width: "16%", borderColor: "#C9CED4" }}>Res</td>
+                  </>
+                ) : (
+                  <>
+                    <td className="border-b" style={{ borderColor: "#C9CED4" }} />
+                    <td className="border-b" style={{ borderColor: "#C9CED4" }} />
+                    <td className="border-b" style={{ borderColor: "#C9CED4" }} />
+                  </>
+                )}
               </tr>
               {s.rows.map((row) => (
                 <tr key={row.action}>
