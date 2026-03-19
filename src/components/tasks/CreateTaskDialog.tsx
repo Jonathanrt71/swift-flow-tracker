@@ -89,7 +89,7 @@ const CreateTaskDialog = ({ onSubmit, parentId, meetingId, loading, iconOnly, in
         {children ? (
           children
         ) : iconTrigger ? (
-          <button data-no-swipe className="flex items-center justify-center w-full h-full bg-transparent border-none cursor-pointer" aria-label="Add subtask">
+          <button data-no-swipe className="flex items-center justify-center w-8 h-8 bg-transparent border-none cursor-pointer rounded-md hover:bg-black/5 transition-colors" aria-label="Add subtask">
             <Plus className="h-4 w-4 text-foreground" />
           </button>
         ) : (
