@@ -92,15 +92,7 @@ const EditUserDialog = ({
         </div>
 
         <div className="px-5 pb-5 flex flex-col gap-3.5">
-          <div className="space-y-1.5">
-            <Label className="text-xs text-muted-foreground">Display name</Label>
-            <Input
-              value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
-              placeholder="Display name"
-              className="bg-background rounded-lg"
-            />
-          </div>
+
           <div className="space-y-1.5">
             <Label className="text-xs text-muted-foreground">First name</Label>
             <Input

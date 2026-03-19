@@ -183,15 +183,8 @@ const Profile = () => {
               className="opacity-60"
             />
           </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="displayName" className="font-normal text-sm text-muted-foreground">Display name</Label>
-            <Input
-              id="displayName"
-              value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
-              placeholder="How your name appears to others"
-            />
-          </div>
+
+
           <div className="space-y-1.5">
             <Label htmlFor="firstName" className="font-normal text-sm text-muted-foreground">First name</Label>
             <Input
