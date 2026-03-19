@@ -40,19 +40,6 @@ export function useMeetingTags() {
       toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
 
-  const updateTag = useMutation({
-    mutationFn: async ({ id, name }: { id: string; name: string }) => {
-      const { error } = await supabase.from("meeting_tags").update({ name: name.trim() }).eq("id", id);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["meeting_tags"] });
-      toast({ title: "Tag updated" });
-    },
-    onError: (e: Error) =>
-      toast({ title: "Error", description: e.message, variant: "destructive" }),
-  });
-
   const deleteTag = useMutation({
     mutationFn: async (id: string) => {
       // First remove from all meeting_tag_links
@@ -69,7 +56,7 @@ export function useMeetingTags() {
       toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
 
-  return { tags, createTag, updateTag, deleteTag };
+  return { tags, createTag, deleteTag };
 }
 
 export function useMeetingTagLinks() {
