@@ -490,39 +490,40 @@ const Admin = () => {
           style={{ background: "#E7EBEF", border: "0.5px solid #C9CED4" }}
         >
           <div
-            className="flex items-center justify-between px-3.5 py-3"
+            className="flex items-center px-3.5 py-3"
             onClick={() => toggleSection("tags")}
           >
             <span className="text-sm font-medium" style={{ color: "#2D3748" }}>Meeting tags</span>
-            <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-              <Input
-                value={newTagName}
-                onChange={(e) => setNewTagName(e.target.value)}
-                placeholder="New tag..."
-                className="bg-background rounded-lg h-8 text-xs w-28"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && newTagName.trim()) {
-                    createTag.mutate(newTagName.trim());
-                    setNewTagName("");
-                  }
-                }}
-              />
-              <button
-                onClick={() => {
-                  if (newTagName.trim()) {
-                    createTag.mutate(newTagName.trim());
-                    setNewTagName("");
-                  }
-                }}
-                disabled={!newTagName.trim()}
-                className="p-1 text-[#8A9AAB] disabled:opacity-30"
-              >
-                <Plus className="h-5 w-5" />
-              </button>
-            </div>
           </div>
           {expandedSection === "tags" && (
             <div className="px-3.5 pb-3 space-y-1.5">
+              {/* Add row — top */}
+              <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                <Input
+                  value={newTagName}
+                  onChange={(e) => setNewTagName(e.target.value)}
+                  placeholder="New tag name..."
+                  className="bg-background rounded-lg flex-1"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && newTagName.trim()) {
+                      createTag.mutate(newTagName.trim());
+                      setNewTagName("");
+                    }
+                  }}
+                />
+                <button
+                  onClick={() => {
+                    if (newTagName.trim()) {
+                      createTag.mutate(newTagName.trim());
+                      setNewTagName("");
+                    }
+                  }}
+                  disabled={!newTagName.trim()}
+                  className="p-1 text-[#8A9AAB] disabled:opacity-30"
+                >
+                  <Plus className="h-5 w-5" />
+                </button>
+              </div>
               {tags.data?.map((tag) => {
                 const count = links.data?.filter((l) => l.tag_id === tag.id).length || 0;
                 const isEditing = editingTagId === tag.id;
@@ -599,39 +600,40 @@ const Admin = () => {
           style={{ background: "#E7EBEF", border: "0.5px solid #C9CED4" }}
         >
           <div
-            className="flex items-center justify-between px-3.5 py-3"
+            className="flex items-center px-3.5 py-3"
             onClick={() => toggleSection("categories")}
           >
             <span className="text-sm font-medium" style={{ color: "#2D3748" }}>Competency categories</span>
-            <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-              <Input
-                value={newCategoryName}
-                onChange={(e) => setNewCategoryName(e.target.value)}
-                placeholder="New category..."
-                className="bg-background rounded-lg h-8 text-xs w-28"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && newCategoryName.trim()) {
-                    createCategory.mutate(newCategoryName.trim());
-                    setNewCategoryName("");
-                  }
-                }}
-              />
-              <button
-                onClick={() => {
-                  if (newCategoryName.trim()) {
-                    createCategory.mutate(newCategoryName.trim());
-                    setNewCategoryName("");
-                  }
-                }}
-                disabled={!newCategoryName.trim()}
-                className="p-1 text-[#8A9AAB] disabled:opacity-30"
-              >
-                <Plus className="h-5 w-5" />
-              </button>
-            </div>
           </div>
           {expandedSection === "categories" && (
             <div className="px-3.5 pb-3 space-y-1.5">
+              {/* Add row — top */}
+              <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                <Input
+                  value={newCategoryName}
+                  onChange={(e) => setNewCategoryName(e.target.value)}
+                  placeholder="New category name..."
+                  className="bg-background rounded-lg flex-1"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && newCategoryName.trim()) {
+                      createCategory.mutate(newCategoryName.trim());
+                      setNewCategoryName("");
+                    }
+                  }}
+                />
+                <button
+                  onClick={() => {
+                    if (newCategoryName.trim()) {
+                      createCategory.mutate(newCategoryName.trim());
+                      setNewCategoryName("");
+                    }
+                  }}
+                  disabled={!newCategoryName.trim()}
+                  className="p-1 text-[#8A9AAB] disabled:opacity-30"
+                >
+                  <Plus className="h-5 w-5" />
+                </button>
+              </div>
               {categories.data?.map((cat) => {
                 const isEditing = editingCatId === cat.id;
                 return (
