@@ -2,13 +2,16 @@ import { useState, useRef, useCallback } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { CheckSquare, Users, Calendar, BookOpen, MessageSquare, Shield, User, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useUserRole } from "@/hooks/useUserRole";
 
-const navItems = [
-  { path: "/cbme", label: "CBME", icon: BookOpen },
-  { path: "/events", label: "Events", icon: Calendar },
-  { path: "/feedback", label: "Feedback", icon: MessageSquare },
-  { path: "/meetings", label: "Meetings", icon: Users },
-  { path: "/", label: "Tasks", icon: CheckSquare },
+type AllowedRole = "admin" | "faculty" | "resident";
+
+const allNavItems = [
+  { path: "/cbme", label: "CBME", icon: BookOpen, allowed: ["admin", "faculty"] as AllowedRole[] },
+  { path: "/events", label: "Events", icon: Calendar, allowed: ["admin", "faculty"] as AllowedRole[] },
+  { path: "/feedback", label: "Feedback", icon: MessageSquare, allowed: ["admin", "faculty"] as AllowedRole[] },
+  { path: "/meetings", label: "Meetings", icon: Users, allowed: ["admin", "faculty"] as AllowedRole[] },
+  { path: "/", label: "Tasks", icon: CheckSquare, allowed: ["admin", "faculty"] as AllowedRole[] },
 ];
 
 const HeaderLogo = ({
@@ -22,8 +25,10 @@ const HeaderLogo = ({
   const [imageOpen, setImageOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const currentItem = navItems.find((n) => n.path === location.pathname);
-  const Icon = currentItem?.icon || CheckSquare;
+  const { role } = useUserRole();
+  const navItems = allNavItems.filter((item) => item.allowed.includes(role as AllowedRole));
+  const currentItem = allNavItems.find((n) => n.path === location.pathname);
+  const Icon = currentItem?.icon || User;
 
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const didLongPress = useRef(false);

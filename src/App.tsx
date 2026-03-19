@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import RoleRoute from "@/components/RoleRoute";
 import Index from "./pages/Index.tsx";
 import Login from "./pages/Login.tsx";
 import ResetPassword from "./pages/ResetPassword.tsx";
@@ -29,13 +30,13 @@ const App = () => (
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route path="/reset-password" element={<ResetPassword />} />
-              <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
-              <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
+              <Route path="/" element={<RoleRoute allowed={["admin", "faculty"]}><Index /></RoleRoute>} />
+              <Route path="/admin" element={<RoleRoute allowed={["admin"]}><Admin /></RoleRoute>} />
               <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-              <Route path="/meetings" element={<ProtectedRoute><Meetings /></ProtectedRoute>} />
-              <Route path="/events" element={<ProtectedRoute><Events /></ProtectedRoute>} />
-              <Route path="/feedback" element={<ProtectedRoute><Feedback /></ProtectedRoute>} />
-              <Route path="/cbme" element={<ProtectedRoute><CBME /></ProtectedRoute>} />
+              <Route path="/meetings" element={<RoleRoute allowed={["admin", "faculty"]}><Meetings /></RoleRoute>} />
+              <Route path="/events" element={<RoleRoute allowed={["admin", "faculty"]}><Events /></RoleRoute>} />
+              <Route path="/feedback" element={<RoleRoute allowed={["admin", "faculty"]}><Feedback /></RoleRoute>} />
+              <Route path="/cbme" element={<RoleRoute allowed={["admin", "faculty"]}><CBME /></RoleRoute>} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
