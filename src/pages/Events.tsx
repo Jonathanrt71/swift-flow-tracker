@@ -296,7 +296,7 @@ const Events = () => {
 
   return (
     <div className="min-h-screen bg-background pb-20">
-      <header className="bg-[#415162]">
+      <header className="bg-[#415162] sticky top-0 z-40">
         <div className="container flex items-center justify-between h-14 px-4">
           <HeaderLogo isAdmin={isAdmin} onSignOut={() => signOut()} />
           <div className="flex items-center gap-1 text-white/50">

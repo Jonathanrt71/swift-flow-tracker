@@ -417,7 +417,7 @@ const Admin = () => {
 
   return (
     <div className="min-h-screen" style={{ background: "#F5F3EE" }}>
-      <header style={{ background: "#415162" }}>
+      <header className="sticky top-0 z-40" style={{ background: "#415162" }}>
         <div className="container flex items-center justify-between h-14 px-4">
           <div className="flex items-center gap-2">
             <Shield className="h-5 w-5 text-white/50" />
