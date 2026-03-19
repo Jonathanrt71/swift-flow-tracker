@@ -103,7 +103,7 @@ const TaskDetailSheet = ({
   const trigger = iconTrigger ? (
     <button
       data-no-swipe
-      className="flex items-center justify-center w-full h-full bg-transparent border-none cursor-pointer"
+      className="flex items-center justify-center w-8 h-8 bg-transparent border-none cursor-pointer rounded-md hover:bg-black/5 transition-colors"
       aria-label="View details"
     >
       <Info className="h-4 w-4 text-foreground" />
