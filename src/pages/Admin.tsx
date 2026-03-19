@@ -1,12 +1,10 @@
 import { useState } from "react";
 import { useAdmin } from "@/hooks/useAdmin";
-import { useAppSettings } from "@/hooks/useAppSettings";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -21,16 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { ArrowLeft, Plus, Shield, Pencil, Check, X, Tag, Trash2, BookOpen } from "lucide-react";
+import { Plus, Shield, Pencil, Check, X, Tag, Trash2, BookOpen } from "lucide-react";
 import { useMeetingTags } from "@/hooks/useMeetingTags";
 import { useMeetingTagLinks } from "@/hooks/useMeetingTags";
 import { useCompetencyCategories } from "@/hooks/useCompetencyCategories";
@@ -296,19 +285,114 @@ const AddUserDialog = ({
   );
 };
 
+/* ── Role Access Report (read-only) ── */
+const RoleAccessSection = () => {
+  const dot = (color: string) => (
+    <div
+      className="inline-block w-3 h-3 rounded-full"
+      style={{ background: color }}
+    />
+  );
+  const G = () => dot("#5E9E82");
+  const Y = () => dot("#D4B820");
+  const R = () => dot("#A63333");
+
+  const sections = [
+    {
+      name: "Tasks",
+      rows: [
+        { action: "View / create / edit", a: <G />, f: <G />, r: <G /> },
+      ],
+    },
+    {
+      name: "Meetings",
+      rows: [
+        { action: "View page", a: <G />, f: <G />, r: <G /> },
+        { action: "Create / edit / delete", a: <G />, f: <G />, r: <R /> },
+        { action: "View notes", a: <G />, f: <G />, r: <Y /> },
+      ],
+    },
+    {
+      name: "Events",
+      rows: [
+        { action: "View page", a: <G />, f: <G />, r: <G /> },
+        { action: "Create / edit / delete", a: <G />, f: <G />, r: <R /> },
+      ],
+    },
+    {
+      name: "Feedback",
+      rows: [
+        { action: "All actions", a: <G />, f: <G />, r: <R /> },
+      ],
+    },
+    {
+      name: "CBME",
+      rows: [
+        { action: "View / own scores", a: <G />, f: <G />, r: <G /> },
+        { action: "Assess / edit / all scores", a: <G />, f: <G />, r: <R /> },
+      ],
+    },
+    {
+      name: "Admin",
+      rows: [
+        { action: "All actions", a: <G />, f: <R />, r: <R /> },
+      ],
+    },
+  ];
+
+  return (
+    <div>
+      <div className="flex items-center gap-3 mb-3 text-[11px] text-muted-foreground">
+        <span className="flex items-center gap-1">{dot("#5E9E82")} Full</span>
+        <span className="flex items-center gap-1">{dot("#D4B820")} View only</span>
+        <span className="flex items-center gap-1">{dot("#A63333")} None</span>
+      </div>
+      {sections.map((s) => (
+        <div key={s.name}>
+          <div className="text-xs font-medium text-foreground pt-2 pb-1 border-b" style={{ borderColor: "#C9CED4" }}>
+            {s.name}
+          </div>
+          <table className="w-full text-[11px]" style={{ borderCollapse: "collapse" }}>
+            <thead>
+              <tr>
+                <th className="text-left font-normal text-muted-foreground py-1" style={{ width: "52%" }} />
+                <th className="text-center font-normal text-muted-foreground py-1" style={{ width: "16%" }}>A</th>
+                <th className="text-center font-normal text-muted-foreground py-1" style={{ width: "16%" }}>F</th>
+                <th className="text-center font-normal text-muted-foreground py-1" style={{ width: "16%" }}>R</th>
+              </tr>
+            </thead>
+            <tbody>
+              {s.rows.map((row) => (
+                <tr key={row.action}>
+                  <td className="py-1 text-muted-foreground">{row.action}</td>
+                  <td className="py-1 text-center">{row.a}</td>
+                  <td className="py-1 text-center">{row.f}</td>
+                  <td className="py-1 text-center">{row.r}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ))}
+    </div>
+  );
+};
+
 /* ── Admin Page ── */
 const Admin = () => {
   const { user } = useAuth();
   const { isAdmin, isAdminLoading, users, inviteUser, updateRole, updateProfile } = useAdmin();
-  const { settings, updateSetting } = useAppSettings();
   const { tags, createTag, deleteTag } = useMeetingTags();
   const { links } = useMeetingTagLinks();
   const { categories, createCategory, deleteCategory } = useCompetencyCategories();
 
-  const [facultyLimit, setFacultyLimit] = useState("");
-  const [residentLimit, setResidentLimit] = useState("");
   const [newTagName, setNewTagName] = useState("");
   const [newCategoryName, setNewCategoryName] = useState("");
+  const [expandedSection, setExpandedSection] = useState<string | null>(null);
+
+  const toggleSection = (name: string) => {
+    setExpandedSection(expandedSection === name ? null : name);
+  };
 
   if (isAdminLoading) {
     return (
@@ -321,147 +405,99 @@ const Admin = () => {
   if (!isAdmin) return <Navigate to="/" replace />;
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b">
-        <div className="container flex items-center gap-3 h-14 px-4">
+    <div className="min-h-screen" style={{ background: "#F5F3EE" }}>
+      <header style={{ background: "#415162" }}>
+        <div className="container flex items-center justify-between h-14 px-4">
+          <div className="flex items-center gap-2">
+            <Shield className="h-5 w-5 text-white/50" />
+            <span className="text-base font-medium text-white">Admin</span>
+          </div>
           <Link to="/">
-            <Button variant="ghost" size="icon">
-              <ArrowLeft className="h-4 w-4" />
+            <Button variant="ghost" size="icon" className="text-white/50 hover:bg-transparent">
+              <X className="h-4 w-4" />
             </Button>
           </Link>
-          <div className="flex items-center gap-2">
-            <Shield className="h-5 w-5 text-primary" />
-            <h1 className="text-lg font-semibold text-foreground">Admin Panel</h1>
-          </div>
         </div>
       </header>
 
-      <main className="container max-w-3xl px-4 py-6 space-y-6">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-foreground">Team Members</h2>
-          <AddUserDialog
-            onSubmit={(data) => inviteUser.mutate(data)}
-            isPending={inviteUser.isPending}
-          />
-        </div>
+      <main className="container max-w-2xl px-4 py-4 space-y-2">
 
-        <Card>
-          <CardContent className="p-0">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>User</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead className="text-right w-12"></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {users.isLoading ? (
-                  <TableRow>
-                    <TableCell colSpan={3} className="text-center py-8">
-                      <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent mx-auto" />
-                    </TableCell>
-                  </TableRow>
-                ) : users.data?.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={3} className="text-center py-8 text-muted-foreground">
-                      No users found.
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  users.data?.map((u) => {
-                    const isSelf = u.id === user?.id;
-                    return (
-                      <TableRow key={u.id}>
-                        <TableCell>
-                          <div>
-                            <p className="font-medium text-foreground">
-                              {formatPersonName(u)}
-                            </p>
-                            {u.email && (
-                              <p className="text-xs text-muted-foreground">{u.email}</p>
-                            )}
-                            {isSelf && (
-                              <span className="text-xs text-muted-foreground">(you)</span>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="secondary">{u.role}</Badge>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <EditUserDialog
-                            u={u}
-                            isSelf={isSelf}
-                            onUpdateRole={(data) => updateRole.mutate(data)}
-                            onUpdateProfile={(data) => updateProfile.mutate(data)}
-                          />
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })
-                )}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-foreground">Task Limits</h2>
-        </div>
-
-        <Card className="border-border">
-          <CardContent className="space-y-4 pt-6">
-            <div className="flex items-center gap-3">
-              <Label className="font-normal text-sm text-muted-foreground w-32 shrink-0">Faculty max tasks</Label>
-              <Input
-                type="number"
-                min="1"
-                className="w-20"
-                placeholder={String(settings.faculty_task_limit)}
-                value={facultyLimit}
-                onChange={(e) => setFacultyLimit(e.target.value)}
-                onBlur={() => {
-                  if (facultyLimit && parseInt(facultyLimit) > 0) {
-                    updateSetting.mutate({ key: "faculty_task_limit", value: facultyLimit });
-                  }
-                  setFacultyLimit("");
-                }}
-              />
-              <span className="text-sm text-muted-foreground">current: {settings.faculty_task_limit}</span>
+        {/* Team Members */}
+        <div
+          className="rounded-lg overflow-hidden cursor-pointer"
+          style={{ background: "#E7EBEF", border: "0.5px solid #C9CED4" }}
+        >
+          <div
+            className="flex items-center justify-between px-3.5 py-3"
+            onClick={() => toggleSection("team")}
+          >
+            <span className="text-sm font-medium" style={{ color: "#2D3748" }}>Team members</span>
+            <AddUserDialog
+              onSubmit={(data) => inviteUser.mutate(data)}
+              isPending={inviteUser.isPending}
+            />
+          </div>
+          {expandedSection === "team" && (
+            <div className="px-3.5 pb-3 space-y-1.5">
+              {users.isLoading ? (
+                <div className="flex justify-center py-4">
+                  <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                </div>
+              ) : users.data?.length === 0 ? (
+                <p className="text-sm text-muted-foreground py-4 text-center">No users found.</p>
+              ) : (
+                users.data?.map((u) => {
+                  const isSelf = u.id === user?.id;
+                  return (
+                    <div
+                      key={u.id}
+                      className="flex items-center justify-between px-3 py-2 bg-background rounded-lg border border-border"
+                    >
+                      <div>
+                        <span className="text-sm font-medium text-foreground">
+                          {formatPersonName(u)}
+                        </span>
+                        <span className="ml-2 text-[11px] text-muted-foreground">{u.role}</span>
+                        {isSelf && (
+                          <span className="ml-1 text-[11px] text-muted-foreground">(you)</span>
+                        )}
+                        {u.email && (
+                          <p className="text-[11px] text-muted-foreground">{u.email}</p>
+                        )}
+                      </div>
+                      <EditUserDialog
+                        u={u}
+                        isSelf={isSelf}
+                        onUpdateRole={(data) => updateRole.mutate(data)}
+                        onUpdateProfile={(data) => updateProfile.mutate(data)}
+                      />
+                    </div>
+                  );
+                })
+              )}
             </div>
-            <div className="flex items-center gap-3">
-              <Label className="font-normal text-sm text-muted-foreground w-32 shrink-0">Resident max tasks</Label>
-              <Input
-                type="number"
-                min="1"
-                className="w-20"
-                placeholder={String(settings.resident_task_limit)}
-                value={residentLimit}
-                onChange={(e) => setResidentLimit(e.target.value)}
-                onBlur={() => {
-                  if (residentLimit && parseInt(residentLimit) > 0) {
-                    updateSetting.mutate({ key: "resident_task_limit", value: residentLimit });
-                  }
-                  setResidentLimit("");
-                }}
-              />
-              <span className="text-sm text-muted-foreground">current: {settings.resident_task_limit}</span>
-            </div>
-          </CardContent>
-        </Card>
+          )}
+        </div>
 
         {/* Meeting Tags */}
-        <Card className="bg-muted border-border">
-          <CardContent className="pt-6">
-            <h2 className="text-xl font-semibold text-foreground mb-4">Meeting Tags</h2>
-            <div className="space-y-2">
+        <div
+          className="rounded-lg overflow-hidden cursor-pointer"
+          style={{ background: "#E7EBEF", border: "0.5px solid #C9CED4" }}
+        >
+          <div
+            className="flex items-center px-3.5 py-3"
+            onClick={() => toggleSection("tags")}
+          >
+            <span className="text-sm font-medium" style={{ color: "#2D3748" }}>Meeting tags</span>
+          </div>
+          {expandedSection === "tags" && (
+            <div className="px-3.5 pb-3 space-y-1.5">
               {tags.data?.map((tag) => {
                 const count = links.data?.filter((l) => l.tag_id === tag.id).length || 0;
                 return (
                   <div
                     key={tag.id}
-                    className="flex items-center justify-between px-3 py-2.5 bg-background rounded-lg border border-border"
+                    className="flex items-center justify-between px-3 py-2 bg-background rounded-lg border border-border"
                   >
                     <div className="flex items-center gap-2">
                       <Tag className="h-3.5 w-3.5 text-muted-foreground" />
@@ -472,7 +508,7 @@ const Admin = () => {
                         {count} meeting{count !== 1 ? "s" : ""}
                       </span>
                       <button
-                        onClick={() => deleteTag.mutate(tag.id)}
+                        onClick={(e) => { e.stopPropagation(); deleteTag.mutate(tag.id); }}
                         className="flex items-center justify-center w-7 h-7 bg-transparent border-none cursor-pointer text-destructive hover:bg-destructive/10 rounded-md transition-colors"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
@@ -484,52 +520,60 @@ const Admin = () => {
               {tags.data?.length === 0 && (
                 <p className="text-sm text-muted-foreground py-4 text-center">No tags yet</p>
               )}
+              <div className="flex items-center gap-2 mt-1" onClick={(e) => e.stopPropagation()}>
+                <Input
+                  value={newTagName}
+                  onChange={(e) => setNewTagName(e.target.value)}
+                  placeholder="New tag name..."
+                  className="bg-background rounded-lg flex-1"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && newTagName.trim()) {
+                      createTag.mutate(newTagName.trim());
+                      setNewTagName("");
+                    }
+                  }}
+                />
+                <button
+                  onClick={() => {
+                    if (newTagName.trim()) {
+                      createTag.mutate(newTagName.trim());
+                      setNewTagName("");
+                    }
+                  }}
+                  disabled={!newTagName.trim()}
+                  className="flex items-center justify-center w-9 h-9 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50 shrink-0"
+                >
+                  <Plus className="h-4 w-4" />
+                </button>
+              </div>
             </div>
-            <div className="flex items-center gap-2 mt-3">
-              <Input
-                value={newTagName}
-                onChange={(e) => setNewTagName(e.target.value)}
-                placeholder="New tag name..."
-                className="bg-background rounded-lg flex-1"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && newTagName.trim()) {
-                    createTag.mutate(newTagName.trim());
-                    setNewTagName("");
-                  }
-                }}
-              />
-              <button
-                onClick={() => {
-                  if (newTagName.trim()) {
-                    createTag.mutate(newTagName.trim());
-                    setNewTagName("");
-                  }
-                }}
-                disabled={!newTagName.trim()}
-                className="flex items-center justify-center w-9 h-9 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50 shrink-0"
-              >
-                <Plus className="h-4 w-4" />
-              </button>
-            </div>
-          </CardContent>
-        </Card>
+          )}
+        </div>
 
         {/* Competency Categories */}
-        <Card className="bg-muted border-border">
-          <CardContent className="pt-6">
-            <h2 className="text-xl font-semibold text-foreground mb-4">Competency Categories</h2>
-            <div className="space-y-2">
+        <div
+          className="rounded-lg overflow-hidden cursor-pointer"
+          style={{ background: "#E7EBEF", border: "0.5px solid #C9CED4" }}
+        >
+          <div
+            className="flex items-center px-3.5 py-3"
+            onClick={() => toggleSection("categories")}
+          >
+            <span className="text-sm font-medium" style={{ color: "#2D3748" }}>Competency categories</span>
+          </div>
+          {expandedSection === "categories" && (
+            <div className="px-3.5 pb-3 space-y-1.5">
               {categories.data?.map((cat) => (
                 <div
                   key={cat.id}
-                  className="flex items-center justify-between px-3 py-2.5 bg-background rounded-lg border border-border"
+                  className="flex items-center justify-between px-3 py-2 bg-background rounded-lg border border-border"
                 >
                   <div className="flex items-center gap-2">
                     <BookOpen className="h-3.5 w-3.5 text-muted-foreground" />
                     <span className="text-sm text-foreground">{cat.name}</span>
                   </div>
                   <button
-                    onClick={() => deleteCategory.mutate(cat.id)}
+                    onClick={(e) => { e.stopPropagation(); deleteCategory.mutate(cat.id); }}
                     className="flex items-center justify-center w-7 h-7 bg-transparent border-none cursor-pointer text-destructive hover:bg-destructive/10 rounded-md transition-colors"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
@@ -539,35 +583,54 @@ const Admin = () => {
               {categories.data?.length === 0 && (
                 <p className="text-sm text-muted-foreground py-4 text-center">No categories yet</p>
               )}
+              <div className="flex items-center gap-2 mt-1" onClick={(e) => e.stopPropagation()}>
+                <Input
+                  value={newCategoryName}
+                  onChange={(e) => setNewCategoryName(e.target.value)}
+                  placeholder="New category name..."
+                  className="bg-background rounded-lg flex-1"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && newCategoryName.trim()) {
+                      createCategory.mutate(newCategoryName.trim());
+                      setNewCategoryName("");
+                    }
+                  }}
+                />
+                <button
+                  onClick={() => {
+                    if (newCategoryName.trim()) {
+                      createCategory.mutate(newCategoryName.trim());
+                      setNewCategoryName("");
+                    }
+                  }}
+                  disabled={!newCategoryName.trim()}
+                  className="flex items-center justify-center w-9 h-9 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50 shrink-0"
+                >
+                  <Plus className="h-4 w-4" />
+                </button>
+              </div>
             </div>
-            <div className="flex items-center gap-2 mt-3">
-              <Input
-                value={newCategoryName}
-                onChange={(e) => setNewCategoryName(e.target.value)}
-                placeholder="New category name..."
-                className="bg-background rounded-lg flex-1"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && newCategoryName.trim()) {
-                    createCategory.mutate(newCategoryName.trim());
-                    setNewCategoryName("");
-                  }
-                }}
-              />
-              <button
-                onClick={() => {
-                  if (newCategoryName.trim()) {
-                    createCategory.mutate(newCategoryName.trim());
-                    setNewCategoryName("");
-                  }
-                }}
-                disabled={!newCategoryName.trim()}
-                className="flex items-center justify-center w-9 h-9 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50 shrink-0"
-              >
-                <Plus className="h-4 w-4" />
-              </button>
+          )}
+        </div>
+
+        {/* Role Access */}
+        <div
+          className="rounded-lg overflow-hidden cursor-pointer"
+          style={{ background: "#E7EBEF", border: "0.5px solid #C9CED4" }}
+        >
+          <div
+            className="flex items-center px-3.5 py-3"
+            onClick={() => toggleSection("access")}
+          >
+            <span className="text-sm font-medium" style={{ color: "#2D3748" }}>Role access</span>
+          </div>
+          {expandedSection === "access" && (
+            <div className="px-3.5 pb-3" onClick={(e) => e.stopPropagation()}>
+              <RoleAccessSection />
             </div>
-          </CardContent>
-        </Card>
+          )}
+        </div>
+
       </main>
     </div>
   );
