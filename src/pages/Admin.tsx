@@ -220,15 +220,8 @@ const AddUserDialog = ({
               className="bg-background rounded-lg"
             />
           </div>
-          <div className="space-y-1.5">
-            <Label className="text-xs text-muted-foreground">Display name</Label>
-            <Input
-              placeholder="John Doe"
-              value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
-              className="bg-background rounded-lg"
-            />
-          </div>
+
+
           <div className="space-y-1.5">
             <Label className="text-xs text-muted-foreground">First name</Label>
             <Input
