@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useAdmin } from "@/hooks/useAdmin";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate, Link } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Shield, Pencil, Check, X, Tag, Trash2, BookOpen } from "lucide-react";
+import { Plus, Shield, Pencil, Check, X, Tag, Trash2, BookOpen, RefreshCw } from "lucide-react";
 import { useMeetingTags } from "@/hooks/useMeetingTags";
 import { useMeetingTagLinks } from "@/hooks/useMeetingTags";
 import { useCompetencyCategories } from "@/hooks/useCompetencyCategories";
@@ -379,6 +380,7 @@ const RoleAccessSection = () => {
 /* ── Admin Page ── */
 const Admin = () => {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const { isAdmin, isAdminLoading, users, inviteUser, updateRole, updateProfile, deleteUser } = useAdmin();
   const { tags, createTag, updateTag, deleteTag } = useMeetingTags();
   const { links } = useMeetingTagLinks();
@@ -391,6 +393,7 @@ const Admin = () => {
   const [editingCatId, setEditingCatId] = useState<string | null>(null);
   const [editingCatName, setEditingCatName] = useState("");
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
 
   const toggleSection = (name: string) => {
     setExpandedSection(expandedSection === name ? null : name);
@@ -713,13 +716,27 @@ const Admin = () => {
           style={{ background: "#E7EBEF", border: "0.5px solid #C9CED4" }}
         >
           <div
-            className="flex items-center px-3.5 py-3"
+            className="flex items-center justify-between px-3.5 py-3"
             onClick={() => toggleSection("access")}
           >
             <span className="text-sm font-medium" style={{ color: "#2D3748" }}>Role access</span>
           </div>
           {expandedSection === "access" && (
             <div className="px-3.5 pb-3" onClick={(e) => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-3">
+                <button
+                  onClick={() => {
+                    setRefreshing(true);
+                    queryClient.invalidateQueries().then(() => {
+                      setTimeout(() => setRefreshing(false), 600);
+                    });
+                  }}
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs text-muted-foreground hover:text-foreground bg-background border border-border transition-colors"
+                >
+                  <RefreshCw className={`h-3 w-3 ${refreshing ? "animate-spin" : ""}`} />
+                  {refreshing ? "Refreshing..." : "Refresh all data"}
+                </button>
+              </div>
               <RoleAccessSection />
             </div>
           )}
