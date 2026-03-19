@@ -347,9 +347,9 @@ const RoleAccessSection = () => {
             <thead>
               <tr>
                 <th className="text-left font-normal text-muted-foreground py-1" style={{ width: "52%" }} />
-                <th className="text-center font-normal text-muted-foreground py-1" style={{ width: "16%" }}>A</th>
-                <th className="text-center font-normal text-muted-foreground py-1" style={{ width: "16%" }}>F</th>
-                <th className="text-center font-normal text-muted-foreground py-1" style={{ width: "16%" }}>R</th>
+                <th className="text-center font-normal text-muted-foreground py-1" style={{ width: "16%" }}>Adm</th>
+                <th className="text-center font-normal text-muted-foreground py-1" style={{ width: "16%" }}>Fac</th>
+                <th className="text-center font-normal text-muted-foreground py-1" style={{ width: "16%" }}>Res</th>
               </tr>
             </thead>
             <tbody>
