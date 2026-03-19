@@ -92,7 +92,15 @@ const EditUserDialog = ({
         </div>
 
         <div className="px-5 pb-5 flex flex-col gap-3.5">
-
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground">Display name</Label>
+            <Input
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+              placeholder="Display name"
+              className="bg-background rounded-lg"
+            />
+          </div>
           <div className="space-y-1.5">
             <Label className="text-xs text-muted-foreground">First name</Label>
             <Input
@@ -212,8 +220,15 @@ const AddUserDialog = ({
               className="bg-background rounded-lg"
             />
           </div>
-
-
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground">Display name</Label>
+            <Input
+              placeholder="John Doe"
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+              className="bg-background rounded-lg"
+            />
+          </div>
           <div className="space-y-1.5">
             <Label className="text-xs text-muted-foreground">First name</Label>
             <Input
@@ -366,13 +381,17 @@ const RoleAccessSection = () => {
 /* ── Admin Page ── */
 const Admin = () => {
   const { user } = useAuth();
-  const { isAdmin, isAdminLoading, users, inviteUser, updateRole, updateProfile } = useAdmin();
-  const { tags, createTag, deleteTag } = useMeetingTags();
+  const { isAdmin, isAdminLoading, users, inviteUser, updateRole, updateProfile, deleteUser } = useAdmin();
+  const { tags, createTag, updateTag, deleteTag } = useMeetingTags();
   const { links } = useMeetingTagLinks();
-  const { categories, createCategory, deleteCategory } = useCompetencyCategories();
+  const { categories, createCategory, updateCategory, deleteCategory } = useCompetencyCategories();
 
   const [newTagName, setNewTagName] = useState("");
   const [newCategoryName, setNewCategoryName] = useState("");
+  const [editingTagId, setEditingTagId] = useState<string | null>(null);
+  const [editingTagName, setEditingTagName] = useState("");
+  const [editingCatId, setEditingCatId] = useState<string | null>(null);
+  const [editingCatName, setEditingCatName] = useState("");
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
 
   const toggleSection = (name: string) => {
@@ -450,12 +469,22 @@ const Admin = () => {
                           <p className="text-[11px] text-muted-foreground">{u.email}</p>
                         )}
                       </div>
-                      <EditUserDialog
-                        u={u}
-                        isSelf={isSelf}
-                        onUpdateRole={(data) => updateRole.mutate(data)}
-                        onUpdateProfile={(data) => updateProfile.mutate(data)}
-                      />
+                      <div className="flex items-center gap-1">
+                        <EditUserDialog
+                          u={u}
+                          isSelf={isSelf}
+                          onUpdateRole={(data) => updateRole.mutate(data)}
+                          onUpdateProfile={(data) => updateProfile.mutate(data)}
+                        />
+                        {!isSelf && (
+                          <button
+                            onClick={(e) => { e.stopPropagation(); deleteUser.mutate(u.id); }}
+                            className="flex items-center justify-center w-7 h-7 bg-transparent border-none cursor-pointer text-destructive hover:bg-destructive/10 rounded-md transition-colors"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        )}
+                      </div>
                     </div>
                   );
                 })
@@ -470,67 +499,105 @@ const Admin = () => {
           style={{ background: "#E7EBEF", border: "0.5px solid #C9CED4" }}
         >
           <div
-            className="flex items-center px-3.5 py-3"
+            className="flex items-center justify-between px-3.5 py-3"
             onClick={() => toggleSection("tags")}
           >
             <span className="text-sm font-medium" style={{ color: "#2D3748" }}>Meeting tags</span>
+            <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+              <Input
+                value={newTagName}
+                onChange={(e) => setNewTagName(e.target.value)}
+                placeholder="New tag..."
+                className="bg-background rounded-lg h-8 text-xs w-28"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && newTagName.trim()) {
+                    createTag.mutate(newTagName.trim());
+                    setNewTagName("");
+                  }
+                }}
+              />
+              <button
+                onClick={() => {
+                  if (newTagName.trim()) {
+                    createTag.mutate(newTagName.trim());
+                    setNewTagName("");
+                  }
+                }}
+                disabled={!newTagName.trim()}
+                className="p-1 text-[#8A9AAB] disabled:opacity-30"
+              >
+                <Plus className="h-5 w-5" />
+              </button>
+            </div>
           </div>
           {expandedSection === "tags" && (
             <div className="px-3.5 pb-3 space-y-1.5">
               {tags.data?.map((tag) => {
                 const count = links.data?.filter((l) => l.tag_id === tag.id).length || 0;
+                const isEditing = editingTagId === tag.id;
                 return (
                   <div
                     key={tag.id}
                     className="flex items-center justify-between px-3 py-2 bg-background rounded-lg border border-border"
                   >
-                    <div className="flex items-center gap-2">
-                      <Tag className="h-3.5 w-3.5 text-muted-foreground" />
-                      <span className="text-sm text-foreground">{tag.name}</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className="text-[11px] text-muted-foreground">
-                        {count} meeting{count !== 1 ? "s" : ""}
-                      </span>
-                      <button
-                        onClick={(e) => { e.stopPropagation(); deleteTag.mutate(tag.id); }}
-                        className="flex items-center justify-center w-7 h-7 bg-transparent border-none cursor-pointer text-destructive hover:bg-destructive/10 rounded-md transition-colors"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </button>
-                    </div>
+                    {isEditing ? (
+                      <div className="flex items-center gap-2 flex-1 mr-2" onClick={(e) => e.stopPropagation()}>
+                        <Input
+                          autoFocus
+                          value={editingTagName}
+                          onChange={(e) => setEditingTagName(e.target.value)}
+                          className="bg-background rounded-lg h-7 text-sm flex-1"
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" && editingTagName.trim()) {
+                              updateTag.mutate({ id: tag.id, name: editingTagName.trim() });
+                              setEditingTagId(null);
+                            }
+                            if (e.key === "Escape") setEditingTagId(null);
+                          }}
+                        />
+                        <button
+                          onClick={() => {
+                            if (editingTagName.trim()) {
+                              updateTag.mutate({ id: tag.id, name: editingTagName.trim() });
+                            }
+                            setEditingTagId(null);
+                          }}
+                          className="flex items-center justify-center w-7 h-7 bg-transparent border-none cursor-pointer text-primary"
+                        >
+                          <Check className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="flex items-center gap-2">
+                          <Tag className="h-3.5 w-3.5 text-muted-foreground" />
+                          <span className="text-sm text-foreground">{tag.name}</span>
+                          <span className="text-[11px] text-muted-foreground">
+                            ({count})
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setEditingTagId(tag.id); setEditingTagName(tag.name); }}
+                            className="flex items-center justify-center w-7 h-7 bg-transparent border-none cursor-pointer text-muted-foreground hover:text-foreground rounded-md transition-colors"
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                          </button>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); deleteTag.mutate(tag.id); }}
+                            className="flex items-center justify-center w-7 h-7 bg-transparent border-none cursor-pointer text-destructive hover:bg-destructive/10 rounded-md transition-colors"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      </>
+                    )}
                   </div>
                 );
               })}
               {tags.data?.length === 0 && (
                 <p className="text-sm text-muted-foreground py-4 text-center">No tags yet</p>
               )}
-              <div className="flex items-center gap-2 mt-1" onClick={(e) => e.stopPropagation()}>
-                <Input
-                  value={newTagName}
-                  onChange={(e) => setNewTagName(e.target.value)}
-                  placeholder="New tag name..."
-                  className="bg-background rounded-lg flex-1"
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && newTagName.trim()) {
-                      createTag.mutate(newTagName.trim());
-                      setNewTagName("");
-                    }
-                  }}
-                />
-                <button
-                  onClick={() => {
-                    if (newTagName.trim()) {
-                      createTag.mutate(newTagName.trim());
-                      setNewTagName("");
-                    }
-                  }}
-                  disabled={!newTagName.trim()}
-                  className="flex items-center justify-center w-9 h-9 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50 shrink-0"
-                >
-                  <Plus className="h-4 w-4" />
-                </button>
-              </div>
             </div>
           )}
         </div>
@@ -541,59 +608,101 @@ const Admin = () => {
           style={{ background: "#E7EBEF", border: "0.5px solid #C9CED4" }}
         >
           <div
-            className="flex items-center px-3.5 py-3"
+            className="flex items-center justify-between px-3.5 py-3"
             onClick={() => toggleSection("categories")}
           >
             <span className="text-sm font-medium" style={{ color: "#2D3748" }}>Competency categories</span>
+            <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+              <Input
+                value={newCategoryName}
+                onChange={(e) => setNewCategoryName(e.target.value)}
+                placeholder="New category..."
+                className="bg-background rounded-lg h-8 text-xs w-28"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && newCategoryName.trim()) {
+                    createCategory.mutate(newCategoryName.trim());
+                    setNewCategoryName("");
+                  }
+                }}
+              />
+              <button
+                onClick={() => {
+                  if (newCategoryName.trim()) {
+                    createCategory.mutate(newCategoryName.trim());
+                    setNewCategoryName("");
+                  }
+                }}
+                disabled={!newCategoryName.trim()}
+                className="p-1 text-[#8A9AAB] disabled:opacity-30"
+              >
+                <Plus className="h-5 w-5" />
+              </button>
+            </div>
           </div>
           {expandedSection === "categories" && (
             <div className="px-3.5 pb-3 space-y-1.5">
-              {categories.data?.map((cat) => (
-                <div
-                  key={cat.id}
-                  className="flex items-center justify-between px-3 py-2 bg-background rounded-lg border border-border"
-                >
-                  <div className="flex items-center gap-2">
-                    <BookOpen className="h-3.5 w-3.5 text-muted-foreground" />
-                    <span className="text-sm text-foreground">{cat.name}</span>
-                  </div>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); deleteCategory.mutate(cat.id); }}
-                    className="flex items-center justify-center w-7 h-7 bg-transparent border-none cursor-pointer text-destructive hover:bg-destructive/10 rounded-md transition-colors"
+              {categories.data?.map((cat) => {
+                const isEditing = editingCatId === cat.id;
+                return (
+                  <div
+                    key={cat.id}
+                    className="flex items-center justify-between px-3 py-2 bg-background rounded-lg border border-border"
                   >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
-                </div>
-              ))}
+                    {isEditing ? (
+                      <div className="flex items-center gap-2 flex-1 mr-2" onClick={(e) => e.stopPropagation()}>
+                        <Input
+                          autoFocus
+                          value={editingCatName}
+                          onChange={(e) => setEditingCatName(e.target.value)}
+                          className="bg-background rounded-lg h-7 text-sm flex-1"
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" && editingCatName.trim()) {
+                              updateCategory.mutate({ id: cat.id, name: editingCatName.trim() });
+                              setEditingCatId(null);
+                            }
+                            if (e.key === "Escape") setEditingCatId(null);
+                          }}
+                        />
+                        <button
+                          onClick={() => {
+                            if (editingCatName.trim()) {
+                              updateCategory.mutate({ id: cat.id, name: editingCatName.trim() });
+                            }
+                            setEditingCatId(null);
+                          }}
+                          className="flex items-center justify-center w-7 h-7 bg-transparent border-none cursor-pointer text-primary"
+                        >
+                          <Check className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="flex items-center gap-2">
+                          <BookOpen className="h-3.5 w-3.5 text-muted-foreground" />
+                          <span className="text-sm text-foreground">{cat.name}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setEditingCatId(cat.id); setEditingCatName(cat.name); }}
+                            className="flex items-center justify-center w-7 h-7 bg-transparent border-none cursor-pointer text-muted-foreground hover:text-foreground rounded-md transition-colors"
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                          </button>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); deleteCategory.mutate(cat.id); }}
+                            className="flex items-center justify-center w-7 h-7 bg-transparent border-none cursor-pointer text-destructive hover:bg-destructive/10 rounded-md transition-colors"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                );
+              })}
               {categories.data?.length === 0 && (
                 <p className="text-sm text-muted-foreground py-4 text-center">No categories yet</p>
               )}
-              <div className="flex items-center gap-2 mt-1" onClick={(e) => e.stopPropagation()}>
-                <Input
-                  value={newCategoryName}
-                  onChange={(e) => setNewCategoryName(e.target.value)}
-                  placeholder="New category name..."
-                  className="bg-background rounded-lg flex-1"
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && newCategoryName.trim()) {
-                      createCategory.mutate(newCategoryName.trim());
-                      setNewCategoryName("");
-                    }
-                  }}
-                />
-                <button
-                  onClick={() => {
-                    if (newCategoryName.trim()) {
-                      createCategory.mutate(newCategoryName.trim());
-                      setNewCategoryName("");
-                    }
-                  }}
-                  disabled={!newCategoryName.trim()}
-                  className="flex items-center justify-center w-9 h-9 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50 shrink-0"
-                >
-                  <Plus className="h-4 w-4" />
-                </button>
-              </div>
             </div>
           )}
         </div>

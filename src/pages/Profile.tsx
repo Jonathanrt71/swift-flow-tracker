@@ -183,8 +183,6 @@ const Profile = () => {
               className="opacity-60"
             />
           </div>
-
-
           <div className="space-y-1.5">
             <Label htmlFor="firstName" className="font-normal text-sm text-muted-foreground">First name</Label>
             <Input

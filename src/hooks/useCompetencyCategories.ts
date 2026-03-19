@@ -42,6 +42,23 @@ export function useCompetencyCategories() {
       toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
 
+  const updateCategory = useMutation({
+    mutationFn: async ({ id, name }: { id: string; name: string }) => {
+      const { error } = await supabase
+        .from("competency_categories")
+        .update({ name })
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["competency_categories"] });
+      queryClient.invalidateQueries({ queryKey: ["competencies"] });
+      toast({ title: "Category updated" });
+    },
+    onError: (e: Error) =>
+      toast({ title: "Error", description: e.message, variant: "destructive" }),
+  });
+
   const deleteCategory = useMutation({
     mutationFn: async (id: string) => {
       // Unlink competencies first (set category_id to null)
@@ -58,5 +75,5 @@ export function useCompetencyCategories() {
       toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
 
-  return { categories, createCategory, deleteCategory };
+  return { categories, createCategory, updateCategory, deleteCategory };
 }
