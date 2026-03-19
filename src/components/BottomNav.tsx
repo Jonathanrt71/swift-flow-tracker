@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { CheckSquare, Users, Calendar, BookOpen, MessageSquare } from "lucide-react";
+import { CheckSquare, Calendar, BookOpen, MessageSquare } from "lucide-react";
 
 const BottomNav = () => {
   return (
@@ -13,9 +13,6 @@ const BottomNav = () => {
       </Link>
       <Link to="/feedback" className="flex-1 flex items-center justify-center pt-3 pb-1 text-white/50">
         <MessageSquare className="h-5 w-5" />
-      </Link>
-      <Link to="/meetings" className="flex-1 flex items-center justify-center pt-3 pb-1 text-white/50">
-        <Users className="h-5 w-5" />
       </Link>
       <Link to="/" className="flex-1 flex items-center justify-center pt-3 pb-1 text-white/50">
         <CheckSquare className="h-5 w-5" />
