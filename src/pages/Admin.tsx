@@ -455,7 +455,7 @@ const Admin = () => {
                         <span className="text-sm font-medium text-foreground">
                           {formatPersonName(u)}
                         </span>
-                        <span className="ml-2 text-[11px] text-muted-foreground">{u.role}</span>
+                        <span className="ml-2 text-[11px] text-muted-foreground">{{ admin: "Adm", faculty: "Fac", resident: "Res" }[u.role] || u.role}</span>
                         {isSelf && (
                           <span className="ml-1 text-[11px] text-muted-foreground">(you)</span>
                         )}
