@@ -40,6 +40,7 @@ const EditEventDialog = ({ event, onUpdate }: EditEventDialogProps) => {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState(event.title);
   const [eventDate, setEventDate] = useState(event.event_date);
+  const [endDate, setEndDate] = useState(event.end_date || "");
   const [startTime, setStartTime] = useState(event.start_time || "");
   const [endTime, setEndTime] = useState(event.end_time || "");
   const [description, setDescription] = useState(event.description || "");
