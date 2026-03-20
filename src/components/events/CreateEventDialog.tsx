@@ -70,6 +70,7 @@ const CreateEventDialog = ({ onSubmit, defaultCategory }: CreateEventDialogProps
     onSubmit({
       title: title.trim(),
       event_date: eventDate,
+      end_date: endDate || undefined,
       start_time: startTime || undefined,
       end_time: endTime || undefined,
       description: description.trim() || undefined,
