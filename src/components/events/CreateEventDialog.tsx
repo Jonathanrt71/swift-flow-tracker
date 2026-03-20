@@ -41,6 +41,7 @@ const CreateEventDialog = ({ onSubmit, defaultCategory }: CreateEventDialogProps
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [eventDate, setEventDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
   const [description, setDescription] = useState("");
