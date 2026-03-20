@@ -70,6 +70,7 @@ const Feedback = () => {
 
   // Filter for list view
   const filtered = allFeedback.filter((fb) => {
+    if (myOnly && fb.faculty_id !== user?.id) return false;
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       const residentName = (nameMap.get(fb.resident_id) || "").toLowerCase();
