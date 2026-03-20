@@ -5,9 +5,6 @@ import type { ProgramEvent, EventCategory } from "@/hooks/useEvents";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
-import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,14 +16,27 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { LogOut, Shield, User, Calendar, BookOpen, Search, X, Trash2 } from "lucide-react";
+import { Calendar, BookOpen, Search, X, Trash2, List, ChevronLeft, ChevronRight } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { formatCardDate } from "@/lib/dateFormat";
+import { Button } from "@/components/ui/button";
 import BottomNav from "@/components/BottomNav";
 import CreateEventDialog from "@/components/events/CreateEventDialog";
 import EditEventDialog from "@/components/events/EditEventDialog";
+import EventsTimeline from "@/components/events/EventsTimeline";
 import NotificationBell from "@/components/NotificationBell";
 import HeaderLogo from "@/components/HeaderLogo";
+import { useIsMobile } from "@/hooks/use-mobile";
+
+const GanttIcon = ({ className }: { className?: string }) => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className={className}>
+    <line x1="3" y1="6" x2="15" y2="6" />
+    <line x1="8" y1="12" x2="21" y2="12" />
+    <line x1="5" y1="18" x2="17" y2="18" />
+  </svg>
+);
+
+const MONTH_ABBRS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 const getInitials = (name: string | null): string => {
   if (!name) return "?";
@@ -67,6 +77,7 @@ const EventCard = ({
     id: string;
     title?: string;
     event_date?: string;
+    end_date?: string | null;
     start_time?: string | null;
     end_time?: string | null;
     description?: string | null;
@@ -79,8 +90,6 @@ const EventCard = ({
   const members = teamMembers || [];
   const assignee = members.find((m) => m.id === event.assigned_to);
   const assigneeName = assignee?.display_name || null;
-
-  const hasExpandContent = true; // Always expandable for edit/delete access
 
   const formattedDate = (() => {
     try {
@@ -100,9 +109,7 @@ const EventCard = ({
   return (
     <div
       className="bg-muted border border-border rounded-[10px] overflow-hidden transition-all mb-2 cursor-pointer"
-      onClick={() => {
-        if (hasExpandContent) setExpanded(!expanded);
-      }}
+      onClick={() => setExpanded(!expanded)}
     >
       <div className="flex items-center min-h-[48px] px-2">
         <div className="flex-1 min-w-0 pl-2 pr-1 flex items-center gap-2">
@@ -119,11 +126,7 @@ const EventCard = ({
         <div className="flex items-center shrink-0 gap-1.5 pr-1">
           {assignee ? (
             assignee.avatar_url ? (
-              <img
-                src={assignee.avatar_url}
-                className="w-7 h-7 rounded-full object-cover shrink-0"
-                alt=""
-              />
+              <img src={assignee.avatar_url} className="w-7 h-7 rounded-full object-cover shrink-0" alt="" />
             ) : (
               <div
                 className="w-7 h-7 rounded-full flex items-center justify-center text-white shrink-0"
@@ -207,6 +210,7 @@ const GroupedEventList = ({
     id: string;
     title?: string;
     event_date?: string;
+    end_date?: string | null;
     start_time?: string | null;
     end_time?: string | null;
     description?: string | null;
@@ -252,11 +256,9 @@ const GroupedEventList = ({
     <>
       {grouped.map((g) => (
         <div key={g.month}>
-          {(
-            <div className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider pt-3 pb-1">
-              {g.month}
-            </div>
-          )}
+          <div className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider pt-3 pb-1">
+            {g.month}
+          </div>
           {g.items.map((ev) => (
             <EventCard
               key={ev.id}
@@ -276,11 +278,24 @@ const GroupedEventList = ({
 const Events = () => {
   const { user, signOut } = useAuth();
   const { isAdmin } = useAdmin();
+  const isMobile = useIsMobile();
   const { events, createEvent, updateEvent, deleteEvent } = useEvents();
   const { data: teamMembers } = useTeamMembers();
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeTab, setActiveTab] = useState("program");
+  const [activeTab, setActiveTab] = useState<"program" | "didactic">("program");
+  const [viewMode, setViewMode] = useState<"list" | "timeline">("list");
+  const [timelineRange, setTimelineRange] = useState<"Q" | "Y">(() => isMobile ? "Q" : "Y");
+  const [timelineStartMonth, setTimelineStartMonth] = useState(() => {
+    if (isMobile) return new Date().getMonth();
+    return 6; // July for academic year
+  });
+  const [timelineStartYear, setTimelineStartYear] = useState(() => {
+    const now = new Date();
+    if (isMobile) return now.getFullYear();
+    // Academic year: if we're before July, start from previous July
+    return now.getMonth() < 6 ? now.getFullYear() - 1 : now.getFullYear();
+  });
 
   const filteredEvents = useMemo(() => {
     const all = events.data || [];
@@ -293,6 +308,38 @@ const Events = () => {
         (e.description || "").toLowerCase().includes(q)
     );
   }, [events.data, activeTab, searchQuery]);
+
+  const programEvents = useMemo(() => {
+    return (events.data || []).filter((e) => e.category === "program");
+  }, [events.data]);
+
+  const handleTabChange = (tab: "program" | "didactic") => {
+    setActiveTab(tab);
+    if (tab === "didactic") setViewMode("list");
+  };
+
+  const stepTimeline = (dir: 1 | -1) => {
+    const step = timelineRange === "Q" ? 3 : 12;
+    let newMonth = timelineStartMonth + dir * step;
+    let newYear = timelineStartYear;
+    while (newMonth < 0) { newMonth += 12; newYear--; }
+    while (newMonth > 11) { newMonth -= 12; newYear++; }
+    setTimelineStartMonth(newMonth);
+    setTimelineStartYear(newYear);
+  };
+
+  const rangeLabel = useMemo(() => {
+    const count = timelineRange === "Q" ? 3 : 12;
+    const startM = MONTH_ABBRS[timelineStartMonth];
+    const endIdx = (timelineStartMonth + count - 1) % 12;
+    const endYear = timelineStartYear + Math.floor((timelineStartMonth + count - 1) / 12);
+    const endM = MONTH_ABBRS[endIdx];
+    if (timelineRange === "Q") {
+      if (timelineStartYear === endYear) return `${startM} — ${endM} ${timelineStartYear}`;
+      return `${startM} ${timelineStartYear} — ${endM} ${endYear}`;
+    }
+    return `${startM} ${timelineStartYear} — ${endM} ${endYear}`;
+  }, [timelineRange, timelineStartMonth, timelineStartYear]);
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -328,59 +375,130 @@ const Events = () => {
         )}
       </header>
 
-      <main className="container max-w-2xl px-4 py-6">
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <div className="flex items-center justify-between pb-2.5">
-            <TabsList className="gap-1 h-auto p-1 bg-transparent">
-              <TabsTrigger value="program" className="h-8 w-8 p-0" title="Program Events">
-                <Calendar className="h-4 w-4" />
-              </TabsTrigger>
-              <TabsTrigger value="didactic" className="h-8 w-8 p-0" title="Didactics">
-                <BookOpen className="h-4 w-4" />
-              </TabsTrigger>
-            </TabsList>
-            <CreateEventDialog
-              onSubmit={(data) => createEvent.mutate(data)}
-              defaultCategory={activeTab as EventCategory}
-            />
+      <main className="container max-w-[1200px] px-4 py-6">
+        {/* Row 1: Toolbar */}
+        <div className="flex items-center justify-between pb-2.5">
+          <div className="flex items-center gap-1">
+            {/* Program tab icon */}
+            <button
+              onClick={() => handleTabChange("program")}
+              className={cn(
+                "flex items-center justify-center w-8 h-8 rounded-md transition-colors",
+                activeTab === "program" ? "text-foreground" : "text-muted-foreground"
+              )}
+            >
+              <Calendar className="h-4 w-4" />
+            </button>
+
+            {/* View toggle pill - only when program tab is active */}
+            {activeTab === "program" && (
+              <div className="flex items-center rounded-full p-0.5 ml-1" style={{ background: "#D5DAE0" }}>
+                <button
+                  onClick={() => setViewMode("list")}
+                  className={cn(
+                    "flex items-center justify-center w-7 h-7 rounded-full transition-colors",
+                    viewMode === "list" ? "bg-white text-foreground shadow-sm" : "text-muted-foreground"
+                  )}
+                >
+                  <List className="h-3.5 w-3.5" />
+                </button>
+                <button
+                  onClick={() => setViewMode("timeline")}
+                  className={cn(
+                    "flex items-center justify-center w-7 h-7 rounded-full transition-colors",
+                    viewMode === "timeline" ? "bg-white text-foreground shadow-sm" : "text-muted-foreground"
+                  )}
+                >
+                  <GanttIcon />
+                </button>
+              </div>
+            )}
+
+            {/* Separator */}
+            <div className="mx-1" style={{ width: 1, height: 20, background: "#C9CED4" }} />
+
+            {/* Didactic tab icon */}
+            <button
+              onClick={() => handleTabChange("didactic")}
+              className={cn(
+                "flex items-center justify-center w-8 h-8 rounded-md transition-colors",
+                activeTab === "didactic" ? "text-foreground" : "text-muted-foreground"
+              )}
+            >
+              <BookOpen className="h-4 w-4" />
+            </button>
           </div>
 
-          <TabsContent value="program" className="mt-0">
-            {events.isLoading ? (
-              <div className="flex justify-center py-12">
-                <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-              </div>
-            ) : (
-              <GroupedEventList
-                events={filteredEvents}
-                teamMembers={teamMembers}
-                userId={user?.id}
-                isAdmin={!!isAdmin}
-                onUpdate={(data) => updateEvent.mutate(data)}
-                onDelete={(id) => deleteEvent.mutate(id)}
-                emptyMessage="No program events. Create one to get started!"
-              />
-            )}
-          </TabsContent>
+          <CreateEventDialog
+            onSubmit={(data) => createEvent.mutate(data)}
+            defaultCategory={activeTab as EventCategory}
+          />
+        </div>
 
-          <TabsContent value="didactic" className="mt-0">
-            {events.isLoading ? (
-              <div className="flex justify-center py-12">
-                <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-              </div>
-            ) : (
-              <GroupedEventList
-                events={filteredEvents}
-                teamMembers={teamMembers}
-                userId={user?.id}
-                isAdmin={!!isAdmin}
-                onUpdate={(data) => updateEvent.mutate(data)}
-                onDelete={(id) => deleteEvent.mutate(id)}
-                emptyMessage="No didactics. Create one to get started!"
-              />
-            )}
-          </TabsContent>
-        </Tabs>
+        {/* Row 2: Timeline range controls (only in timeline view + program tab) */}
+        {activeTab === "program" && viewMode === "timeline" && (
+          <div className="flex items-center justify-between pb-3">
+            <button
+              onClick={() => { setTimelineRange("Q"); }}
+              className="text-xs rounded-md transition-colors"
+              style={{
+                padding: "4px 12px",
+                ...(timelineRange === "Q"
+                  ? { background: "#415162", color: "#fff", border: "1px solid transparent" }
+                  : { background: "#fff", color: "#8A9AAB", border: "1px solid #C9CED4" }),
+              }}
+            >
+              Q
+            </button>
+
+            <div className="flex items-center gap-2 flex-1 justify-center">
+              <button onClick={() => stepTimeline(-1)} className="text-muted-foreground p-1">
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              <span style={{ fontSize: 15, fontWeight: 500, color: "#2D3748" }}>{rangeLabel}</span>
+              <button onClick={() => stepTimeline(1)} className="text-muted-foreground p-1">
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
+
+            <button
+              onClick={() => { setTimelineRange("Y"); }}
+              className="text-xs rounded-md transition-colors"
+              style={{
+                padding: "4px 12px",
+                ...(timelineRange === "Y"
+                  ? { background: "#415162", color: "#fff", border: "1px solid transparent" }
+                  : { background: "#fff", color: "#8A9AAB", border: "1px solid #C9CED4" }),
+              }}
+            >
+              Y
+            </button>
+          </div>
+        )}
+
+        {/* Content */}
+        {events.isLoading ? (
+          <div className="flex justify-center py-12">
+            <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+          </div>
+        ) : activeTab === "program" && viewMode === "timeline" ? (
+          <EventsTimeline
+            events={programEvents}
+            range={timelineRange}
+            startMonth={timelineStartMonth}
+            startYear={timelineStartYear}
+          />
+        ) : (
+          <GroupedEventList
+            events={filteredEvents}
+            teamMembers={teamMembers}
+            userId={user?.id}
+            isAdmin={!!isAdmin}
+            onUpdate={(data) => updateEvent.mutate(data)}
+            onDelete={(id) => deleteEvent.mutate(id)}
+            emptyMessage={activeTab === "program" ? "No program events. Create one to get started!" : "No didactics. Create one to get started!"}
+          />
+        )}
       </main>
 
       <BottomNav />

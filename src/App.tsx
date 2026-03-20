@@ -26,7 +26,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
-          <div className="mx-auto w-full max-w-[768px] min-h-screen relative shadow-lg">
+          <div className="mx-auto w-full max-w-[1200px] min-h-screen relative shadow-lg">
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route path="/reset-password" element={<ResetPassword />} />

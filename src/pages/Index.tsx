@@ -286,7 +286,7 @@ const Index = () => {
         )}
       </header>
 
-      <main className="container max-w-2xl px-4 py-6">
+      <main className="container max-w-[1200px] px-4 py-6">
         <Tabs defaultValue="active">
           <div className="flex items-center justify-between mb-4">
             <TabsList className="gap-1 h-auto p-1 bg-transparent">

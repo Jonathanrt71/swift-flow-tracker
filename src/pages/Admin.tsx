@@ -431,7 +431,7 @@ const Admin = () => {
         </div>
       </header>
 
-      <main className="container max-w-2xl px-4 py-4 space-y-2">
+      <main className="container max-w-[1200px] px-4 py-4 space-y-2">
 
         {/* Team Members */}
         <div

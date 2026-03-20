@@ -27,6 +27,7 @@ interface EditEventDialogProps {
     id: string;
     title?: string;
     event_date?: string;
+    end_date?: string | null;
     start_time?: string | null;
     end_time?: string | null;
     description?: string | null;
@@ -39,6 +40,7 @@ const EditEventDialog = ({ event, onUpdate }: EditEventDialogProps) => {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState(event.title);
   const [eventDate, setEventDate] = useState(event.event_date);
+  const [endDate, setEndDate] = useState(event.end_date || "");
   const [startTime, setStartTime] = useState(event.start_time || "");
   const [endTime, setEndTime] = useState(event.end_time || "");
   const [description, setDescription] = useState(event.description || "");
@@ -52,6 +54,7 @@ const EditEventDialog = ({ event, onUpdate }: EditEventDialogProps) => {
     if (isOpen) {
       setTitle(event.title);
       setEventDate(event.event_date);
+      setEndDate(event.end_date || "");
       setStartTime(event.start_time || "");
       setEndTime(event.end_time || "");
       setDescription(event.description || "");
@@ -67,6 +70,7 @@ const EditEventDialog = ({ event, onUpdate }: EditEventDialogProps) => {
       id: event.id,
       title: title.trim(),
       event_date: eventDate,
+      end_date: endDate || null,
       start_time: startTime || null,
       end_time: endTime || null,
       description: description.trim() || null,
@@ -141,6 +145,30 @@ const EditEventDialog = ({ event, onUpdate }: EditEventDialogProps) => {
                   selected={selectedDate}
                   onSelect={(d) => {
                     if (d) setEventDate(format(d, "yyyy-MM-dd"));
+                  }}
+                  className="pointer-events-auto"
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground">End date (optional)</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className="flex items-center justify-between w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-left">
+                  <span className={endDate ? "text-foreground" : "text-muted-foreground"}>
+                    {endDate ? format(parseISO(endDate), "MMM d, yyyy") : "Same as start"}
+                  </span>
+                  <CalendarIcon className="h-4 w-4 text-muted-foreground" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={endDate ? parseISO(endDate) : undefined}
+                  onSelect={(d) => {
+                    if (d) setEndDate(format(d, "yyyy-MM-dd"));
                   }}
                   className="pointer-events-auto"
                 />

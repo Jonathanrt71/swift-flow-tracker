@@ -26,6 +26,7 @@ interface CreateEventDialogProps {
   onSubmit: (data: {
     title: string;
     event_date: string;
+    end_date?: string;
     start_time?: string;
     end_time?: string;
     description?: string;
@@ -40,6 +41,7 @@ const CreateEventDialog = ({ onSubmit, defaultCategory }: CreateEventDialogProps
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [eventDate, setEventDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
   const [description, setDescription] = useState("");
@@ -53,6 +55,7 @@ const CreateEventDialog = ({ onSubmit, defaultCategory }: CreateEventDialogProps
     if (isOpen) {
       setTitle("");
       setEventDate("");
+      setEndDate("");
       setStartTime("");
       setEndTime("");
       setDescription("");
@@ -67,6 +70,7 @@ const CreateEventDialog = ({ onSubmit, defaultCategory }: CreateEventDialogProps
     onSubmit({
       title: title.trim(),
       event_date: eventDate,
+      end_date: endDate || undefined,
       start_time: startTime || undefined,
       end_time: endTime || undefined,
       description: description.trim() || undefined,
@@ -138,6 +142,30 @@ const CreateEventDialog = ({ onSubmit, defaultCategory }: CreateEventDialogProps
                   selected={selectedDate}
                   onSelect={(d) => {
                     if (d) setEventDate(format(d, "yyyy-MM-dd"));
+                  }}
+                  className="pointer-events-auto"
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground">End date (optional)</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className="flex items-center justify-between w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-left">
+                  <span className={endDate ? "text-foreground" : "text-muted-foreground"}>
+                    {endDate ? format(parseISO(endDate), "MMM d, yyyy") : "Same as start"}
+                  </span>
+                  <CalendarIcon className="h-4 w-4 text-muted-foreground" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={endDate ? parseISO(endDate) : undefined}
+                  onSelect={(d) => {
+                    if (d) setEndDate(format(d, "yyyy-MM-dd"));
                   }}
                   className="pointer-events-auto"
                 />

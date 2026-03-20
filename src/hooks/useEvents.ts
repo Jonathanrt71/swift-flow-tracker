@@ -9,6 +9,7 @@ export interface ProgramEvent {
   id: string;
   title: string;
   event_date: string;
+  end_date: string | null;
   start_time: string | null;
   end_time: string | null;
   description: string | null;
@@ -41,6 +42,7 @@ export function useEvents() {
     mutationFn: async (data: {
       title: string;
       event_date: string;
+      end_date?: string;
       start_time?: string;
       end_time?: string;
       description?: string;
@@ -50,6 +52,7 @@ export function useEvents() {
       const { error } = await supabase.from("events").insert({
         title: data.title,
         event_date: data.event_date,
+        end_date: data.end_date || null,
         start_time: data.start_time || null,
         end_time: data.end_time || null,
         description: data.description || null,
@@ -75,6 +78,7 @@ export function useEvents() {
       id: string;
       title?: string;
       event_date?: string;
+      end_date?: string | null;
       start_time?: string | null;
       end_time?: string | null;
       description?: string | null;
