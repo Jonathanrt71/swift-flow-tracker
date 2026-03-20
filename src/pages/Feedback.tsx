@@ -323,6 +323,66 @@ const Feedback = () => {
         {/* Toolbar */}
         <div className="flex items-center justify-between pb-2.5">
           <div className="flex gap-2 items-center">
+            {/* Overall pie chart */}
+            {(() => {
+              const total = allFeedback.length;
+              const posCount = allFeedback.filter((fb) => fb.sentiment === "positive").length;
+              const negCount = allFeedback.filter((fb) => fb.sentiment === "negative").length;
+              const posPct = total > 0 ? (posCount / total) * 100 : 50;
+              const negPct = total > 0 ? (negCount / total) * 100 : 50;
+              const posAngle = (posPct / 100) * 360;
+              const r = 12;
+              const cx = 14;
+              const cy = 14;
+              const toRad = (deg: number) => (deg - 90) * (Math.PI / 180);
+              const posEndX = cx + r * Math.cos(toRad(posAngle));
+              const posEndY = cy + r * Math.sin(toRad(posAngle));
+              const largePos = posAngle > 180 ? 1 : 0;
+              const largeNeg = posAngle <= 180 ? 1 : 0;
+
+              if (total === 0) return null;
+
+              return (
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button className="shrink-0 bg-transparent border-none cursor-pointer p-0">
+                      <svg width="28" height="28" viewBox="0 0 28 28">
+                        {posCount === total ? (
+                          <circle cx={cx} cy={cy} r={r} fill="#5E9E82" />
+                        ) : negCount === total ? (
+                          <circle cx={cx} cy={cy} r={r} fill="#A63333" />
+                        ) : (
+                          <>
+                            <path
+                              d={`M${cx},${cy - r} A${r},${r} 0 ${largePos},1 ${posEndX},${posEndY} L${cx},${cy} Z`}
+                              fill="#5E9E82"
+                            />
+                            <path
+                              d={`M${posEndX},${posEndY} A${r},${r} 0 ${largeNeg},1 ${cx},${cy - r} L${cx},${cy} Z`}
+                              fill="#A63333"
+                            />
+                          </>
+                        )}
+                      </svg>
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-3" align="start">
+                    <div className="flex flex-col gap-1.5 text-sm">
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full" style={{ background: "#5E9E82" }} />
+                        <span>Positive: {Math.round(posPct)}% ({posCount})</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full" style={{ background: "#A63333" }} />
+                        <span>Negative: {Math.round(negPct)}% ({negCount})</span>
+                      </div>
+                      <div className="text-xs text-muted-foreground mt-1">Total: {total}</div>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              );
+            })()}
+
             {/* Person filter */}
             <Popover open={personPopoverOpen} onOpenChange={setPersonPopoverOpen}>
               <PopoverTrigger asChild>
@@ -361,38 +421,37 @@ const Feedback = () => {
               </PopoverContent>
             </Popover>
 
-            {/* View toggle pill */}
-            <div className="flex items-center gap-0.5 rounded-lg p-[2px]" style={{ background: "#D5DAE0" }}>
+            {/* View toggle pill — rounded-full matching Events page */}
+            <div className="flex items-center rounded-full p-0.5" style={{ background: "#D5DAE0" }}>
               <button
-                className="p-1.5 rounded-md transition-colors"
-                style={{
-                  background: viewMode === "list" ? "white" : "transparent",
-                }}
                 onClick={() => setViewMode("list")}
+                className={cn(
+                  "flex items-center justify-center w-7 h-7 rounded-full transition-colors",
+                  viewMode === "list" ? "bg-white shadow-sm" : ""
+                )}
               >
                 <List
-                  className="h-4 w-4"
+                  className="h-3.5 w-3.5"
                   style={{ color: viewMode === "list" ? "#415162" : "#8A9AAB" }}
                 />
               </button>
               <button
-                className="p-1.5 rounded-md transition-colors"
-                style={{
-                  background: viewMode === "summary" ? "white" : "transparent",
-                }}
                 onClick={() => {
                   setViewMode("summary");
                   setFilterResidentId(null);
                 }}
+                className={cn(
+                  "flex items-center justify-center w-7 h-7 rounded-full transition-colors",
+                  viewMode === "summary" ? "bg-white shadow-sm" : ""
+                )}
               >
                 <PieChart
-                  className="h-4 w-4"
+                  className="h-3.5 w-3.5"
                   style={{ color: viewMode === "summary" ? "#415162" : "#8A9AAB" }}
                 />
               </button>
             </div>
           </div>
-
           {/* Add button */}
           <CreateFeedbackDialog
             onSubmit={(data) => createFeedback.mutate(data)}
