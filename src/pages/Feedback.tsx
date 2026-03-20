@@ -69,7 +69,6 @@ const Feedback = () => {
 
   // Filter for list view
   const filtered = allFeedback.filter((fb) => {
-    if (filterResidentId && fb.resident_id !== filterResidentId) return false;
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       const residentName = (nameMap.get(fb.resident_id) || "").toLowerCase();
