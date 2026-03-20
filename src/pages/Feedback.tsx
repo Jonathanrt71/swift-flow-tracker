@@ -44,6 +44,7 @@ const Feedback = () => {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"list" | "summary">("list");
+  const [myOnly, setMyOnly] = useState(false);
 
   // Fetch user IDs with the 'resident' role
   const { data: residentRoles } = useQuery({
