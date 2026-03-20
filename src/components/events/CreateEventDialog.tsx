@@ -55,6 +55,7 @@ const CreateEventDialog = ({ onSubmit, defaultCategory }: CreateEventDialogProps
     if (isOpen) {
       setTitle("");
       setEventDate("");
+      setEndDate("");
       setStartTime("");
       setEndTime("");
       setDescription("");
