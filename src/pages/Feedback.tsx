@@ -278,9 +278,6 @@ const Feedback = () => {
     ));
   };
 
-  const sortedResidents = [...residents].sort((a, b) =>
-    formatPersonName(a).localeCompare(formatPersonName(b))
-  );
 
   return (
     <div className="min-h-screen bg-background pb-20" style={{ background: "#F5F3EE" }}>
