@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { format, parseISO } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
-import { List, PieChart, Pencil, Trash2, X as XIcon, Search } from "lucide-react";
+import { List, PieChart, Pencil, Trash2, X as XIcon, Search, UserCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
@@ -44,6 +44,7 @@ const Feedback = () => {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"list" | "summary">("list");
+  const [myOnly, setMyOnly] = useState(false);
 
   // Fetch user IDs with the 'resident' role
   const { data: residentRoles } = useQuery({
@@ -69,6 +70,7 @@ const Feedback = () => {
 
   // Filter for list view
   const filtered = allFeedback.filter((fb) => {
+    if (myOnly && fb.faculty_id !== user?.id) return false;
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       const residentName = (nameMap.get(fb.resident_id) || "").toLowerCase();
@@ -408,6 +410,20 @@ const Feedback = () => {
                 />
               </button>
             </div>
+            <button
+              onClick={() => setMyOnly(!myOnly)}
+              className={cn(
+                "flex items-center justify-center w-7 h-7 rounded-full transition-colors",
+                myOnly ? "bg-white shadow-sm" : ""
+              )}
+              style={{ background: myOnly ? "white" : "transparent" }}
+              title="Show only my feedback"
+            >
+              <UserCheck
+                className="h-3.5 w-3.5"
+                style={{ color: myOnly ? "#415162" : "#8A9AAB" }}
+              />
+            </button>
           </div>
           {/* Add button */}
           <CreateFeedbackDialog
