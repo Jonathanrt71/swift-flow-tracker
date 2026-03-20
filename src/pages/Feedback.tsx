@@ -41,11 +41,9 @@ const Feedback = () => {
   const { feedbackQuery, createFeedback, updateFeedback, deleteFeedback } = useFeedback();
 
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [filterResidentId, setFilterResidentId] = useState<string | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"list" | "summary">("list");
-  const [personPopoverOpen, setPersonPopoverOpen] = useState(false);
 
   // Fetch user IDs with the 'resident' role
   const { data: residentRoles } = useQuery({
