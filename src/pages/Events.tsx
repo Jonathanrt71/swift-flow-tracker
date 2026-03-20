@@ -437,7 +437,7 @@ const Events = () => {
 
         {/* Row 2: Timeline range controls (only in timeline view + program tab) */}
         {activeTab === "program" && viewMode === "timeline" && (
-          <div className="flex items-center justify-between pb-3">
+          <div className="flex items-center justify-center pb-3 gap-2">
             <button
               onClick={() => { setTimelineRange("Q"); }}
               className="text-xs rounded-md transition-colors"
@@ -450,17 +450,13 @@ const Events = () => {
             >
               Q
             </button>
-
-            <div className="flex items-center gap-2 flex-1 justify-center">
-              <button onClick={() => stepTimeline(-1)} className="text-muted-foreground p-1">
-                <ChevronLeft className="h-4 w-4" />
-              </button>
-              <span style={{ fontSize: 15, fontWeight: 500, color: "#2D3748" }}>{rangeLabel}</span>
-              <button onClick={() => stepTimeline(1)} className="text-muted-foreground p-1">
-                <ChevronRight className="h-4 w-4" />
-              </button>
-            </div>
-
+            <button onClick={() => stepTimeline(-1)} className="text-muted-foreground p-1">
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            <span style={{ fontSize: 15, fontWeight: 500, color: "#2D3748" }}>{rangeLabel}</span>
+            <button onClick={() => stepTimeline(1)} className="text-muted-foreground p-1">
+              <ChevronRight className="h-4 w-4" />
+            </button>
             <button
               onClick={() => { setTimelineRange("Y"); }}
               className="text-xs rounded-md transition-colors"
