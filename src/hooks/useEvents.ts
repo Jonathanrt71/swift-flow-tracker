@@ -9,6 +9,7 @@ export interface ProgramEvent {
   id: string;
   title: string;
   event_date: string;
+  end_date: string | null;
   start_time: string | null;
   end_time: string | null;
   description: string | null;
