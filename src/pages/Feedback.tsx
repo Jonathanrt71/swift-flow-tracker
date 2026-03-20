@@ -399,7 +399,6 @@ const Feedback = () => {
               <button
                 onClick={() => {
                   setViewMode("summary");
-                  setFilterResidentId(null);
                 }}
                 className={cn(
                   "flex items-center justify-center w-7 h-7 rounded-full transition-colors",
