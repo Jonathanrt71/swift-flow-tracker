@@ -10,7 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Camera, Loader2, Check, User, X, LogOut } from "lucide-react";
 
 const Profile = () => {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
