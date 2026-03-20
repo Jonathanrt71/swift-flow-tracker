@@ -410,6 +410,20 @@ const Feedback = () => {
                 />
               </button>
             </div>
+            <button
+              onClick={() => setMyOnly(!myOnly)}
+              className={cn(
+                "flex items-center justify-center w-7 h-7 rounded-full transition-colors",
+                myOnly ? "bg-white shadow-sm" : ""
+              )}
+              style={{ background: myOnly ? "white" : "transparent" }}
+              title="Show only my feedback"
+            >
+              <UserCheck
+                className="h-3.5 w-3.5"
+                style={{ color: myOnly ? "#415162" : "#8A9AAB" }}
+              />
+            </button>
           </div>
           {/* Add button */}
           <CreateFeedbackDialog
