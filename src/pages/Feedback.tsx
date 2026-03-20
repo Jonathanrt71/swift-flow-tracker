@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { format, parseISO } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
-import { User, List, PieChart, Pencil, Trash2, X as XIcon, Search } from "lucide-react";
+import { List, PieChart, Pencil, Trash2, X as XIcon, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
@@ -41,11 +41,9 @@ const Feedback = () => {
   const { feedbackQuery, createFeedback, updateFeedback, deleteFeedback } = useFeedback();
 
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [filterResidentId, setFilterResidentId] = useState<string | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"list" | "summary">("list");
-  const [personPopoverOpen, setPersonPopoverOpen] = useState(false);
 
   // Fetch user IDs with the 'resident' role
   const { data: residentRoles } = useQuery({
@@ -71,7 +69,6 @@ const Feedback = () => {
 
   // Filter for list view
   const filtered = allFeedback.filter((fb) => {
-    if (filterResidentId && fb.resident_id !== filterResidentId) return false;
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       const residentName = (nameMap.get(fb.resident_id) || "").toLowerCase();
@@ -262,7 +259,8 @@ const Feedback = () => {
         className="rounded-lg cursor-pointer"
         style={{ background: "#E7EBEF", border: "1px solid #C9CED4", padding: "12px 14px" }}
         onClick={() => {
-          setFilterResidentId(r.id);
+          setSearchQuery(r.name);
+          setSearchOpen(true);
           setViewMode("list");
         }}
       >
@@ -280,9 +278,6 @@ const Feedback = () => {
     ));
   };
 
-  const sortedResidents = [...residents].sort((a, b) =>
-    formatPersonName(a).localeCompare(formatPersonName(b))
-  );
 
   return (
     <div className="min-h-screen bg-background pb-20" style={{ background: "#F5F3EE" }}>
@@ -383,43 +378,6 @@ const Feedback = () => {
               );
             })()}
 
-            {/* Person filter */}
-            <Popover open={personPopoverOpen} onOpenChange={setPersonPopoverOpen}>
-              <PopoverTrigger asChild>
-                <button className="p-1">
-                  <User
-                    className="h-5 w-5"
-                    style={{ color: filterResidentId ? "#415162" : "#8A9AAB" }}
-                  />
-                </button>
-              </PopoverTrigger>
-              <PopoverContent className="w-48 p-2" align="start">
-                <button
-                  className="w-full text-left text-sm px-2 py-1.5 rounded hover:bg-accent"
-                  onClick={() => {
-                    setFilterResidentId(null);
-                    setPersonPopoverOpen(false);
-                  }}
-                >
-                  All residents
-                </button>
-                {sortedResidents.map((r) => (
-                  <button
-                    key={r.id}
-                    className={cn(
-                      "w-full text-left text-sm px-2 py-1.5 rounded hover:bg-accent",
-                      filterResidentId === r.id && "bg-accent font-medium"
-                    )}
-                    onClick={() => {
-                      setFilterResidentId(r.id);
-                      setPersonPopoverOpen(false);
-                    }}
-                  >
-                    {formatPersonName(r)}
-                  </button>
-                ))}
-              </PopoverContent>
-            </Popover>
 
             {/* View toggle pill — rounded-full matching Events page */}
             <div className="flex items-center rounded-full p-0.5" style={{ background: "#D5DAE0" }}>
@@ -438,7 +396,6 @@ const Feedback = () => {
               <button
                 onClick={() => {
                   setViewMode("summary");
-                  setFilterResidentId(null);
                 }}
                 className={cn(
                   "flex items-center justify-center w-7 h-7 rounded-full transition-colors",
