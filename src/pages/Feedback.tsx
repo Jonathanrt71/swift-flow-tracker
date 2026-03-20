@@ -380,43 +380,6 @@ const Feedback = () => {
               );
             })()}
 
-            {/* Person filter */}
-            <Popover open={personPopoverOpen} onOpenChange={setPersonPopoverOpen}>
-              <PopoverTrigger asChild>
-                <button className="p-1">
-                  <User
-                    className="h-5 w-5"
-                    style={{ color: filterResidentId ? "#415162" : "#8A9AAB" }}
-                  />
-                </button>
-              </PopoverTrigger>
-              <PopoverContent className="w-48 p-2" align="start">
-                <button
-                  className="w-full text-left text-sm px-2 py-1.5 rounded hover:bg-accent"
-                  onClick={() => {
-                    setFilterResidentId(null);
-                    setPersonPopoverOpen(false);
-                  }}
-                >
-                  All residents
-                </button>
-                {sortedResidents.map((r) => (
-                  <button
-                    key={r.id}
-                    className={cn(
-                      "w-full text-left text-sm px-2 py-1.5 rounded hover:bg-accent",
-                      filterResidentId === r.id && "bg-accent font-medium"
-                    )}
-                    onClick={() => {
-                      setFilterResidentId(r.id);
-                      setPersonPopoverOpen(false);
-                    }}
-                  >
-                    {formatPersonName(r)}
-                  </button>
-                ))}
-              </PopoverContent>
-            </Popover>
 
             {/* View toggle pill — rounded-full matching Events page */}
             <div className="flex items-center rounded-full p-0.5" style={{ background: "#D5DAE0" }}>
