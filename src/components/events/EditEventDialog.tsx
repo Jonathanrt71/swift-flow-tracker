@@ -54,6 +54,7 @@ const EditEventDialog = ({ event, onUpdate }: EditEventDialogProps) => {
     if (isOpen) {
       setTitle(event.title);
       setEventDate(event.event_date);
+      setEndDate(event.end_date || "");
       setStartTime(event.start_time || "");
       setEndTime(event.end_time || "");
       setDescription(event.description || "");
