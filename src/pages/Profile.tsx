@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
-import { Camera, Loader2, Check, User, X } from "lucide-react";
+import { Camera, Loader2, Check, User, X, LogOut } from "lucide-react";
 
 const Profile = () => {
   const { user } = useAuth();
