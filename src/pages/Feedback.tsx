@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { format, parseISO } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
-import { User, ThumbsUp, ThumbsDown, Pencil, Trash2, X as XIcon, Search } from "lucide-react";
+import { User, List, PieChart, Pencil, Trash2, X as XIcon, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
@@ -16,6 +16,7 @@ import BottomNav from "@/components/BottomNav";
 import NotificationBell from "@/components/NotificationBell";
 import CreateFeedbackDialog from "@/components/feedback/CreateFeedbackDialog";
 import EditFeedbackDialog from "@/components/feedback/EditFeedbackDialog";
+import FeedbackPie from "@/components/feedback/FeedbackPie";
 import {
   Popover,
   PopoverContent,
@@ -33,18 +34,6 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-const getInitials = (name: string | null): string => {
-  if (!name) return "?";
-  return name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2);
-};
-
-const getColor = (name: string | null): string => {
-  const cols = ["#378ADD", "#1D9E75", "#D85A30", "#534AB7", "#993556"];
-  let h = 0;
-  if (name) for (let i = 0; i < name.length; i++) h = name.charCodeAt(i) + ((h << 5) - h);
-  return cols[Math.abs(h) % cols.length];
-};
-
 const Feedback = () => {
   const { user, signOut } = useAuth();
   const { isAdmin } = useAdmin();
@@ -52,9 +41,11 @@ const Feedback = () => {
   const { feedbackQuery, createFeedback, updateFeedback, deleteFeedback } = useFeedback();
 
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [filterSentiment, setFilterSentiment] = useState<"positive" | "negative" | null>(null);
+  const [filterResidentId, setFilterResidentId] = useState<string | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [viewMode, setViewMode] = useState<"list" | "summary">("list");
+  const [personPopoverOpen, setPersonPopoverOpen] = useState(false);
 
   // Fetch user IDs with the 'resident' role
   const { data: residentRoles } = useQuery({
@@ -78,10 +69,9 @@ const Feedback = () => {
   members.forEach((m) => nameMap.set(m.id, formatPersonName(m)));
   const allFeedback = feedbackQuery.data || [];
 
-  // Filter
+  // Filter for list view
   const filtered = allFeedback.filter((fb) => {
-    if (filterSentiment && fb.sentiment !== filterSentiment) return false;
-    if (filterSentiment && fb.sentiment !== filterSentiment) return false;
+    if (filterResidentId && fb.resident_id !== filterResidentId) return false;
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       const residentName = (nameMap.get(fb.resident_id) || "").toLowerCase();
@@ -95,12 +85,29 @@ const Feedback = () => {
     return true;
   });
 
-  // Already sorted descending from the query, but ensure it
   const sorted = [...filtered].sort(
     (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
   );
 
-  // Month grouping
+  // Summary data
+  const residentSummary = useMemo(() => {
+    const map = new Map<string, { positive: number; negative: number }>();
+    allFeedback.forEach((fb) => {
+      if (!map.has(fb.resident_id)) map.set(fb.resident_id, { positive: 0, negative: 0 });
+      const entry = map.get(fb.resident_id)!;
+      if (fb.sentiment === "positive") entry.positive++;
+      else entry.negative++;
+    });
+    return Array.from(map.entries())
+      .map(([id, counts]) => ({
+        id,
+        name: nameMap.get(id) || "?",
+        ...counts,
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [allFeedback, nameMap]);
+
+  // List view cards
   const renderCards = () => {
     if (feedbackQuery.isLoading) {
       return (
@@ -164,9 +171,7 @@ const Feedback = () => {
                 {residentName}
               </span>
               {dateInfo && (
-                <span
-                  className="text-[11px] whitespace-nowrap shrink-0 text-muted-foreground"
-                >
+                <span className="text-[11px] whitespace-nowrap shrink-0 text-muted-foreground">
                   {dateInfo.text}
                 </span>
               )}
@@ -233,6 +238,52 @@ const Feedback = () => {
     return elements;
   };
 
+  // Summary view
+  const renderSummary = () => {
+    if (feedbackQuery.isLoading) {
+      return (
+        <div className="text-center py-12 text-muted-foreground">
+          <p className="text-sm">Loading...</p>
+        </div>
+      );
+    }
+
+    if (residentSummary.length === 0) {
+      return (
+        <div className="text-center py-12 text-muted-foreground">
+          <p className="text-sm">No feedback yet.</p>
+        </div>
+      );
+    }
+
+    return residentSummary.map((r) => (
+      <div
+        key={r.id}
+        className="rounded-lg cursor-pointer"
+        style={{ background: "#E7EBEF", border: "1px solid #C9CED4", padding: "12px 14px" }}
+        onClick={() => {
+          setFilterResidentId(r.id);
+          setViewMode("list");
+        }}
+      >
+        <div className="flex items-center gap-2.5">
+          <span className="flex-1 min-w-0 text-sm font-medium truncate" style={{ color: "#2D3748" }}>
+            {r.name}
+          </span>
+          <span className="text-[11px]" style={{ color: "#5F7285" }}>{r.positive}</span>
+          <div className="w-2 h-2 rounded-full shrink-0" style={{ background: "#5E9E82" }} />
+          <span className="text-[11px]" style={{ color: "#5F7285" }}>{r.negative}</span>
+          <div className="w-2 h-2 rounded-full shrink-0" style={{ background: "#A63333" }} />
+          <FeedbackPie positive={r.positive} negative={r.negative} />
+        </div>
+      </div>
+    ));
+  };
+
+  const sortedResidents = [...residents].sort((a, b) =>
+    formatPersonName(a).localeCompare(formatPersonName(b))
+  );
+
   return (
     <div className="min-h-screen bg-background pb-20" style={{ background: "#F5F3EE" }}>
       {/* Header */}
@@ -269,110 +320,89 @@ const Feedback = () => {
       </header>
 
       <main className="container max-w-[1200px] px-4 py-6">
-        {/* Filter row */}
+        {/* Toolbar */}
         <div className="flex items-center justify-between pb-2.5">
           <div className="flex gap-2 items-center">
-          {(() => {
-            const total = allFeedback.length;
-            const posCount = allFeedback.filter((fb) => fb.sentiment === "positive").length;
-            const negCount = allFeedback.filter((fb) => fb.sentiment === "negative").length;
-            const posPct = total > 0 ? (posCount / total) * 100 : 50;
-            const negPct = total > 0 ? (negCount / total) * 100 : 50;
-            // SVG pie chart using conic gradient via two arc segments
-            const posAngle = (posPct / 100) * 360;
-            const r = 12;
-            const cx = 14;
-            const cy = 14;
-            const toRad = (deg: number) => (deg - 90) * (Math.PI / 180);
-            const posEndX = cx + r * Math.cos(toRad(posAngle));
-            const posEndY = cy + r * Math.sin(toRad(posAngle));
-            const largePos = posAngle > 180 ? 1 : 0;
-            const largeNeg = posAngle <= 180 ? 1 : 0;
-
-            return (
-              <>
-                {total > 0 && (
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <button className="shrink-0 bg-transparent border-none cursor-pointer p-0">
-                        <svg width="28" height="28" viewBox="0 0 28 28">
-                          {posCount === total ? (
-                            <circle cx={cx} cy={cy} r={r} fill="#5E9E82" />
-                          ) : negCount === total ? (
-                            <circle cx={cx} cy={cy} r={r} fill="#A63333" />
-                          ) : (
-                            <>
-                              <path
-                                d={`M${cx},${cy - r} A${r},${r} 0 ${largePos},1 ${posEndX},${posEndY} L${cx},${cy} Z`}
-                                fill="#5E9E82"
-                              />
-                              <path
-                                d={`M${posEndX},${posEndY} A${r},${r} 0 ${largeNeg},1 ${cx},${cy - r} L${cx},${cy} Z`}
-                                fill="#A63333"
-                              />
-                            </>
-                          )}
-                        </svg>
-                      </button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-3" align="start">
-                      <div className="flex flex-col gap-1.5 text-sm">
-                        <div className="flex items-center gap-2">
-                          <div className="w-3 h-3 rounded-full" style={{ background: "#5E9E82" }} />
-                          <span>Positive: {Math.round(posPct)}% ({posCount})</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="w-3 h-3 rounded-full" style={{ background: "#A63333" }} />
-                          <span>Negative: {Math.round(negPct)}% ({negCount})</span>
-                        </div>
-                        <div className="text-xs text-muted-foreground mt-1">Total: {total}</div>
-                      </div>
-                    </PopoverContent>
-                  </Popover>
-                )}
-
-                <button
-                  onClick={() =>
-                    setFilterSentiment(filterSentiment === "positive" ? null : "positive")
-                  }
-                  className="p-0.5"
-                >
-                  <ThumbsUp
+            {/* Person filter */}
+            <Popover open={personPopoverOpen} onOpenChange={setPersonPopoverOpen}>
+              <PopoverTrigger asChild>
+                <button className="p-1">
+                  <User
                     className="h-5 w-5"
-                    style={{
-                      color: filterSentiment === "positive" ? "#5E9E82" : "#8A9AAB",
-                    }}
+                    style={{ color: filterResidentId ? "#415162" : "#8A9AAB" }}
                   />
                 </button>
-
+              </PopoverTrigger>
+              <PopoverContent className="w-48 p-2" align="start">
                 <button
-                  onClick={() =>
-                    setFilterSentiment(filterSentiment === "negative" ? null : "negative")
-                  }
-                  className="p-0.5"
+                  className="w-full text-left text-sm px-2 py-1.5 rounded hover:bg-accent"
+                  onClick={() => {
+                    setFilterResidentId(null);
+                    setPersonPopoverOpen(false);
+                  }}
                 >
-                  <ThumbsDown
-                    className="h-5 w-5"
-                    style={{
-                      color: filterSentiment === "negative" ? "#A63333" : "#8A9AAB",
-                    }}
-                  />
+                  All residents
                 </button>
-              </>
-            );
-          })()}
+                {sortedResidents.map((r) => (
+                  <button
+                    key={r.id}
+                    className={cn(
+                      "w-full text-left text-sm px-2 py-1.5 rounded hover:bg-accent",
+                      filterResidentId === r.id && "bg-accent font-medium"
+                    )}
+                    onClick={() => {
+                      setFilterResidentId(r.id);
+                      setPersonPopoverOpen(false);
+                    }}
+                  >
+                    {formatPersonName(r)}
+                  </button>
+                ))}
+              </PopoverContent>
+            </Popover>
+
+            {/* View toggle pill */}
+            <div className="flex items-center gap-0.5 rounded-lg p-[2px]" style={{ background: "#D5DAE0" }}>
+              <button
+                className="p-1.5 rounded-md transition-colors"
+                style={{
+                  background: viewMode === "list" ? "white" : "transparent",
+                }}
+                onClick={() => setViewMode("list")}
+              >
+                <List
+                  className="h-4 w-4"
+                  style={{ color: viewMode === "list" ? "#415162" : "#8A9AAB" }}
+                />
+              </button>
+              <button
+                className="p-1.5 rounded-md transition-colors"
+                style={{
+                  background: viewMode === "summary" ? "white" : "transparent",
+                }}
+                onClick={() => {
+                  setViewMode("summary");
+                  setFilterResidentId(null);
+                }}
+              >
+                <PieChart
+                  className="h-4 w-4"
+                  style={{ color: viewMode === "summary" ? "#415162" : "#8A9AAB" }}
+                />
+              </button>
+            </div>
+          </div>
+
+          {/* Add button */}
+          <CreateFeedbackDialog
+            onSubmit={(data) => createFeedback.mutate(data)}
+            residents={residents}
+          />
         </div>
 
-        {/* Add button */}
-        <CreateFeedbackDialog
-          onSubmit={(data) => createFeedback.mutate(data)}
-          residents={residents}
-        />
-      </div>
-
-        {/* Cards */}
+        {/* Content */}
         <div className="flex flex-col gap-2">
-          {renderCards()}
+          {viewMode === "list" ? renderCards() : renderSummary()}
         </div>
       </main>
 

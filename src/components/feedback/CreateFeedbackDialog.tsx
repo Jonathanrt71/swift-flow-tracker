@@ -4,8 +4,7 @@ import {
   DialogContent,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Plus, ThumbsUp, ThumbsDown } from "lucide-react";
-import { useTeamMembers } from "@/hooks/useTeamMembers";
+import { Plus } from "lucide-react";
 import { formatPersonName } from "@/lib/dateFormat";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -110,31 +109,27 @@ const CreateFeedbackDialog = ({ onSubmit, residents }: CreateFeedbackDialogProps
           </div>
         </div>
 
-        {/* Sentiment buttons */}
+        {/* Sentiment buttons — solid color rectangles, no icons */}
         <div className="mb-5">
           <div className="flex gap-3">
             <button
               type="button"
               onClick={() => setSentiment("positive")}
-              className="flex-1 flex items-center justify-center py-2.5 rounded-lg transition-opacity"
+              className="flex-1 py-2.5 rounded-lg transition-opacity"
               style={{
                 background: "#5E9E82",
                 opacity: sentiment === null || sentiment === "positive" ? 1 : 0.3,
               }}
-            >
-              <ThumbsUp className="h-5 w-5" style={{ color: "#F5F3EE" }} />
-            </button>
+            />
             <button
               type="button"
               onClick={() => setSentiment("negative")}
-              className="flex-1 flex items-center justify-center py-2.5 rounded-lg transition-opacity"
+              className="flex-1 py-2.5 rounded-lg transition-opacity"
               style={{
                 background: "#A63333",
                 opacity: sentiment === null || sentiment === "negative" ? 1 : 0.3,
               }}
-            >
-              <ThumbsDown className="h-5 w-5" style={{ color: "#F5F3EE" }} />
-            </button>
+            />
           </div>
         </div>
 
