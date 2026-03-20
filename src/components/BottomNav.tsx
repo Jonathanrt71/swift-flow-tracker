@@ -27,7 +27,7 @@ const BottomNav = () => {
       <Link to="/feedback" className="flex-1 flex items-center justify-center text-white/50">
         <MessageSquare className="h-5 w-5" />
       </Link>
-      <Link to="/" className="flex-1 flex items-center justify-center text-white/50">
+      <Link to="/tasks" className="flex-1 flex items-center justify-center text-white/50">
         <CheckSquare className="h-5 w-5" />
       </Link>
       </div>

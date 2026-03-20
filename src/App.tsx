@@ -30,12 +30,13 @@ const App = () => (
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route path="/reset-password" element={<ResetPassword />} />
-              <Route path="/" element={<RoleRoute allowed={["admin", "faculty"]}><Index /></RoleRoute>} />
+              <Route path="/" element={<RoleRoute allowed={["admin", "faculty"]}><Feedback /></RoleRoute>} />
               <Route path="/admin" element={<RoleRoute allowed={["admin"]}><Admin /></RoleRoute>} />
               <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
               <Route path="/meetings" element={<RoleRoute allowed={["admin", "faculty"]}><Meetings /></RoleRoute>} />
               <Route path="/events" element={<RoleRoute allowed={["admin", "faculty"]}><Events /></RoleRoute>} />
               <Route path="/feedback" element={<RoleRoute allowed={["admin", "faculty"]}><Feedback /></RoleRoute>} />
+              <Route path="/tasks" element={<RoleRoute allowed={["admin", "faculty"]}><Index /></RoleRoute>} />
               <Route path="/cbme" element={<RoleRoute allowed={["admin", "faculty"]}><CBME /></RoleRoute>} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
