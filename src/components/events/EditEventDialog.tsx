@@ -70,6 +70,7 @@ const EditEventDialog = ({ event, onUpdate }: EditEventDialogProps) => {
       id: event.id,
       title: title.trim(),
       event_date: eventDate,
+      end_date: endDate || null,
       start_time: startTime || null,
       end_time: endTime || null,
       description: description.trim() || null,
