@@ -26,6 +26,7 @@ interface CreateEventDialogProps {
   onSubmit: (data: {
     title: string;
     event_date: string;
+    end_date?: string;
     start_time?: string;
     end_time?: string;
     description?: string;
