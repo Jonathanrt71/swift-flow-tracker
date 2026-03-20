@@ -259,7 +259,8 @@ const Feedback = () => {
         className="rounded-lg cursor-pointer"
         style={{ background: "#E7EBEF", border: "1px solid #C9CED4", padding: "12px 14px" }}
         onClick={() => {
-          setFilterResidentId(r.id);
+          setSearchQuery(r.name);
+          setSearchOpen(true);
           setViewMode("list");
         }}
       >
