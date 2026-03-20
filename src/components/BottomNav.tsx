@@ -17,7 +17,7 @@ const BottomNav = () => {
         paddingRight: "env(safe-area-inset-right, 0px)",
       }}
     >
-      <div className="flex max-w-[768px] mx-auto pt-3 pb-1">
+      <div className="flex max-w-[1200px] mx-auto pt-3 pb-1">
       <Link to="/cbme" className="flex-1 flex items-center justify-center text-white/50">
         <BookOpen className="h-5 w-5" />
       </Link>

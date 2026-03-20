@@ -268,7 +268,7 @@ const Feedback = () => {
         )}
       </header>
 
-      <main className="container max-w-2xl px-4 py-6">
+      <main className="container max-w-[1200px] px-4 py-6">
         {/* Filter row */}
         <div className="flex items-center justify-between pb-2.5">
           <div className="flex gap-2 items-center">
