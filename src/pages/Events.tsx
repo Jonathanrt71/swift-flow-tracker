@@ -37,7 +37,7 @@ const GanttIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-const MONTH_ABBRS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
 
 const getInitials = (name: string | null): string => {
   if (!name) return "?";
