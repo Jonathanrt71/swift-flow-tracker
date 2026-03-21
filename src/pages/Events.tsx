@@ -307,6 +307,33 @@ const Events = () => {
 
   const ganttRangeLabel = `${MONTH_ABBRS[6]} ${academicStartYear} — ${MONTH_ABBRS[5]} ${academicStartYear + 1}`;
 
+  const filteredEvents = useMemo(() => {
+    const all = events.data || [];
+    const byCategory = all.filter((e) => e.category === activeTab);
+    if (!searchQuery.trim()) return byCategory;
+    const q = searchQuery.toLowerCase();
+    return byCategory.filter(
+      (e) =>
+        e.title.toLowerCase().includes(q) ||
+        (e.description || "").toLowerCase().includes(q)
+    );
+  }, [events.data, activeTab, searchQuery]);
+
+  const programEvents = useMemo(() => {
+    return (events.data || []).filter((e) => e.category === "program");
+  }, [events.data]);
+
+  const handleTabChange = (tab: "program" | "didactic") => {
+    if (tab === activeTab) return;
+    if (tab === "didactic") {
+      setLastProgramView(viewMode);
+      setViewMode("list");
+    } else {
+      setViewMode(lastProgramView);
+    }
+    setActiveTab(tab);
+  };
+
   return (
     <div className="min-h-screen bg-background pb-20">
       <header className="bg-[#415162] sticky top-0 z-40">
