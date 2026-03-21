@@ -27,7 +27,7 @@ import EditEventDialog from "@/components/events/EditEventDialog";
 import EventsTimeline from "@/components/events/EventsTimeline";
 import NotificationBell from "@/components/NotificationBell";
 import HeaderLogo from "@/components/HeaderLogo";
-import { useIsMobile } from "@/hooks/use-mobile";
+
 
 const GanttIcon = ({ className }: { className?: string }) => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className={className}>
