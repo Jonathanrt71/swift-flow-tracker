@@ -18,7 +18,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Calendar, BookOpen, Search, X, Trash2, List, ChevronLeft, ChevronRight } from "lucide-react";
+import { Calendar, BookOpen, Search, X, Trash2, List } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { formatCardDate } from "@/lib/dateFormat";
 import { Button } from "@/components/ui/button";
