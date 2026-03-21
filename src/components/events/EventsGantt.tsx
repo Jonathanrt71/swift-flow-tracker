@@ -30,6 +30,16 @@ const EventsGantt = ({ events }: EventsGanttProps) => {
   const [tooltip, setTooltip] = useState<{ title: string; dateStr: string; x: number; y: number } | null>(null);
   const tooltipTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to current month on mount
+  useLayoutEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const totalWidth = el.scrollWidth;
+    const scrollTarget = (currentMonthOffset / monthCount) * totalWidth - el.clientWidth / 2;
+    el.scrollLeft = Math.max(0, scrollTarget);
+  }, []);
 
   const months = useMemo(() => {
     const result: { month: number; year: number; days: number; label: string }[] = [];
