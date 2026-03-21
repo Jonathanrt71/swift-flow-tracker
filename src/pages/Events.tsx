@@ -416,66 +416,12 @@ const Events = () => {
           )}
         </div>
 
-        {/* Row 2: Gantt navigation (only in gantt view + program tab) */}
+        {/* Row 2: Gantt label (only in gantt view + program tab) */}
         {activeTab === "program" && viewMode === "gantt" && (
-          <div className="flex items-center justify-between pb-3">
-            <button
-              onClick={() => setGanttRange("Q")}
-              className="transition-colors"
-              style={{
-                borderRadius: 6,
-                paddingLeft: 12,
-                paddingRight: 12,
-                paddingTop: 4,
-                paddingBottom: 4,
-                fontSize: 12,
-                fontWeight: 500,
-                ...(ganttRange === "Q"
-                  ? { background: "#415162", color: "white", border: "1px solid #415162" }
-                  : { background: "white", color: "#8A9AAB", border: "1px solid #C9CED4" }),
-              }}
-            >
-              Q
-            </button>
-
-            <div className="flex items-center gap-2 flex-1 justify-center">
-              <button
-                onClick={() => stepGantt(-1)}
-                className="flex items-center justify-center w-7 h-7"
-                style={{ color: "#8A9AAB" }}
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </button>
-              <span style={{ fontSize: 15, fontWeight: 500, color: "#2D3748" }}>
-                {ganttRangeLabel}
-              </span>
-              <button
-                onClick={() => stepGantt(1)}
-                className="flex items-center justify-center w-7 h-7"
-                style={{ color: "#8A9AAB" }}
-              >
-                <ChevronRight className="h-4 w-4" />
-              </button>
-            </div>
-
-            <button
-              onClick={() => setGanttRange("Y")}
-              className="transition-colors"
-              style={{
-                borderRadius: 6,
-                paddingLeft: 12,
-                paddingRight: 12,
-                paddingTop: 4,
-                paddingBottom: 4,
-                fontSize: 12,
-                fontWeight: 500,
-                ...(ganttRange === "Y"
-                  ? { background: "#415162", color: "white", border: "1px solid #415162" }
-                  : { background: "white", color: "#8A9AAB", border: "1px solid #C9CED4" }),
-              }}
-            >
-              Y
-            </button>
+          <div className="flex items-center justify-center pb-3">
+            <span style={{ fontSize: 15, fontWeight: 500, color: "#2D3748" }}>
+              {ganttRangeLabel}
+            </span>
           </div>
         )}
 
