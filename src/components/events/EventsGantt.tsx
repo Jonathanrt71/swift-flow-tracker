@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useState, useRef, useEffect, useMemo, useLayoutEffect } from "react";
 import { format, parseISO, getDaysInMonth } from "date-fns";
 import type { ProgramEvent } from "@/hooks/useEvents";
 import { useIsMobile } from "@/hooks/use-mobile";
