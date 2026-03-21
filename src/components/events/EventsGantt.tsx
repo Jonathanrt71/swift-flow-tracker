@@ -5,9 +5,6 @@ import { useIsMobile } from "@/hooks/use-mobile";
 
 interface EventsGanttProps {
   events: ProgramEvent[];
-  range: "Q" | "Y";
-  startMonth: number; // 0-indexed
-  startYear: number;
 }
 
 const MONTH_ABBRS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
