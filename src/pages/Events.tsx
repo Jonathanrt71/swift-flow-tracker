@@ -300,61 +300,12 @@ const Events = () => {
   const [viewMode, setViewMode] = useState<"list" | "vertical" | "gantt">("list");
   const [lastProgramView, setLastProgramView] = useState<"list" | "vertical" | "gantt">("list");
 
-  // Gantt state
-  const now = new Date();
-  const [ganttRange, setGanttRange] = useState<"Q" | "Y">(isMobile ? "Q" : "Y");
-  const [ganttStartMonth, setGanttStartMonth] = useState(() => isMobile ? now.getMonth() : 6);
-  const [ganttStartYear, setGanttStartYear] = useState(() => {
-    if (isMobile) return now.getFullYear();
-    return now.getMonth() < 6 ? now.getFullYear() - 1 : now.getFullYear();
-  });
+  const academicStartYear = useMemo(() => {
+    const n = new Date();
+    return n.getMonth() < 6 ? n.getFullYear() - 1 : n.getFullYear();
+  }, []);
 
-  const filteredEvents = useMemo(() => {
-    const all = events.data || [];
-    const byCategory = all.filter((e) => e.category === activeTab);
-    if (!searchQuery.trim()) return byCategory;
-    const q = searchQuery.toLowerCase();
-    return byCategory.filter(
-      (e) =>
-        e.title.toLowerCase().includes(q) ||
-        (e.description || "").toLowerCase().includes(q)
-    );
-  }, [events.data, activeTab, searchQuery]);
-
-  const programEvents = useMemo(() => {
-    return (events.data || []).filter((e) => e.category === "program");
-  }, [events.data]);
-
-  const handleTabChange = (tab: "program" | "didactic") => {
-    if (tab === activeTab) return;
-    if (tab === "didactic") {
-      setLastProgramView(viewMode);
-      setViewMode("list");
-    } else {
-      setViewMode(lastProgramView);
-    }
-    setActiveTab(tab);
-  };
-
-  const stepGantt = (direction: 1 | -1) => {
-    const step = ganttRange === "Q" ? 3 : 12;
-    let newMonth = ganttStartMonth + direction * step;
-    let newYear = ganttStartYear;
-    while (newMonth < 0) { newMonth += 12; newYear -= 1; }
-    while (newMonth >= 12) { newMonth -= 12; newYear += 1; }
-    setGanttStartMonth(newMonth);
-    setGanttStartYear(newYear);
-  };
-
-  const ganttRangeLabel = useMemo(() => {
-    const step = ganttRange === "Q" ? 3 : 12;
-    const endIdx = ganttStartMonth + step - 1;
-    const endMonth = endIdx % 12;
-    const endYear = ganttStartYear + Math.floor(endIdx / 12);
-    const startLabel = `${MONTH_ABBRS[ganttStartMonth]} ${ganttStartYear}`;
-    const endLabel = `${MONTH_ABBRS[endMonth]} ${endYear}`;
-    return `${startLabel} — ${endLabel}`;
-  }, [ganttRange, ganttStartMonth, ganttStartYear]);
+  const ganttRangeLabel = `${MONTH_ABBRS[6]} ${academicStartYear} — ${MONTH_ABBRS[5]} ${academicStartYear + 1}`;
 
   return (
     <div className="min-h-screen bg-background pb-20">
