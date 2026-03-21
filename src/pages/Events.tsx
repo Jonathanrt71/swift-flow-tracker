@@ -300,12 +300,14 @@ const Events = () => {
   const [viewMode, setViewMode] = useState<"list" | "vertical" | "gantt">("list");
   const [lastProgramView, setLastProgramView] = useState<"list" | "vertical" | "gantt">("list");
 
-  const academicStartYear = useMemo(() => {
+  const ganttRangeLabel = useMemo(() => {
     const n = new Date();
-    return n.getMonth() < 6 ? n.getFullYear() - 1 : n.getFullYear();
+    const startYear = n.getFullYear() - 1;
+    const endYear = n.getFullYear() + 2;
+    const startMonthIdx = n.getMonth();
+    const endMonthIdx = (n.getMonth() + 11) % 12;
+    return `${MONTH_ABBRS[startMonthIdx]} ${startYear} — ${MONTH_ABBRS[endMonthIdx]} ${endYear}`;
   }, []);
-
-  const ganttRangeLabel = `${MONTH_ABBRS[6]} ${academicStartYear} — ${MONTH_ABBRS[5]} ${academicStartYear + 1}`;
 
   const filteredEvents = useMemo(() => {
     const all = events.data || [];
