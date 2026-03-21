@@ -449,9 +449,6 @@ const Events = () => {
         ) : activeTab === "program" && viewMode === "timeline" ? (
           <EventsTimeline
             events={programEvents}
-            range={timelineRange}
-            startMonth={timelineStartMonth}
-            startYear={timelineStartYear}
           />
         ) : (
           <GroupedEventList

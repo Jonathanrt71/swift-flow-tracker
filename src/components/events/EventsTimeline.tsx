@@ -137,7 +137,7 @@ const EventsTimeline = ({ events }: EventsTimelineProps) => {
 
       {/* Scrollable area */}
       <div className="overflow-x-auto">
-        <div style={{ minWidth: range === "Y" && isMobile ? 900 : undefined }}>
+        <div style={{ minWidth: isMobile ? 900 : undefined }}>
           {/* Month headers */}
           <div className="flex" style={{ borderBottom: "1px solid #E7EBEF" }}>
             <div className="shrink-0" style={{ width: labelWidth }} />
