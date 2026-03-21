@@ -3,8 +3,11 @@ import { format, parseISO, getDaysInMonth } from "date-fns";
 import type { ProgramEvent } from "@/hooks/useEvents";
 import { useIsMobile } from "@/hooks/use-mobile";
 
-interface EventsTimelineProps {
+interface EventsGanttProps {
   events: ProgramEvent[];
+  range: "Q" | "Y";
+  startMonth: number; // 0-indexed
+  startYear: number;
 }
 
 const MONTH_ABBRS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -16,21 +19,17 @@ interface TimelineRow {
   earliestStart: Date;
 }
 
-const EventsTimeline = ({ events }: EventsTimelineProps) => {
+const EventsGantt = ({ events, range, startMonth, startYear }: EventsGanttProps) => {
   const isMobile = useIsMobile();
   const labelWidth = isMobile ? 70 : 130;
   const rowHeight = isMobile ? 34 : 40;
   const dotSize = isMobile ? 8 : 9;
-  const monthCount = 12;
-  const now = new Date();
-  const startMonth = 6; // July — academic year start
-  const startYear = now.getMonth() < 6 ? now.getFullYear() - 1 : now.getFullYear();
+  const monthCount = range === "Q" ? 3 : 12;
 
   const [tooltip, setTooltip] = useState<{ title: string; dateStr: string; x: number; y: number } | null>(null);
   const tooltipTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Build months array
   const months = useMemo(() => {
     const result: { month: number; year: number; days: number; label: string }[] = [];
     for (let i = 0; i < monthCount; i++) {
@@ -41,7 +40,6 @@ const EventsTimeline = ({ events }: EventsTimelineProps) => {
     return result;
   }, [startMonth, startYear, monthCount]);
 
-  // Group events by title
   const rows = useMemo(() => {
     const map = new Map<string, { startDate: Date; endDate: Date }[]>();
     events.forEach((ev) => {
@@ -59,7 +57,6 @@ const EventsTimeline = ({ events }: EventsTimelineProps) => {
       rows.push({ title, occurrences, isMultiDay, earliestStart });
     });
 
-    // Sort: multi-day first by earliest start, then dots by earliest
     rows.sort((a, b) => {
       if (a.isMultiDay && !b.isMultiDay) return -1;
       if (!a.isMultiDay && b.isMultiDay) return 1;
@@ -92,7 +89,6 @@ const EventsTimeline = ({ events }: EventsTimelineProps) => {
     setTooltip(null);
   };
 
-  // Calculate position of a date within the months grid
   const getPosition = (date: Date): number | null => {
     for (let i = 0; i < months.length; i++) {
       const m = months[i];
@@ -118,7 +114,6 @@ const EventsTimeline = ({ events }: EventsTimelineProps) => {
 
   return (
     <div ref={containerRef} className="relative select-none" onClick={dismissTooltip}>
-      {/* Tooltip */}
       {tooltip && (
         <div
           className="absolute z-50 px-3 py-2 rounded-lg text-white text-xs pointer-events-none"
@@ -131,11 +126,10 @@ const EventsTimeline = ({ events }: EventsTimelineProps) => {
           }}
         >
           <div className="font-semibold">{tooltip.title}</div>
-          <div>{tooltip.dateStr}</div>
+          <div style={{ opacity: 0.7, fontSize: 11 }}>{tooltip.dateStr}</div>
         </div>
       )}
 
-      {/* Scrollable area */}
       <div className="overflow-x-auto">
         <div style={{ minWidth: isMobile ? 900 : undefined }}>
           {/* Month headers */}
@@ -147,7 +141,7 @@ const EventsTimeline = ({ events }: EventsTimelineProps) => {
                   key={`${m.year}-${m.month}`}
                   className="flex-1 text-center py-2"
                   style={{
-                    fontSize: 11,
+                    fontSize: isMobile ? 11 : 12,
                     fontWeight: 500,
                     color: "#8A9AAB",
                     borderLeft: i > 0 ? "1px solid #C9CED4" : undefined,
@@ -175,7 +169,6 @@ const EventsTimeline = ({ events }: EventsTimelineProps) => {
                 borderBottom: "0.5px solid #E7EBEF",
               }}
             >
-              {/* Label */}
               <div
                 className="shrink-0 px-2 sticky left-0 z-10"
                 style={{
@@ -193,10 +186,8 @@ const EventsTimeline = ({ events }: EventsTimelineProps) => {
                 {truncateLabel(row.title)}
               </div>
 
-              {/* Track */}
               <div className="flex-1 relative" style={{ height: rowHeight }}>
-                {/* Month separators */}
-                {months.map((m, i) =>
+                {months.map((_, i) =>
                   i > 0 ? (
                     <div
                       key={`sep-${i}`}
@@ -206,11 +197,9 @@ const EventsTimeline = ({ events }: EventsTimelineProps) => {
                   ) : null
                 )}
 
-                {/* Dots and bars */}
                 {row.occurrences.map((o, oi) => {
                   const startPos = getPosition(o.startDate);
                   if (startPos === null) return null;
-
                   const isSingleDay = o.startDate.getTime() === o.endDate.getTime();
 
                   if (isSingleDay) {
@@ -267,4 +256,4 @@ const EventsTimeline = ({ events }: EventsTimelineProps) => {
   );
 };
 
-export default EventsTimeline;
+export default EventsGantt;

@@ -6,6 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
 import { useUserRole } from "@/hooks/useUserRole";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
+import { useIsMobile } from "@/hooks/use-mobile";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,17 +18,26 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Calendar, BookOpen, Search, X, Trash2, List } from "lucide-react";
+import { Calendar, BookOpen, Search, X, Trash2, List, ChevronLeft, ChevronRight } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { formatCardDate } from "@/lib/dateFormat";
 import { Button } from "@/components/ui/button";
 import BottomNav from "@/components/BottomNav";
 import CreateEventDialog from "@/components/events/CreateEventDialog";
 import EditEventDialog from "@/components/events/EditEventDialog";
-import EventsTimeline from "@/components/events/EventsTimeline";
+import EventsGantt from "@/components/events/EventsGantt";
+import EventsVerticalTimeline from "@/components/events/EventsVerticalTimeline";
 import NotificationBell from "@/components/NotificationBell";
 import HeaderLogo from "@/components/HeaderLogo";
 
+const VerticalTimelineIcon = ({ className }: { className?: string }) => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className={className}>
+    <line x1="12" y1="5" x2="12" y2="19" />
+    <circle cx="12" cy="5" r="2" />
+    <circle cx="12" cy="12" r="2" />
+    <circle cx="12" cy="19" r="2" />
+  </svg>
+);
 
 const GanttIcon = ({ className }: { className?: string }) => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className={className}>
@@ -37,7 +47,7 @@ const GanttIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-
+const MONTH_ABBRS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 const getInitials = (name: string | null): string => {
   if (!name) return "?";
@@ -280,13 +290,24 @@ const Events = () => {
   const { user, signOut } = useAuth();
   const { isAdmin } = useAdmin();
   const { isResident } = useUserRole();
-  
+  const isMobile = useIsMobile();
+
   const { events, createEvent, updateEvent, deleteEvent } = useEvents();
   const { data: teamMembers } = useTeamMembers();
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<"program" | "didactic">("program");
-  const [viewMode, setViewMode] = useState<"list" | "timeline">("list");
+  const [viewMode, setViewMode] = useState<"list" | "vertical" | "gantt">("list");
+  const [lastProgramView, setLastProgramView] = useState<"list" | "vertical" | "gantt">("list");
+
+  // Gantt state
+  const now = new Date();
+  const [ganttRange, setGanttRange] = useState<"Q" | "Y">(isMobile ? "Q" : "Y");
+  const [ganttStartMonth, setGanttStartMonth] = useState(() => isMobile ? now.getMonth() : 6);
+  const [ganttStartYear, setGanttStartYear] = useState(() => {
+    if (isMobile) return now.getFullYear();
+    return now.getMonth() < 6 ? now.getFullYear() - 1 : now.getFullYear();
+  });
 
   const filteredEvents = useMemo(() => {
     const all = events.data || [];
@@ -305,10 +326,35 @@ const Events = () => {
   }, [events.data]);
 
   const handleTabChange = (tab: "program" | "didactic") => {
+    if (tab === activeTab) return;
+    if (tab === "didactic") {
+      setLastProgramView(viewMode);
+      setViewMode("list");
+    } else {
+      setViewMode(lastProgramView);
+    }
     setActiveTab(tab);
-    if (tab === "didactic") setViewMode("list");
   };
 
+  const stepGantt = (direction: 1 | -1) => {
+    const step = ganttRange === "Q" ? 3 : 12;
+    let newMonth = ganttStartMonth + direction * step;
+    let newYear = ganttStartYear;
+    while (newMonth < 0) { newMonth += 12; newYear -= 1; }
+    while (newMonth >= 12) { newMonth -= 12; newYear += 1; }
+    setGanttStartMonth(newMonth);
+    setGanttStartYear(newYear);
+  };
+
+  const ganttRangeLabel = useMemo(() => {
+    const step = ganttRange === "Q" ? 3 : 12;
+    const endIdx = ganttStartMonth + step - 1;
+    const endMonth = endIdx % 12;
+    const endYear = ganttStartYear + Math.floor(endIdx / 12);
+    const startLabel = `${MONTH_ABBRS[ganttStartMonth]} ${ganttStartYear}`;
+    const endLabel = `${MONTH_ABBRS[endMonth]} ${endYear}`;
+    return `${startLabel} — ${endLabel}`;
+  }, [ganttRange, ganttStartMonth, ganttStartYear]);
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -347,54 +393,67 @@ const Events = () => {
       <main className="container max-w-[1200px] px-4 py-6">
         {/* Row 1: Toolbar */}
         <div className="flex items-center justify-between pb-2.5">
-          <div className="flex items-center gap-1">
+          <div className="flex items-center">
             {/* Program tab icon */}
             <button
               onClick={() => handleTabChange("program")}
-              className={cn(
-                "flex items-center justify-center w-8 h-8 rounded-md transition-colors",
-                activeTab === "program" ? "text-foreground" : "text-muted-foreground"
-              )}
+              className="flex items-center justify-center w-8 h-8 transition-colors"
+              style={{
+                borderRadius: 8,
+                background: activeTab === "program" ? "#E7EBEF" : "transparent",
+              }}
             >
-              <Calendar className="h-4 w-4" />
+              <Calendar
+                className="h-[18px] w-[18px]"
+                style={{ stroke: activeTab === "program" ? "#415162" : "#8A9AAB" }}
+              />
             </button>
 
             {/* View toggle pill - only when program tab is active */}
             {activeTab === "program" && (
-              <div className="flex items-center rounded-full p-0.5 ml-1" style={{ background: "#D5DAE0" }}>
-                <button
-                  onClick={() => setViewMode("list")}
-                  className={cn(
-                    "flex items-center justify-center w-7 h-7 rounded-full transition-colors",
-                    viewMode === "list" ? "bg-white text-foreground shadow-sm" : "text-muted-foreground"
-                  )}
-                >
-                  <List className="h-3.5 w-3.5" />
-                </button>
-                <button
-                  onClick={() => setViewMode("timeline")}
-                  className={cn(
-                    "flex items-center justify-center w-7 h-7 rounded-full transition-colors",
-                    viewMode === "timeline" ? "bg-white text-foreground shadow-sm" : "text-muted-foreground"
-                  )}
-                >
-                  <GanttIcon />
-                </button>
+              <div
+                className="flex items-center ml-1.5"
+                style={{ background: "#D5DAE0", borderRadius: 8, padding: 2 }}
+              >
+                {([
+                  { mode: "list" as const, icon: <List className="h-4 w-4" /> },
+                  { mode: "vertical" as const, icon: <VerticalTimelineIcon /> },
+                  { mode: "gantt" as const, icon: <GanttIcon /> },
+                ] as const).map(({ mode, icon }) => (
+                  <button
+                    key={mode}
+                    onClick={() => setViewMode(mode)}
+                    className="flex items-center justify-center transition-colors"
+                    style={{
+                      width: 30,
+                      height: 30,
+                      borderRadius: 6,
+                      background: viewMode === mode ? "white" : "transparent",
+                      color: viewMode === mode ? "#415162" : "#8A9AAB",
+                    }}
+                  >
+                    {icon}
+                  </button>
+                ))}
               </div>
             )}
 
             {/* Separator */}
-            <div className="mx-1" style={{ width: 1, height: 20, background: "#C9CED4" }} />
+            <div className="mx-1.5" style={{ width: 1, height: 20, background: "#C9CED4" }} />
 
             {/* Didactic tab icon */}
             <button
               onClick={() => handleTabChange("didactic")}
-              className={cn(
-                "flex items-center justify-center w-8 h-8 rounded-md transition-colors",
-                activeTab === "didactic" ? "text-foreground" : "text-muted-foreground"
-              )}
+              className="flex items-center justify-center w-8 h-8 transition-colors"
+              style={{
+                borderRadius: 8,
+                background: activeTab === "didactic" ? "#E7EBEF" : "transparent",
+              }}
             >
-              <BookOpen className="h-4 w-4" />
+              <BookOpen
+                className="h-[18px] w-[18px]"
+                style={{ stroke: activeTab === "didactic" ? "#415162" : "#8A9AAB" }}
+              />
             </button>
           </div>
 
@@ -406,17 +465,83 @@ const Events = () => {
           )}
         </div>
 
-        {/* Row 2: Timeline range label (only in timeline view + program tab) */}
+        {/* Row 2: Gantt navigation (only in gantt view + program tab) */}
+        {activeTab === "program" && viewMode === "gantt" && (
+          <div className="flex items-center justify-between pb-3">
+            <button
+              onClick={() => setGanttRange("Q")}
+              className="transition-colors"
+              style={{
+                borderRadius: 6,
+                paddingLeft: 12,
+                paddingRight: 12,
+                paddingTop: 4,
+                paddingBottom: 4,
+                fontSize: 12,
+                fontWeight: 500,
+                ...(ganttRange === "Q"
+                  ? { background: "#415162", color: "white", border: "1px solid #415162" }
+                  : { background: "white", color: "#8A9AAB", border: "1px solid #C9CED4" }),
+              }}
+            >
+              Q
+            </button>
+
+            <div className="flex items-center gap-2 flex-1 justify-center">
+              <button
+                onClick={() => stepGantt(-1)}
+                className="flex items-center justify-center w-7 h-7"
+                style={{ color: "#8A9AAB" }}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              <span style={{ fontSize: 15, fontWeight: 500, color: "#2D3748" }}>
+                {ganttRangeLabel}
+              </span>
+              <button
+                onClick={() => stepGantt(1)}
+                className="flex items-center justify-center w-7 h-7"
+                style={{ color: "#8A9AAB" }}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
+
+            <button
+              onClick={() => setGanttRange("Y")}
+              className="transition-colors"
+              style={{
+                borderRadius: 6,
+                paddingLeft: 12,
+                paddingRight: 12,
+                paddingTop: 4,
+                paddingBottom: 4,
+                fontSize: 12,
+                fontWeight: 500,
+                ...(ganttRange === "Y"
+                  ? { background: "#415162", color: "white", border: "1px solid #415162" }
+                  : { background: "white", color: "#8A9AAB", border: "1px solid #C9CED4" }),
+              }}
+            >
+              Y
+            </button>
+          </div>
+        )}
 
         {/* Content */}
         {events.isLoading ? (
           <div className="flex justify-center py-12">
             <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
           </div>
-        ) : activeTab === "program" && viewMode === "timeline" ? (
-          <EventsTimeline
+        ) : activeTab === "program" && viewMode === "gantt" ? (
+          <EventsGantt
             events={programEvents}
+            range={ganttRange}
+            startMonth={ganttStartMonth}
+            startYear={ganttStartYear}
           />
+        ) : activeTab === "program" && viewMode === "vertical" ? (
+          <EventsVerticalTimeline events={programEvents} />
         ) : (
           <GroupedEventList
             events={filteredEvents}
