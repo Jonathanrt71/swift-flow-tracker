@@ -5,9 +5,6 @@ import { useIsMobile } from "@/hooks/use-mobile";
 
 interface EventsTimelineProps {
   events: ProgramEvent[];
-  range: "Q" | "Y";
-  startMonth: number;
-  startYear: number;
 }
 
 const MONTH_ABBRS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -19,12 +16,15 @@ interface TimelineRow {
   earliestStart: Date;
 }
 
-const EventsTimeline = ({ events, range, startMonth, startYear }: EventsTimelineProps) => {
+const EventsTimeline = ({ events }: EventsTimelineProps) => {
   const isMobile = useIsMobile();
   const labelWidth = isMobile ? 70 : 130;
   const rowHeight = isMobile ? 34 : 40;
   const dotSize = isMobile ? 8 : 9;
-  const monthCount = range === "Q" ? 3 : 12;
+  const monthCount = 12;
+  const now = new Date();
+  const startMonth = 6; // July — academic year start
+  const startYear = now.getMonth() < 6 ? now.getFullYear() - 1 : now.getFullYear();
 
   const [tooltip, setTooltip] = useState<{ title: string; dateStr: string; x: number; y: number } | null>(null);
   const tooltipTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -137,7 +137,7 @@ const EventsTimeline = ({ events, range, startMonth, startYear }: EventsTimeline
 
       {/* Scrollable area */}
       <div className="overflow-x-auto">
-        <div style={{ minWidth: range === "Y" && isMobile ? 900 : undefined }}>
+        <div style={{ minWidth: isMobile ? 900 : undefined }}>
           {/* Month headers */}
           <div className="flex" style={{ borderBottom: "1px solid #E7EBEF" }}>
             <div className="shrink-0" style={{ width: labelWidth }} />

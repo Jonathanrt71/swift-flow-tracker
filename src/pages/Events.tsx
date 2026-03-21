@@ -17,7 +17,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Calendar, BookOpen, Search, X, Trash2, List, ChevronLeft, ChevronRight } from "lucide-react";
+import { Calendar, BookOpen, Search, X, Trash2, List } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { formatCardDate } from "@/lib/dateFormat";
 import { Button } from "@/components/ui/button";
@@ -27,7 +27,7 @@ import EditEventDialog from "@/components/events/EditEventDialog";
 import EventsTimeline from "@/components/events/EventsTimeline";
 import NotificationBell from "@/components/NotificationBell";
 import HeaderLogo from "@/components/HeaderLogo";
-import { useIsMobile } from "@/hooks/use-mobile";
+
 
 const GanttIcon = ({ className }: { className?: string }) => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className={className}>
@@ -37,7 +37,7 @@ const GanttIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-const MONTH_ABBRS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
 
 const getInitials = (name: string | null): string => {
   if (!name) return "?";
@@ -280,24 +280,13 @@ const Events = () => {
   const { user, signOut } = useAuth();
   const { isAdmin } = useAdmin();
   const { isResident } = useUserRole();
-  const isMobile = useIsMobile();
+  
   const { events, createEvent, updateEvent, deleteEvent } = useEvents();
   const { data: teamMembers } = useTeamMembers();
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<"program" | "didactic">("program");
   const [viewMode, setViewMode] = useState<"list" | "timeline">("list");
-  const [timelineRange, setTimelineRange] = useState<"Q" | "Y">(() => isMobile ? "Q" : "Y");
-  const [timelineStartMonth, setTimelineStartMonth] = useState(() => {
-    if (isMobile) return new Date().getMonth();
-    return 6; // July for academic year
-  });
-  const [timelineStartYear, setTimelineStartYear] = useState(() => {
-    const now = new Date();
-    if (isMobile) return now.getFullYear();
-    // Academic year: if we're before July, start from previous July
-    return now.getMonth() < 6 ? now.getFullYear() - 1 : now.getFullYear();
-  });
 
   const filteredEvents = useMemo(() => {
     const all = events.data || [];
@@ -320,28 +309,6 @@ const Events = () => {
     if (tab === "didactic") setViewMode("list");
   };
 
-  const stepTimeline = (dir: 1 | -1) => {
-    const step = timelineRange === "Q" ? 3 : 12;
-    let newMonth = timelineStartMonth + dir * step;
-    let newYear = timelineStartYear;
-    while (newMonth < 0) { newMonth += 12; newYear--; }
-    while (newMonth > 11) { newMonth -= 12; newYear++; }
-    setTimelineStartMonth(newMonth);
-    setTimelineStartYear(newYear);
-  };
-
-  const rangeLabel = useMemo(() => {
-    const count = timelineRange === "Q" ? 3 : 12;
-    const startM = MONTH_ABBRS[timelineStartMonth];
-    const endIdx = (timelineStartMonth + count - 1) % 12;
-    const endYear = timelineStartYear + Math.floor((timelineStartMonth + count - 1) / 12);
-    const endM = MONTH_ABBRS[endIdx];
-    if (timelineRange === "Q") {
-      if (timelineStartYear === endYear) return `${startM} — ${endM} ${timelineStartYear}`;
-      return `${startM} ${timelineStartYear} — ${endM} ${endYear}`;
-    }
-    return `${startM} ${timelineStartYear} — ${endM} ${endYear}`;
-  }, [timelineRange, timelineStartMonth, timelineStartYear]);
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -439,42 +406,7 @@ const Events = () => {
           )}
         </div>
 
-        {/* Row 2: Timeline range controls (only in timeline view + program tab) */}
-        {activeTab === "program" && viewMode === "timeline" && (
-          <div className="flex items-center justify-center pb-3 gap-2">
-            <button
-              onClick={() => { setTimelineRange("Q"); }}
-              className="text-xs rounded-md transition-colors"
-              style={{
-                padding: "4px 12px",
-                ...(timelineRange === "Q"
-                  ? { background: "#415162", color: "#fff", border: "1px solid transparent" }
-                  : { background: "#fff", color: "#8A9AAB", border: "1px solid #C9CED4" }),
-              }}
-            >
-              Q
-            </button>
-            <button onClick={() => stepTimeline(-1)} className="text-muted-foreground p-1">
-              <ChevronLeft className="h-4 w-4" />
-            </button>
-            <span style={{ fontSize: 15, fontWeight: 500, color: "#2D3748" }}>{rangeLabel}</span>
-            <button onClick={() => stepTimeline(1)} className="text-muted-foreground p-1">
-              <ChevronRight className="h-4 w-4" />
-            </button>
-            <button
-              onClick={() => { setTimelineRange("Y"); }}
-              className="text-xs rounded-md transition-colors"
-              style={{
-                padding: "4px 12px",
-                ...(timelineRange === "Y"
-                  ? { background: "#415162", color: "#fff", border: "1px solid transparent" }
-                  : { background: "#fff", color: "#8A9AAB", border: "1px solid #C9CED4" }),
-              }}
-            >
-              Y
-            </button>
-          </div>
-        )}
+        {/* Row 2: Timeline range label (only in timeline view + program tab) */}
 
         {/* Content */}
         {events.isLoading ? (
@@ -484,9 +416,6 @@ const Events = () => {
         ) : activeTab === "program" && viewMode === "timeline" ? (
           <EventsTimeline
             events={programEvents}
-            range={timelineRange}
-            startMonth={timelineStartMonth}
-            startYear={timelineStartYear}
           />
         ) : (
           <GroupedEventList
