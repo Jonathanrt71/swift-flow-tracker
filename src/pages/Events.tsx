@@ -393,7 +393,7 @@ const Events = () => {
             {activeTab === "program" && (
               <div
                 className="flex items-center ml-1.5"
-                style={{ background: "#D5DAE0", borderRadius: 8, padding: 2 }}
+                style={{ background: "#D5DAE0", borderRadius: 16, padding: 3 }}
               >
                 {([
                   { mode: "list" as const, icon: <List className="h-4 w-4" /> },
