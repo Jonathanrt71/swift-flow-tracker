@@ -287,17 +287,6 @@ const Events = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<"program" | "didactic">("program");
   const [viewMode, setViewMode] = useState<"list" | "timeline">("list");
-  const [timelineRange, setTimelineRange] = useState<"Q" | "Y">(() => isMobile ? "Q" : "Y");
-  const [timelineStartMonth, setTimelineStartMonth] = useState(() => {
-    if (isMobile) return new Date().getMonth();
-    return 6; // July for academic year
-  });
-  const [timelineStartYear, setTimelineStartYear] = useState(() => {
-    const now = new Date();
-    if (isMobile) return now.getFullYear();
-    // Academic year: if we're before July, start from previous July
-    return now.getMonth() < 6 ? now.getFullYear() - 1 : now.getFullYear();
-  });
 
   const filteredEvents = useMemo(() => {
     const all = events.data || [];
