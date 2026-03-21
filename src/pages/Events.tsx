@@ -431,10 +431,12 @@ const Events = () => {
             </button>
           </div>
 
-          <CreateEventDialog
-            onSubmit={(data) => createEvent.mutate(data)}
-            defaultCategory={activeTab as EventCategory}
-          />
+          {!isResident && (
+            <CreateEventDialog
+              onSubmit={(data) => createEvent.mutate(data)}
+              defaultCategory={activeTab as EventCategory}
+            />
+          )}
         </div>
 
         {/* Row 2: Timeline range controls (only in timeline view + program tab) */}
