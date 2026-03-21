@@ -27,6 +27,10 @@ const RoleRoute = ({
   }
 
   if (!allowed.includes(role as AllowedRole)) {
+    // Residents land on events page
+    if (role === "resident") {
+      return <Navigate to="/events" replace />;
+    }
     return <Navigate to="/profile" replace />;
   }
 

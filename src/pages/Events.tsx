@@ -493,10 +493,10 @@ const Events = () => {
             events={filteredEvents}
             teamMembers={teamMembers}
             userId={user?.id}
-            isAdmin={!!isAdmin}
-            onUpdate={(data) => updateEvent.mutate(data)}
-            onDelete={(id) => deleteEvent.mutate(id)}
-            emptyMessage={activeTab === "program" ? "No program events. Create one to get started!" : "No didactics. Create one to get started!"}
+            isAdmin={!isResident && !!isAdmin}
+            onUpdate={(data) => { if (!isResident) updateEvent.mutate(data); }}
+            onDelete={(id) => { if (!isResident) deleteEvent.mutate(id); }}
+            emptyMessage={activeTab === "program" ? "No program events" : "No didactics"}
           />
         )}
       </main>
