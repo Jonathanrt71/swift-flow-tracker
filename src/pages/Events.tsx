@@ -279,6 +279,7 @@ const GroupedEventList = ({
 const Events = () => {
   const { user, signOut } = useAuth();
   const { isAdmin } = useAdmin();
+  const { isResident } = useUserRole();
   const isMobile = useIsMobile();
   const { events, createEvent, updateEvent, deleteEvent } = useEvents();
   const { data: teamMembers } = useTeamMembers();
