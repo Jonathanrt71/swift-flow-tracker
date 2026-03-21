@@ -21,10 +21,11 @@ const EventsGantt = ({ events }: EventsGanttProps) => {
   const labelWidth = isMobile ? 70 : 130;
   const rowHeight = isMobile ? 34 : 40;
   const dotSize = isMobile ? 8 : 9;
-  const monthCount = 12;
+  const monthCount = 36; // 12 back + current + 23 forward
   const now = new Date();
-  const startMonth = 6; // July
-  const startYear = now.getMonth() < 6 ? now.getFullYear() - 1 : now.getFullYear();
+  const startMonth = (now.getMonth()) ; // 12 months ago same month
+  const startYear = now.getFullYear() - 1;
+  const currentMonthOffset = 12; // current month is at index 12
 
   const [tooltip, setTooltip] = useState<{ title: string; dateStr: string; x: number; y: number } | null>(null);
   const tooltipTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
