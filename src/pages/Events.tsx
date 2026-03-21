@@ -18,7 +18,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Calendar, BookOpen, Search, X, Trash2, List, ChevronLeft, ChevronRight } from "lucide-react";
+import { Calendar, BookOpen, Search, X, Trash2, List } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { formatCardDate } from "@/lib/dateFormat";
 import { Button } from "@/components/ui/button";
@@ -300,14 +300,12 @@ const Events = () => {
   const [viewMode, setViewMode] = useState<"list" | "vertical" | "gantt">("list");
   const [lastProgramView, setLastProgramView] = useState<"list" | "vertical" | "gantt">("list");
 
-  // Gantt state
-  const now = new Date();
-  const [ganttRange, setGanttRange] = useState<"Q" | "Y">(isMobile ? "Q" : "Y");
-  const [ganttStartMonth, setGanttStartMonth] = useState(() => isMobile ? now.getMonth() : 6);
-  const [ganttStartYear, setGanttStartYear] = useState(() => {
-    if (isMobile) return now.getFullYear();
-    return now.getMonth() < 6 ? now.getFullYear() - 1 : now.getFullYear();
-  });
+  const academicStartYear = useMemo(() => {
+    const n = new Date();
+    return n.getMonth() < 6 ? n.getFullYear() - 1 : n.getFullYear();
+  }, []);
+
+  const ganttRangeLabel = `${MONTH_ABBRS[6]} ${academicStartYear} — ${MONTH_ABBRS[5]} ${academicStartYear + 1}`;
 
   const filteredEvents = useMemo(() => {
     const all = events.data || [];
@@ -335,26 +333,6 @@ const Events = () => {
     }
     setActiveTab(tab);
   };
-
-  const stepGantt = (direction: 1 | -1) => {
-    const step = ganttRange === "Q" ? 3 : 12;
-    let newMonth = ganttStartMonth + direction * step;
-    let newYear = ganttStartYear;
-    while (newMonth < 0) { newMonth += 12; newYear -= 1; }
-    while (newMonth >= 12) { newMonth -= 12; newYear += 1; }
-    setGanttStartMonth(newMonth);
-    setGanttStartYear(newYear);
-  };
-
-  const ganttRangeLabel = useMemo(() => {
-    const step = ganttRange === "Q" ? 3 : 12;
-    const endIdx = ganttStartMonth + step - 1;
-    const endMonth = endIdx % 12;
-    const endYear = ganttStartYear + Math.floor(endIdx / 12);
-    const startLabel = `${MONTH_ABBRS[ganttStartMonth]} ${ganttStartYear}`;
-    const endLabel = `${MONTH_ABBRS[endMonth]} ${endYear}`;
-    return `${startLabel} — ${endLabel}`;
-  }, [ganttRange, ganttStartMonth, ganttStartYear]);
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -465,66 +443,12 @@ const Events = () => {
           )}
         </div>
 
-        {/* Row 2: Gantt navigation (only in gantt view + program tab) */}
+        {/* Row 2: Gantt label (only in gantt view + program tab) */}
         {activeTab === "program" && viewMode === "gantt" && (
-          <div className="flex items-center justify-between pb-3">
-            <button
-              onClick={() => setGanttRange("Q")}
-              className="transition-colors"
-              style={{
-                borderRadius: 6,
-                paddingLeft: 12,
-                paddingRight: 12,
-                paddingTop: 4,
-                paddingBottom: 4,
-                fontSize: 12,
-                fontWeight: 500,
-                ...(ganttRange === "Q"
-                  ? { background: "#415162", color: "white", border: "1px solid #415162" }
-                  : { background: "white", color: "#8A9AAB", border: "1px solid #C9CED4" }),
-              }}
-            >
-              Q
-            </button>
-
-            <div className="flex items-center gap-2 flex-1 justify-center">
-              <button
-                onClick={() => stepGantt(-1)}
-                className="flex items-center justify-center w-7 h-7"
-                style={{ color: "#8A9AAB" }}
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </button>
-              <span style={{ fontSize: 15, fontWeight: 500, color: "#2D3748" }}>
-                {ganttRangeLabel}
-              </span>
-              <button
-                onClick={() => stepGantt(1)}
-                className="flex items-center justify-center w-7 h-7"
-                style={{ color: "#8A9AAB" }}
-              >
-                <ChevronRight className="h-4 w-4" />
-              </button>
-            </div>
-
-            <button
-              onClick={() => setGanttRange("Y")}
-              className="transition-colors"
-              style={{
-                borderRadius: 6,
-                paddingLeft: 12,
-                paddingRight: 12,
-                paddingTop: 4,
-                paddingBottom: 4,
-                fontSize: 12,
-                fontWeight: 500,
-                ...(ganttRange === "Y"
-                  ? { background: "#415162", color: "white", border: "1px solid #415162" }
-                  : { background: "white", color: "#8A9AAB", border: "1px solid #C9CED4" }),
-              }}
-            >
-              Y
-            </button>
+          <div className="flex items-center justify-center pb-3">
+            <span style={{ fontSize: 15, fontWeight: 500, color: "#2D3748" }}>
+              {ganttRangeLabel}
+            </span>
           </div>
         )}
 
@@ -536,9 +460,6 @@ const Events = () => {
         ) : activeTab === "program" && viewMode === "gantt" ? (
           <EventsGantt
             events={programEvents}
-            range={ganttRange}
-            startMonth={ganttStartMonth}
-            startYear={ganttStartYear}
           />
         ) : activeTab === "program" && viewMode === "vertical" ? (
           <EventsVerticalTimeline events={programEvents} />
