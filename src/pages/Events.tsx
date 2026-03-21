@@ -433,9 +433,6 @@ const Events = () => {
         ) : activeTab === "program" && viewMode === "gantt" ? (
           <EventsGantt
             events={programEvents}
-            range={ganttRange}
-            startMonth={ganttStartMonth}
-            startYear={ganttStartYear}
           />
         ) : activeTab === "program" && viewMode === "vertical" ? (
           <EventsVerticalTimeline events={programEvents} />
