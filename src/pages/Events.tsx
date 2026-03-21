@@ -392,25 +392,22 @@ const Events = () => {
             {/* View toggle pill - only when program tab is active */}
             {activeTab === "program" && (
               <div
-                className="flex items-center ml-1.5"
-                style={{ background: "#D5DAE0", borderRadius: 16, padding: 3 }}
+                className="flex items-center rounded-full p-0.5 ml-1.5"
+                style={{ background: "#D5DAE0" }}
               >
                 {([
-                  { mode: "list" as const, icon: <List className="h-4 w-4" /> },
+                  { mode: "list" as const, icon: <List className="h-3.5 w-3.5" /> },
                   { mode: "vertical" as const, icon: <VerticalTimelineIcon /> },
                   { mode: "gantt" as const, icon: <GanttIcon /> },
                 ] as const).map(({ mode, icon }) => (
                   <button
                     key={mode}
                     onClick={() => setViewMode(mode)}
-                    className="flex items-center justify-center transition-colors"
-                    style={{
-                      width: 30,
-                      height: 30,
-                      borderRadius: 14,
-                      background: viewMode === mode ? "white" : "transparent",
-                      color: viewMode === mode ? "#415162" : "#8A9AAB",
-                    }}
+                    className={cn(
+                      "flex items-center justify-center w-7 h-7 rounded-full transition-colors",
+                      viewMode === mode ? "bg-white shadow-sm" : ""
+                    )}
+                    style={{ color: viewMode === mode ? "#415162" : "#8A9AAB" }}
                   >
                     {icon}
                   </button>
