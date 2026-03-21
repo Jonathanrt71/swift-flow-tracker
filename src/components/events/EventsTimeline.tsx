@@ -16,12 +16,15 @@ interface TimelineRow {
   earliestStart: Date;
 }
 
-const EventsTimeline = ({ events, range, startMonth, startYear }: EventsTimelineProps) => {
+const EventsTimeline = ({ events }: EventsTimelineProps) => {
   const isMobile = useIsMobile();
   const labelWidth = isMobile ? 70 : 130;
   const rowHeight = isMobile ? 34 : 40;
   const dotSize = isMobile ? 8 : 9;
-  const monthCount = range === "Q" ? 3 : 12;
+  const monthCount = 12;
+  const now = new Date();
+  const startMonth = 6; // July — academic year start
+  const startYear = now.getMonth() < 6 ? now.getFullYear() - 1 : now.getFullYear();
 
   const [tooltip, setTooltip] = useState<{ title: string; dateStr: string; x: number; y: number } | null>(null);
   const tooltipTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
