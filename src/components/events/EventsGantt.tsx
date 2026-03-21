@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useState, useRef, useEffect, useMemo, useLayoutEffect } from "react";
 import { format, parseISO, getDaysInMonth } from "date-fns";
 import type { ProgramEvent } from "@/hooks/useEvents";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -21,14 +21,25 @@ const EventsGantt = ({ events }: EventsGanttProps) => {
   const labelWidth = isMobile ? 70 : 130;
   const rowHeight = isMobile ? 34 : 40;
   const dotSize = isMobile ? 8 : 9;
-  const monthCount = 12;
+  const monthCount = 36; // 12 back + current + 23 forward
   const now = new Date();
-  const startMonth = 6; // July
-  const startYear = now.getMonth() < 6 ? now.getFullYear() - 1 : now.getFullYear();
+  const startMonth = (now.getMonth()) ; // 12 months ago same month
+  const startYear = now.getFullYear() - 1;
+  const currentMonthOffset = 12; // current month is at index 12
 
   const [tooltip, setTooltip] = useState<{ title: string; dateStr: string; x: number; y: number } | null>(null);
   const tooltipTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to current month on mount
+  useLayoutEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const totalWidth = el.scrollWidth;
+    const scrollTarget = (currentMonthOffset / monthCount) * totalWidth - el.clientWidth / 2;
+    el.scrollLeft = Math.max(0, scrollTarget);
+  }, []);
 
   const months = useMemo(() => {
     const result: { month: number; year: number; days: number; label: string }[] = [];
@@ -130,8 +141,8 @@ const EventsGantt = ({ events }: EventsGanttProps) => {
         </div>
       )}
 
-      <div className="overflow-x-auto">
-        <div style={{ minWidth: isMobile ? 900 : undefined }}>
+      <div ref={scrollRef} className="overflow-x-auto">
+        <div style={{ minWidth: monthCount * 80 }}>
           {/* Month headers */}
           <div className="flex" style={{ borderBottom: "1px solid #E7EBEF" }}>
             <div className="shrink-0" style={{ width: labelWidth }} />
