@@ -141,8 +141,8 @@ const EventsGantt = ({ events }: EventsGanttProps) => {
         </div>
       )}
 
-      <div className="overflow-x-auto">
-        <div style={{ minWidth: isMobile ? 900 : undefined }}>
+      <div ref={scrollRef} className="overflow-x-auto">
+        <div style={{ minWidth: monthCount * 80 }}>
           {/* Month headers */}
           <div className="flex" style={{ borderBottom: "1px solid #E7EBEF" }}>
             <div className="shrink-0" style={{ width: labelWidth }} />
