@@ -7,10 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
-import { Camera, Loader2, Check, User, X, LogOut } from "lucide-react";
+import { Camera, Loader2, Check, User, X } from "lucide-react";
 
 const Profile = () => {
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -135,9 +135,6 @@ const Profile = () => {
               <X className="h-4 w-4" />
             </Button>
           </Link>
-          <Button variant="ghost" size="icon" className="text-white/50 hover:bg-transparent" onClick={signOut}>
-            <LogOut className="h-4 w-4" />
-          </Button>
         </div>
       </header>
 
