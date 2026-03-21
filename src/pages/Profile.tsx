@@ -135,9 +135,6 @@ const Profile = () => {
               <X className="h-4 w-4" />
             </Button>
           </Link>
-          <Button variant="ghost" size="icon" className="text-white/50 hover:bg-transparent" onClick={signOut}>
-            <LogOut className="h-4 w-4" />
-          </Button>
         </div>
       </header>
 
