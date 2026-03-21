@@ -309,28 +309,6 @@ const Events = () => {
     if (tab === "didactic") setViewMode("list");
   };
 
-  const stepTimeline = (dir: 1 | -1) => {
-    const step = timelineRange === "Q" ? 3 : 12;
-    let newMonth = timelineStartMonth + dir * step;
-    let newYear = timelineStartYear;
-    while (newMonth < 0) { newMonth += 12; newYear--; }
-    while (newMonth > 11) { newMonth -= 12; newYear++; }
-    setTimelineStartMonth(newMonth);
-    setTimelineStartYear(newYear);
-  };
-
-  const rangeLabel = useMemo(() => {
-    const count = timelineRange === "Q" ? 3 : 12;
-    const startM = MONTH_ABBRS[timelineStartMonth];
-    const endIdx = (timelineStartMonth + count - 1) % 12;
-    const endYear = timelineStartYear + Math.floor((timelineStartMonth + count - 1) / 12);
-    const endM = MONTH_ABBRS[endIdx];
-    if (timelineRange === "Q") {
-      if (timelineStartYear === endYear) return `${startM} — ${endM} ${timelineStartYear}`;
-      return `${startM} ${timelineStartYear} — ${endM} ${endYear}`;
-    }
-    return `${startM} ${timelineStartYear} — ${endM} ${endYear}`;
-  }, [timelineRange, timelineStartMonth, timelineStartYear]);
 
   return (
     <div className="min-h-screen bg-background pb-20">
