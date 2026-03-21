@@ -407,7 +407,7 @@ const Events = () => {
                     style={{
                       width: 30,
                       height: 30,
-                      borderRadius: 6,
+                      borderRadius: 8,
                       background: viewMode === mode ? "white" : "transparent",
                       color: viewMode === mode ? "#415162" : "#8A9AAB",
                     }}
