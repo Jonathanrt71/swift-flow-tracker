@@ -439,42 +439,7 @@ const Events = () => {
           )}
         </div>
 
-        {/* Row 2: Timeline range controls (only in timeline view + program tab) */}
-        {activeTab === "program" && viewMode === "timeline" && (
-          <div className="flex items-center justify-center pb-3 gap-2">
-            <button
-              onClick={() => { setTimelineRange("Q"); }}
-              className="text-xs rounded-md transition-colors"
-              style={{
-                padding: "4px 12px",
-                ...(timelineRange === "Q"
-                  ? { background: "#415162", color: "#fff", border: "1px solid transparent" }
-                  : { background: "#fff", color: "#8A9AAB", border: "1px solid #C9CED4" }),
-              }}
-            >
-              Q
-            </button>
-            <button onClick={() => stepTimeline(-1)} className="text-muted-foreground p-1">
-              <ChevronLeft className="h-4 w-4" />
-            </button>
-            <span style={{ fontSize: 15, fontWeight: 500, color: "#2D3748" }}>{rangeLabel}</span>
-            <button onClick={() => stepTimeline(1)} className="text-muted-foreground p-1">
-              <ChevronRight className="h-4 w-4" />
-            </button>
-            <button
-              onClick={() => { setTimelineRange("Y"); }}
-              className="text-xs rounded-md transition-colors"
-              style={{
-                padding: "4px 12px",
-                ...(timelineRange === "Y"
-                  ? { background: "#415162", color: "#fff", border: "1px solid transparent" }
-                  : { background: "#fff", color: "#8A9AAB", border: "1px solid #C9CED4" }),
-              }}
-            >
-              Y
-            </button>
-          </div>
-        )}
+        {/* Row 2: Timeline range label (only in timeline view + program tab) */}
 
         {/* Content */}
         {events.isLoading ? (
