@@ -4,6 +4,7 @@ import { useEvents } from "@/hooks/useEvents";
 import type { ProgramEvent, EventCategory } from "@/hooks/useEvents";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
+import { useUserRole } from "@/hooks/useUserRole";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import {
   AlertDialog,
@@ -278,6 +279,7 @@ const GroupedEventList = ({
 const Events = () => {
   const { user, signOut } = useAuth();
   const { isAdmin } = useAdmin();
+  const { isResident } = useUserRole();
   const isMobile = useIsMobile();
   const { events, createEvent, updateEvent, deleteEvent } = useEvents();
   const { data: teamMembers } = useTeamMembers();
@@ -429,10 +431,12 @@ const Events = () => {
             </button>
           </div>
 
-          <CreateEventDialog
-            onSubmit={(data) => createEvent.mutate(data)}
-            defaultCategory={activeTab as EventCategory}
-          />
+          {!isResident && (
+            <CreateEventDialog
+              onSubmit={(data) => createEvent.mutate(data)}
+              defaultCategory={activeTab as EventCategory}
+            />
+          )}
         </div>
 
         {/* Row 2: Timeline range controls (only in timeline view + program tab) */}
@@ -489,10 +493,10 @@ const Events = () => {
             events={filteredEvents}
             teamMembers={teamMembers}
             userId={user?.id}
-            isAdmin={!!isAdmin}
-            onUpdate={(data) => updateEvent.mutate(data)}
-            onDelete={(id) => deleteEvent.mutate(id)}
-            emptyMessage={activeTab === "program" ? "No program events. Create one to get started!" : "No didactics. Create one to get started!"}
+            isAdmin={!isResident && !!isAdmin}
+            onUpdate={(data) => { if (!isResident) updateEvent.mutate(data); }}
+            onDelete={(id) => { if (!isResident) deleteEvent.mutate(id); }}
+            emptyMessage={activeTab === "program" ? "No program events" : "No didactics"}
           />
         )}
       </main>
