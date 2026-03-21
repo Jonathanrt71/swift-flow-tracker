@@ -4,6 +4,7 @@ import { useEvents } from "@/hooks/useEvents";
 import type { ProgramEvent, EventCategory } from "@/hooks/useEvents";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
+import { useUserRole } from "@/hooks/useUserRole";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import {
   AlertDialog,
