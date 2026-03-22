@@ -538,6 +538,48 @@ export type Database = {
         }
         Relationships: []
       }
+      milestone_reports: {
+        Row: {
+          comment: string
+          created_at: string | null
+          date_range_end: string
+          date_range_start: string
+          faculty_id: string
+          finalized: boolean | null
+          id: string
+          milestone_level: number
+          resident_id: string
+          subcategory_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          comment: string
+          created_at?: string | null
+          date_range_end: string
+          date_range_start: string
+          faculty_id: string
+          finalized?: boolean | null
+          id?: string
+          milestone_level: number
+          resident_id: string
+          subcategory_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          comment?: string
+          created_at?: string | null
+          date_range_end?: string
+          date_range_start?: string
+          faculty_id?: string
+          finalized?: boolean | null
+          id?: string
+          milestone_level?: number
+          resident_id?: string
+          subcategory_id?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       milestones: {
         Row: {
           completed: boolean
