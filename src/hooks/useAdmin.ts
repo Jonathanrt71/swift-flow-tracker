@@ -60,10 +60,10 @@ export function useAdmin() {
   });
 
   const inviteUser = useMutation({
-    mutationFn: async (data: { email: string; password: string; display_name?: string; first_name?: string; last_name?: string; role?: UserRole }) => {
+    mutationFn: async (data: { email: string; display_name?: string; first_name?: string; last_name?: string; role?: UserRole }) => {
       const { data: { session } } = await supabase.auth.getSession();
       const res = await supabase.functions.invoke("admin-invite-user", {
-        body: { email: data.email, password: data.password, display_name: data.display_name },
+        body: { email: data.email, display_name: data.display_name },
         headers: { Authorization: `Bearer ${session?.access_token}` },
       });
       if (res.error) throw new Error(res.error.message || "Failed to invite user");
@@ -100,7 +100,7 @@ export function useAdmin() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-users"] });
-      toast({ title: "User created", description: "Share the password with them — they can log in now." });
+      toast({ title: "Invite sent", description: "An invite email has been sent. They'll set their own password." });
     },
     onError: (err: Error) => {
       toast({ title: "Failed to invite", description: err.message, variant: "destructive" });

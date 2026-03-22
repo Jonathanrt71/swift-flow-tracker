@@ -87,7 +87,7 @@ const Login = () => {
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "Please wait…" : "Sign in"}
             </Button>
-            <p className="text-xs text-muted-foreground">Contact your admin for password resets</p>
+            <button type="button" onClick={handleForgotPassword} className="text-xs text-muted-foreground hover:text-foreground underline transition-colors">Forgot password?</button>
           </CardFooter>
         </form>
       </Card>

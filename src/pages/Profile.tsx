@@ -25,6 +25,9 @@ const Profile = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [changingPassword, setChangingPassword] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -62,6 +65,27 @@ const Profile = () => {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } else {
       toast({ title: "Profile updated" });
+    }
+  };
+
+  const handleChangePassword = async () => {
+    if (newPassword.length < 6) {
+      toast({ title: "Password too short", description: "Use at least 6 characters.", variant: "destructive" });
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      toast({ title: "Passwords don't match", description: "Please make sure both fields match.", variant: "destructive" });
+      return;
+    }
+    setChangingPassword(true);
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    setChangingPassword(false);
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Password updated" });
+      setNewPassword("");
+      setConfirmPassword("");
     }
   };
 
@@ -212,6 +236,48 @@ const Profile = () => {
                 <Check className="h-4 w-4" />
               )}
             </button>
+          </div>
+
+          {/* Divider */}
+          <div className="border-t border-border my-2" />
+
+          {/* Change password */}
+          <div className="flex flex-col gap-4">
+            <p className="text-sm font-medium text-foreground">Change password</p>
+            <div className="space-y-1.5">
+              <Label htmlFor="newPassword" className="font-normal text-sm text-muted-foreground">New password</Label>
+              <Input
+                id="newPassword"
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                placeholder="Min 6 characters"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="confirmPassword" className="font-normal text-sm text-muted-foreground">Confirm password</Label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Confirm new password"
+              />
+            </div>
+            <div className="flex justify-end pt-2">
+              <button
+                onClick={handleChangePassword}
+                disabled={changingPassword}
+                className="flex items-center justify-center min-w-[44px] min-h-[44px] rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50"
+                aria-label="Change password"
+              >
+                {changingPassword ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Check className="h-4 w-4" />
+                )}
+              </button>
+            </div>
           </div>
         </div>
       </main>

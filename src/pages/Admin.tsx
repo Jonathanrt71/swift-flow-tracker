@@ -157,12 +157,11 @@ const AddUserDialog = ({
   onSubmit,
   isPending,
 }: {
-  onSubmit: (data: { email: string; password: string; display_name?: string; first_name?: string; last_name?: string; role?: UserRole }) => void;
+  onSubmit: (data: { email: string; display_name?: string; first_name?: string; last_name?: string; role?: UserRole }) => void;
   isPending: boolean;
 }) => {
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -171,7 +170,6 @@ const AddUserDialog = ({
   const handleOpen = (isOpen: boolean) => {
     if (isOpen) {
       setEmail("");
-      setPassword("");
       setDisplayName("");
       setFirstName("");
       setLastName("");
@@ -181,10 +179,9 @@ const AddUserDialog = ({
   };
 
   const handleSubmit = () => {
-    if (!email || !password) return;
+    if (!email) return;
     onSubmit({
       email,
-      password,
       display_name: displayName || undefined,
       first_name: firstName || undefined,
       last_name: lastName || undefined,
@@ -252,21 +249,11 @@ const AddUserDialog = ({
               <option value="admin">Admin</option>
             </select>
           </div>
-          <div className="space-y-1.5">
-            <Label className="text-xs text-muted-foreground">Password</Label>
-            <Input
-              type="password"
-              placeholder="Min 6 characters"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="bg-background rounded-lg"
-            />
-          </div>
 
           <div className="flex justify-end pt-3 border-t border-border">
             <button
               onClick={handleSubmit}
-              disabled={!email || !password || isPending}
+              disabled={!email || isPending}
               className="flex items-center justify-center w-11 h-11 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50"
             >
               <Check className="h-4 w-4" />
