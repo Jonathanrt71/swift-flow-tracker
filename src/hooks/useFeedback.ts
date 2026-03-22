@@ -10,6 +10,9 @@ export interface Feedback {
   comment: string;
   sentiment: "positive" | "negative";
   created_at: string;
+  competency_category_id: string | null;
+  competency_subcategory_id: string | null;
+  competency_milestone_id: string | null;
 }
 
 export function useFeedback() {
