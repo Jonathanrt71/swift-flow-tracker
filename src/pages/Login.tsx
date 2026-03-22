@@ -41,7 +41,7 @@ const Login = () => {
     }
     setLoading(true);
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: 'https://swift-flow-tracker.lovable.app/reset-password'
+      redirectTo: 'https://hmcfm.org/reset-password'
     });
     setLoading(false);
 
