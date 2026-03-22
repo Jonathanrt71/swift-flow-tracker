@@ -13,11 +13,6 @@ import { useAppSettings } from "@/hooks/useAppSettings";
 import { generateReportPdf } from "@/lib/generateMilestoneReportPdf";
 import PlainTextEditor from "./PlainTextEditor";
 import DOMPurify from "dompurify";
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-} from "@/components/ui/dialog";
 
 interface Suggestion {
   subcategory_id: string;
