@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useAdmin } from "@/hooks/useAdmin";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate, Link } from "react-router-dom";
+import HeaderLogo from "@/components/HeaderLogo";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -385,7 +386,7 @@ const RoleAccessSection = () => {
 
 /* ── Admin Page ── */
 const Admin = () => {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const queryClient = useQueryClient();
   const { isAdmin, isAdminLoading, users, inviteUser, updateRole, updateProfile, deleteUser } = useAdmin();
   const { tags, createTag, updateTag, deleteTag } = useMeetingTags();
@@ -419,15 +420,11 @@ const Admin = () => {
     <div className="min-h-screen" style={{ background: "#F5F3EE" }}>
       <header className="sticky top-0 z-40" style={{ background: "#415162" }}>
         <div className="container flex items-center justify-between h-14 px-4">
+          <HeaderLogo isAdmin={true} onSignOut={signOut} />
           <div className="flex items-center gap-2">
             <Shield className="h-5 w-5 text-white/50" />
             <span className="text-base font-medium text-white">Admin</span>
           </div>
-          <Link to="/">
-            <Button variant="ghost" size="icon" className="text-white/50 hover:bg-transparent">
-              <X className="h-4 w-4" />
-            </Button>
-          </Link>
         </div>
       </header>
 

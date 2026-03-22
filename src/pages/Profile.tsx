@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAdmin } from "@/hooks/useAdmin";
+import HeaderLogo from "@/components/HeaderLogo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,7 +12,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Camera, Loader2, Check, User, X } from "lucide-react";
 
 const Profile = () => {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
+  const { isAdmin } = useAdmin();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -126,15 +129,11 @@ const Profile = () => {
     <div className="min-h-screen" style={{ background: "#F5F3EE" }}>
       <header className="sticky top-0 z-40" style={{ background: "#415162" }}>
         <div className="container flex items-center justify-between h-14 px-4">
+          <HeaderLogo isAdmin={isAdmin} onSignOut={signOut} />
           <div className="flex items-center gap-2">
             <User className="h-5 w-5 text-white/50" />
             <span className="text-base font-medium text-white">Profile</span>
           </div>
-          <Link to="/">
-            <Button variant="ghost" size="icon" className="text-white/50 hover:bg-transparent">
-              <X className="h-4 w-4" />
-            </Button>
-          </Link>
         </div>
       </header>
 
