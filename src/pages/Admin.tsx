@@ -470,6 +470,8 @@ const Admin = () => {
   const { links } = useMeetingTagLinks();
   const { categories, createCategory, updateCategory, deleteCategory } = useCompetencyCategories();
 
+  const { settings, updateSetting } = useAppSettings();
+
   const [newTagName, setNewTagName] = useState("");
   const [newCategoryName, setNewCategoryName] = useState("");
   const [editingTagId, setEditingTagId] = useState<string | null>(null);
@@ -478,6 +480,20 @@ const Admin = () => {
   const [editingCatName, setEditingCatName] = useState("");
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [defaultReportEmail, setDefaultReportEmail] = useState("");
+
+  // Sync default report email from settings
+  useEffect(() => {
+    const fetchEmail = async () => {
+      const { data } = await (await import("@/integrations/supabase/client")).supabase
+        .from("app_settings")
+        .select("value")
+        .eq("key", "default_report_email")
+        .single();
+      if (data?.value) setDefaultReportEmail(data.value);
+    };
+    fetchEmail();
+  }, []);
 
   const toggleSection = (name: string) => {
     setExpandedSection(expandedSection === name ? null : name);
