@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { ChevronDown, ChevronUp, X } from "lucide-react";
+import { ChevronDown, ChevronUp, X, Sparkles, Loader2 } from "lucide-react";
 import { useACGMECompetencies, type ACGMECategory } from "@/hooks/useACGMECompetencies";
+import { useCompetencySuggestion, type CompetencySuggestion } from "@/hooks/useCompetencySuggestion";
 
 export interface CompetencySelection {
   categoryId: string | null;
@@ -13,6 +14,7 @@ export interface CompetencySelection {
 interface CompetencySelectorProps {
   value: CompetencySelection | null;
   onChange: (value: CompetencySelection | null) => void;
+  commentText?: string;
 }
 
 export function buildSelectionFromFeedback(
@@ -40,35 +42,73 @@ export function buildSelectionFromFeedback(
   return { categoryId, subcategoryId, milestoneId, label, color: cat.color };
 }
 
-const CompetencySelector = ({ value, onChange }: CompetencySelectorProps) => {
+function matchSuggestion(
+  suggestion: CompetencySuggestion,
+  categories: ACGMECategory[],
+): CompetencySelection | null {
+  for (const cat of categories) {
+    const sub = cat.subcategories.find((s) => s.code === suggestion.subcategoryCode);
+    if (sub) {
+      const milestone = sub.milestones.find((m) => m.level === suggestion.level);
+      return {
+        categoryId: cat.id,
+        subcategoryId: sub.id,
+        milestoneId: milestone?.id || null,
+        label: milestone
+          ? `${cat.code} > ${sub.code} > Level ${suggestion.level}`
+          : `${cat.code} > ${sub.code}`,
+        color: cat.color,
+      };
+    }
+  }
+  return null;
+}
+
+function getCategoryColorForSuggestion(
+  suggestion: CompetencySuggestion,
+  categories: ACGMECategory[],
+): string {
+  for (const cat of categories) {
+    if (cat.subcategories.some((s) => s.code === suggestion.subcategoryCode)) {
+      return cat.color;
+    }
+  }
+  return "#8A9AAB";
+}
+
+const CompetencySelector = ({ value, onChange, commentText }: CompetencySelectorProps) => {
   const { data: categories } = useACGMECompetencies();
+  const { suggestions, loading, suggest, clearSuggestions } = useCompetencySuggestion();
   const [activeCatId, setActiveCatId] = useState<string | null>(value?.categoryId ?? null);
   const [expandedSubId, setExpandedSubId] = useState<string | null>(null);
+  const [autoActive, setAutoActive] = useState(false);
 
   const cats = categories || [];
 
   const select = (sel: CompetencySelection) => {
     onChange(sel);
     setExpandedSubId(null);
-    // Keep activeCatId so pill stays highlighted
   };
 
   const clear = () => {
     onChange(null);
     setActiveCatId(null);
     setExpandedSubId(null);
+    clearSuggestions();
+    setAutoActive(false);
   };
 
   const handlePillTap = (cat: ACGMECategory) => {
+    // Manual pill tap clears AI suggestions
+    clearSuggestions();
+    setAutoActive(false);
+
     if (activeCatId === cat.id) {
-      // Deactivate
       setActiveCatId(null);
       setExpandedSubId(null);
-      // If current selection belongs to this category, keep it
     } else {
       setActiveCatId(cat.id);
       setExpandedSubId(null);
-      // Set category-level selection (user can drill deeper)
       onChange({
         categoryId: cat.id,
         subcategoryId: null,
@@ -79,12 +119,64 @@ const CompetencySelector = ({ value, onChange }: CompetencySelectorProps) => {
     }
   };
 
+  const handleAutoTap = () => {
+    if (autoActive && suggestions.length > 0) {
+      // Deactivate
+      clearSuggestions();
+      setAutoActive(false);
+      return;
+    }
+    if (loading) return;
+
+    // Clear current selection first
+    onChange(null);
+    setActiveCatId(null);
+    setExpandedSubId(null);
+    setAutoActive(true);
+    suggest(commentText || "");
+  };
+
+  const handleSuggestionTap = (suggestion: CompetencySuggestion) => {
+    const sel = matchSuggestion(suggestion, cats);
+    if (sel) {
+      onChange(sel);
+      setActiveCatId(null);
+      setExpandedSubId(null);
+    }
+    clearSuggestions();
+    setAutoActive(false);
+  };
+
   const activeCat = cats.find((c) => c.id === activeCatId);
+  const showSuggestions = autoActive && suggestions.length > 0;
 
   return (
     <div className="mb-4">
-      {/* Category pills - always visible */}
+      {/* Pills row: Auto + Category pills */}
       <div className="flex flex-wrap gap-1.5">
+        {/* Auto pill */}
+        <button
+          type="button"
+          onClick={handleAutoTap}
+          disabled={loading}
+          className="rounded-full transition-colors flex items-center gap-1"
+          style={{
+            padding: "5px 12px",
+            fontSize: 12,
+            fontWeight: 500,
+            background: autoActive || loading ? "#415162" : "#E7EBEF",
+            color: autoActive || loading ? "white" : "#5F7285",
+          }}
+        >
+          {loading ? (
+            <Loader2 className="h-3 w-3 animate-spin" />
+          ) : (
+            <Sparkles className="h-3 w-3" />
+          )}
+          Auto
+        </button>
+
+        {/* Category pills */}
         {cats.map((cat) => {
           const isActive = activeCatId === cat.id;
           return (
@@ -130,6 +222,35 @@ const CompetencySelector = ({ value, onChange }: CompetencySelectorProps) => {
         </div>
       )}
 
+      {/* AI Suggestions */}
+      {showSuggestions && (
+        <div className="mt-2 flex flex-col gap-2">
+          {suggestions.map((s, idx) => {
+            const catColor = getCategoryColorForSuggestion(s, cats);
+            return (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => handleSuggestionTap(s)}
+                className="text-left rounded-lg px-3 py-2"
+                style={{
+                  background: "#E7EBEF",
+                  border: "1px dashed #C9CED4",
+                  borderLeft: `2px solid ${catColor}`,
+                }}
+              >
+                <div style={{ fontSize: 12, fontWeight: 500, color: "#2D3748" }}>
+                  {s.subcategoryCode} &gt; Level {s.level}
+                </div>
+                <div style={{ fontSize: 11, color: "#8A9AAB" }}>
+                  {s.reason}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      )}
+
       {/* Subcompetencies */}
       {activeCat && activeCat.subcategories.length > 0 && (
         <div
@@ -144,7 +265,6 @@ const CompetencySelector = ({ value, onChange }: CompetencySelectorProps) => {
                   type="button"
                   onClick={() => {
                     setExpandedSubId(isSubExpanded ? null : sub.id);
-                    // Select at subcategory level on tap
                     onChange({
                       categoryId: activeCat.id,
                       subcategoryId: sub.id,
@@ -176,8 +296,7 @@ const CompetencySelector = ({ value, onChange }: CompetencySelectorProps) => {
 
                 {isSubExpanded && (
                   <div style={{ background: "#EEF0F2" }}>
-                    {/* Milestone levels */}
-                    {sub.milestones.map((mile, idx) => (
+                    {sub.milestones.map((mile) => (
                       <button
                         key={mile.id}
                         type="button"

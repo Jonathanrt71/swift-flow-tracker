@@ -133,7 +133,7 @@ const EditFeedbackDialog = ({ feedback, residents, onSubmit }: EditFeedbackDialo
         </div>
 
         {/* Competency selector */}
-        <CompetencySelector value={competency} onChange={setCompetency} />
+        <CompetencySelector value={competency} onChange={setCompetency} commentText={editor?.getText() || ""} />
 
         {/* Sentiment buttons */}
         <div className="mb-5">
