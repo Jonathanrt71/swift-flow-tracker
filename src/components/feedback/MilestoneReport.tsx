@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { format, parseISO, isWithinInterval } from "date-fns";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Loader2 } from "lucide-react";
+import { Loader2, Download, Mail } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { useFeedback, Feedback } from "@/hooks/useFeedback";
@@ -9,8 +9,15 @@ import { useACGMECompetencies, ACGMECategory, ACGMESubcategory } from "@/hooks/u
 import { supabase } from "@/integrations/supabase/client";
 import { formatPersonName } from "@/lib/dateFormat";
 import { useToast } from "@/hooks/use-toast";
+import { useAppSettings } from "@/hooks/useAppSettings";
+import { generateReportPdf } from "@/lib/generateMilestoneReportPdf";
 import PlainTextEditor from "./PlainTextEditor";
 import DOMPurify from "dompurify";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface Suggestion {
   subcategory_id: string;
@@ -42,6 +49,7 @@ const MilestoneReport = () => {
   const { data: acgmeCategories } = useACGMECompetencies();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { settings } = useAppSettings();
 
   const [selectedResident, setSelectedResident] = useState("");
   const [startDate, setStartDate] = useState("");
@@ -49,6 +57,22 @@ const MilestoneReport = () => {
   const [reportItems, setReportItems] = useState<ReportItem[]>([]);
   const [generating, setGenerating] = useState(false);
   const [generated, setGenerated] = useState(false);
+  const [emailDialogOpen, setEmailDialogOpen] = useState(false);
+  const [emailTo, setEmailTo] = useState("");
+  const [sending, setSending] = useState(false);
+
+  // Fetch default report email
+  const { data: defaultEmailSetting } = useQuery({
+    queryKey: ["app-settings", "default_report_email"],
+    queryFn: async () => {
+      const { data } = await (supabase as any)
+        .from("app_settings")
+        .select("value")
+        .eq("key", "default_report_email")
+        .single();
+      return data?.value || "";
+    },
+  });
 
   // Fetch resident IDs
   const { data: residentRoles } = useQuery({
@@ -149,7 +173,6 @@ const MilestoneReport = () => {
 
     try {
       const categories = acgmeCategories || [];
-      // Gather subcategories that appear in feedback
       const subcatIds = new Set(
         filteredFeedback
           .map((fb) => fb.competency_subcategory_id)
@@ -194,7 +217,6 @@ const MilestoneReport = () => {
       if (res.error) throw res.error;
       const suggestions: Suggestion[] = res.data?.suggestions || [];
 
-      // Build report items
       const items: ReportItem[] = [];
       for (const cat of categories) {
         for (const sub of cat.subcategories) {
@@ -291,6 +313,78 @@ const MilestoneReport = () => {
     });
     return Array.from(map.values());
   }, [reportItems]);
+
+  // PDF helpers
+  const residentName = nameMap.get(selectedResident) || "?";
+  const currentUserName = user ? (nameMap.get(user.id) || "?") : "?";
+
+  const buildGroupedResults = () =>
+    groupedItems.map(({ cat, items }) => ({
+      categoryName: cat.name,
+      categoryCode: cat.code,
+      items: items.map(({ item }) => ({
+        subcategoryCode: item.subcategoryCode,
+        subcategoryName: item.subcategoryName,
+        milestoneLevel: item.selectedLevel,
+        comment: item.comment,
+        feedbackCount: item.feedbackCount,
+        positiveCount: item.positiveCount,
+        negativeCount: item.negativeCount,
+      })),
+    }));
+
+  const handleDownloadPdf = () => {
+    const doc = generateReportPdf({
+      residentName,
+      facultyName: currentUserName,
+      dateStart: startDate ? format(parseISO(startDate), "MMM d, yyyy") : startDate,
+      dateEnd: endDate ? format(parseISO(endDate), "MMM d, yyyy") : endDate,
+      groupedResults: buildGroupedResults(),
+    });
+    doc.save(
+      `milestone-report-${residentName.replace(/\s+/g, "-").toLowerCase()}-${startDate}-to-${endDate}.pdf`
+    );
+  };
+
+  const handleSendEmail = async () => {
+    if (!emailTo || !user) return;
+    setSending(true);
+    try {
+      const doc = generateReportPdf({
+        residentName,
+        facultyName: currentUserName,
+        dateStart: startDate ? format(parseISO(startDate), "MMM d, yyyy") : startDate,
+        dateEnd: endDate ? format(parseISO(endDate), "MMM d, yyyy") : endDate,
+        groupedResults: buildGroupedResults(),
+      });
+      const pdfBase64 = doc.output("datauristring").split(",")[1];
+
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      const res = await supabase.functions.invoke("send-milestone-report", {
+        body: {
+          to: emailTo,
+          resident_name: residentName,
+          faculty_name: currentUserName,
+          date_start: startDate,
+          date_end: endDate,
+          pdf_base64: pdfBase64,
+        },
+        headers: { Authorization: `Bearer ${session?.access_token}` },
+      });
+
+      if (res.error) throw res.error;
+      toast({ title: "Report sent" });
+      setEmailDialogOpen(false);
+    } catch (e: any) {
+      console.error("Email error:", e);
+      toast({ title: "Failed to send", description: e?.message || "Unknown error", variant: "destructive" });
+    } finally {
+      setSending(false);
+    }
+  };
 
   return (
     <div className="flex flex-col gap-4">
@@ -421,7 +515,7 @@ const MilestoneReport = () => {
                 className="text-[15px] font-semibold"
                 style={{ color: "#2D3748" }}
               >
-                {nameMap.get(selectedResident) || "?"}
+                {residentName}
               </span>
               <span className="text-[11px] ml-2" style={{ color: "#8A9AAB" }}>
                 {startDate && endDate
@@ -441,6 +535,31 @@ const MilestoneReport = () => {
               </span>
             )}
           </div>
+
+          {/* Download / Email buttons when all finalized */}
+          {allFinalized && (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleDownloadPdf}
+                className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-white transition-colors"
+                style={{ background: "#415162" }}
+              >
+                <Download className="h-3.5 w-3.5" />
+                Download PDF
+              </button>
+              <button
+                onClick={() => {
+                  setEmailTo(defaultEmailSetting || "");
+                  setEmailDialogOpen(true);
+                }}
+                className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                style={{ background: "#E7EBEF", color: "#415162", border: "0.5px solid #C9CED4" }}
+              >
+                <Mail className="h-3.5 w-3.5" />
+                Email report
+              </button>
+            </div>
+          )}
 
           {/* Grouped by category */}
           {groupedItems.map(({ cat, items }) => (
@@ -475,6 +594,48 @@ const MilestoneReport = () => {
           </p>
         </div>
       )}
+
+      {/* Email dialog */}
+      <Dialog open={emailDialogOpen} onOpenChange={setEmailDialogOpen}>
+        <DialogContent className="w-[calc(100%-2rem)] max-w-sm bg-muted border-border rounded-xl p-0 [&>button[class*='absolute']]:hidden">
+          <div className="flex items-center justify-between px-5 pt-4 pb-2">
+            <DialogTitle className="text-base font-medium">Email milestone report</DialogTitle>
+          </div>
+          <div className="px-5 pb-5 flex flex-col gap-3.5">
+            <div className="space-y-1.5">
+              <label className="text-xs text-muted-foreground">To</label>
+              <input
+                type="email"
+                value={emailTo}
+                onChange={(e) => setEmailTo(e.target.value)}
+                placeholder="recipient@example.com"
+                className="w-full h-10 px-3 text-sm rounded-lg bg-background border border-border outline-none"
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              The PDF report will be sent as an attachment.
+            </p>
+            <div className="flex items-center justify-end gap-2 pt-3 border-t border-border">
+              <button
+                onClick={() => setEmailDialogOpen(false)}
+                className="px-3.5 py-1.5 rounded-md text-xs font-medium bg-background border border-border"
+                style={{ color: "#415162" }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSendEmail}
+                disabled={sending || !emailTo}
+                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-md text-xs font-medium text-white disabled:opacity-50"
+                style={{ background: "#415162" }}
+              >
+                {sending && <Loader2 className="h-3 w-3 animate-spin" />}
+                {sending ? "Sending..." : "Send"}
+              </button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
