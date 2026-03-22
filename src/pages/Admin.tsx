@@ -556,12 +556,10 @@ const Admin = () => {
                           onUpdateProfile={(data) => updateProfile.mutate(data)}
                         />
                         {!isSelf && (
-                          <button
-                            onClick={(e) => { e.stopPropagation(); deleteUser.mutate(u.id); }}
-                            className="flex items-center justify-center w-7 h-7 bg-transparent border-none cursor-pointer text-destructive hover:bg-destructive/10 rounded-md transition-colors"
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </button>
+                          <DeleteUserDialog
+                            u={u}
+                            onDelete={(id) => deleteUser.mutate(id)}
+                          />
                         )}
                       </div>
                     </div>
