@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { format, parseISO, isWithinInterval } from "date-fns";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Download, Mail } from "lucide-react";
+import { Loader2, Download } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { useFeedback, Feedback } from "@/hooks/useFeedback";
