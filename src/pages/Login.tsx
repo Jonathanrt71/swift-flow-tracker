@@ -41,7 +41,7 @@ const Login = () => {
     }
     setLoading(true);
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`
+      redirectTo: 'https://swift-flow-tracker.lovable.app/reset-password'
     });
     setLoading(false);
 
