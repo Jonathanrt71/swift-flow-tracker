@@ -41,6 +41,7 @@ const Feedback = () => {
   const { isAdmin } = useAdmin();
   const { data: teamMembers } = useTeamMembers();
   const { feedbackQuery, createFeedback, updateFeedback, deleteFeedback } = useFeedback();
+  const { data: acgmeCategories } = useACGMECompetencies();
 
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
