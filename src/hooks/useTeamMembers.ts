@@ -14,8 +14,8 @@ export function useTeamMembers() {
   return useQuery({
     queryKey: ["team-members"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("profiles")
+      const { data, error } = await (supabase as any)
+        .from("profiles_public")
         .select("id, display_name, first_name, last_name, avatar_url");
       if (error) throw error;
 
