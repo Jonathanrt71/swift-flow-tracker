@@ -445,9 +445,7 @@ const Feedback = () => {
                 />
               </button>
               <button
-                onClick={() => {
-                  setViewMode("summary");
-                }}
+                onClick={() => setViewMode("summary")}
                 className={cn(
                   "flex items-center justify-center w-7 h-7 rounded-full transition-colors",
                   viewMode === "summary" ? "bg-white shadow-sm" : ""
@@ -456,6 +454,18 @@ const Feedback = () => {
                 <PieChart
                   className="h-3.5 w-3.5"
                   style={{ color: viewMode === "summary" ? "#415162" : "#8A9AAB" }}
+                />
+              </button>
+              <button
+                onClick={() => setViewMode("report")}
+                className={cn(
+                  "flex items-center justify-center w-7 h-7 rounded-full transition-colors",
+                  viewMode === "report" ? "bg-white shadow-sm" : ""
+                )}
+              >
+                <FileText
+                  className="h-3.5 w-3.5"
+                  style={{ color: viewMode === "report" ? "#415162" : "#8A9AAB" }}
                 />
               </button>
             </div>
