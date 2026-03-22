@@ -130,10 +130,6 @@ const Profile = () => {
       <header className="sticky top-0 z-40" style={{ background: "#415162" }}>
         <div className="container flex items-center justify-between h-14 px-4">
           <HeaderLogo isAdmin={isAdmin} onSignOut={signOut} />
-          <div className="flex items-center gap-2">
-            <User className="h-5 w-5 text-white/50" />
-            <span className="text-base font-medium text-white">Profile</span>
-          </div>
         </div>
       </header>
 

@@ -27,7 +27,10 @@ const HeaderLogo = ({
   const navigate = useNavigate();
   const { role } = useUserRole();
   const navItems = allNavItems.filter((item) => item.allowed.includes(role as AllowedRole));
-  const currentItem = allNavItems.find((n) => n.path === location.pathname) || (location.pathname === "/" ? allNavItems.find((n) => n.path === "/feedback") : undefined);
+  const currentItem = allNavItems.find((n) => n.path === location.pathname)
+    || (location.pathname === "/" ? allNavItems.find((n) => n.path === "/feedback") : undefined)
+    || (location.pathname === "/admin" ? { path: "/admin", label: "Admin", icon: Shield, allowed: ["admin"] as AllowedRole[] } : undefined)
+    || (location.pathname === "/profile" ? { path: "/profile", label: "Profile", icon: User, allowed: ["admin", "faculty", "resident"] as AllowedRole[] } : undefined);
   const Icon = currentItem?.icon || User;
 
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
