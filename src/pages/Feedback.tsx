@@ -7,6 +7,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { useFeedback } from "@/hooks/useFeedback";
+import { useACGMECompetencies } from "@/hooks/useACGMECompetencies";
+import { buildSelectionFromFeedback } from "@/components/feedback/CompetencySelector";
 import { supabase } from "@/integrations/supabase/client";
 import { formatCardDate, formatPersonName } from "@/lib/dateFormat";
 import { DetailReadOnly } from "@/components/cbme/DetailField";
