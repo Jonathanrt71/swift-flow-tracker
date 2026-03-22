@@ -531,9 +531,8 @@ const Admin = () => {
               ) : (
                 [...(users.data || [])].sort((a, b) => {
                   const roleOrder: Record<string, number> = { admin: 0, faculty: 1, resident: 2 };
-                  const rA = roleOrder[a.role] ?? 3;
-                  const rB = roleOrder[b.role] ?? 3;
-                  if (rA !== rB) return rA - rB;
+                  const roleDiff = (roleOrder[a.role] ?? 99) - (roleOrder[b.role] ?? 99);
+                  if (roleDiff !== 0) return roleDiff;
                   return formatPersonName(a).localeCompare(formatPersonName(b));
                 }).map((u) => {
                   const isSelf = u.id === user?.id;
