@@ -325,45 +325,6 @@ const MilestoneReport = () => {
     );
   };
 
-  const handleSendEmail = async () => {
-    if (!emailTo || !user) return;
-    setSending(true);
-    try {
-      const doc = generateReportPdf({
-        residentName,
-        facultyName: currentUserName,
-        dateStart: startDate ? format(parseISO(startDate), "MMM d, yyyy") : startDate,
-        dateEnd: endDate ? format(parseISO(endDate), "MMM d, yyyy") : endDate,
-        groupedResults: buildGroupedResults(),
-      });
-      const pdfBase64 = doc.output("datauristring").split(",")[1];
-
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-
-      const res = await supabase.functions.invoke("send-milestone-report", {
-        body: {
-          to: emailTo,
-          resident_name: residentName,
-          faculty_name: currentUserName,
-          date_start: startDate,
-          date_end: endDate,
-          pdf_base64: pdfBase64,
-        },
-        headers: { Authorization: `Bearer ${session?.access_token}` },
-      });
-
-      if (res.error) throw res.error;
-      toast({ title: "Report sent" });
-      setEmailDialogOpen(false);
-    } catch (e: any) {
-      console.error("Email error:", e);
-      toast({ title: "Failed to send", description: e?.message || "Unknown error", variant: "destructive" });
-    } finally {
-      setSending(false);
-    }
-  };
 
   return (
     <div className="flex flex-col gap-4">
