@@ -529,47 +529,58 @@ const Admin = () => {
               ) : users.data?.length === 0 ? (
                 <p className="text-sm text-muted-foreground py-4 text-center">No users found.</p>
               ) : (
-                [...(users.data || [])].sort((a, b) => {
-                  const roleOrder: Record<string, number> = { admin: 0, faculty: 1, resident: 2 };
-                  const roleDiff = (roleOrder[a.role] ?? 99) - (roleOrder[b.role] ?? 99);
-                  if (roleDiff !== 0) return roleDiff;
-                  return formatPersonName(a).localeCompare(formatPersonName(b));
-                }).map((u) => {
-                  const isSelf = u.id === user?.id;
-                  return (
-                    <div
-                      key={u.id}
-                      className="flex items-center justify-between px-3 py-2 bg-background rounded-lg border border-border"
-                    >
-                      <div>
-                        <span className="text-sm font-medium text-foreground">
-                          {formatPersonName(u)}
-                        </span>
-                        <span className="ml-2 text-[11px] text-muted-foreground">{u.role}</span>
-                        {isSelf && (
-                          <span className="ml-1 text-[11px] text-muted-foreground">(you)</span>
+                (() => {
+                  const sorted = [...(users.data || [])].sort((a, b) => {
+                    const roleOrder: Record<string, number> = { admin: 0, faculty: 1, resident: 2 };
+                    const roleDiff = (roleOrder[a.role] ?? 99) - (roleOrder[b.role] ?? 99);
+                    if (roleDiff !== 0) return roleDiff;
+                    return formatPersonName(a).localeCompare(formatPersonName(b));
+                  });
+                  let lastRole = "";
+                  return sorted.map((u) => {
+                    const isSelf = u.id === user?.id;
+                    const showHeader = u.role !== lastRole;
+                    lastRole = u.role;
+                    return (
+                      <React.Fragment key={u.id}>
+                        {showHeader && (
+                          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide pt-3 pb-1 border-b border-border">
+                            {u.role}
+                          </p>
                         )}
-                        {u.email && (
-                          <p className="text-[11px] text-muted-foreground">{u.email}</p>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <EditUserDialog
-                          u={u}
-                          isSelf={isSelf}
-                          onUpdateRole={(data) => updateRole.mutate(data)}
-                          onUpdateProfile={(data) => updateProfile.mutate(data)}
-                        />
-                        {!isSelf && (
-                          <DeleteUserDialog
-                            u={u}
-                            onDelete={(id) => deleteUser.mutate(id)}
-                          />
-                        )}
-                      </div>
-                    </div>
-                  );
-                })
+                        <div
+                          className="flex items-center justify-between px-3 py-2 bg-background rounded-lg border border-border"
+                        >
+                          <div>
+                            <span className="text-sm font-medium text-foreground">
+                              {formatPersonName(u)}
+                            </span>
+                            {isSelf && (
+                              <span className="ml-1 text-[11px] text-muted-foreground">(you)</span>
+                            )}
+                            {u.email && (
+                              <p className="text-[11px] text-muted-foreground">{u.email}</p>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <EditUserDialog
+                              u={u}
+                              isSelf={isSelf}
+                              onUpdateRole={(data) => updateRole.mutate(data)}
+                              onUpdateProfile={(data) => updateProfile.mutate(data)}
+                            />
+                            {!isSelf && (
+                              <DeleteUserDialog
+                                u={u}
+                                onDelete={(id) => deleteUser.mutate(id)}
+                              />
+                            )}
+                          </div>
+                        </div>
+                      </React.Fragment>
+                    );
+                  });
+                })()
               )}
             </div>
           )}
