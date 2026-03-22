@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { format, parseISO } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
-import { List, PieChart, Pencil, Trash2, X as XIcon, Search, UserCheck, Calendar, User } from "lucide-react";
+import { List, PieChart, FileText, Pencil, Trash2, X as XIcon, Search, UserCheck, Calendar, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
@@ -19,6 +19,7 @@ import NotificationBell from "@/components/NotificationBell";
 import CreateFeedbackDialog from "@/components/feedback/CreateFeedbackDialog";
 import EditFeedbackDialog from "@/components/feedback/EditFeedbackDialog";
 import FeedbackPie from "@/components/feedback/FeedbackPie";
+import MilestoneReport from "@/components/feedback/MilestoneReport";
 import {
   Popover,
   PopoverContent,
@@ -46,7 +47,7 @@ const Feedback = () => {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [viewMode, setViewMode] = useState<"list" | "summary">("list");
+  const [viewMode, setViewMode] = useState<"list" | "summary" | "report">("list");
   const [myOnly, setMyOnly] = useState(false);
   const [sortMode, setSortMode] = useState<"date" | "faculty">("date");
 
@@ -444,9 +445,7 @@ const Feedback = () => {
                 />
               </button>
               <button
-                onClick={() => {
-                  setViewMode("summary");
-                }}
+                onClick={() => setViewMode("summary")}
                 className={cn(
                   "flex items-center justify-center w-7 h-7 rounded-full transition-colors",
                   viewMode === "summary" ? "bg-white shadow-sm" : ""
@@ -455,6 +454,18 @@ const Feedback = () => {
                 <PieChart
                   className="h-3.5 w-3.5"
                   style={{ color: viewMode === "summary" ? "#415162" : "#8A9AAB" }}
+                />
+              </button>
+              <button
+                onClick={() => setViewMode("report")}
+                className={cn(
+                  "flex items-center justify-center w-7 h-7 rounded-full transition-colors",
+                  viewMode === "report" ? "bg-white shadow-sm" : ""
+                )}
+              >
+                <FileText
+                  className="h-3.5 w-3.5"
+                  style={{ color: viewMode === "report" ? "#415162" : "#8A9AAB" }}
                 />
               </button>
             </div>
@@ -514,7 +525,7 @@ const Feedback = () => {
 
         {/* Content */}
         <div className="flex flex-col gap-2">
-          {viewMode === "list" ? renderCards() : renderSummary()}
+          {viewMode === "list" ? renderCards() : viewMode === "summary" ? renderSummary() : <MilestoneReport />}
         </div>
       </main>
 
