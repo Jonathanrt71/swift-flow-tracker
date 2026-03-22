@@ -142,7 +142,17 @@ const CompetencySelector = ({ value, onChange }: CompetencySelectorProps) => {
               <div key={sub.id}>
                 <button
                   type="button"
-                  onClick={() => setExpandedSubId(isSubExpanded ? null : sub.id)}
+                  onClick={() => {
+                    setExpandedSubId(isSubExpanded ? null : sub.id);
+                    // Select at subcategory level on tap
+                    onChange({
+                      categoryId: activeCat.id,
+                      subcategoryId: sub.id,
+                      milestoneId: null,
+                      label: `${activeCat.code} > ${sub.code}`,
+                      color: activeCat.color,
+                    });
+                  }}
                   className="w-full flex items-center gap-2 px-3 py-2.5 text-left"
                   style={{
                     background: isSubExpanded ? "#EEF0F2" : "transparent",
