@@ -166,24 +166,6 @@ const CompetencySelector = ({ value, onChange }: CompetencySelectorProps) => {
 
                 {isSubExpanded && (
                   <div style={{ background: "#EEF0F2" }}>
-                    {/* Select without level */}
-                    <button
-                      type="button"
-                      onClick={() =>
-                        select({
-                          categoryId: activeCat.id,
-                          subcategoryId: sub.id,
-                          milestoneId: null,
-                          label: `${activeCat.code} > ${sub.code}`,
-                          color: activeCat.color,
-                        })
-                      }
-                      className="text-xs px-3 py-2 block"
-                      style={{ color: activeCat.color, paddingLeft: 64 }}
-                    >
-                      Select "{sub.code}" without level
-                    </button>
-
                     {/* Milestone levels */}
                     {sub.milestones.map((mile, idx) => (
                       <button
