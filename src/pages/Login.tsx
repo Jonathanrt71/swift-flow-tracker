@@ -18,7 +18,14 @@ const Login = () => {
   const { toast } = useToast();
   const { session } = useAuth();
 
-  if (session) return <Navigate to="/" replace />;
+  // Don't redirect if the user is meant to go to /reset-password (invite/recovery flow)
+  if (session) {
+    const hash = window.location.hash;
+    if (hash.includes("type=recovery") || hash.includes("type=invite")) {
+      return <Navigate to={`/reset-password${hash}`} replace />;
+    }
+    return <Navigate to="/" replace />;
+  }
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
