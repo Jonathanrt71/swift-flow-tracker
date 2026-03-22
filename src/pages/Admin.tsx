@@ -152,6 +152,95 @@ const EditUserDialog = ({
   );
 };
 
+/* ── Delete User Dialog ── */
+const DeleteUserDialog = ({
+  u,
+  onDelete,
+}: {
+  u: ManagedUser;
+  onDelete: (id: string) => void;
+}) => {
+  const [open, setOpen] = useState(false);
+  const [confirmText, setConfirmText] = useState("");
+
+  const handleOpen = (isOpen: boolean) => {
+    if (!isOpen) setConfirmText("");
+    setOpen(isOpen);
+  };
+
+  const handleDelete = () => {
+    onDelete(u.id);
+    setConfirmText("");
+    setOpen(false);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={handleOpen}>
+      <DialogTrigger asChild>
+        <button
+          onClick={(e) => e.stopPropagation()}
+          className="flex items-center justify-center w-7 h-7 bg-transparent border-none cursor-pointer text-destructive hover:bg-destructive/10 rounded-md transition-colors"
+        >
+          <Trash2 className="h-3.5 w-3.5" />
+        </button>
+      </DialogTrigger>
+      <DialogContent className="w-[calc(100%-2rem)] max-w-sm bg-muted border-border rounded-xl p-0 [&>button[class*='absolute']]:hidden">
+        <div className="flex items-center justify-between px-5 pt-4 pb-2">
+          <DialogTitle className="text-base font-medium">Delete user</DialogTitle>
+          <button
+            onClick={() => handleOpen(false)}
+            className="flex items-center justify-center w-9 h-9 bg-transparent border-none cursor-pointer"
+          >
+            <X className="h-4 w-4 text-foreground" />
+          </button>
+        </div>
+
+        <div className="px-5 pb-5 flex flex-col gap-3.5">
+          <div className="space-y-1.5">
+            <p className="text-sm text-foreground">
+              Are you sure you want to delete <span className="font-medium">{formatPersonName(u)}</span>?
+            </p>
+            {u.email && (
+              <p className="text-xs text-muted-foreground">{u.email}</p>
+            )}
+            <p className="text-xs text-destructive mt-2">
+              This will permanently remove this user and cannot be undone.
+            </p>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground">Type DELETE to confirm</Label>
+            <Input
+              value={confirmText}
+              onChange={(e) => setConfirmText(e.target.value)}
+              placeholder="Type DELETE to confirm"
+              className="bg-background rounded-lg"
+            />
+          </div>
+
+          <div className="flex items-center justify-end gap-2 pt-3 border-t border-border">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              size="sm"
+              disabled={confirmText !== "DELETE"}
+              onClick={handleDelete}
+            >
+              Delete
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
 /* ── Add User Dialog ── */
 const AddUserDialog = ({
   onSubmit,
@@ -467,12 +556,10 @@ const Admin = () => {
                           onUpdateProfile={(data) => updateProfile.mutate(data)}
                         />
                         {!isSelf && (
-                          <button
-                            onClick={(e) => { e.stopPropagation(); deleteUser.mutate(u.id); }}
-                            className="flex items-center justify-center w-7 h-7 bg-transparent border-none cursor-pointer text-destructive hover:bg-destructive/10 rounded-md transition-colors"
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </button>
+                          <DeleteUserDialog
+                            u={u}
+                            onDelete={(id) => deleteUser.mutate(id)}
+                          />
                         )}
                       </div>
                     </div>
