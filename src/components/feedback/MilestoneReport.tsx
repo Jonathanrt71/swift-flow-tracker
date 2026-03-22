@@ -476,29 +476,16 @@ const MilestoneReport = () => {
             )}
           </div>
 
-          {/* Download / Email buttons when all finalized */}
+          {/* Download PDF button when all finalized */}
           {allFinalized && (
-            <div className="flex items-center gap-2">
-              <button
-                onClick={handleDownloadPdf}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-white transition-colors"
-                style={{ background: "#415162" }}
-              >
-                <Download className="h-3.5 w-3.5" />
-                Download PDF
-              </button>
-              <button
-                onClick={() => {
-                  setEmailTo(defaultEmailSetting || "");
-                  setEmailDialogOpen(true);
-                }}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                style={{ background: "#E7EBEF", color: "#415162", border: "0.5px solid #C9CED4" }}
-              >
-                <Mail className="h-3.5 w-3.5" />
-                Email report
-              </button>
-            </div>
+            <button
+              onClick={handleDownloadPdf}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-white transition-colors"
+              style={{ background: "#415162" }}
+            >
+              <Download className="h-3.5 w-3.5" />
+              Download PDF
+            </button>
           )}
 
           {/* Grouped by category */}
