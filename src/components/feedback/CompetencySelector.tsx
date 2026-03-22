@@ -42,246 +42,187 @@ export function buildSelectionFromFeedback(
 
 const CompetencySelector = ({ value, onChange }: CompetencySelectorProps) => {
   const { data: categories } = useACGMECompetencies();
-  const [expanded, setExpanded] = useState(false);
-  const [activeCatId, setActiveCatId] = useState<string | null>(null);
+  const [activeCatId, setActiveCatId] = useState<string | null>(value?.categoryId ?? null);
   const [expandedSubId, setExpandedSubId] = useState<string | null>(null);
 
   const cats = categories || [];
 
   const select = (sel: CompetencySelection) => {
     onChange(sel);
-    setExpanded(false);
-    setActiveCatId(null);
     setExpandedSubId(null);
+    // Keep activeCatId so pill stays highlighted
   };
 
   const clear = () => {
     onChange(null);
-    setExpanded(false);
     setActiveCatId(null);
     setExpandedSubId(null);
   };
 
-  const skip = () => {
-    setExpanded(false);
-    setActiveCatId(null);
-    setExpandedSubId(null);
+  const handlePillTap = (cat: ACGMECategory) => {
+    if (activeCatId === cat.id) {
+      // Deactivate
+      setActiveCatId(null);
+      setExpandedSubId(null);
+      // If current selection belongs to this category, keep it
+    } else {
+      setActiveCatId(cat.id);
+      setExpandedSubId(null);
+      // Set category-level selection (user can drill deeper)
+      onChange({
+        categoryId: cat.id,
+        subcategoryId: null,
+        milestoneId: null,
+        label: cat.code,
+        color: cat.color,
+      });
+    }
   };
 
   const activeCat = cats.find((c) => c.id === activeCatId);
 
-  // Collapsed state
-  if (!expanded) {
-    if (value) {
-      return (
-        <div className="mb-4">
-          <label className="text-xs block mb-1.5" style={{ color: "#5F7285" }}>
-            Competency
-          </label>
+  return (
+    <div className="mb-4">
+      {/* Category pills - always visible */}
+      <div className="flex flex-wrap gap-1.5">
+        {cats.map((cat) => {
+          const isActive = activeCatId === cat.id;
+          return (
+            <button
+              key={cat.id}
+              type="button"
+              onClick={() => handlePillTap(cat)}
+              className="rounded-full transition-colors"
+              style={{
+                padding: "5px 12px",
+                fontSize: 12,
+                fontWeight: 500,
+                background: isActive ? cat.color : "#E7EBEF",
+                color: isActive ? "white" : "#5F7285",
+              }}
+            >
+              {cat.code}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Selection breadcrumb pill */}
+      {value && (
+        <div className="mt-2">
           <div
-            className="flex items-center gap-2 rounded-lg px-3 py-2.5 cursor-pointer"
-            style={{ background: "#E7EBEF", border: "0.5px solid #C9CED4" }}
-            onClick={() => setExpanded(true)}
+            className="inline-flex items-center gap-1.5 rounded-md px-2 py-1"
+            style={{ background: "#E7EBEF" }}
           >
             <div
               className="w-2 h-2 rounded-full shrink-0"
               style={{ background: value.color }}
             />
-            <span className="text-xs flex-1 min-w-0 truncate" style={{ color: "#2D3748" }}>
-              {value.label}
-            </span>
+            <span style={{ fontSize: 12, color: "#2D3748" }}>{value.label}</span>
             <button
               type="button"
-              onClick={(e) => { e.stopPropagation(); clear(); }}
+              onClick={clear}
               className="p-0.5 shrink-0"
             >
-              <X className="h-3.5 w-3.5" style={{ color: "#8A9AAB" }} />
+              <X className="h-3 w-3" style={{ color: "#8A9AAB" }} />
             </button>
           </div>
         </div>
-      );
-    }
+      )}
 
-    return (
-      <div className="mb-4">
-        <label className="text-xs block mb-1.5" style={{ color: "#5F7285" }}>
-          Competency
-        </label>
+      {/* Subcompetencies */}
+      {activeCat && activeCat.subcategories.length > 0 && (
         <div
-          className="rounded-lg px-3 py-2.5 cursor-pointer"
-          style={{ background: "white", border: "0.5px solid #C9CED4" }}
-          onClick={() => setExpanded(true)}
+          className="mt-2 rounded-lg overflow-hidden"
+          style={{ border: "0.5px solid #C9CED4" }}
         >
-          <span className="text-sm" style={{ color: "#8A9AAB" }}>
-            Add competency (optional)
-          </span>
-        </div>
-      </div>
-    );
-  }
-
-  // Expanded state
-  return (
-    <div className="mb-4">
-      <div
-        className="rounded-lg overflow-hidden"
-        style={{ background: "#F5F3EE", border: "0.5px solid #C9CED4" }}
-      >
-        <div className="px-3 pt-3 pb-2">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-medium" style={{ color: "#5F7285" }}>
-              Competency
-            </span>
-            <button
-              type="button"
-              onClick={skip}
-              className="text-xs"
-              style={{ color: "#8A9AAB" }}
-            >
-              Skip
-            </button>
-          </div>
-
-          {/* Category pills */}
-          <div className="flex flex-wrap gap-1.5 mb-2">
-            {cats.map((cat) => {
-              const isActive = activeCatId === cat.id;
-              return (
+          {activeCat.subcategories.map((sub) => {
+            const isSubExpanded = expandedSubId === sub.id;
+            return (
+              <div key={sub.id}>
                 <button
-                  key={cat.id}
                   type="button"
-                  onClick={() => {
-                    setActiveCatId(isActive ? null : cat.id);
-                    setExpandedSubId(null);
-                  }}
-                  className="rounded-full transition-colors"
+                  onClick={() => setExpandedSubId(isSubExpanded ? null : sub.id)}
+                  className="w-full flex items-center gap-2 px-3 py-2.5 text-left"
                   style={{
-                    padding: "5px 12px",
-                    fontSize: 12,
-                    fontWeight: 500,
-                    background: isActive ? cat.color : "#E7EBEF",
-                    color: isActive ? "white" : "#5F7285",
+                    background: isSubExpanded ? "#EEF0F2" : "transparent",
                   }}
                 >
-                  {cat.code}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Select at category level */}
-          {activeCat && (
-            <button
-              type="button"
-              onClick={() =>
-                select({
-                  categoryId: activeCat.id,
-                  subcategoryId: null,
-                  milestoneId: null,
-                  label: activeCat.code,
-                  color: activeCat.color,
-                })
-              }
-              className="text-xs mb-2 block"
-              style={{ color: activeCat.color }}
-            >
-              Tap here to select "{activeCat.code}" only
-            </button>
-          )}
-        </div>
-
-        {/* Subcompetencies */}
-        {activeCat && activeCat.subcategories.length > 0 && (
-          <div>
-            {activeCat.subcategories.map((sub) => {
-              const isSubExpanded = expandedSubId === sub.id;
-              return (
-                <div key={sub.id}>
-                  <button
-                    type="button"
-                    onClick={() => setExpandedSubId(isSubExpanded ? null : sub.id)}
-                    className="w-full flex items-center gap-2 px-3 py-2.5 text-left"
-                    style={{
-                      background: isSubExpanded ? "#EEF0F2" : "transparent",
-                    }}
+                  <span
+                    className="shrink-0"
+                    style={{ fontSize: 12, fontWeight: 500, color: "#415162", minWidth: 40 }}
                   >
-                    <span
-                      className="shrink-0"
-                      style={{ fontSize: 12, fontWeight: 500, color: "#415162", minWidth: 40 }}
-                    >
-                      {sub.code}
-                    </span>
-                    <span className="flex-1 min-w-0 truncate" style={{ fontSize: 13, color: "#2D3748" }}>
-                      {sub.name}
-                    </span>
-                    {isSubExpanded ? (
-                      <ChevronUp className="h-3.5 w-3.5 shrink-0" style={{ color: "#8A9AAB" }} />
-                    ) : (
-                      <ChevronDown className="h-3.5 w-3.5 shrink-0" style={{ color: "#8A9AAB" }} />
-                    )}
-                  </button>
+                    {sub.code}
+                  </span>
+                  <span className="flex-1 min-w-0 truncate" style={{ fontSize: 13, color: "#2D3748" }}>
+                    {sub.name}
+                  </span>
+                  {isSubExpanded ? (
+                    <ChevronUp className="h-3.5 w-3.5 shrink-0" style={{ color: "#8A9AAB" }} />
+                  ) : (
+                    <ChevronDown className="h-3.5 w-3.5 shrink-0" style={{ color: "#8A9AAB" }} />
+                  )}
+                </button>
 
-                  {isSubExpanded && (
-                    <div style={{ background: "#EEF0F2" }}>
-                      {/* Select without level */}
+                {isSubExpanded && (
+                  <div style={{ background: "#EEF0F2" }}>
+                    {/* Select without level */}
+                    <button
+                      type="button"
+                      onClick={() =>
+                        select({
+                          categoryId: activeCat.id,
+                          subcategoryId: sub.id,
+                          milestoneId: null,
+                          label: `${activeCat.code} > ${sub.code}`,
+                          color: activeCat.color,
+                        })
+                      }
+                      className="text-xs px-3 py-2 block"
+                      style={{ color: activeCat.color, paddingLeft: 64 }}
+                    >
+                      Select "{sub.code}" without level
+                    </button>
+
+                    {/* Milestone levels */}
+                    {sub.milestones.map((mile, idx) => (
                       <button
+                        key={mile.id}
                         type="button"
                         onClick={() =>
                           select({
                             categoryId: activeCat.id,
                             subcategoryId: sub.id,
-                            milestoneId: null,
-                            label: `${activeCat.code} > ${sub.code}`,
+                            milestoneId: mile.id,
+                            label: `${activeCat.code} > ${sub.code} > Level ${mile.level}`,
                             color: activeCat.color,
                           })
                         }
-                        className="text-xs px-3 py-2 block"
-                        style={{ color: activeCat.color, paddingLeft: 64 }}
+                        className="w-full flex items-start gap-2 text-left py-2"
+                        style={{
+                          paddingLeft: 64,
+                          paddingRight: 12,
+                          borderTop: "0.5px solid #E7EBEF",
+                        }}
                       >
-                        Select "{sub.code}" without level
-                      </button>
-
-                      {/* Milestone levels */}
-                      {sub.milestones.map((mile, idx) => (
-                        <button
-                          key={mile.id}
-                          type="button"
-                          onClick={() =>
-                            select({
-                              categoryId: activeCat.id,
-                              subcategoryId: sub.id,
-                              milestoneId: mile.id,
-                              label: `${activeCat.code} > ${sub.code} > Level ${mile.level}`,
-                              color: activeCat.color,
-                            })
-                          }
-                          className="w-full flex items-start gap-2 text-left py-2"
-                          style={{
-                            paddingLeft: 64,
-                            paddingRight: 12,
-                            borderTop: idx === 0 ? "0.5px solid #E7EBEF" : "0.5px solid #E7EBEF",
-                          }}
+                        <span
+                          className="shrink-0"
+                          style={{ fontSize: 12, fontWeight: 500, color: "#415162" }}
                         >
-                          <span
-                            className="shrink-0"
-                            style={{ fontSize: 12, fontWeight: 500, color: "#415162" }}
-                          >
-                            {mile.level}
-                          </span>
-                          <span style={{ fontSize: 12, color: "#5F7285" }}>
-                            {mile.description}
-                          </span>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
+                          {mile.level}
+                        </span>
+                        <span style={{ fontSize: 12, color: "#5F7285" }}>
+                          {mile.description}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 };
