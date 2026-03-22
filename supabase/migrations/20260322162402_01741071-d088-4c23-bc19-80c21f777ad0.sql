@@ -1,0 +1,1 @@
+INSERT INTO app_settings (key, value) VALUES ('default_report_email', '') ON CONFLICT (key) DO NOTHING;
