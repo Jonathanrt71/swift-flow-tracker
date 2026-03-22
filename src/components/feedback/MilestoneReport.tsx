@@ -522,47 +522,6 @@ const MilestoneReport = () => {
         </div>
       )}
 
-      {/* Email dialog */}
-      <Dialog open={emailDialogOpen} onOpenChange={setEmailDialogOpen}>
-        <DialogContent className="w-[calc(100%-2rem)] max-w-sm bg-muted border-border rounded-xl p-0 [&>button[class*='absolute']]:hidden">
-          <div className="flex items-center justify-between px-5 pt-4 pb-2">
-            <DialogTitle className="text-base font-medium">Email milestone report</DialogTitle>
-          </div>
-          <div className="px-5 pb-5 flex flex-col gap-3.5">
-            <div className="space-y-1.5">
-              <label className="text-xs text-muted-foreground">To</label>
-              <input
-                type="email"
-                value={emailTo}
-                onChange={(e) => setEmailTo(e.target.value)}
-                placeholder="recipient@example.com"
-                className="w-full h-10 px-3 text-sm rounded-lg bg-background border border-border outline-none"
-              />
-            </div>
-            <p className="text-xs text-muted-foreground">
-              The PDF report will be sent as an attachment.
-            </p>
-            <div className="flex items-center justify-end gap-2 pt-3 border-t border-border">
-              <button
-                onClick={() => setEmailDialogOpen(false)}
-                className="px-3.5 py-1.5 rounded-md text-xs font-medium bg-background border border-border"
-                style={{ color: "#415162" }}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSendEmail}
-                disabled={sending || !emailTo}
-                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-md text-xs font-medium text-white disabled:opacity-50"
-                style={{ background: "#415162" }}
-              >
-                {sending && <Loader2 className="h-3 w-3 animate-spin" />}
-                {sending ? "Sending..." : "Send"}
-              </button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };
