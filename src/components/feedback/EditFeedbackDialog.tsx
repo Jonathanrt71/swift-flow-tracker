@@ -9,6 +9,11 @@ import { formatPersonName } from "@/lib/dateFormat";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import type { Feedback } from "@/hooks/useFeedback";
+import CompetencySelector, {
+  type CompetencySelection,
+  buildSelectionFromFeedback,
+} from "./CompetencySelector";
+import { useACGMECompetencies } from "@/hooks/useACGMECompetencies";
 
 interface EditFeedbackDialogProps {
   feedback: Feedback;
@@ -17,13 +22,18 @@ interface EditFeedbackDialogProps {
     resident_id: string;
     comment: string;
     sentiment: "positive" | "negative";
+    competency_category_id?: string | null;
+    competency_subcategory_id?: string | null;
+    competency_milestone_id?: string | null;
   }) => void;
 }
 
 const EditFeedbackDialog = ({ feedback, residents, onSubmit }: EditFeedbackDialogProps) => {
+  const { data: categories } = useACGMECompetencies();
   const [open, setOpen] = useState(false);
   const [residentId, setResidentId] = useState(feedback.resident_id);
   const [sentiment, setSentiment] = useState<"positive" | "negative">(feedback.sentiment);
+  const [competency, setCompetency] = useState<CompetencySelection | null>(null);
 
   const editor = useEditor({
     extensions: [StarterKit],
@@ -41,6 +51,14 @@ const EditFeedbackDialog = ({ feedback, residents, onSubmit }: EditFeedbackDialo
       setResidentId(feedback.resident_id);
       setSentiment(feedback.sentiment);
       editor?.commands.setContent(feedback.comment);
+      // Build initial competency selection
+      const sel = buildSelectionFromFeedback(
+        categories || [],
+        feedback.competency_category_id,
+        feedback.competency_subcategory_id,
+        feedback.competency_milestone_id,
+      );
+      setCompetency(sel);
     }
     setOpen(isOpen);
   };
@@ -53,6 +71,9 @@ const EditFeedbackDialog = ({ feedback, residents, onSubmit }: EditFeedbackDialo
       resident_id: residentId,
       comment: html,
       sentiment,
+      competency_category_id: competency?.categoryId || null,
+      competency_subcategory_id: competency?.subcategoryId || null,
+      competency_milestone_id: competency?.milestoneId || null,
     });
     setOpen(false);
   };
@@ -110,6 +131,9 @@ const EditFeedbackDialog = ({ feedback, residents, onSubmit }: EditFeedbackDialo
             {editor && <EditorContent editor={editor} />}
           </div>
         </div>
+
+        {/* Competency selector */}
+        <CompetencySelector value={competency} onChange={setCompetency} />
 
         {/* Sentiment buttons */}
         <div className="mb-5">

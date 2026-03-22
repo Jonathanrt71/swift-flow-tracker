@@ -8,12 +8,16 @@ import { Plus, ThumbsUp, ThumbsDown } from "lucide-react";
 import { formatPersonName } from "@/lib/dateFormat";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import CompetencySelector, { type CompetencySelection } from "./CompetencySelector";
 
 interface CreateFeedbackDialogProps {
   onSubmit: (data: {
     resident_id: string;
     comment: string;
     sentiment: "positive" | "negative";
+    competency_category_id?: string | null;
+    competency_subcategory_id?: string | null;
+    competency_milestone_id?: string | null;
   }) => void;
   residents: { id: string; first_name: string | null; last_name: string | null }[];
 }
@@ -22,6 +26,7 @@ const CreateFeedbackDialog = ({ onSubmit, residents }: CreateFeedbackDialogProps
   const [open, setOpen] = useState(false);
   const [residentId, setResidentId] = useState("");
   const [sentiment, setSentiment] = useState<"positive" | "negative" | null>(null);
+  const [competency, setCompetency] = useState<CompetencySelection | null>(null);
 
   const editor = useEditor({
     extensions: [StarterKit],
@@ -38,6 +43,7 @@ const CreateFeedbackDialog = ({ onSubmit, residents }: CreateFeedbackDialogProps
     if (isOpen) {
       setResidentId("");
       setSentiment(null);
+      setCompetency(null);
       editor?.commands.clearContent();
     }
     setOpen(isOpen);
@@ -51,6 +57,9 @@ const CreateFeedbackDialog = ({ onSubmit, residents }: CreateFeedbackDialogProps
       resident_id: residentId,
       comment: html,
       sentiment,
+      competency_category_id: competency?.categoryId || null,
+      competency_subcategory_id: competency?.subcategoryId || null,
+      competency_milestone_id: competency?.milestoneId || null,
     });
     setOpen(false);
   };
@@ -108,6 +117,9 @@ const CreateFeedbackDialog = ({ onSubmit, residents }: CreateFeedbackDialogProps
             {editor && <EditorContent editor={editor} />}
           </div>
         </div>
+
+        {/* Competency selector */}
+        <CompetencySelector value={competency} onChange={setCompetency} />
 
         {/* Sentiment buttons */}
         <div className="mb-5">

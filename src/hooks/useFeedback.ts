@@ -10,6 +10,9 @@ export interface Feedback {
   comment: string;
   sentiment: "positive" | "negative";
   created_at: string;
+  competency_category_id: string | null;
+  competency_subcategory_id: string | null;
+  competency_milestone_id: string | null;
 }
 
 export function useFeedback() {
@@ -35,12 +38,18 @@ export function useFeedback() {
       resident_id: string;
       comment: string;
       sentiment: "positive" | "negative";
+      competency_category_id?: string | null;
+      competency_subcategory_id?: string | null;
+      competency_milestone_id?: string | null;
     }) => {
       const { error } = await (supabase as any).from("feedback").insert({
         resident_id: input.resident_id,
         faculty_id: user!.id,
         comment: input.comment,
         sentiment: input.sentiment,
+        competency_category_id: input.competency_category_id || null,
+        competency_subcategory_id: input.competency_subcategory_id || null,
+        competency_milestone_id: input.competency_milestone_id || null,
       });
       if (error) throw error;
     },
@@ -59,6 +68,9 @@ export function useFeedback() {
       resident_id?: string;
       comment?: string;
       sentiment?: "positive" | "negative";
+      competency_category_id?: string | null;
+      competency_subcategory_id?: string | null;
+      competency_milestone_id?: string | null;
     }) => {
       const { id, ...updates } = input;
       const { error } = await (supabase as any)

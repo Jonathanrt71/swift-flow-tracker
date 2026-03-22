@@ -7,6 +7,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { useFeedback } from "@/hooks/useFeedback";
+import { useACGMECompetencies } from "@/hooks/useACGMECompetencies";
+import { buildSelectionFromFeedback } from "@/components/feedback/CompetencySelector";
 import { supabase } from "@/integrations/supabase/client";
 import { formatCardDate, formatPersonName } from "@/lib/dateFormat";
 import { DetailReadOnly } from "@/components/cbme/DetailField";
@@ -39,6 +41,7 @@ const Feedback = () => {
   const { isAdmin } = useAdmin();
   const { data: teamMembers } = useTeamMembers();
   const { feedbackQuery, createFeedback, updateFeedback, deleteFeedback } = useFeedback();
+  const { data: acgmeCategories } = useACGMECompetencies();
 
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -189,6 +192,30 @@ const Feedback = () => {
                   <DetailReadOnly html={fb.comment} />
                 </div>
               )}
+              {/* Competency pill */}
+              {(() => {
+                const sel = buildSelectionFromFeedback(
+                  acgmeCategories || [],
+                  fb.competency_category_id,
+                  fb.competency_subcategory_id,
+                  fb.competency_milestone_id,
+                );
+                if (!sel) return null;
+                return (
+                  <div
+                    className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 mb-2"
+                    style={{ background: "#E7EBEF" }}
+                  >
+                    <div
+                      className="w-2 h-2 rounded-full shrink-0"
+                      style={{ background: sel.color }}
+                    />
+                    <span className="text-xs" style={{ color: "#2D3748" }}>
+                      {sel.label}
+                    </span>
+                  </div>
+                );
+              })()}
               <div className="flex items-center justify-between">
                 <div className="text-xs" style={{ color: "#8A9AAB" }}>
                   {facultyName}
