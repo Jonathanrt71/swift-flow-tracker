@@ -156,6 +156,65 @@ export type Database = {
         }
         Relationships: []
       }
+      competency_categories_acgme: {
+        Row: {
+          code: string
+          color: string
+          created_at: string | null
+          id: string
+          name: string
+          sort_order: number
+        }
+        Insert: {
+          code: string
+          color: string
+          created_at?: string | null
+          id?: string
+          name: string
+          sort_order?: number
+        }
+        Update: {
+          code?: string
+          color?: string
+          created_at?: string | null
+          id?: string
+          name?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
+      competency_milestones_acgme: {
+        Row: {
+          created_at: string | null
+          description: string
+          id: string
+          level: number
+          subcategory_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          description: string
+          id?: string
+          level: number
+          subcategory_id: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string
+          id?: string
+          level?: number
+          subcategory_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "competency_milestones_acgme_subcategory_id_fkey"
+            columns: ["subcategory_id"]
+            isOneToOne: false
+            referencedRelation: "competency_subcategories_acgme"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       competency_sections: {
         Row: {
           competency_id: string
@@ -181,6 +240,41 @@ export type Database = {
             columns: ["competency_id"]
             isOneToOne: false
             referencedRelation: "competencies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      competency_subcategories_acgme: {
+        Row: {
+          category_id: string
+          code: string
+          created_at: string | null
+          id: string
+          name: string
+          sort_order: number
+        }
+        Insert: {
+          category_id: string
+          code: string
+          created_at?: string | null
+          id?: string
+          name: string
+          sort_order?: number
+        }
+        Update: {
+          category_id?: string
+          code?: string
+          created_at?: string | null
+          id?: string
+          name?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "competency_subcategories_acgme_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "competency_categories_acgme"
             referencedColumns: ["id"]
           },
         ]
@@ -265,6 +359,9 @@ export type Database = {
       feedback: {
         Row: {
           comment: string
+          competency_category_id: string | null
+          competency_milestone_id: string | null
+          competency_subcategory_id: string | null
           created_at: string | null
           faculty_id: string
           id: string
@@ -273,6 +370,9 @@ export type Database = {
         }
         Insert: {
           comment: string
+          competency_category_id?: string | null
+          competency_milestone_id?: string | null
+          competency_subcategory_id?: string | null
           created_at?: string | null
           faculty_id: string
           id?: string
@@ -281,6 +381,9 @@ export type Database = {
         }
         Update: {
           comment?: string
+          competency_category_id?: string | null
+          competency_milestone_id?: string | null
+          competency_subcategory_id?: string | null
           created_at?: string | null
           faculty_id?: string
           id?: string
@@ -288,6 +391,27 @@ export type Database = {
           sentiment?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "feedback_competency_category_id_fkey"
+            columns: ["competency_category_id"]
+            isOneToOne: false
+            referencedRelation: "competency_categories_acgme"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feedback_competency_milestone_id_fkey"
+            columns: ["competency_milestone_id"]
+            isOneToOne: false
+            referencedRelation: "competency_milestones_acgme"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feedback_competency_subcategory_id_fkey"
+            columns: ["competency_subcategory_id"]
+            isOneToOne: false
+            referencedRelation: "competency_subcategories_acgme"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "feedback_resident_id_fkey"
             columns: ["resident_id"]
