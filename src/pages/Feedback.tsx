@@ -88,9 +88,21 @@ const Feedback = () => {
     return true;
   });
 
-  const sorted = [...filtered].sort(
-    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-  );
+  const sorted = useMemo(() => {
+    const arr = [...filtered];
+    if (sortMode === "faculty") {
+      return arr.sort((a, b) => {
+        const nameA = nameMap.get(a.faculty_id) || "?";
+        const nameB = nameMap.get(b.faculty_id) || "?";
+        const cmp = nameA.localeCompare(nameB);
+        if (cmp !== 0) return cmp;
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      });
+    }
+    return arr.sort(
+      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    );
+  }, [filtered, sortMode, nameMap]);
 
   // Summary data
   const residentSummary = useMemo(() => {
