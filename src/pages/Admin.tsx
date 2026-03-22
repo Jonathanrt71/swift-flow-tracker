@@ -529,7 +529,13 @@ const Admin = () => {
               ) : users.data?.length === 0 ? (
                 <p className="text-sm text-muted-foreground py-4 text-center">No users found.</p>
               ) : (
-                users.data?.map((u) => {
+                [...(users.data || [])].sort((a, b) => {
+                  const roleOrder: Record<string, number> = { admin: 0, faculty: 1, resident: 2 };
+                  const rA = roleOrder[a.role] ?? 3;
+                  const rB = roleOrder[b.role] ?? 3;
+                  if (rA !== rB) return rA - rB;
+                  return formatPersonName(a).localeCompare(formatPersonName(b));
+                }).map((u) => {
                   const isSelf = u.id === user?.id;
                   return (
                     <div
