@@ -544,7 +544,7 @@ const Admin = () => {
                     return (
                       <React.Fragment key={u.id}>
                         {showHeader && (
-                          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide pt-3 pb-1 border-b border-border">
+                          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide pt-3 pb-1">
                             {u.role}
                           </p>
                         )}
