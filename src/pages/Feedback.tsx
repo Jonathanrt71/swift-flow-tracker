@@ -47,7 +47,7 @@ const Feedback = () => {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [viewMode, setViewMode] = useState<"list" | "summary">("list");
+  const [viewMode, setViewMode] = useState<"list" | "summary" | "report">("list");
   const [myOnly, setMyOnly] = useState(false);
   const [sortMode, setSortMode] = useState<"date" | "faculty">("date");
 
