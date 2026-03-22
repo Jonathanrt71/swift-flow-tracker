@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { format, parseISO } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
-import { List, PieChart, Pencil, Trash2, X as XIcon, Search, UserCheck } from "lucide-react";
+import { List, PieChart, Pencil, Trash2, X as XIcon, Search, UserCheck, Calendar, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
@@ -48,6 +48,7 @@ const Feedback = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"list" | "summary">("list");
   const [myOnly, setMyOnly] = useState(false);
+  const [sortMode, setSortMode] = useState<"date" | "faculty">("date");
 
   // Fetch user IDs with the 'resident' role
   const { data: residentRoles } = useQuery({
@@ -87,9 +88,21 @@ const Feedback = () => {
     return true;
   });
 
-  const sorted = [...filtered].sort(
-    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-  );
+  const sorted = useMemo(() => {
+    const arr = [...filtered];
+    if (sortMode === "faculty") {
+      return arr.sort((a, b) => {
+        const nameA = nameMap.get(a.faculty_id) || "?";
+        const nameB = nameMap.get(b.faculty_id) || "?";
+        const cmp = nameA.localeCompare(nameB);
+        if (cmp !== 0) return cmp;
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      });
+    }
+    return arr.sort(
+      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    );
+  }, [filtered, sortMode, nameMap]);
 
   // Summary data
   const residentSummary = useMemo(() => {
@@ -127,31 +140,39 @@ const Feedback = () => {
       );
     }
 
-    let prevMonth = "";
+    let prevGroup = "";
     const elements: React.ReactNode[] = [];
 
     sorted.forEach((fb) => {
-      let monthKey = "";
-      let monthLabel: string | null = null;
-      try {
-        const d = parseISO(fb.created_at);
-        monthKey = format(d, "yyyy-MM");
-        monthLabel = format(d, "MMMM yyyy");
-      } catch {
-        monthKey = "other";
+      let groupKey = "";
+      let groupLabel: string | null = null;
+
+      if (sortMode === "faculty") {
+        const facultyName = nameMap.get(fb.faculty_id) || "?";
+        groupKey = facultyName;
+        groupLabel = facultyName;
+      } else {
+        try {
+          const d = parseISO(fb.created_at);
+          groupKey = format(d, "yyyy-MM");
+          groupLabel = format(d, "MMMM yyyy");
+        } catch {
+          groupKey = "other";
+        }
       }
 
-      if (monthKey !== prevMonth && monthLabel) {
+      if (groupKey !== prevGroup && groupLabel) {
         elements.push(
           <div
-            key={`month-${monthKey}`}
-            className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider pt-3 pb-1"
+            key={`group-${groupKey}`}
+            className="text-[11px] font-semibold uppercase tracking-wider pt-3 pb-1"
+            style={{ color: "#8A9AAB", letterSpacing: "0.5px" }}
           >
-            {monthLabel}
+            {groupLabel}
           </div>
         );
       }
-      prevMonth = monthKey;
+      prevGroup = groupKey;
 
       const isExpanded = expandedId === fb.id;
       const dateInfo = formatCardDate(fb.created_at);
@@ -458,6 +479,38 @@ const Feedback = () => {
             residents={residents}
           />
         </div>
+
+        {/* Sort toggle — row 2, list view only */}
+        {viewMode === "list" && (
+          <div className="pb-2.5 ml-[36px]">
+            <div className="inline-flex items-center rounded-full p-0.5" style={{ background: "#D5DAE0" }}>
+              <button
+                onClick={() => setSortMode("date")}
+                className={cn(
+                  "flex items-center justify-center w-7 h-7 rounded-full transition-colors",
+                  sortMode === "date" ? "bg-white shadow-sm" : ""
+                )}
+              >
+                <Calendar
+                  className="h-3.5 w-3.5"
+                  style={{ color: sortMode === "date" ? "#415162" : "#8A9AAB" }}
+                />
+              </button>
+              <button
+                onClick={() => setSortMode("faculty")}
+                className={cn(
+                  "flex items-center justify-center w-7 h-7 rounded-full transition-colors",
+                  sortMode === "faculty" ? "bg-white shadow-sm" : ""
+                )}
+              >
+                <User
+                  className="h-3.5 w-3.5"
+                  style={{ color: sortMode === "faculty" ? "#415162" : "#8A9AAB" }}
+                />
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Content */}
         <div className="flex flex-col gap-2">
