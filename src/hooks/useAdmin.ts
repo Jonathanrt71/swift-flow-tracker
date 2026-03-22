@@ -100,7 +100,7 @@ export function useAdmin() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-users"] });
-      toast({ title: "User created", description: "Share the password with them — they can log in now." });
+      toast({ title: "Invite sent", description: "An invite email has been sent. They'll set their own password." });
     },
     onError: (err: Error) => {
       toast({ title: "Failed to invite", description: err.message, variant: "destructive" });

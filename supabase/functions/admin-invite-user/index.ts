@@ -10,7 +10,6 @@ Deno.serve(async (req) => {
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) throw new Error("Missing authorization header");
 
-    // Verify the caller is an admin
     const anonClient = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_ANON_KEY")!
@@ -26,20 +25,17 @@ Deno.serve(async (req) => {
     });
     if (!isAdmin) throw new Error("Forbidden: admin role required");
 
-    const { email, password, display_name } = await req.json();
-    if (!email || !password) throw new Error("Email and password are required");
+    const { email, display_name } = await req.json();
+    if (!email) throw new Error("Email is required");
 
-    // Use service role to create the user
     const adminClient = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    const { data, error } = await adminClient.auth.admin.createUser({
-      email,
-      password,
-      email_confirm: true,
-      user_metadata: { display_name: display_name || email },
+    const { data, error } = await adminClient.auth.admin.inviteUserByEmail(email, {
+      data: { display_name: display_name || email },
+      redirectTo: `${req.headers.get("origin") || Deno.env.get("SITE_URL") || ""}/reset-password`,
     });
 
     if (error) throw error;

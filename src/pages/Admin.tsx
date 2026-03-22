@@ -249,21 +249,11 @@ const AddUserDialog = ({
               <option value="admin">Admin</option>
             </select>
           </div>
-          <div className="space-y-1.5">
-            <Label className="text-xs text-muted-foreground">Password</Label>
-            <Input
-              type="password"
-              placeholder="Min 6 characters"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="bg-background rounded-lg"
-            />
-          </div>
 
           <div className="flex justify-end pt-3 border-t border-border">
             <button
               onClick={handleSubmit}
-              disabled={!email || !password || isPending}
+              disabled={!email || isPending}
               className="flex items-center justify-center w-11 h-11 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50"
             >
               <Check className="h-4 w-4" />
