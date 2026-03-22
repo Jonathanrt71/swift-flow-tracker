@@ -68,6 +68,9 @@ export function useFeedback() {
       resident_id?: string;
       comment?: string;
       sentiment?: "positive" | "negative";
+      competency_category_id?: string | null;
+      competency_subcategory_id?: string | null;
+      competency_milestone_id?: string | null;
     }) => {
       const { id, ...updates } = input;
       const { error } = await (supabase as any)
