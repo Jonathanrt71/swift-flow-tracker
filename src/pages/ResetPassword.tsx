@@ -17,7 +17,7 @@ const ResetPassword = () => {
   useEffect(() => {
     // Listen for the PASSWORD_RECOVERY event
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "PASSWORD_RECOVERY") {
+      if (event === "PASSWORD_RECOVERY" || event === "SIGNED_IN") {
         setReady(true);
       }
     });
