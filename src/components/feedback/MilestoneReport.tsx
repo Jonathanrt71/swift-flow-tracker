@@ -52,22 +52,6 @@ const MilestoneReport = () => {
   const [reportItems, setReportItems] = useState<ReportItem[]>([]);
   const [generating, setGenerating] = useState(false);
   const [generated, setGenerated] = useState(false);
-  const [emailDialogOpen, setEmailDialogOpen] = useState(false);
-  const [emailTo, setEmailTo] = useState("");
-  const [sending, setSending] = useState(false);
-
-  // Fetch default report email
-  const { data: defaultEmailSetting } = useQuery({
-    queryKey: ["app-settings", "default_report_email"],
-    queryFn: async () => {
-      const { data } = await (supabase as any)
-        .from("app_settings")
-        .select("value")
-        .eq("key", "default_report_email")
-        .single();
-      return data?.value || "";
-    },
-  });
 
   // Fetch resident IDs
   const { data: residentRoles } = useQuery({
