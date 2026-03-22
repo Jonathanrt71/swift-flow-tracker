@@ -819,7 +819,43 @@ const Admin = () => {
           )}
         </div>
 
-        {/* Role Access */}
+        {/* App Settings */}
+        <div
+          className="rounded-lg overflow-hidden cursor-pointer"
+          style={{ background: "#E7EBEF", border: "0.5px solid #C9CED4" }}
+        >
+          <div
+            className="flex items-center px-3.5 py-3"
+            onClick={() => toggleSection("settings")}
+          >
+            <span className="text-sm font-medium" style={{ color: "#2D3748" }}>App settings</span>
+          </div>
+          {expandedSection === "settings" && (
+            <div className="px-3.5 pb-3 space-y-1.5" onClick={(e) => e.stopPropagation()}>
+              <div className="flex items-center gap-2">
+                <div className="flex-1 space-y-1">
+                  <label className="text-xs text-muted-foreground">Default report email</label>
+                  <Input
+                    type="email"
+                    value={defaultReportEmail}
+                    onChange={(e) => setDefaultReportEmail(e.target.value)}
+                    placeholder="recipient@example.com"
+                    className="bg-background rounded-lg"
+                  />
+                </div>
+                <button
+                  onClick={() => {
+                    updateSetting.mutate({ key: "default_report_email", value: defaultReportEmail });
+                  }}
+                  className="flex items-center justify-center w-9 h-9 mt-5 bg-transparent border-none cursor-pointer text-primary hover:text-primary/80"
+                >
+                  <Check className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
         <div
           className="rounded-lg overflow-hidden cursor-pointer"
           style={{ background: "#E7EBEF", border: "0.5px solid #C9CED4" }}
