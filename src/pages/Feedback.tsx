@@ -525,7 +525,7 @@ const Feedback = () => {
 
         {/* Content */}
         <div className="flex flex-col gap-2">
-          {viewMode === "list" ? renderCards() : renderSummary()}
+          {viewMode === "list" ? renderCards() : viewMode === "summary" ? renderSummary() : <MilestoneReport />}
         </div>
       </main>
 
