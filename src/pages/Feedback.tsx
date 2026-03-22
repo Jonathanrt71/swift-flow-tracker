@@ -48,6 +48,7 @@ const Feedback = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"list" | "summary">("list");
   const [myOnly, setMyOnly] = useState(false);
+  const [sortMode, setSortMode] = useState<"date" | "faculty">("date");
 
   // Fetch user IDs with the 'resident' role
   const { data: residentRoles } = useQuery({
