@@ -140,31 +140,39 @@ const Feedback = () => {
       );
     }
 
-    let prevMonth = "";
+    let prevGroup = "";
     const elements: React.ReactNode[] = [];
 
     sorted.forEach((fb) => {
-      let monthKey = "";
-      let monthLabel: string | null = null;
-      try {
-        const d = parseISO(fb.created_at);
-        monthKey = format(d, "yyyy-MM");
-        monthLabel = format(d, "MMMM yyyy");
-      } catch {
-        monthKey = "other";
+      let groupKey = "";
+      let groupLabel: string | null = null;
+
+      if (sortMode === "faculty") {
+        const facultyName = nameMap.get(fb.faculty_id) || "?";
+        groupKey = facultyName;
+        groupLabel = facultyName;
+      } else {
+        try {
+          const d = parseISO(fb.created_at);
+          groupKey = format(d, "yyyy-MM");
+          groupLabel = format(d, "MMMM yyyy");
+        } catch {
+          groupKey = "other";
+        }
       }
 
-      if (monthKey !== prevMonth && monthLabel) {
+      if (groupKey !== prevGroup && groupLabel) {
         elements.push(
           <div
-            key={`month-${monthKey}`}
-            className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider pt-3 pb-1"
+            key={`group-${groupKey}`}
+            className="text-[11px] font-semibold uppercase tracking-wider pt-3 pb-1"
+            style={{ color: "#8A9AAB", letterSpacing: "0.5px" }}
           >
-            {monthLabel}
+            {groupLabel}
           </div>
         );
       }
-      prevMonth = monthKey;
+      prevGroup = groupKey;
 
       const isExpanded = expandedId === fb.id;
       const dateInfo = formatCardDate(fb.created_at);
