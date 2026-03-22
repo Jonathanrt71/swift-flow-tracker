@@ -19,6 +19,7 @@ import NotificationBell from "@/components/NotificationBell";
 import CreateFeedbackDialog from "@/components/feedback/CreateFeedbackDialog";
 import EditFeedbackDialog from "@/components/feedback/EditFeedbackDialog";
 import FeedbackPie from "@/components/feedback/FeedbackPie";
+import MilestoneReport from "@/components/feedback/MilestoneReport";
 import {
   Popover,
   PopoverContent,
