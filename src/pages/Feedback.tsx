@@ -480,6 +480,38 @@ const Feedback = () => {
           />
         </div>
 
+        {/* Sort toggle — row 2, list view only */}
+        {viewMode === "list" && (
+          <div className="pb-2.5 ml-[36px]">
+            <div className="inline-flex items-center rounded-full p-0.5" style={{ background: "#D5DAE0" }}>
+              <button
+                onClick={() => setSortMode("date")}
+                className={cn(
+                  "flex items-center justify-center w-7 h-7 rounded-full transition-colors",
+                  sortMode === "date" ? "bg-white shadow-sm" : ""
+                )}
+              >
+                <Calendar
+                  className="h-3.5 w-3.5"
+                  style={{ color: sortMode === "date" ? "#415162" : "#8A9AAB" }}
+                />
+              </button>
+              <button
+                onClick={() => setSortMode("faculty")}
+                className={cn(
+                  "flex items-center justify-center w-7 h-7 rounded-full transition-colors",
+                  sortMode === "faculty" ? "bg-white shadow-sm" : ""
+                )}
+              >
+                <User
+                  className="h-3.5 w-3.5"
+                  style={{ color: sortMode === "faculty" ? "#415162" : "#8A9AAB" }}
+                />
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Content */}
         <div className="flex flex-col gap-2">
           {viewMode === "list" ? renderCards() : renderSummary()}
