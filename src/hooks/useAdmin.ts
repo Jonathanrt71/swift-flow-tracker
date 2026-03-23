@@ -151,7 +151,7 @@ export function useAdmin() {
   });
 
   const updateProfile = useMutation({
-    mutationFn: async (data: { id: string; display_name?: string; first_name?: string; last_name?: string }) => {
+    mutationFn: async (data: { id: string; display_name?: string; first_name?: string; last_name?: string; graduation_year?: number | null }) => {
       const { id, ...fields } = data;
       const { error } = await supabase.from("profiles").update(fields).eq("id", id);
       if (error) throw error;
