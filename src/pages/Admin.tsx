@@ -39,13 +39,14 @@ const EditUserDialog = ({
   u: ManagedUser;
   isSelf: boolean;
   onUpdateRole: (data: { user_id: string; role: UserRole }) => void;
-  onUpdateProfile: (data: { id: string; display_name?: string; first_name?: string; last_name?: string }) => void;
+  onUpdateProfile: (data: { id: string; display_name?: string; first_name?: string; last_name?: string; graduation_year?: number | null }) => void;
 }) => {
   const [open, setOpen] = useState(false);
   const [role, setRole] = useState<UserRole>(u.role);
   const [displayName, setDisplayName] = useState(u.display_name || "");
   const [firstName, setFirstName] = useState(u.first_name || "");
   const [lastName, setLastName] = useState(u.last_name || "");
+  const [graduationYear, setGraduationYear] = useState(u.graduation_year?.toString() || "");
 
   const handleOpen = (isOpen: boolean) => {
     if (isOpen) {
@@ -53,6 +54,7 @@ const EditUserDialog = ({
       setDisplayName(u.display_name || "");
       setFirstName(u.first_name || "");
       setLastName(u.last_name || "");
+      setGraduationYear(u.graduation_year?.toString() || "");
     }
     setOpen(isOpen);
   };
@@ -61,20 +63,25 @@ const EditUserDialog = ({
     if (role !== u.role) {
       onUpdateRole({ user_id: u.id, role });
     }
+    const parsedYear = graduationYear ? parseInt(graduationYear, 10) : null;
     const profileChanged =
       displayName !== (u.display_name || "") ||
       firstName !== (u.first_name || "") ||
-      lastName !== (u.last_name || "");
+      lastName !== (u.last_name || "") ||
+      parsedYear !== (u.graduation_year ?? null);
     if (profileChanged) {
       onUpdateProfile({
         id: u.id,
         display_name: displayName,
         first_name: firstName,
         last_name: lastName,
+        graduation_year: parsedYear,
       });
     }
     setOpen(false);
   };
+
+  const effectiveRole = role;
 
   return (
     <Dialog open={open} onOpenChange={handleOpen}>
