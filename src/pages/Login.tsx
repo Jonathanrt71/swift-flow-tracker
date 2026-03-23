@@ -40,25 +40,6 @@ const Login = () => {
     }
   };
 
-  const handleForgotPassword = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email) {
-      toast({ title: "Enter your email", description: "Please enter your email address first.", variant: "destructive" });
-      return;
-    }
-    setLoading(true);
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: 'https://hmcfm.org/reset-password'
-    });
-    setLoading(false);
-
-    if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    } else {
-      toast({ title: "Check your email", description: "A password reset link has been sent." });
-      setShowForgot(false);
-    }
-  };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
