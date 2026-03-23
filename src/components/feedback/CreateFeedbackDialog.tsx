@@ -147,7 +147,14 @@ const CreateFeedbackDialog = ({ onSubmit, residents }: CreateFeedbackDialogProps
         </div>
 
         {/* Competency selector */}
-        <CompetencySelector value={competency} onChange={setCompetency} commentText={editor?.getText() || ""} sentiment={sentiment ?? undefined} />
+        <CompetencySelector value={competency} onChange={setCompetency} commentText={editor?.getText() || ""} sentiment={sentiment ?? undefined} pgyLevel={(() => {
+          const r = residents.find((r) => r.id === residentId);
+          if (!r?.graduation_year) return undefined;
+          const now = new Date();
+          const academicYear = now.getMonth() >= 6 ? now.getFullYear() + 1 : now.getFullYear();
+          const pgy = academicYear - (r.graduation_year - 3);
+          return pgy >= 1 ? pgy : undefined;
+        })()} />
 
         {/* Save */}
         <button
