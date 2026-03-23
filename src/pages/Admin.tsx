@@ -29,6 +29,17 @@ import { useCompetencyCategories } from "@/hooks/useCompetencyCategories";
 import type { UserRole, ManagedUser } from "@/hooks/useAdmin";
 import { formatPersonName } from "@/lib/dateFormat";
 
+/** Calculate PGY level from graduation year. Academic year starts July 1. */
+function getPgyLevel(graduationYear: number | null): number | null {
+  if (!graduationYear) return null;
+  const now = new Date();
+  const month = now.getMonth(); // 0-indexed, June = 5
+  const calYear = now.getFullYear();
+  const academicYear = month >= 6 ? calYear + 1 : calYear; // July 1 starts new academic year
+  const pgy = academicYear - (graduationYear - 3);
+  return pgy >= 1 ? pgy : null;
+}
+
 /* ── Edit User Dialog ── */
 const EditUserDialog = ({
   u,
@@ -39,13 +50,14 @@ const EditUserDialog = ({
   u: ManagedUser;
   isSelf: boolean;
   onUpdateRole: (data: { user_id: string; role: UserRole }) => void;
-  onUpdateProfile: (data: { id: string; display_name?: string; first_name?: string; last_name?: string }) => void;
+  onUpdateProfile: (data: { id: string; display_name?: string; first_name?: string; last_name?: string; graduation_year?: number | null }) => void;
 }) => {
   const [open, setOpen] = useState(false);
   const [role, setRole] = useState<UserRole>(u.role);
   const [displayName, setDisplayName] = useState(u.display_name || "");
   const [firstName, setFirstName] = useState(u.first_name || "");
   const [lastName, setLastName] = useState(u.last_name || "");
+  const [graduationYear, setGraduationYear] = useState(u.graduation_year?.toString() || "");
 
   const handleOpen = (isOpen: boolean) => {
     if (isOpen) {
@@ -53,6 +65,7 @@ const EditUserDialog = ({
       setDisplayName(u.display_name || "");
       setFirstName(u.first_name || "");
       setLastName(u.last_name || "");
+      setGraduationYear(u.graduation_year?.toString() || "");
     }
     setOpen(isOpen);
   };
@@ -61,20 +74,25 @@ const EditUserDialog = ({
     if (role !== u.role) {
       onUpdateRole({ user_id: u.id, role });
     }
+    const parsedYear = graduationYear ? parseInt(graduationYear, 10) : null;
     const profileChanged =
       displayName !== (u.display_name || "") ||
       firstName !== (u.first_name || "") ||
-      lastName !== (u.last_name || "");
+      lastName !== (u.last_name || "") ||
+      parsedYear !== (u.graduation_year ?? null);
     if (profileChanged) {
       onUpdateProfile({
         id: u.id,
         display_name: displayName,
         first_name: firstName,
         last_name: lastName,
+        graduation_year: parsedYear,
       });
     }
     setOpen(false);
   };
+
+  const effectiveRole = role;
 
   return (
     <Dialog open={open} onOpenChange={handleOpen}>
@@ -138,6 +156,19 @@ const EditUserDialog = ({
               <p className="text-xs text-muted-foreground">You cannot change your own role.</p>
             )}
           </div>
+
+          {effectiveRole === "resident" && (
+            <div className="space-y-1.5">
+              <Label className="text-xs text-muted-foreground">Graduation year</Label>
+              <Input
+                type="number"
+                value={graduationYear}
+                onChange={(e) => setGraduationYear(e.target.value)}
+                placeholder="2028"
+                className="bg-background rounded-lg"
+              />
+            </div>
+          )}
 
           <div className="flex items-center justify-end pt-3 border-t border-border">
             <button
@@ -247,7 +278,7 @@ const AddUserDialog = ({
   onSubmit,
   isPending,
 }: {
-  onSubmit: (data: { email: string; password: string; display_name?: string; first_name?: string; last_name?: string; role?: UserRole }) => void;
+  onSubmit: (data: { email: string; password: string; display_name?: string; first_name?: string; last_name?: string; role?: UserRole; graduation_year?: number }) => void;
   isPending: boolean;
 }) => {
   const [open, setOpen] = useState(false);
@@ -257,6 +288,7 @@ const AddUserDialog = ({
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [role, setRole] = useState<UserRole>("resident");
+  const [graduationYear, setGraduationYear] = useState("");
 
   const handleOpen = (isOpen: boolean) => {
     if (isOpen) {
@@ -266,12 +298,14 @@ const AddUserDialog = ({
       setFirstName("");
       setLastName("");
       setRole("resident");
+      setGraduationYear("");
     }
     setOpen(isOpen);
   };
 
   const handleSubmit = () => {
     if (!email || !password) return;
+    const parsedYear = graduationYear ? parseInt(graduationYear, 10) : undefined;
     onSubmit({
       email,
       password,
@@ -279,6 +313,7 @@ const AddUserDialog = ({
       first_name: firstName || undefined,
       last_name: lastName || undefined,
       role,
+      graduation_year: parsedYear,
     });
     setOpen(false);
   };
@@ -352,6 +387,19 @@ const AddUserDialog = ({
               <option value="admin">Admin</option>
             </select>
           </div>
+
+          {role === "resident" && (
+            <div className="space-y-1.5">
+              <Label className="text-xs text-muted-foreground">Graduation year</Label>
+              <Input
+                type="number"
+                value={graduationYear}
+                onChange={(e) => setGraduationYear(e.target.value)}
+                placeholder="2028"
+                className="bg-background rounded-lg"
+              />
+            </div>
+          )}
 
           <div className="flex justify-end pt-3 border-t border-border">
             <button
@@ -585,6 +633,12 @@ const Admin = () => {
                             <span className="text-sm font-medium text-foreground">
                               {formatPersonName(u)}
                             </span>
+                            {u.role === "resident" && (() => {
+                              const pgy = getPgyLevel(u.graduation_year);
+                              return pgy ? (
+                                <span className="ml-1.5 text-[11px] text-muted-foreground">(PGY-{pgy})</span>
+                              ) : null;
+                            })()}
                             {isSelf && (
                               <span className="ml-1 text-[11px] text-muted-foreground">(you)</span>
                             )}

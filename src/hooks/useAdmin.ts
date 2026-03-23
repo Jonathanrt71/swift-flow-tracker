@@ -10,6 +10,7 @@ export interface ManagedUser {
   display_name: string | null;
   first_name: string | null;
   last_name: string | null;
+  graduation_year: number | null;
   role: UserRole;
   created_at: string;
 }
@@ -37,7 +38,7 @@ export function useAdmin() {
     queryFn: async () => {
       const { data: profiles, error: pErr } = await supabase
         .from("profiles")
-        .select("id, display_name, first_name, last_name, email, created_at");
+        .select("id, display_name, first_name, last_name, email, created_at, graduation_year");
       if (pErr) throw pErr;
 
       const { data: roles, error: rErr } = await supabase
@@ -53,6 +54,7 @@ export function useAdmin() {
         display_name: p.display_name,
         first_name: p.first_name,
         last_name: p.last_name,
+        graduation_year: p.graduation_year ?? null,
         role: (roleMap.get(p.id) || "resident") as UserRole,
         created_at: p.created_at,
       })) as ManagedUser[];
@@ -60,7 +62,7 @@ export function useAdmin() {
   });
 
   const inviteUser = useMutation({
-    mutationFn: async (data: { email: string; password: string; display_name?: string; first_name?: string; last_name?: string; role?: UserRole }) => {
+    mutationFn: async (data: { email: string; password: string; display_name?: string; first_name?: string; last_name?: string; role?: UserRole; graduation_year?: number }) => {
       const { data: { session } } = await supabase.auth.getSession();
       const res = await supabase.functions.invoke("admin-invite-user", {
         body: { email: data.email, password: data.password, display_name: data.display_name },
@@ -79,6 +81,7 @@ export function useAdmin() {
           email: data.email,
           first_name: data.first_name || null,
           last_name: data.last_name || null,
+          graduation_year: data.graduation_year ?? null,
         }).eq("id", res.data.user.id);
 
         // Set role
@@ -148,7 +151,7 @@ export function useAdmin() {
   });
 
   const updateProfile = useMutation({
-    mutationFn: async (data: { id: string; display_name?: string; first_name?: string; last_name?: string }) => {
+    mutationFn: async (data: { id: string; display_name?: string; first_name?: string; last_name?: string; graduation_year?: number | null }) => {
       const { id, ...fields } = data;
       const { error } = await supabase.from("profiles").update(fields).eq("id", id);
       if (error) throw error;
