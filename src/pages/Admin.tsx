@@ -377,6 +377,19 @@ const AddUserDialog = ({
             </select>
           </div>
 
+          {role === "resident" && (
+            <div className="space-y-1.5">
+              <Label className="text-xs text-muted-foreground">Graduation year</Label>
+              <Input
+                type="number"
+                value={graduationYear}
+                onChange={(e) => setGraduationYear(e.target.value)}
+                placeholder="2028"
+                className="bg-background rounded-lg"
+              />
+            </div>
+          )}
+
           <div className="flex justify-end pt-3 border-t border-border">
             <button
               onClick={handleSubmit}
