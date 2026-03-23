@@ -5,6 +5,7 @@ export interface ACGMEMilestone {
   id: string;
   level: number;
   description: string;
+  summary: string | null;
 }
 
 export interface ACGMESubcategory {
