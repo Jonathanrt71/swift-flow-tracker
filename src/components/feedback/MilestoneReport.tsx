@@ -595,7 +595,7 @@ const SubCompetencyCard = ({
           Milestone level
         </label>
         <div className="flex gap-2 mb-1.5">
-          {[1, 2, 3, 4, 5].map((level) => {
+          {[0, 1, 2, 3, 4, 5].map((level) => {
             const milestone = item.milestones.find((m) => m.level === level);
             const isSelected = item.selectedLevel === level;
             return (

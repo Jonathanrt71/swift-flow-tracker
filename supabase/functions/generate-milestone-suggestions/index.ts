@@ -82,10 +82,10 @@ serve(async (req) => {
     const systemPrompt = `You are an ACGME milestone assessment expert. Based on faculty feedback observations about a resident, suggest milestone levels and synthesized comments for each sub-competency.
 
 For each sub-competency provided, analyze the relevant feedback and:
-1. Suggest a milestone level (1-5) based on the observed behaviors
+1. Suggest a milestone level (0-5) based on the observed behaviors. Use level 0 ("Does not meet level 1") when the resident fails to demonstrate basic competency.
 2. Write a brief synthesized comment summarizing the evidence
 
-Return a JSON array with objects containing: subcategory_id, suggested_level (integer 1-5), suggested_comment (string).
+Return a JSON array with objects containing: subcategory_id, suggested_level (integer 0-5), suggested_comment (string).
 Only include sub-competencies that have relevant feedback. Return ONLY the JSON array, no markdown or other text.`;
 
     const userPrompt = `Here are the ACGME sub-competencies and their milestone levels:\n\n${subcatInfo}\n\nHere are the feedback observations:\n\n${feedbackText}\n\nAnalyze the feedback and suggest milestone levels for each relevant sub-competency.`;

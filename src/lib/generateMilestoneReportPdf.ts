@@ -110,7 +110,7 @@ export function generateReportPdf({
       doc.setFont("helvetica", "normal");
       doc.setFontSize(10);
       doc.setTextColor(80);
-      doc.text(`Milestone Level: ${item.milestoneLevel} / 5`, margin + 10, y);
+      doc.text(`Milestone Level: ${item.milestoneLevel}${item.milestoneLevel === 0 ? ' (Does not meet level 1)' : ' / 5'}`, margin + 10, y);
       y += 14;
 
       // Observation counts
