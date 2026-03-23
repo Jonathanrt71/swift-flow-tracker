@@ -352,6 +352,14 @@ const Index = () => {
             )}
           </TabsContent>
 
+          <TabsContent value="iOweOthers" className="space-y-3 mt-0">
+            {renderGroupedTaskList(
+              iOweOthers,
+              <SendHorizonal className="h-10 w-10 mx-auto" />,
+              "No tasks you owe to others."
+            )}
+          </TabsContent>
+
           <TabsContent value="starred" className="space-y-3 mt-0">
             {renderGroupedTaskList(
               starredTasks,
