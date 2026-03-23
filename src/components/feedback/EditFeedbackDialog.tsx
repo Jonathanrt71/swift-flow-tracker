@@ -132,11 +132,8 @@ const EditFeedbackDialog = ({ feedback, residents, onSubmit }: EditFeedbackDialo
           </div>
         </div>
 
-        {/* Competency selector */}
-        <CompetencySelector value={competency} onChange={setCompetency} commentText={editor?.getText() || ""} sentiment={sentiment} />
-
         {/* Sentiment buttons */}
-        <div className="mb-5">
+        <div className="mb-4">
           <div className="flex gap-3">
             <button
               type="button"
@@ -162,6 +159,9 @@ const EditFeedbackDialog = ({ feedback, residents, onSubmit }: EditFeedbackDialo
             </button>
           </div>
         </div>
+
+        {/* Competency selector */}
+        <CompetencySelector value={competency} onChange={setCompetency} commentText={editor?.getText() || ""} sentiment={sentiment} />
 
         {/* Save */}
         <button
