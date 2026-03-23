@@ -54,6 +54,7 @@ export function useAdmin() {
         display_name: p.display_name,
         first_name: p.first_name,
         last_name: p.last_name,
+        graduation_year: p.graduation_year ?? null,
         role: (roleMap.get(p.id) || "resident") as UserRole,
         created_at: p.created_at,
       })) as ManagedUser[];
