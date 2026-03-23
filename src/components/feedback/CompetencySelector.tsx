@@ -134,7 +134,7 @@ const CompetencySelector = ({ value, onChange, commentText, sentiment }: Compete
     setActiveCatId(null);
     setExpandedSubId(null);
     setAutoActive(true);
-    suggest(commentText || "");
+    suggest(commentText || "", sentiment);
   };
 
   const handleSuggestionTap = (suggestion: CompetencySuggestion) => {
