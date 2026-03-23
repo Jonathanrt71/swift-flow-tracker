@@ -77,7 +77,7 @@ function getCategoryColorForSuggestion(
   return "#8A9AAB";
 }
 
-const CompetencySelector = ({ value, onChange, commentText }: CompetencySelectorProps) => {
+const CompetencySelector = ({ value, onChange, commentText, sentiment }: CompetencySelectorProps) => {
   const { data: categories } = useACGMECompetencies();
   const { suggestions, loading, suggest, clearSuggestions } = useCompetencySuggestion();
   const [activeCatId, setActiveCatId] = useState<string | null>(value?.categoryId ?? null);
