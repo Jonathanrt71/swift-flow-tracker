@@ -15,6 +15,7 @@ interface CompetencySelectorProps {
   value: CompetencySelection | null;
   onChange: (value: CompetencySelection | null) => void;
   commentText?: string;
+  sentiment?: "positive" | "negative";
 }
 
 export function buildSelectionFromFeedback(
@@ -76,7 +77,7 @@ function getCategoryColorForSuggestion(
   return "#8A9AAB";
 }
 
-const CompetencySelector = ({ value, onChange, commentText }: CompetencySelectorProps) => {
+const CompetencySelector = ({ value, onChange, commentText, sentiment }: CompetencySelectorProps) => {
   const { data: categories } = useACGMECompetencies();
   const { suggestions, loading, suggest, clearSuggestions } = useCompetencySuggestion();
   const [activeCatId, setActiveCatId] = useState<string | null>(value?.categoryId ?? null);
@@ -133,7 +134,7 @@ const CompetencySelector = ({ value, onChange, commentText }: CompetencySelector
     setActiveCatId(null);
     setExpandedSubId(null);
     setAutoActive(true);
-    suggest(commentText || "");
+    suggest(commentText || "", sentiment);
   };
 
   const handleSuggestionTap = (suggestion: CompetencySuggestion) => {
