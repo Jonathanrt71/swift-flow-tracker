@@ -331,6 +331,7 @@ const CompetencySelector = ({ value, onChange, commentText, sentiment }: Compete
                     {sub.milestones.map((mile) => {
                       const isMileExpanded = expandedMileId === mile.id;
                       const displayLabel = mile.summary || `Level ${mile.level}`;
+                      const isSelected = value?.milestoneId === mile.id;
                       return (
                         <div key={mile.id}>
                           <div
@@ -354,17 +355,25 @@ const CompetencySelector = ({ value, onChange, commentText, sentiment }: Compete
                                   color: activeCat.color,
                                 })
                               }
-                              className="flex items-start gap-2 flex-1 min-w-0 text-left"
+                              className="flex items-center gap-2 flex-1 min-w-0 text-left"
                             >
                               <span
-                                className="shrink-0"
-                                style={{ fontSize: 12, fontWeight: 500, color: "#415162" }}
+                                className="shrink-0 flex items-center justify-center rounded-full"
+                                style={{
+                                  width: 24,
+                                  height: 24,
+                                  fontSize: 11,
+                                  fontWeight: 600,
+                                  background: isSelected ? "#415162" : "#F5F3EE",
+                                  border: isSelected ? "2px solid #415162" : "1px solid #C9CED4",
+                                  color: isSelected ? "#fff" : "#5F7285",
+                                }}
                               >
                                 {mile.level}
                               </span>
                               <span
                                 className="min-w-0"
-                                style={{ fontSize: 12, color: "#5F7285" }}
+                                style={{ fontSize: 12, color: "#2D3748" }}
                               >
                                 {displayLabel}
                               </span>
