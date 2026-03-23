@@ -8,7 +8,6 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import RoleRoute from "@/components/RoleRoute";
 import Index from "./pages/Index.tsx";
 import Login from "./pages/Login.tsx";
-import ResetPassword from "./pages/ResetPassword.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import Admin from "./pages/Admin.tsx";
 import Profile from "./pages/Profile.tsx";
@@ -29,7 +28,7 @@ const App = () => (
           <div className="mx-auto w-full max-w-[1200px] min-h-screen relative shadow-lg">
             <Routes>
               <Route path="/login" element={<Login />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
+              
               <Route path="/" element={<RoleRoute allowed={["admin", "faculty"]}><Feedback /></RoleRoute>} />
               <Route path="/admin" element={<RoleRoute allowed={["admin"]}><Admin /></RoleRoute>} />
               <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />

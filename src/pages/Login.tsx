@@ -13,17 +13,12 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [showForgot, setShowForgot] = useState(false);
+  
   const navigate = useNavigate();
   const { toast } = useToast();
   const { session } = useAuth();
 
-  // Don't redirect if the user is meant to go to /reset-password (invite/recovery flow)
   if (session) {
-    const hash = window.location.hash;
-    if (hash.includes("type=recovery") || hash.includes("type=invite")) {
-      return <Navigate to={`/reset-password${hash}`} replace />;
-    }
     return <Navigate to="/" replace />;
   }
 
@@ -40,25 +35,6 @@ const Login = () => {
     }
   };
 
-  const handleForgotPassword = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email) {
-      toast({ title: "Enter your email", description: "Please enter your email address first.", variant: "destructive" });
-      return;
-    }
-    setLoading(true);
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: 'https://hmcfm.org/reset-password'
-    });
-    setLoading(false);
-
-    if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    } else {
-      toast({ title: "Check your email", description: "A password reset link has been sent." });
-      setShowForgot(false);
-    }
-  };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -94,7 +70,7 @@ const Login = () => {
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "Please wait…" : "Sign in"}
             </Button>
-            <button type="button" onClick={handleForgotPassword} className="text-xs text-muted-foreground hover:text-foreground underline transition-colors">Forgot password?</button>
+            
           </CardFooter>
         </form>
       </Card>

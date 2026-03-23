@@ -25,17 +25,20 @@ Deno.serve(async (req) => {
     });
     if (!isAdmin) throw new Error("Forbidden: admin role required");
 
-    const { email, display_name } = await req.json();
+    const { email, display_name, password } = await req.json();
     if (!email) throw new Error("Email is required");
+    if (!password) throw new Error("Password is required");
 
     const adminClient = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    const { data, error } = await adminClient.auth.admin.inviteUserByEmail(email, {
-      data: { display_name: display_name || email },
-      redirectTo: `${req.headers.get("origin") || Deno.env.get("SITE_URL") || ""}/reset-password`,
+    const { data, error } = await adminClient.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: { display_name: display_name || email },
     });
 
     if (error) throw error;
