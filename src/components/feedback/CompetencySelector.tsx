@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ChevronDown, ChevronUp, X, Sparkles, Loader2 } from "lucide-react";
-import { useACGMECompetencies, type ACGMECategory } from "@/hooks/useACGMECompetencies";
+import { useACGMECompetencies, type ACGMECategory, type ACGMEMilestone } from "@/hooks/useACGMECompetencies";
 import { useCompetencySuggestion, type CompetencySuggestion } from "@/hooks/useCompetencySuggestion";
 
 export interface CompetencySelection {
@@ -77,11 +77,38 @@ function getCategoryColorForSuggestion(
   return "#8A9AAB";
 }
 
+function splitIntoBullets(description: string): string[] {
+  return description
+    .split(". ")
+    .map((s) => s.replace(/\.+$/, "").trim())
+    .filter((s) => s.length > 0);
+}
+
+/** Expandable milestone description shown as bullet points */
+function MilestoneDescription({ milestone }: { milestone: ACGMEMilestone }) {
+  const bullets = splitIntoBullets(milestone.description);
+  return (
+    <div style={{ paddingLeft: 28, paddingRight: 12, paddingBottom: 6 }}>
+      {bullets.map((b, i) => (
+        <div
+          key={i}
+          className="flex items-start"
+          style={{ fontSize: 11, color: "#5F7285", lineHeight: 1.7, gap: 6 }}
+        >
+          <span className="shrink-0">•</span>
+          <span>{b}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 const CompetencySelector = ({ value, onChange, commentText, sentiment }: CompetencySelectorProps) => {
   const { data: categories } = useACGMECompetencies();
   const { suggestions, loading, suggest, clearSuggestions } = useCompetencySuggestion();
   const [activeCatId, setActiveCatId] = useState<string | null>(value?.categoryId ?? null);
   const [expandedSubId, setExpandedSubId] = useState<string | null>(null);
+  const [expandedMileId, setExpandedMileId] = useState<string | null>(null);
   const [autoActive, setAutoActive] = useState(false);
 
   const cats = categories || [];
@@ -89,27 +116,30 @@ const CompetencySelector = ({ value, onChange, commentText, sentiment }: Compete
   const select = (sel: CompetencySelection) => {
     onChange(sel);
     setExpandedSubId(null);
+    setExpandedMileId(null);
   };
 
   const clear = () => {
     onChange(null);
     setActiveCatId(null);
     setExpandedSubId(null);
+    setExpandedMileId(null);
     clearSuggestions();
     setAutoActive(false);
   };
 
   const handlePillTap = (cat: ACGMECategory) => {
-    // Manual pill tap clears AI suggestions
     clearSuggestions();
     setAutoActive(false);
 
     if (activeCatId === cat.id) {
       setActiveCatId(null);
       setExpandedSubId(null);
+      setExpandedMileId(null);
     } else {
       setActiveCatId(cat.id);
       setExpandedSubId(null);
+      setExpandedMileId(null);
       onChange({
         categoryId: cat.id,
         subcategoryId: null,
@@ -122,17 +152,16 @@ const CompetencySelector = ({ value, onChange, commentText, sentiment }: Compete
 
   const handleAutoTap = () => {
     if (autoActive && suggestions.length > 0) {
-      // Deactivate
       clearSuggestions();
       setAutoActive(false);
       return;
     }
     if (loading) return;
 
-    // Clear current selection first
     onChange(null);
     setActiveCatId(null);
     setExpandedSubId(null);
+    setExpandedMileId(null);
     setAutoActive(true);
     suggest(commentText || "", sentiment);
   };
@@ -143,6 +172,7 @@ const CompetencySelector = ({ value, onChange, commentText, sentiment }: Compete
       onChange(sel);
       setActiveCatId(null);
       setExpandedSubId(null);
+      setExpandedMileId(null);
     }
     clearSuggestions();
     setAutoActive(false);
@@ -266,6 +296,7 @@ const CompetencySelector = ({ value, onChange, commentText, sentiment }: Compete
                   type="button"
                   onClick={() => {
                     setExpandedSubId(isSubExpanded ? null : sub.id);
+                    setExpandedMileId(null);
                     onChange({
                       categoryId: activeCat.id,
                       subcategoryId: sub.id,
@@ -297,37 +328,66 @@ const CompetencySelector = ({ value, onChange, commentText, sentiment }: Compete
 
                 {isSubExpanded && (
                   <div style={{ background: "#EEF0F2" }}>
-                    {sub.milestones.map((mile) => (
-                      <button
-                        key={mile.id}
-                        type="button"
-                        onClick={() =>
-                          select({
-                            categoryId: activeCat.id,
-                            subcategoryId: sub.id,
-                            milestoneId: mile.id,
-                            label: `${activeCat.code} > ${sub.code} > Level ${mile.level}`,
-                            color: activeCat.color,
-                          })
-                        }
-                        className="w-full flex items-start gap-2 text-left py-2"
-                        style={{
-                          paddingLeft: 64,
-                          paddingRight: 12,
-                          borderTop: "0.5px solid #E7EBEF",
-                        }}
-                      >
-                        <span
-                          className="shrink-0"
-                          style={{ fontSize: 12, fontWeight: 500, color: "#415162" }}
-                        >
-                          {mile.level}
-                        </span>
-                        <span style={{ fontSize: 12, color: "#5F7285" }}>
-                          {mile.description}
-                        </span>
-                      </button>
-                    ))}
+                    {sub.milestones.map((mile) => {
+                      const isMileExpanded = expandedMileId === mile.id;
+                      const displayLabel = mile.summary || mile.description;
+                      return (
+                        <div key={mile.id}>
+                          <div
+                            className="w-full flex items-center gap-2"
+                            style={{
+                              paddingLeft: 64,
+                              paddingRight: 12,
+                              borderTop: "0.5px solid #E7EBEF",
+                              paddingTop: 8,
+                              paddingBottom: isMileExpanded ? 4 : 8,
+                            }}
+                          >
+                            <button
+                              type="button"
+                              onClick={() =>
+                                select({
+                                  categoryId: activeCat.id,
+                                  subcategoryId: sub.id,
+                                  milestoneId: mile.id,
+                                  label: `${activeCat.code} > ${sub.code} > Level ${mile.level}`,
+                                  color: activeCat.color,
+                                })
+                              }
+                              className="flex items-start gap-2 flex-1 min-w-0 text-left"
+                            >
+                              <span
+                                className="shrink-0"
+                                style={{ fontSize: 12, fontWeight: 500, color: "#415162" }}
+                              >
+                                {mile.level}
+                              </span>
+                              <span
+                                className="min-w-0"
+                                style={{ fontSize: 12, color: "#5F7285" }}
+                              >
+                                {displayLabel}
+                              </span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setExpandedMileId(isMileExpanded ? null : mile.id);
+                              }}
+                              className="p-0.5 shrink-0"
+                            >
+                              {isMileExpanded ? (
+                                <ChevronUp className="h-3 w-3" style={{ color: "#8A9AAB" }} />
+                              ) : (
+                                <ChevronDown className="h-3 w-3" style={{ color: "#8A9AAB" }} />
+                              )}
+                            </button>
+                          </div>
+                          {isMileExpanded && <MilestoneDescription milestone={mile} />}
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </div>

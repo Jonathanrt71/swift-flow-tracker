@@ -28,7 +28,7 @@ interface ReportItem {
   categoryCode: string;
   categoryName: string;
   categoryColor: string;
-  milestones: { id: string; level: number; description: string }[];
+  milestones: { id: string; level: number; description: string; summary: string | null }[];
   selectedLevel: number;
   comment: string;
   finalized: boolean;
@@ -601,7 +601,7 @@ const SubCompetencyCard = ({
             return (
               <button
                 key={level}
-                title={milestone?.description || `Level ${level}`}
+                title={milestone?.summary || milestone?.description || `Level ${level}`}
                 disabled={item.finalized}
                 onClick={() => onLevelChange(level)}
                 className="w-8 h-8 rounded-full text-sm font-medium flex items-center justify-center transition-colors"
@@ -621,9 +621,29 @@ const SubCompetencyCard = ({
           })}
         </div>
         {selectedMilestone && (
-          <p className="text-[11px] italic" style={{ color: "#5F7285" }}>
-            {selectedMilestone.description}
-          </p>
+          <div>
+            {selectedMilestone.summary && (
+              <p className="text-[11px] font-medium mb-1" style={{ color: "#415162" }}>
+                {selectedMilestone.summary}
+              </p>
+            )}
+            <div style={{ paddingLeft: 0 }}>
+              {selectedMilestone.description
+                .split(". ")
+                .map((s) => s.replace(/\.+$/, "").trim())
+                .filter((s) => s.length > 0)
+                .map((bullet, i) => (
+                  <div
+                    key={i}
+                    className="flex items-start"
+                    style={{ fontSize: 11, color: "#5F7285", lineHeight: 1.7, gap: 6 }}
+                  >
+                    <span className="shrink-0">•</span>
+                    <span>{bullet}</span>
+                  </div>
+                ))}
+            </div>
+          </div>
         )}
       </div>
 
