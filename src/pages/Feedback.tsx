@@ -64,9 +64,24 @@ const Feedback = () => {
     },
   });
 
+  // Fetch graduation years for residents
+  const { data: graduationYears } = useQuery({
+    queryKey: ["resident-graduation-years"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("id, graduation_year")
+        .not("graduation_year", "is", null);
+      if (error) throw error;
+      return new Map((data || []).map((p) => [p.id, p.graduation_year as number]));
+    },
+  });
+
   const members = teamMembers || [];
   const residentIds = new Set(residentRoles || []);
-  const residents = members.filter((m) => residentIds.has(m.id));
+  const residents = members
+    .filter((m) => residentIds.has(m.id))
+    .map((m) => ({ ...m, graduation_year: graduationYears?.get(m.id) ?? null }));
 
   // Build a lookup for names
   const nameMap = new Map<string, string>();

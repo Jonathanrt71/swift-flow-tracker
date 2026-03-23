@@ -17,7 +17,7 @@ import { useACGMECompetencies } from "@/hooks/useACGMECompetencies";
 
 interface EditFeedbackDialogProps {
   feedback: Feedback;
-  residents: { id: string; first_name: string | null; last_name: string | null }[];
+  residents: { id: string; first_name: string | null; last_name: string | null; graduation_year?: number | null }[];
   onSubmit: (data: {
     resident_id: string;
     comment: string;
@@ -161,7 +161,14 @@ const EditFeedbackDialog = ({ feedback, residents, onSubmit }: EditFeedbackDialo
         </div>
 
         {/* Competency selector */}
-        <CompetencySelector value={competency} onChange={setCompetency} commentText={editor?.getText() || ""} sentiment={sentiment} />
+        <CompetencySelector value={competency} onChange={setCompetency} commentText={editor?.getText() || ""} sentiment={sentiment} pgyLevel={(() => {
+          const r = residents.find((r) => r.id === residentId);
+          if (!r?.graduation_year) return undefined;
+          const now = new Date();
+          const academicYear = now.getMonth() >= 6 ? now.getFullYear() + 1 : now.getFullYear();
+          const pgy = academicYear - (r.graduation_year - 3);
+          return pgy >= 1 ? pgy : undefined;
+        })()} />
 
         {/* Save */}
         <button

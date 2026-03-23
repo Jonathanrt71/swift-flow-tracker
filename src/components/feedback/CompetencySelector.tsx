@@ -16,6 +16,7 @@ interface CompetencySelectorProps {
   onChange: (value: CompetencySelection | null) => void;
   commentText?: string;
   sentiment?: "positive" | "negative";
+  pgyLevel?: number;
 }
 
 export function buildSelectionFromFeedback(
@@ -103,7 +104,7 @@ function MilestoneDescription({ milestone }: { milestone: ACGMEMilestone }) {
   );
 }
 
-const CompetencySelector = ({ value, onChange, commentText, sentiment }: CompetencySelectorProps) => {
+const CompetencySelector = ({ value, onChange, commentText, sentiment, pgyLevel }: CompetencySelectorProps) => {
   const { data: categories } = useACGMECompetencies();
   const { suggestions, loading, suggest, clearSuggestions } = useCompetencySuggestion();
   const [activeCatId, setActiveCatId] = useState<string | null>(value?.categoryId ?? null);
@@ -163,7 +164,7 @@ const CompetencySelector = ({ value, onChange, commentText, sentiment }: Compete
     setExpandedSubId(null);
     setExpandedMileId(null);
     setAutoActive(true);
-    suggest(commentText || "", sentiment);
+    suggest(commentText || "", sentiment, pgyLevel);
   };
 
   const handleSuggestionTap = (suggestion: CompetencySuggestion) => {
