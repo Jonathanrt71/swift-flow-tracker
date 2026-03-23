@@ -13,7 +13,7 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [showForgot, setShowForgot] = useState(false);
+  
   const navigate = useNavigate();
   const { toast } = useToast();
   const { session } = useAuth();
