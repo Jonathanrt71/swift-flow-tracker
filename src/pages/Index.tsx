@@ -74,6 +74,7 @@ const Index = () => {
 
   const assignedToMe = activeTasks.filter(isAssignedToMe).sort(sortByDueDate);
   const owedToMe = activeTasks.filter(isOwedToMe).sort(sortByDueDate);
+  const iOweOthers = activeTasks.filter((t) => t.assigned_to === user?.id && t.owed_to && t.owed_to !== user?.id).sort(sortByDueDate);
   const starredTasks = activeTasks.filter((t) => t.starred).sort(sortByDueDate);
 
   const sortedActive = [...activeTasks].sort(sortByDueDate);
