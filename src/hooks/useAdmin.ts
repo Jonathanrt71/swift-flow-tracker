@@ -38,7 +38,7 @@ export function useAdmin() {
     queryFn: async () => {
       const { data: profiles, error: pErr } = await supabase
         .from("profiles")
-        .select("id, display_name, first_name, last_name, email, created_at");
+        .select("id, display_name, first_name, last_name, email, created_at, graduation_year");
       if (pErr) throw pErr;
 
       const { data: roles, error: rErr } = await supabase
