@@ -267,7 +267,7 @@ const AddUserDialog = ({
   onSubmit,
   isPending,
 }: {
-  onSubmit: (data: { email: string; password: string; display_name?: string; first_name?: string; last_name?: string; role?: UserRole }) => void;
+  onSubmit: (data: { email: string; password: string; display_name?: string; first_name?: string; last_name?: string; role?: UserRole; graduation_year?: number }) => void;
   isPending: boolean;
 }) => {
   const [open, setOpen] = useState(false);
@@ -277,6 +277,7 @@ const AddUserDialog = ({
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [role, setRole] = useState<UserRole>("resident");
+  const [graduationYear, setGraduationYear] = useState("");
 
   const handleOpen = (isOpen: boolean) => {
     if (isOpen) {
@@ -286,12 +287,14 @@ const AddUserDialog = ({
       setFirstName("");
       setLastName("");
       setRole("resident");
+      setGraduationYear("");
     }
     setOpen(isOpen);
   };
 
   const handleSubmit = () => {
     if (!email || !password) return;
+    const parsedYear = graduationYear ? parseInt(graduationYear, 10) : undefined;
     onSubmit({
       email,
       password,
@@ -299,6 +302,7 @@ const AddUserDialog = ({
       first_name: firstName || undefined,
       last_name: lastName || undefined,
       role,
+      graduation_year: parsedYear,
     });
     setOpen(false);
   };
