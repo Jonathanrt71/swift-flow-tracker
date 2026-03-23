@@ -666,6 +666,7 @@ export type Database = {
           display_name: string | null
           email: string | null
           first_name: string | null
+          graduation_year: number | null
           id: string
           last_name: string | null
           updated_at: string
@@ -676,6 +677,7 @@ export type Database = {
           display_name?: string | null
           email?: string | null
           first_name?: string | null
+          graduation_year?: number | null
           id: string
           last_name?: string | null
           updated_at?: string
@@ -686,6 +688,7 @@ export type Database = {
           display_name?: string | null
           email?: string | null
           first_name?: string | null
+          graduation_year?: number | null
           id?: string
           last_name?: string | null
           updated_at?: string
