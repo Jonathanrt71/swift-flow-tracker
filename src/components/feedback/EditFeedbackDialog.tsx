@@ -17,7 +17,7 @@ import { useACGMECompetencies } from "@/hooks/useACGMECompetencies";
 
 interface EditFeedbackDialogProps {
   feedback: Feedback;
-  residents: { id: string; first_name: string | null; last_name: string | null }[];
+  residents: { id: string; first_name: string | null; last_name: string | null; graduation_year?: number | null }[];
   onSubmit: (data: {
     resident_id: string;
     comment: string;
