@@ -11,7 +11,7 @@ export function useCompetencySuggestion() {
   const [suggestions, setSuggestions] = useState<CompetencySuggestion[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const suggest = async (comment: string, sentiment?: "positive" | "negative") => {
+  const suggest = async (comment: string, sentiment?: "positive" | "negative", pgyLevel?: number) => {
     if (!comment || comment.trim().length < 10) {
       setSuggestions([]);
       return;
@@ -20,7 +20,7 @@ export function useCompetencySuggestion() {
     setLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke("suggest-competency", {
-        body: { comment, sentiment },
+        body: { comment, sentiment, pgyLevel },
       });
 
       if (error) throw error;
