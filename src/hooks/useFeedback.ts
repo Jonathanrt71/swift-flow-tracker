@@ -90,7 +90,7 @@ export function useFeedback() {
 
   const deleteFeedback = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await (supabase as any)
+      const { error } = await supabase
         .from("feedback")
         .delete()
         .eq("id", id);
