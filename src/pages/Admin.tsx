@@ -633,6 +633,12 @@ const Admin = () => {
                             <span className="text-sm font-medium text-foreground">
                               {formatPersonName(u)}
                             </span>
+                            {u.role === "resident" && (() => {
+                              const pgy = getPgyLevel(u.graduation_year);
+                              return pgy ? (
+                                <span className="ml-1.5 text-[11px] text-muted-foreground">(PGY-{pgy})</span>
+                              ) : null;
+                            })()}
                             {isSelf && (
                               <span className="ml-1 text-[11px] text-muted-foreground">(you)</span>
                             )}
