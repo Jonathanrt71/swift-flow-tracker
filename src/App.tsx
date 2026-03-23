@@ -28,7 +28,7 @@ const App = () => (
           <div className="mx-auto w-full max-w-[1200px] min-h-screen relative shadow-lg">
             <Routes>
               <Route path="/login" element={<Login />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
+              
               <Route path="/" element={<RoleRoute allowed={["admin", "faculty"]}><Feedback /></RoleRoute>} />
               <Route path="/admin" element={<RoleRoute allowed={["admin"]}><Admin /></RoleRoute>} />
               <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />

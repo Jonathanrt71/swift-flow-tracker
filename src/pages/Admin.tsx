@@ -356,7 +356,7 @@ const AddUserDialog = ({
           <div className="flex justify-end pt-3 border-t border-border">
             <button
               onClick={handleSubmit}
-              disabled={!email || isPending}
+              disabled={!email || !password || isPending}
               className="flex items-center justify-center w-11 h-11 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50"
             >
               <Check className="h-4 w-4" />

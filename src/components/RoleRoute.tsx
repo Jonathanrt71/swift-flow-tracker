@@ -23,11 +23,6 @@ const RoleRoute = ({
   }
 
   if (!session) {
-    // Preserve hash for recovery/invite tokens so they reach /reset-password
-    const hash = window.location.hash;
-    if (hash.includes("type=recovery") || hash.includes("type=invite")) {
-      return <Navigate to={`/reset-password${hash}`} replace />;
-    }
     return <Navigate to="/login" replace />;
   }
 
