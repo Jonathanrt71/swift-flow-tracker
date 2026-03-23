@@ -81,6 +81,7 @@ export function useAdmin() {
           email: data.email,
           first_name: data.first_name || null,
           last_name: data.last_name || null,
+          graduation_year: data.graduation_year ?? null,
         }).eq("id", res.data.user.id);
 
         // Set role
