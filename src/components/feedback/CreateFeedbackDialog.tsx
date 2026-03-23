@@ -19,7 +19,7 @@ interface CreateFeedbackDialogProps {
     competency_subcategory_id?: string | null;
     competency_milestone_id?: string | null;
   }) => void;
-  residents: { id: string; first_name: string | null; last_name: string | null }[];
+  residents: { id: string; first_name: string | null; last_name: string | null; graduation_year?: number | null }[];
 }
 
 const CreateFeedbackDialog = ({ onSubmit, residents }: CreateFeedbackDialogProps) => {
