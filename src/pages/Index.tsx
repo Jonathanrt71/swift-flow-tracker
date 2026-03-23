@@ -8,7 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LogOut, CheckCircle2, ListTodo, Shield, User, Star, UserCheck, Users, HandCoins, Search, X } from "lucide-react";
+import { LogOut, CheckCircle2, ListTodo, Shield, User, Star, UserCheck, Users, HandCoins, Search, X, SendHorizonal } from "lucide-react";
 import TaskCard from "@/components/tasks/TaskCard";
 import CreateTaskDialog from "@/components/tasks/CreateTaskDialog";
 import NotificationBell from "@/components/NotificationBell";
@@ -74,6 +74,7 @@ const Index = () => {
 
   const assignedToMe = activeTasks.filter(isAssignedToMe).sort(sortByDueDate);
   const owedToMe = activeTasks.filter(isOwedToMe).sort(sortByDueDate);
+  const iOweOthers = activeTasks.filter((t) => t.assigned_to === user?.id && t.owed_to && t.owed_to !== user?.id).sort(sortByDueDate);
   const starredTasks = activeTasks.filter((t) => t.starred).sort(sortByDueDate);
 
   const sortedActive = [...activeTasks].sort(sortByDueDate);
@@ -302,6 +303,9 @@ const Index = () => {
               <TabsTrigger value="owedToMe" className="h-8 w-8 p-0" title="Owed to Me">
                 <HandCoins className="h-4 w-4" />
               </TabsTrigger>
+              <TabsTrigger value="iOweOthers" className="h-8 w-8 p-0" title="I Owe Others">
+                <SendHorizonal className="h-4 w-4" />
+              </TabsTrigger>
               <TabsTrigger value="starred" className="h-8 w-8 p-0" title="Starred">
                 <Star className="h-4 w-4" />
               </TabsTrigger>
@@ -345,6 +349,14 @@ const Index = () => {
               owedToMe,
               <HandCoins className="h-10 w-10 mx-auto" />,
               "No tasks owed to you."
+            )}
+          </TabsContent>
+
+          <TabsContent value="iOweOthers" className="space-y-3 mt-0">
+            {renderGroupedTaskList(
+              iOweOthers,
+              <SendHorizonal className="h-10 w-10 mx-auto" />,
+              "No tasks you owe to others."
             )}
           </TabsContent>
 
