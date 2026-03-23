@@ -303,6 +303,9 @@ const Index = () => {
               <TabsTrigger value="owedToMe" className="h-8 w-8 p-0" title="Owed to Me">
                 <HandCoins className="h-4 w-4" />
               </TabsTrigger>
+              <TabsTrigger value="iOweOthers" className="h-8 w-8 p-0" title="I Owe Others">
+                <SendHorizonal className="h-4 w-4" />
+              </TabsTrigger>
               <TabsTrigger value="starred" className="h-8 w-8 p-0" title="Starred">
                 <Star className="h-4 w-4" />
               </TabsTrigger>
