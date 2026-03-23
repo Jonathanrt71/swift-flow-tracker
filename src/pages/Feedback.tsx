@@ -249,32 +249,37 @@ const Feedback = () => {
                     onSubmit={(data) => updateFeedback.mutate({ id: fb.id, ...data })}
                   />
                   <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <button className="p-1 text-[#8A9AAB] hover:text-[#A63333]">
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent onClick={(e) => e.stopPropagation()}>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Delete feedback?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          This will permanently delete this feedback entry. This action cannot be undone.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction
-                          onClick={() => {
-                            deleteFeedback.mutate(fb.id);
-                            setExpandedId(null);
-                          }}
-                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                        >
-                          Delete
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
+                     <AlertDialogTrigger asChild>
+                       <button
+                         className="p-1 text-[#8A9AAB] hover:text-[#A63333]"
+                         onClick={(e) => e.stopPropagation()}
+                       >
+                         <Trash2 className="h-3.5 w-3.5" />
+                       </button>
+                     </AlertDialogTrigger>
+                     <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+                       <AlertDialogHeader>
+                         <AlertDialogTitle>Delete feedback?</AlertDialogTitle>
+                         <AlertDialogDescription>
+                           This will permanently delete this feedback entry. This action cannot be undone.
+                         </AlertDialogDescription>
+                       </AlertDialogHeader>
+                       <AlertDialogFooter>
+                         <AlertDialogCancel>Cancel</AlertDialogCancel>
+                         <AlertDialogAction
+                           onClick={(e) => {
+                             e.stopPropagation();
+                             deleteFeedback.mutate(fb.id, {
+                               onSuccess: () => setExpandedId(null),
+                             });
+                           }}
+                           className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                         >
+                           Delete
+                         </AlertDialogAction>
+                       </AlertDialogFooter>
+                     </AlertDialogContent>
+                   </AlertDialog>
                 </div>
               </div>
             </div>
