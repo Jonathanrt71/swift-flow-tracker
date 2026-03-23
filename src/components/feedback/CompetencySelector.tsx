@@ -104,7 +104,7 @@ function MilestoneDescription({ milestone }: { milestone: ACGMEMilestone }) {
   );
 }
 
-const CompetencySelector = ({ value, onChange, commentText, sentiment }: CompetencySelectorProps) => {
+const CompetencySelector = ({ value, onChange, commentText, sentiment, pgyLevel }: CompetencySelectorProps) => {
   const { data: categories } = useACGMECompetencies();
   const { suggestions, loading, suggest, clearSuggestions } = useCompetencySuggestion();
   const [activeCatId, setActiveCatId] = useState<string | null>(value?.categoryId ?? null);
