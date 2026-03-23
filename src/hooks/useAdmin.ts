@@ -62,7 +62,7 @@ export function useAdmin() {
   });
 
   const inviteUser = useMutation({
-    mutationFn: async (data: { email: string; password: string; display_name?: string; first_name?: string; last_name?: string; role?: UserRole }) => {
+    mutationFn: async (data: { email: string; password: string; display_name?: string; first_name?: string; last_name?: string; role?: UserRole; graduation_year?: number }) => {
       const { data: { session } } = await supabase.auth.getSession();
       const res = await supabase.functions.invoke("admin-invite-user", {
         body: { email: data.email, password: data.password, display_name: data.display_name },
