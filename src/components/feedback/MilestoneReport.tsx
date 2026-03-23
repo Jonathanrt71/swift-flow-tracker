@@ -28,7 +28,7 @@ interface ReportItem {
   categoryCode: string;
   categoryName: string;
   categoryColor: string;
-  milestones: { id: string; level: number; description: string }[];
+  milestones: { id: string; level: number; description: string; summary: string | null }[];
   selectedLevel: number;
   comment: string;
   finalized: boolean;
