@@ -15,6 +15,7 @@ interface CompetencySelectorProps {
   value: CompetencySelection | null;
   onChange: (value: CompetencySelection | null) => void;
   commentText?: string;
+  sentiment?: "positive" | "negative";
 }
 
 export function buildSelectionFromFeedback(
