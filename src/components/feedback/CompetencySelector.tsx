@@ -16,6 +16,7 @@ interface CompetencySelectorProps {
   onChange: (value: CompetencySelection | null) => void;
   commentText?: string;
   sentiment?: "positive" | "negative";
+  pgyLevel?: number;
 }
 
 export function buildSelectionFromFeedback(
