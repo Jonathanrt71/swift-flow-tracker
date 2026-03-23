@@ -330,7 +330,7 @@ const CompetencySelector = ({ value, onChange, commentText, sentiment }: Compete
                   <div style={{ background: "#EEF0F2" }}>
                     {sub.milestones.map((mile) => {
                       const isMileExpanded = expandedMileId === mile.id;
-                      const displayLabel = mile.summary || mile.description;
+                      const displayLabel = mile.summary || `Level ${mile.level}`;
                       return (
                         <div key={mile.id}>
                           <div
