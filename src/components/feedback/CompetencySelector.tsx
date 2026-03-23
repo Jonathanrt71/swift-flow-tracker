@@ -88,7 +88,7 @@ function splitIntoBullets(description: string): string[] {
 function MilestoneDescription({ milestone }: { milestone: ACGMEMilestone }) {
   const bullets = splitIntoBullets(milestone.description);
   return (
-    <div style={{ paddingLeft: 28, paddingRight: 12, paddingBottom: 6 }}>
+    <div style={{ paddingLeft: 56, paddingRight: 12, paddingBottom: 6 }}>
       {bullets.map((b, i) => (
         <div
           key={i}
