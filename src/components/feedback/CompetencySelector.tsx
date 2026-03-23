@@ -164,7 +164,7 @@ const CompetencySelector = ({ value, onChange, commentText, sentiment, pgyLevel 
     setExpandedSubId(null);
     setExpandedMileId(null);
     setAutoActive(true);
-    suggest(commentText || "", sentiment);
+    suggest(commentText || "", sentiment, pgyLevel);
   };
 
   const handleSuggestionTap = (suggestion: CompetencySuggestion) => {
