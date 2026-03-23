@@ -313,6 +313,16 @@ const AddUserDialog = ({
             />
           </div>
           <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground">Password</Label>
+            <Input
+              type="text"
+              placeholder="Set a password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="bg-background rounded-lg"
+            />
+          </div>
+          <div className="space-y-1.5">
             <Label className="text-xs text-muted-foreground">First name</Label>
             <Input
               placeholder="John"
