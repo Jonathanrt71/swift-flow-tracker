@@ -10,6 +10,7 @@ export interface ManagedUser {
   display_name: string | null;
   first_name: string | null;
   last_name: string | null;
+  graduation_year: number | null;
   role: UserRole;
   created_at: string;
 }
