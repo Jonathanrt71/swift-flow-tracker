@@ -29,6 +29,17 @@ import { useCompetencyCategories } from "@/hooks/useCompetencyCategories";
 import type { UserRole, ManagedUser } from "@/hooks/useAdmin";
 import { formatPersonName } from "@/lib/dateFormat";
 
+/** Calculate PGY level from graduation year. Academic year starts July 1. */
+function getPgyLevel(graduationYear: number | null): number | null {
+  if (!graduationYear) return null;
+  const now = new Date();
+  const month = now.getMonth(); // 0-indexed, June = 5
+  const calYear = now.getFullYear();
+  const academicYear = month >= 6 ? calYear + 1 : calYear; // July 1 starts new academic year
+  const pgy = academicYear - (graduationYear - 3);
+  return pgy >= 1 ? pgy : null;
+}
+
 /* ── Edit User Dialog ── */
 const EditUserDialog = ({
   u,
