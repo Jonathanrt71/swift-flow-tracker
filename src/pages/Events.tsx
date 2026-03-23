@@ -125,6 +125,11 @@ const EventCard = ({
       <div className="flex items-center min-h-[48px] px-2">
         <div className="flex-1 min-w-0 pl-2 pr-1 flex items-center gap-2">
           <span className="font-medium text-sm truncate">{event.title}</span>
+          {event.start_time && (
+            <span className="text-[11px] whitespace-nowrap shrink-0 text-muted-foreground">
+              {formatTime(event.start_time)}
+            </span>
+          )}
           {(() => {
             const dd = formatCardDate(event.event_date);
             return dd ? (
