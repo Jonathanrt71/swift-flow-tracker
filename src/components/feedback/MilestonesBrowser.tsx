@@ -26,10 +26,6 @@ const MilestonesBrowser = () => {
               className="w-full flex items-center gap-2.5 rounded-lg px-3.5 py-3 text-left"
               style={{ background: "#E7EBEF", border: "0.5px solid #C9CED4" }}
             >
-              <div
-                className="w-2.5 h-2.5 rounded-full shrink-0"
-                style={{ background: cat.color }}
-              />
               <span style={{ fontSize: 13, fontWeight: 500, color: "#2D3748" }}>
                 {cat.code}
               </span>
@@ -63,10 +59,6 @@ const MilestonesBrowser = () => {
                           border: "0.5px solid #C9CED4",
                         }}
                       >
-                        <div
-                          className="w-2 h-2 rounded-full shrink-0"
-                          style={{ background: cat.color }}
-                        />
                         <span className="flex-1 text-xs" style={{ color: "#2D3748" }}>
                           {sub.code} — {sub.name}
                         </span>
