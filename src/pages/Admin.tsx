@@ -542,18 +542,31 @@ const Admin = () => {
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [defaultReportEmail, setDefaultReportEmail] = useState("");
+  const [pgyMaxLevels, setPgyMaxLevels] = useState<Record<string, string>>({
+    pgy_max_level_1: "2",
+    pgy_max_level_2: "3",
+    pgy_max_level_3: "4",
+    pgy_max_level_4: "5",
+  });
 
-  // Sync default report email from settings
+  // Sync default report email and PGY max levels from settings
   useEffect(() => {
-    const fetchEmail = async () => {
-      const { data } = await (await import("@/integrations/supabase/client")).supabase
+    const fetchSettings = async () => {
+      const { supabase } = await import("@/integrations/supabase/client");
+      const { data } = await (supabase as any)
         .from("app_settings")
-        .select("value")
-        .eq("key", "default_report_email")
-        .single();
-      if (data?.value) setDefaultReportEmail(data.value);
+        .select("key, value")
+        .in("key", ["default_report_email", "pgy_max_level_1", "pgy_max_level_2", "pgy_max_level_3", "pgy_max_level_4"]);
+      if (data) {
+        (data as any[]).forEach((row: any) => {
+          if (row.key === "default_report_email") setDefaultReportEmail(row.value);
+          if (row.key.startsWith("pgy_max_level_")) {
+            setPgyMaxLevels((prev) => ({ ...prev, [row.key]: row.value }));
+          }
+        });
+      }
     };
-    fetchEmail();
+    fetchSettings();
   }, []);
 
   const toggleSection = (name: string) => {
@@ -918,6 +931,40 @@ const Admin = () => {
                 >
                   <Check className="h-4 w-4" />
                 </button>
+              </div>
+
+              {/* PGY milestone constraints */}
+              <div className="pt-2">
+                <label className="text-xs text-muted-foreground font-medium">PGY milestone constraints</label>
+                {([1, 2, 3, 4] as const).map((pgy) => {
+                  const key = `pgy_max_level_${pgy}`;
+                  return (
+                    <div key={key} className="flex items-center gap-2 mt-1.5">
+                      <div className="flex-1 space-y-1">
+                        <label className="text-xs text-muted-foreground">PGY-{pgy} max level</label>
+                        <Input
+                          type="number"
+                          min={1}
+                          max={5}
+                          value={pgyMaxLevels[key]}
+                          onChange={(e) =>
+                            setPgyMaxLevels((prev) => ({ ...prev, [key]: e.target.value }))
+                          }
+                          placeholder="e.g. 2"
+                          className="bg-background rounded-lg"
+                        />
+                      </div>
+                      <button
+                        onClick={() => {
+                          updateSetting.mutate({ key, value: pgyMaxLevels[key] });
+                        }}
+                        className="flex items-center justify-center w-9 h-9 mt-5 bg-transparent border-none cursor-pointer text-primary hover:text-primary/80"
+                      >
+                        <Check className="h-4 w-4" />
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}

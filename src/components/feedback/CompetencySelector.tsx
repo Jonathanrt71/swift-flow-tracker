@@ -2,6 +2,8 @@ import { useState } from "react";
 import { ChevronDown, ChevronUp, X, Sparkles, Loader2 } from "lucide-react";
 import { useACGMECompetencies, type ACGMECategory, type ACGMEMilestone } from "@/hooks/useACGMECompetencies";
 import { useCompetencySuggestion, type CompetencySuggestion } from "@/hooks/useCompetencySuggestion";
+import { usePgyMaxLevels, getMaxLevelForPgy } from "@/hooks/usePgyMaxLevels";
+import { useToast } from "@/hooks/use-toast";
 
 export interface CompetencySelection {
   categoryId: string | null;
@@ -107,14 +109,23 @@ function MilestoneDescription({ milestone }: { milestone: ACGMEMilestone }) {
 const CompetencySelector = ({ value, onChange, commentText, sentiment, pgyLevel }: CompetencySelectorProps) => {
   const { data: categories } = useACGMECompetencies();
   const { suggestions, loading, suggest, clearSuggestions } = useCompetencySuggestion();
+  const { data: pgyMaxLevels } = usePgyMaxLevels();
+  const { toast } = useToast();
   const [activeCatId, setActiveCatId] = useState<string | null>(value?.categoryId ?? null);
   const [expandedSubId, setExpandedSubId] = useState<string | null>(null);
   const [expandedMileId, setExpandedMileId] = useState<string | null>(null);
   const [autoActive, setAutoActive] = useState(false);
 
   const cats = categories || [];
+  const maxLevel = getMaxLevelForPgy(pgyLevel, pgyMaxLevels);
 
-  const select = (sel: CompetencySelection) => {
+  const select = (sel: CompetencySelection, milestoneLevel?: number) => {
+    // Soft constraint: warn if manually selected level exceeds PGY max
+    if (milestoneLevel && maxLevel && milestoneLevel > maxLevel && pgyLevel) {
+      toast({
+        title: `Level ${milestoneLevel} exceeds the recommended max (Level ${maxLevel}) for a PGY-${pgyLevel} resident`,
+      });
+    }
     onChange(sel);
     setExpandedSubId(null);
     setExpandedMileId(null);
@@ -368,7 +379,7 @@ const CompetencySelector = ({ value, onChange, commentText, sentiment, pgyLevel 
                                   milestoneId: mile.id,
                                   label: `${activeCat.code} > ${sub.code} > Level ${mile.level}`,
                                   color: activeCat.color,
-                                })
+                                }, mile.level)
                               }
                               className="flex items-center gap-2 flex-1 min-w-0 text-left"
                             >
