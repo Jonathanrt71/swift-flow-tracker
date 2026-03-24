@@ -1,11 +1,14 @@
 import { useState, useEffect } from "react";
 
+let pendingRegistration: ServiceWorkerRegistration | null = null;
 let showUpdateGlobal: (() => void) | null = null;
-let registrationRef: ServiceWorkerRegistration | null = null;
 
 export function triggerUpdatePrompt(registration: ServiceWorkerRegistration) {
-  registrationRef = registration;
-  showUpdateGlobal?.();
+  pendingRegistration = registration;
+  if (showUpdateGlobal) {
+    showUpdateGlobal();
+  }
+  // If component hasn't mounted yet, pendingRegistration is checked on mount
 }
 
 const UpdatePrompt = () => {
@@ -13,14 +16,22 @@ const UpdatePrompt = () => {
 
   useEffect(() => {
     showUpdateGlobal = () => setVisible(true);
-    return () => { showUpdateGlobal = null; };
+
+    // If triggerUpdatePrompt was called before mount, show now
+    if (pendingRegistration) {
+      setVisible(true);
+    }
+
+    return () => {
+      showUpdateGlobal = null;
+    };
   }, []);
 
   if (!visible) return null;
 
   const handleRefresh = () => {
-    if (registrationRef?.waiting) {
-      registrationRef.waiting.postMessage({ type: "SKIP_WAITING" });
+    if (pendingRegistration?.waiting) {
+      pendingRegistration.waiting.postMessage({ type: "SKIP_WAITING" });
     }
     window.location.reload();
   };
