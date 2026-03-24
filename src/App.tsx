@@ -15,6 +15,7 @@ import Meetings from "./pages/Meetings.tsx";
 import Events from "./pages/Events.tsx";
 import CBME from "./pages/CBME.tsx";
 import Feedback from "./pages/Feedback.tsx";
+import UpdatePrompt from "./components/UpdatePrompt";
 
 const queryClient = new QueryClient();
 
@@ -23,6 +24,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
+      <UpdatePrompt />
       <BrowserRouter>
         <AuthProvider>
           <div className="mx-auto w-full max-w-[1200px] min-h-screen relative shadow-lg">
