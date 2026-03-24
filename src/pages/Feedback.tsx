@@ -489,6 +489,18 @@ const Feedback = () => {
                   style={{ color: viewMode === "report" ? "#415162" : "#8A9AAB" }}
                 />
               </button>
+              <button
+                onClick={() => setViewMode("milestones")}
+                className={cn(
+                  "flex items-center justify-center w-7 h-7 rounded-full transition-colors",
+                  viewMode === "milestones" ? "bg-white shadow-sm" : ""
+                )}
+              >
+                <BookOpen
+                  className="h-3.5 w-3.5"
+                  style={{ color: viewMode === "milestones" ? "#415162" : "#8A9AAB" }}
+                />
+              </button>
             </div>
             <button
               onClick={() => setMyOnly(!myOnly)}
