@@ -83,8 +83,11 @@ const MilestonesBrowser = () => {
 
                             return (
                               <div key={mile.id}>
-                                <div
-                                  className="flex items-center gap-2.5 rounded-md px-3 py-2"
+                                <button
+                                  onClick={() =>
+                                    setExpandedMileId(isMileExpanded ? null : mile.id)
+                                  }
+                                  className="w-full flex items-center gap-2.5 rounded-md px-3 py-2 text-left"
                                   style={{ background: "#F5F3EE" }}
                                 >
                                   {/* Level circle */}
@@ -111,34 +114,39 @@ const MilestonesBrowser = () => {
                                     {mile.summary || `Level ${mile.level}`}
                                   </span>
 
-                                  <button
-                                    onClick={() =>
-                                      setExpandedMileId(isMileExpanded ? null : mile.id)
-                                    }
-                                    className="p-0.5 shrink-0"
-                                  >
-                                    <ChevronDown
-                                      className="h-3.5 w-3.5 transition-transform"
-                                      style={{
-                                        color: "#8A9AAB",
-                                        transform: isMileExpanded ? "rotate(180deg)" : "rotate(0deg)",
-                                      }}
-                                    />
-                                  </button>
-                                </div>
+                                  <ChevronDown
+                                    className="h-3.5 w-3.5 shrink-0 transition-transform"
+                                    style={{
+                                      color: "#8A9AAB",
+                                      transform: isMileExpanded ? "rotate(180deg)" : "rotate(0deg)",
+                                    }}
+                                  />
+                                </button>
 
                                 {isMileExpanded && (
-                                  <div style={{ paddingLeft: 32 }} className="py-1.5">
+                                  <div
+                                    style={{
+                                      background: "#fff",
+                                      border: "0.5px solid #C9CED4",
+                                      borderLeft: `2px solid ${cat.color}`,
+                                      borderRadius: 8,
+                                      padding: "10px 14px",
+                                      margin: "4px 12px 10px 32px",
+                                    }}
+                                  >
                                     {bullets.map((b, i) => (
                                       <div
                                         key={i}
+                                        className="flex items-start"
                                         style={{
                                           fontSize: 12,
-                                          color: "#5F7285",
                                           lineHeight: 1.7,
+                                          padding: "4px 0",
+                                          gap: 6,
                                         }}
                                       >
-                                        • {b}
+                                        <span className="shrink-0" style={{ color: "#415162" }}>•</span>
+                                        <span style={{ color: "#5F7285" }}>{b}</span>
                                       </div>
                                     ))}
                                   </div>
