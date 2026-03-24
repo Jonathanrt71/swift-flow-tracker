@@ -24,6 +24,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
+      <UpdatePrompt />
       <BrowserRouter>
         <AuthProvider>
           <div className="mx-auto w-full max-w-[1200px] min-h-screen relative shadow-lg">
