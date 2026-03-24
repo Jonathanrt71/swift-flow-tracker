@@ -2,6 +2,8 @@ import { useState } from "react";
 import { ChevronDown, ChevronUp, X, Sparkles, Loader2 } from "lucide-react";
 import { useACGMECompetencies, type ACGMECategory, type ACGMEMilestone } from "@/hooks/useACGMECompetencies";
 import { useCompetencySuggestion, type CompetencySuggestion } from "@/hooks/useCompetencySuggestion";
+import { usePgyMaxLevels, getMaxLevelForPgy } from "@/hooks/usePgyMaxLevels";
+import { useToast } from "@/hooks/use-toast";
 
 export interface CompetencySelection {
   categoryId: string | null;
