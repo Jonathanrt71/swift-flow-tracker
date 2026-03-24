@@ -128,7 +128,7 @@ const MilestonesBrowser = () => {
                                 </div>
 
                                 {isMileExpanded && (
-                                  <div style={{ paddingLeft: 56 }} className="py-1.5">
+                                  <div style={{ paddingLeft: 32 }} className="py-1.5">
                                     {bullets.map((b, i) => (
                                       <div
                                         key={i}
