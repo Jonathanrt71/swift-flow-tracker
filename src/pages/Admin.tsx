@@ -542,18 +542,31 @@ const Admin = () => {
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [defaultReportEmail, setDefaultReportEmail] = useState("");
+  const [pgyMaxLevels, setPgyMaxLevels] = useState<Record<string, string>>({
+    pgy_max_level_1: "2",
+    pgy_max_level_2: "3",
+    pgy_max_level_3: "4",
+    pgy_max_level_4: "5",
+  });
 
-  // Sync default report email from settings
+  // Sync default report email and PGY max levels from settings
   useEffect(() => {
-    const fetchEmail = async () => {
-      const { data } = await (await import("@/integrations/supabase/client")).supabase
+    const fetchSettings = async () => {
+      const { supabase } = await import("@/integrations/supabase/client");
+      const { data } = await (supabase as any)
         .from("app_settings")
-        .select("value")
-        .eq("key", "default_report_email")
-        .single();
-      if (data?.value) setDefaultReportEmail(data.value);
+        .select("key, value")
+        .in("key", ["default_report_email", "pgy_max_level_1", "pgy_max_level_2", "pgy_max_level_3", "pgy_max_level_4"]);
+      if (data) {
+        (data as any[]).forEach((row: any) => {
+          if (row.key === "default_report_email") setDefaultReportEmail(row.value);
+          if (row.key.startsWith("pgy_max_level_")) {
+            setPgyMaxLevels((prev) => ({ ...prev, [row.key]: row.value }));
+          }
+        });
+      }
     };
-    fetchEmail();
+    fetchSettings();
   }, []);
 
   const toggleSection = (name: string) => {
