@@ -133,7 +133,7 @@ const MilestonesBrowser = () => {
                                       <div
                                         key={i}
                                         style={{
-                                          fontSize: 11,
+                                          fontSize: 12,
                                           color: "#5F7285",
                                           lineHeight: 1.7,
                                         }}
