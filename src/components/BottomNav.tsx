@@ -2,11 +2,27 @@ import { Link, useLocation } from "react-router-dom";
 import { CheckSquare, Calendar, BookOpen, MessageSquare, Users } from "lucide-react";
 import { useUserRole } from "@/hooks/useUserRole";
 
+type AllowedRole = "admin" | "faculty" | "resident";
+
+const allNavItems = [
+  { path: "/cbme", icon: BookOpen, allowed: ["admin"] as AllowedRole[] },
+  { path: "/events", icon: Calendar, allowed: ["admin"] as AllowedRole[] },
+  { path: "/feedback", icon: MessageSquare, allowed: ["admin", "faculty"] as AllowedRole[] },
+  { path: "/tasks", icon: CheckSquare, allowed: ["admin"] as AllowedRole[] },
+];
+
 const BottomNav = () => {
-  const { isResident } = useUserRole();
+  const { role, isResident } = useUserRole();
 
   // Residents only see Profile (no bottom nav needed)
   if (isResident) return null;
+
+  const navItems = allNavItems.filter((item) =>
+    item.allowed.includes(role as AllowedRole)
+  );
+
+  // If only one or zero items visible, no point showing the nav
+  if (navItems.length <= 1) return null;
 
   return (
     <nav
@@ -18,18 +34,18 @@ const BottomNav = () => {
       }}
     >
       <div className="flex max-w-[1200px] mx-auto pt-3 pb-1">
-      <Link to="/cbme" className="flex-1 flex items-center justify-center text-white/50">
-        <BookOpen className="h-5 w-5" />
-      </Link>
-      <Link to="/events" className="flex-1 flex items-center justify-center text-white/50">
-        <Calendar className="h-5 w-5" />
-      </Link>
-      <Link to="/feedback" className="flex-1 flex items-center justify-center text-white/50">
-        <MessageSquare className="h-5 w-5" />
-      </Link>
-      <Link to="/tasks" className="flex-1 flex items-center justify-center text-white/50">
-        <CheckSquare className="h-5 w-5" />
-      </Link>
+        {navItems.map((item) => {
+          const Icon = item.icon;
+          return (
+            <Link
+              key={item.path}
+              to={item.path}
+              className="flex-1 flex items-center justify-center text-white/50"
+            >
+              <Icon className="h-5 w-5" />
+            </Link>
+          );
+        })}
       </div>
     </nav>
   );
