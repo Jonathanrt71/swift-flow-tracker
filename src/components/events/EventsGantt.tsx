@@ -68,11 +68,7 @@ const EventsGantt = ({ events }: EventsGanttProps) => {
       rows.push({ title, occurrences, isMultiDay, earliestStart });
     });
 
-    rows.sort((a, b) => {
-      if (a.isMultiDay && !b.isMultiDay) return -1;
-      if (!a.isMultiDay && b.isMultiDay) return 1;
-      return a.earliestStart.getTime() - b.earliestStart.getTime();
-    });
+    rows.sort((a, b) => a.earliestStart.getTime() - b.earliestStart.getTime());
 
     return rows;
   }, [events]);
