@@ -1,39 +1,20 @@
 import { useState, useEffect } from "react";
 
-let pendingRegistration: ServiceWorkerRegistration | null = null;
-let showUpdateGlobal: (() => void) | null = null;
-
-export function triggerUpdatePrompt(registration: ServiceWorkerRegistration) {
-  pendingRegistration = registration;
-  if (showUpdateGlobal) {
-    showUpdateGlobal();
-  }
-  // If component hasn't mounted yet, pendingRegistration is checked on mount
-}
-
 const UpdatePrompt = () => {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    showUpdateGlobal = () => setVisible(true);
-
-    // If triggerUpdatePrompt was called before mount, show now
-    if (pendingRegistration) {
-      setVisible(true);
-    }
-
-    return () => {
-      showUpdateGlobal = null;
-    };
+    const handler = () => setVisible(true);
+    window.addEventListener("pwa-update-available", handler);
+    return () => window.removeEventListener("pwa-update-available", handler);
   }, []);
 
   if (!visible) return null;
 
   const handleRefresh = () => {
-    if (pendingRegistration?.waiting) {
-      pendingRegistration.waiting.postMessage({ type: "SKIP_WAITING" });
-    }
-    window.location.reload();
+    const updateSW = (window as any).__pwaUpdate;
+    if (updateSW) updateSW(true);
+    else window.location.reload();
   };
 
   return (
