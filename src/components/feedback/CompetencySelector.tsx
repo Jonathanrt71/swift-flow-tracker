@@ -88,18 +88,27 @@ function splitIntoBullets(description: string): string[] {
 }
 
 /** Expandable milestone description shown as bullet points */
-function MilestoneDescription({ milestone }: { milestone: ACGMEMilestone }) {
+function MilestoneDescription({ milestone, accentColor }: { milestone: ACGMEMilestone; accentColor?: string }) {
   const bullets = splitIntoBullets(milestone.description);
   return (
-    <div style={{ paddingLeft: 56, paddingRight: 12, paddingBottom: 6 }}>
+    <div
+      style={{
+        background: "#fff",
+        border: "0.5px solid #C9CED4",
+        borderLeft: `2px solid ${accentColor || "#8A9AAB"}`,
+        borderRadius: 8,
+        padding: "10px 14px",
+        margin: "4px 12px 6px 64px",
+      }}
+    >
       {bullets.map((b, i) => (
         <div
           key={i}
           className="flex items-start"
-          style={{ fontSize: 11, color: "#5F7285", lineHeight: 1.7, gap: 6 }}
+          style={{ fontSize: 11, lineHeight: 1.7, padding: "4px 0", gap: 6 }}
         >
-          <span className="shrink-0">•</span>
-          <span>{b}</span>
+          <span className="shrink-0" style={{ color: "#415162" }}>•</span>
+          <span style={{ color: "#5F7285" }}>{b}</span>
         </div>
       ))}
     </div>
