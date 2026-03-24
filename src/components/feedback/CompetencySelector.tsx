@@ -257,8 +257,17 @@ const CompetencySelector = ({ value, onChange, commentText, sentiment, pgyLevel 
       {/* AI Suggestions */}
       {showSuggestions && (
         <div className="mt-2 flex flex-col gap-2">
-          {suggestions.map((s, idx) => {
+        {suggestions.map((s, idx) => {
             const catColor = getCategoryColorForSuggestion(s, cats);
+            let milestoneSummary: string | null = null;
+            for (const cat of cats) {
+              const sub = cat.subcategories.find((sc) => sc.code === s.subcategoryCode);
+              if (sub) {
+                const mile = sub.milestones.find((m) => m.level === s.level);
+                if (mile?.summary) milestoneSummary = mile.summary;
+                break;
+              }
+            }
             return (
               <button
                 key={idx}
@@ -274,7 +283,12 @@ const CompetencySelector = ({ value, onChange, commentText, sentiment, pgyLevel 
                 <div style={{ fontSize: 12, fontWeight: 500, color: "#2D3748" }}>
                   {s.subcategoryCode} &gt; Level {s.level}
                 </div>
-                <div style={{ fontSize: 11, color: "#8A9AAB" }}>
+                {milestoneSummary && (
+                  <div style={{ fontSize: 12, color: "#2D3748" }}>
+                    {milestoneSummary}
+                  </div>
+                )}
+                <div style={{ fontSize: 11, color: "#8A9AAB", fontStyle: "italic" }}>
                   {s.reason}
                 </div>
               </button>
