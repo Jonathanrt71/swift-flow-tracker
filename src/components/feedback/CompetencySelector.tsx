@@ -428,7 +428,7 @@ const CompetencySelector = ({ value, onChange, commentText, sentiment, pgyLevel 
                               )}
                             </button>
                           </div>
-                          {isMileExpanded && <MilestoneDescription milestone={mile} />}
+                          {isMileExpanded && <MilestoneDescription milestone={mile} accentColor={activeCat.color} />}
                         </div>
                       );
                     })}
