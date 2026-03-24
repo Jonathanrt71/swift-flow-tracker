@@ -11,7 +11,11 @@ export function useCompetencySuggestion() {
   const [suggestions, setSuggestions] = useState<CompetencySuggestion[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const suggest = async (comment: string, sentiment?: "positive" | "negative", pgyLevel?: number) => {
+  const suggest = async (
+    comment: string,
+    sentiment?: "positive" | "negative",
+    pgyLevel?: number,
+  ) => {
     if (!comment || comment.trim().length < 10) {
       setSuggestions([]);
       return;
@@ -25,11 +29,35 @@ export function useCompetencySuggestion() {
 
       if (error) throw error;
 
+      let results: CompetencySuggestion[] = [];
       if (data?.suggestions && Array.isArray(data.suggestions)) {
-        setSuggestions(data.suggestions.slice(0, 3));
-      } else {
-        setSuggestions([]);
+        results = data.suggestions.slice(0, 3);
       }
+
+      // Hard-clamp AI suggestions to PGY max level
+      if (pgyLevel && results.length > 0) {
+        try {
+          const { data: settingsData } = await (supabase as any)
+            .from("app_settings")
+            .select("key, value")
+            .eq("key", `pgy_max_level_${pgyLevel}`)
+            .single();
+
+          if (settingsData?.value) {
+            const maxLevel = parseInt(settingsData.value, 10);
+            if (!isNaN(maxLevel)) {
+              results = results.map((s) => ({
+                ...s,
+                level: Math.min(s.level, maxLevel),
+              }));
+            }
+          }
+        } catch {
+          // Settings not found — skip clamping
+        }
+      }
+
+      setSuggestions(results);
     } catch (err) {
       console.error("Competency suggestion error:", err);
       setSuggestions([]);

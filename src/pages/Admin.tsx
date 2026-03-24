@@ -932,6 +932,40 @@ const Admin = () => {
                   <Check className="h-4 w-4" />
                 </button>
               </div>
+
+              {/* PGY milestone constraints */}
+              <div className="pt-2">
+                <label className="text-xs text-muted-foreground font-medium">PGY milestone constraints</label>
+                {([1, 2, 3, 4] as const).map((pgy) => {
+                  const key = `pgy_max_level_${pgy}`;
+                  return (
+                    <div key={key} className="flex items-center gap-2 mt-1.5">
+                      <div className="flex-1 space-y-1">
+                        <label className="text-xs text-muted-foreground">PGY-{pgy} max level</label>
+                        <Input
+                          type="number"
+                          min={1}
+                          max={5}
+                          value={pgyMaxLevels[key]}
+                          onChange={(e) =>
+                            setPgyMaxLevels((prev) => ({ ...prev, [key]: e.target.value }))
+                          }
+                          placeholder="e.g. 2"
+                          className="bg-background rounded-lg"
+                        />
+                      </div>
+                      <button
+                        onClick={() => {
+                          updateSetting.mutate({ key, value: pgyMaxLevels[key] });
+                        }}
+                        className="flex items-center justify-center w-9 h-9 mt-5 bg-transparent border-none cursor-pointer text-primary hover:text-primary/80"
+                      >
+                        <Check className="h-4 w-4" />
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           )}
         </div>
