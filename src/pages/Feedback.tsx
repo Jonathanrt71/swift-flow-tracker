@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { format, parseISO } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
-import { List, PieChart, FileText, Pencil, Trash2, X as XIcon, Search, UserCheck, Calendar, User } from "lucide-react";
+import { List, PieChart, FileText, BookOpen, Pencil, Trash2, X as XIcon, Search, UserCheck, Calendar, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
@@ -20,6 +20,7 @@ import CreateFeedbackDialog from "@/components/feedback/CreateFeedbackDialog";
 import EditFeedbackDialog from "@/components/feedback/EditFeedbackDialog";
 import FeedbackPie from "@/components/feedback/FeedbackPie";
 import MilestoneReport from "@/components/feedback/MilestoneReport";
+import MilestonesBrowser from "@/components/feedback/MilestonesBrowser";
 import {
   Popover,
   PopoverContent,
@@ -47,7 +48,7 @@ const Feedback = () => {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [viewMode, setViewMode] = useState<"list" | "summary" | "report">("list");
+  const [viewMode, setViewMode] = useState<"list" | "summary" | "report" | "milestones">("list");
   const [myOnly, setMyOnly] = useState(false);
   const [sortMode, setSortMode] = useState<"date" | "faculty">("date");
 
@@ -488,6 +489,18 @@ const Feedback = () => {
                   style={{ color: viewMode === "report" ? "#415162" : "#8A9AAB" }}
                 />
               </button>
+              <button
+                onClick={() => setViewMode("milestones")}
+                className={cn(
+                  "flex items-center justify-center w-7 h-7 rounded-full transition-colors",
+                  viewMode === "milestones" ? "bg-white shadow-sm" : ""
+                )}
+              >
+                <BookOpen
+                  className="h-3.5 w-3.5"
+                  style={{ color: viewMode === "milestones" ? "#415162" : "#8A9AAB" }}
+                />
+              </button>
             </div>
             <button
               onClick={() => setMyOnly(!myOnly)}
@@ -545,7 +558,7 @@ const Feedback = () => {
 
         {/* Content */}
         <div className="flex flex-col gap-2">
-          {viewMode === "list" ? renderCards() : viewMode === "summary" ? renderSummary() : <MilestoneReport />}
+          {viewMode === "list" ? renderCards() : viewMode === "summary" ? renderSummary() : viewMode === "report" ? <MilestoneReport /> : <MilestonesBrowser />}
         </div>
       </main>
 
