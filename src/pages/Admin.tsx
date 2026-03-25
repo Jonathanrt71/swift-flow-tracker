@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useAdmin } from "@/hooks/useAdmin";
+import { useACGMECompetencies } from "@/hooks/useACGMECompetencies";
 import { useAppSettings } from "@/hooks/useAppSettings";
 import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 import { Navigate, Link } from "react-router-dom";
 import HeaderLogo from "@/components/HeaderLogo";
 import { useQueryClient } from "@tanstack/react-query";
@@ -23,6 +25,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Plus, Shield, Pencil, Check, X, Tag, Trash2, BookOpen, RefreshCw, Settings } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { useMeetingTags } from "@/hooks/useMeetingTags";
 import { useMeetingTagLinks } from "@/hooks/useMeetingTags";
 import { useCompetencyCategories } from "@/hooks/useCompetencyCategories";
@@ -525,6 +528,7 @@ const RoleAccessSection = () => {
 /* ── Admin Page ── */
 const Admin = () => {
   const { user, signOut } = useAuth();
+  const { toast } = useToast();
   const queryClient = useQueryClient();
   const { isAdmin, isAdminLoading, users, inviteUser, updateRole, updateProfile, deleteUser } = useAdmin();
   const { tags, createTag, updateTag, deleteTag } = useMeetingTags();
@@ -548,6 +552,61 @@ const Admin = () => {
     pgy_max_level_3: "4",
     pgy_max_level_4: "5",
   });
+
+  // Milestone status management
+  const { data: acgmeData } = useACGMECompetencies();
+  const [msResident, setMsResident] = useState<string>("");
+  const [msLevels, setMsLevels] = useState<Record<string, number>>({});
+  const [msOriginal, setMsOriginal] = useState<Record<string, number>>({});
+  const [msSaving, setMsSaving] = useState(false);
+  const [msLoading, setMsLoading] = useState(false);
+
+  const residents = useMemo(() => {
+    if (!users.data) return [];
+    return users.data.filter((u) => u.role === "resident").sort((a, b) => formatPersonName(a).localeCompare(formatPersonName(b)));
+  }, [users.data]);
+
+  // Load milestone status when resident is selected
+  useEffect(() => {
+    if (!msResident) { setMsLevels({}); setMsOriginal({}); return; }
+    setMsLoading(true);
+    (supabase as any)
+      .from("resident_milestone_status")
+      .select("subcategory_id, current_level")
+      .eq("resident_id", msResident)
+      .then(({ data }: any) => {
+        const map: Record<string, number> = {};
+        (data || []).forEach((r: any) => { map[r.subcategory_id] = r.current_level; });
+        setMsLevels({ ...map });
+        setMsOriginal({ ...map });
+        setMsLoading(false);
+      });
+  }, [msResident]);
+
+  const msHasChanges = useMemo(() => {
+    return Object.keys(msLevels).some((k) => msLevels[k] !== msOriginal[k]) ||
+      Object.keys(msLevels).some((k) => msOriginal[k] === undefined);
+  }, [msLevels, msOriginal]);
+
+  const handleMsSave = async () => {
+    if (!msResident || !user) return;
+    setMsSaving(true);
+    const changedRows = Object.entries(msLevels)
+      .filter(([k, v]) => msOriginal[k] !== v)
+      .map(([subcategoryId, level]) => ({
+        resident_id: msResident,
+        subcategory_id: subcategoryId,
+        current_level: level,
+        updated_by: user.id,
+        updated_at: new Date().toISOString(),
+      }));
+    if (changedRows.length > 0) {
+      await (supabase as any).from("resident_milestone_status").upsert(changedRows, { onConflict: "resident_id,subcategory_id" });
+    }
+    setMsOriginal({ ...msLevels });
+    setMsSaving(false);
+    toast({ title: "Milestone status updated" });
+  };
 
   // Sync default report email and PGY max levels from settings
   useEffect(() => {
@@ -894,6 +953,103 @@ const Admin = () => {
               })}
               {categories.data?.length === 0 && (
                 <p className="text-sm text-muted-foreground py-4 text-center">No categories yet</p>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Milestone Status */}
+        <div
+          className="rounded-lg overflow-hidden cursor-pointer"
+          style={{ background: "#E7EBEF", border: "0.5px solid #C9CED4" }}
+        >
+          <div
+            className="flex items-center px-3.5 py-3"
+            onClick={() => toggleSection("milestones")}
+          >
+            <span className="text-sm font-medium" style={{ color: "#2D3748" }}>Milestone status</span>
+          </div>
+          {expandedSection === "milestones" && (
+            <div className="px-3.5 pb-3 space-y-3" onClick={(e) => e.stopPropagation()}>
+              {/* Resident selector */}
+              <select
+                value={msResident}
+                onChange={(e) => setMsResident(e.target.value)}
+                className="w-full bg-background border border-border rounded-lg h-10 px-3 text-sm outline-none"
+              >
+                <option value="">Select resident...</option>
+                {residents.map((r) => (
+                  <option key={r.id} value={r.id}>{formatPersonName(r)}</option>
+                ))}
+              </select>
+
+              {msResident && msLoading && (
+                <div className="flex justify-center py-4">
+                  <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                </div>
+              )}
+
+              {msResident && !msLoading && acgmeData && (
+                <>
+                  {acgmeData.map((cat) => (
+                    <div key={cat.id}>
+                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide pt-3 pb-1 border-b border-border">
+                        {cat.name}
+                      </p>
+                      {cat.subcategories.map((sub) => (
+                        <div key={sub.id} className="flex items-center justify-between py-2">
+                          <span className="text-[13px] font-medium" style={{ color: "#2D3748" }}>
+                            {sub.code} — {sub.name}
+                          </span>
+                          <div className="flex items-center gap-1.5">
+                            {[0, 1, 2, 3, 4, 5].map((lvl) => {
+                              const selected = (msLevels[sub.id] ?? 0) === lvl;
+                              return (
+                                <button
+                                  key={lvl}
+                                  onClick={() => setMsLevels((prev) => ({ ...prev, [sub.id]: lvl }))}
+                                  className="flex items-center justify-center transition-all"
+                                  style={{
+                                    width: 28,
+                                    height: 28,
+                                    borderRadius: "50%",
+                                    fontSize: 12,
+                                    fontWeight: 500,
+                                    cursor: "pointer",
+                                    background: selected ? "#415162" : "#F5F3EE",
+                                    color: selected ? "#fff" : "#5F7285",
+                                    border: selected ? "2px solid #415162" : "1px solid #C9CED4",
+                                  }}
+                                >
+                                  {lvl}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ))}
+
+                  <div className="flex justify-end pt-2">
+                    <button
+                      onClick={handleMsSave}
+                      disabled={!msHasChanges || msSaving}
+                      style={{
+                        background: !msHasChanges || msSaving ? "#A0AEC0" : "#415162",
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: 6,
+                        padding: "8px 20px",
+                        fontSize: 13,
+                        fontWeight: 500,
+                        cursor: !msHasChanges || msSaving ? "default" : "pointer",
+                      }}
+                    >
+                      {msSaving ? "Saving..." : "Save changes"}
+                    </button>
+                  </div>
+                </>
               )}
             </div>
           )}
