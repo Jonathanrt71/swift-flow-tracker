@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { format, parseISO } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
-import { List, PieChart, FileText, BookOpen, Pencil, Trash2, X as XIcon, Search, Calendar, User } from "lucide-react";
+import { List, PieChart, FileText, BookOpen, Pencil, Trash2, X as XIcon, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
@@ -49,8 +49,6 @@ const Feedback = () => {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"list" | "summary" | "report" | "milestones">("list");
-  
-  const [sortMode, setSortMode] = useState<"date" | "faculty">("date");
 
   // Fetch user IDs with the 'resident' role
   const { data: residentRoles } = useQuery({
@@ -88,10 +86,10 @@ const Feedback = () => {
   const nameMap = new Map<string, string>();
   members.forEach((m) => nameMap.set(m.id, formatPersonName(m)));
   const allFeedback = feedbackQuery.data || [];
+  const myFeedback = useMemo(() => allFeedback.filter((fb) => fb.faculty_id === user?.id), [allFeedback, user?.id]);
 
   // Filter for list view
-  const filtered = allFeedback.filter((fb) => {
-    if (fb.faculty_id !== user?.id) return false;
+  const filtered = myFeedback.filter((fb) => {
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       const residentName = (nameMap.get(fb.resident_id) || "").toLowerCase();
@@ -106,25 +104,15 @@ const Feedback = () => {
   });
 
   const sorted = useMemo(() => {
-    const arr = [...filtered];
-    if (sortMode === "faculty") {
-      return arr.sort((a, b) => {
-        const nameA = nameMap.get(a.faculty_id) || "?";
-        const nameB = nameMap.get(b.faculty_id) || "?";
-        const cmp = nameA.localeCompare(nameB);
-        if (cmp !== 0) return cmp;
-        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-      });
-    }
-    return arr.sort(
+    return [...filtered].sort(
       (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     );
-  }, [filtered, sortMode, nameMap]);
+  }, [filtered]);
 
   // Summary data
   const residentSummary = useMemo(() => {
     const map = new Map<string, { positive: number; negative: number }>();
-    allFeedback.forEach((fb) => {
+    myFeedback.forEach((fb) => {
       if (!map.has(fb.resident_id)) map.set(fb.resident_id, { positive: 0, negative: 0 });
       const entry = map.get(fb.resident_id)!;
       if (fb.sentiment === "positive") entry.positive++;
@@ -137,7 +125,7 @@ const Feedback = () => {
         ...counts,
       }))
       .sort((a, b) => a.name.localeCompare(b.name));
-  }, [allFeedback, nameMap]);
+  }, [myFeedback, nameMap]);
 
   // List view cards
   const renderCards = () => {
@@ -164,18 +152,12 @@ const Feedback = () => {
       let groupKey = "";
       let groupLabel: string | null = null;
 
-      if (sortMode === "faculty") {
-        const facultyName = nameMap.get(fb.faculty_id) || "?";
-        groupKey = facultyName;
-        groupLabel = facultyName;
-      } else {
-        try {
-          const d = parseISO(fb.created_at);
-          groupKey = format(d, "yyyy-MM");
-          groupLabel = format(d, "MMMM yyyy");
-        } catch {
-          groupKey = "other";
-        }
+      try {
+        const d = parseISO(fb.created_at);
+        groupKey = format(d, "yyyy-MM");
+        groupLabel = format(d, "MMMM yyyy");
+      } catch {
+        groupKey = "other";
       }
 
       if (groupKey !== prevGroup && groupLabel) {
@@ -392,9 +374,9 @@ const Feedback = () => {
           <div className="flex gap-2 items-center">
             {/* Overall pie chart */}
             {(() => {
-              const total = allFeedback.length;
-              const posCount = allFeedback.filter((fb) => fb.sentiment === "positive").length;
-              const negCount = allFeedback.filter((fb) => fb.sentiment === "negative").length;
+              const total = myFeedback.length;
+              const posCount = myFeedback.filter((fb) => fb.sentiment === "positive").length;
+              const negCount = myFeedback.filter((fb) => fb.sentiment === "negative").length;
               const posPct = total > 0 ? (posCount / total) * 100 : 50;
               const negPct = total > 0 ? (negCount / total) * 100 : 50;
               const posAngle = (posPct / 100) * 360;
@@ -477,18 +459,20 @@ const Feedback = () => {
                   style={{ color: viewMode === "summary" ? "#415162" : "#8A9AAB" }}
                 />
               </button>
-              <button
-                onClick={() => setViewMode("report")}
-                className={cn(
-                  "flex items-center justify-center w-7 h-7 rounded-full transition-colors",
-                  viewMode === "report" ? "bg-white shadow-sm" : ""
-                )}
-              >
-                <FileText
-                  className="h-3.5 w-3.5"
-                  style={{ color: viewMode === "report" ? "#415162" : "#8A9AAB" }}
-                />
-              </button>
+              {isAdmin && (
+                <button
+                  onClick={() => setViewMode("report")}
+                  className={cn(
+                    "flex items-center justify-center w-7 h-7 rounded-full transition-colors",
+                    viewMode === "report" ? "bg-white shadow-sm" : ""
+                  )}
+                >
+                  <FileText
+                    className="h-3.5 w-3.5"
+                    style={{ color: viewMode === "report" ? "#415162" : "#8A9AAB" }}
+                  />
+                </button>
+              )}
               <button
                 onClick={() => setViewMode("milestones")}
                 className={cn(
@@ -510,41 +494,10 @@ const Feedback = () => {
           />
         </div>
 
-        {/* Sort toggle — row 2, list view only */}
-        {viewMode === "list" && (
-          <div className="pb-2.5 ml-[36px]">
-            <div className="inline-flex items-center rounded-full p-0.5" style={{ background: "#D5DAE0" }}>
-              <button
-                onClick={() => setSortMode("date")}
-                className={cn(
-                  "flex items-center justify-center w-7 h-7 rounded-full transition-colors",
-                  sortMode === "date" ? "bg-white shadow-sm" : ""
-                )}
-              >
-                <Calendar
-                  className="h-3.5 w-3.5"
-                  style={{ color: sortMode === "date" ? "#415162" : "#8A9AAB" }}
-                />
-              </button>
-              <button
-                onClick={() => setSortMode("faculty")}
-                className={cn(
-                  "flex items-center justify-center w-7 h-7 rounded-full transition-colors",
-                  sortMode === "faculty" ? "bg-white shadow-sm" : ""
-                )}
-              >
-                <User
-                  className="h-3.5 w-3.5"
-                  style={{ color: sortMode === "faculty" ? "#415162" : "#8A9AAB" }}
-                />
-              </button>
-            </div>
-          </div>
-        )}
 
         {/* Content */}
         <div className="flex flex-col gap-2">
-          {viewMode === "list" ? renderCards() : viewMode === "summary" ? renderSummary() : viewMode === "report" ? <MilestoneReport /> : <MilestonesBrowser />}
+          {viewMode === "list" || (!isAdmin && viewMode === "report") ? renderCards() : viewMode === "summary" ? renderSummary() : viewMode === "report" ? <MilestoneReport /> : <MilestonesBrowser />}
         </div>
       </main>
 
