@@ -106,8 +106,10 @@ const EditUserDialog = ({
         first_name: firstName,
         last_name: lastName,
         graduation_year: parsedYear,
-        email: email !== (u.email || "") ? email : undefined,
       });
+    }
+    if (email !== (u.email || "")) {
+      onUpdateUser({ user_id: u.id, email });
     }
     setOpen(false);
   };
