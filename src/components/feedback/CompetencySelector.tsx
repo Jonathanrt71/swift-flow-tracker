@@ -411,13 +411,6 @@ const CompetencySelector = ({ value, onChange, commentText, sentiment, pgyLevel,
                               background: isCurrentLevel ? "rgba(0,0,0,0.03)" : undefined,
                             }}
                           >
-                              paddingLeft: 64,
-                              paddingRight: 12,
-                              borderTop: "0.5px solid #E7EBEF",
-                              paddingTop: 8,
-                              paddingBottom: isMileExpanded ? 4 : 8,
-                            }}
-                          >
                             <button
                               type="button"
                               onClick={() =>
