@@ -357,8 +357,8 @@ const CompetencySelector = ({ value, onChange, commentText, sentiment, pgyLevel,
       {/* Subcompetencies */}
       {activeCat && activeCat.subcategories.length > 0 && (
         <div
-          className="mt-2 rounded-lg overflow-hidden"
-          style={{ border: "0.5px solid #C9CED4" }}
+          className="mt-2 rounded-lg overflow-hidden overflow-y-auto"
+          style={{ border: "0.5px solid #C9CED4", maxHeight: "40vh" }}
         >
           {activeCat.subcategories.map((sub) => {
             const isSubExpanded = expandedSubId === sub.id;
