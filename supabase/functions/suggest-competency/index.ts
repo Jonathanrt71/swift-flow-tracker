@@ -1,12 +1,10 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
+    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-serve(async (req) => {
+Deno.serve(async (req) => {
   if (req.method === "OPTIONS")
     return new Response(null, { headers: corsHeaders });
 
@@ -22,8 +20,6 @@ serve(async (req) => {
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
     const systemPrompt = `You are an ACGME Family Medicine milestone classifier. Given a faculty feedback comment about a resident, identify the top 3 most relevant subcompetencies and milestone levels.
-
-Return ONLY a JSON array with exactly 3 objects, no other text. Each object has:
 
 The resident's current achieved milestone levels are provided below. Your suggested level should generally be at or above the current level unless the feedback describes a significant regression or failure related to that specific sub-competency. If the sentiment is negative and the feedback describes deficiencies in a sub-competency, you may suggest a level below the current achieved level.
 
@@ -94,9 +90,10 @@ Example response:
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
-    console.error("suggest-competency error:", e);
+    const error = e as Error;
+    console.error("suggest-competency error:", error);
     return new Response(
-      JSON.stringify({ suggestions: [], error: e instanceof Error ? e.message : "Unknown error" }),
+      JSON.stringify({ suggestions: [], error: error.message || "Unknown error" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
