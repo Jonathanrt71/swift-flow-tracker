@@ -272,6 +272,7 @@ const Index = () => {
               {searchOpen ? <X className="h-4 w-4" /> : <Search className="h-4 w-4" />}
             </Button>
             <NotificationBell />
+            <span className="w-2 h-2 rounded-full bg-primary" title="v3 test" />
           </div>
         </div>
         {searchOpen && (
