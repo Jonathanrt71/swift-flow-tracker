@@ -11,7 +11,7 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
 
   try {
-    const { comment } = await req.json();
+    const { comment, sentiment, currentLevels } = await req.json();
     if (!comment || typeof comment !== "string" || comment.trim().length < 10) {
       return new Response(JSON.stringify({ suggestions: [] }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -22,6 +22,13 @@ serve(async (req) => {
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
     const systemPrompt = `You are an ACGME Family Medicine milestone classifier. Given a faculty feedback comment about a resident, identify the top 3 most relevant subcompetencies and milestone levels.
+
+Return ONLY a JSON array with exactly 3 objects, no other text. Each object has:
+
+The resident's current achieved milestone levels are provided below. Your suggested level should generally be at or above the current level unless the feedback describes a significant regression or failure related to that specific sub-competency. If the sentiment is negative and the feedback describes deficiencies in a sub-competency, you may suggest a level below the current achieved level.
+
+Current levels: ${currentLevels ? JSON.stringify(currentLevels) : "Not provided — use your best judgment based on the feedback alone."}
+${sentiment ? `Feedback sentiment: ${sentiment}` : ""}
 
 Return ONLY a JSON array with exactly 3 objects, no other text. Each object has:
 - "subcategoryCode": the code like "PC1", "MK2", "PROF3", etc.
