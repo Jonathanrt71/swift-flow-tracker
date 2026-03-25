@@ -984,11 +984,10 @@ const Admin = () => {
             <div className="px-3.5 pb-3" onClick={(e) => e.stopPropagation()}>
               <div className="flex items-center justify-between mb-3">
                 <button
-                  onClick={() => {
+                  onClick={async () => {
                     setRefreshing(true);
-                    queryClient.invalidateQueries().then(() => {
-                      setTimeout(() => setRefreshing(false), 600);
-                    });
+                    await queryClient.refetchQueries();
+                    setRefreshing(false);
                   }}
                   className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs text-muted-foreground hover:text-foreground bg-background border border-border transition-colors"
                 >
