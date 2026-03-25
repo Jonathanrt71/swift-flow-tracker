@@ -79,12 +79,14 @@ const EventCard = ({
   event,
   teamMembers,
   canEdit,
+  isFacultyOrAdmin,
   onUpdate,
   onDelete,
 }: {
   event: ProgramEvent;
   teamMembers: ReturnType<typeof useTeamMembers>["data"];
   canEdit: boolean;
+  isFacultyOrAdmin: boolean;
   onUpdate: (data: {
     id: string;
     title?: string;
