@@ -551,8 +551,62 @@ const Admin = () => {
     pgy_max_level_4: "5",
   });
 
-  // Sync default report email and PGY max levels from settings
+  // Milestone status management
+  const { data: acgmeData } = useACGMECompetencies();
+  const [msResident, setMsResident] = useState<string>("");
+  const [msLevels, setMsLevels] = useState<Record<string, number>>({});
+  const [msOriginal, setMsOriginal] = useState<Record<string, number>>({});
+  const [msSaving, setMsSaving] = useState(false);
+  const [msLoading, setMsLoading] = useState(false);
+
+  const residents = useMemo(() => {
+    if (!users.data) return [];
+    return users.data.filter((u) => u.role === "resident").sort((a, b) => formatPersonName(a).localeCompare(formatPersonName(b)));
+  }, [users.data]);
+
+  // Load milestone status when resident is selected
   useEffect(() => {
+    if (!msResident) { setMsLevels({}); setMsOriginal({}); return; }
+    setMsLoading(true);
+    (supabase as any)
+      .from("resident_milestone_status")
+      .select("subcategory_id, current_level")
+      .eq("resident_id", msResident)
+      .then(({ data }: any) => {
+        const map: Record<string, number> = {};
+        (data || []).forEach((r: any) => { map[r.subcategory_id] = r.current_level; });
+        setMsLevels({ ...map });
+        setMsOriginal({ ...map });
+        setMsLoading(false);
+      });
+  }, [msResident]);
+
+  const msHasChanges = useMemo(() => {
+    return Object.keys(msLevels).some((k) => msLevels[k] !== msOriginal[k]) ||
+      Object.keys(msLevels).some((k) => msOriginal[k] === undefined);
+  }, [msLevels, msOriginal]);
+
+  const handleMsSave = async () => {
+    if (!msResident || !user) return;
+    setMsSaving(true);
+    const changedRows = Object.entries(msLevels)
+      .filter(([k, v]) => msOriginal[k] !== v)
+      .map(([subcategoryId, level]) => ({
+        resident_id: msResident,
+        subcategory_id: subcategoryId,
+        current_level: level,
+        updated_by: user.id,
+        updated_at: new Date().toISOString(),
+      }));
+    if (changedRows.length > 0) {
+      await (supabase as any).from("resident_milestone_status").upsert(changedRows, { onConflict: "resident_id,subcategory_id" });
+    }
+    setMsOriginal({ ...msLevels });
+    setMsSaving(false);
+    const { toast } = await import("@/hooks/use-toast");
+    toast({ title: "Milestone status updated" });
+  };
+
     const fetchSettings = async () => {
       const { supabase } = await import("@/integrations/supabase/client");
       const { data } = await (supabase as any)
