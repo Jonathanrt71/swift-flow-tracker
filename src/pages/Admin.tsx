@@ -528,6 +528,7 @@ const RoleAccessSection = () => {
 /* ── Admin Page ── */
 const Admin = () => {
   const { user, signOut } = useAuth();
+  const { toast } = useToast();
   const queryClient = useQueryClient();
   const { isAdmin, isAdminLoading, users, inviteUser, updateRole, updateProfile, deleteUser } = useAdmin();
   const { tags, createTag, updateTag, deleteTag } = useMeetingTags();
