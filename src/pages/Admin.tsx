@@ -3,6 +3,7 @@ import { useAdmin } from "@/hooks/useAdmin";
 import { useACGMECompetencies } from "@/hooks/useACGMECompetencies";
 import { useAppSettings } from "@/hooks/useAppSettings";
 import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 import { Navigate, Link } from "react-router-dom";
 import HeaderLogo from "@/components/HeaderLogo";
 import { useQueryClient } from "@tanstack/react-query";
