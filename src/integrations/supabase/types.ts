@@ -317,6 +317,44 @@ export type Database = {
           },
         ]
       }
+      event_evaluations: {
+        Row: {
+          created_at: string | null
+          evaluator_id: string
+          event_id: string
+          id: string
+          notes: string | null
+          rating: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          evaluator_id: string
+          event_id: string
+          id?: string
+          notes?: string | null
+          rating: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          evaluator_id?: string
+          event_id?: string
+          id?: string
+          notes?: string | null
+          rating?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_evaluations_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       events: {
         Row: {
           assigned_to: string | null

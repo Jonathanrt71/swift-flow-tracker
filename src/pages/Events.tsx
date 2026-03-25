@@ -25,6 +25,7 @@ import { Button } from "@/components/ui/button";
 import BottomNav from "@/components/BottomNav";
 import CreateEventDialog from "@/components/events/CreateEventDialog";
 import EditEventDialog from "@/components/events/EditEventDialog";
+import EventEvaluation from "@/components/events/EventEvaluation";
 import EventsGantt from "@/components/events/EventsGantt";
 import EventsVerticalTimeline from "@/components/events/EventsVerticalTimeline";
 import NotificationBell from "@/components/NotificationBell";
@@ -78,12 +79,14 @@ const EventCard = ({
   event,
   teamMembers,
   canEdit,
+  isFacultyOrAdmin,
   onUpdate,
   onDelete,
 }: {
   event: ProgramEvent;
   teamMembers: ReturnType<typeof useTeamMembers>["data"];
   canEdit: boolean;
+  isFacultyOrAdmin: boolean;
   onUpdate: (data: {
     id: string;
     title?: string;
@@ -203,6 +206,9 @@ const EventCard = ({
               </div>
             )}
           </div>
+          {isFacultyOrAdmin && event.category === "didactic" && (
+            <EventEvaluation eventId={event.id} />
+          )}
         </div>
       )}
     </div>
@@ -214,6 +220,7 @@ const GroupedEventList = ({
   teamMembers,
   userId,
   isAdmin,
+  isFacultyOrAdmin,
   onUpdate,
   onDelete,
   emptyMessage,
@@ -222,6 +229,7 @@ const GroupedEventList = ({
   teamMembers: ReturnType<typeof useTeamMembers>["data"];
   userId: string | undefined;
   isAdmin: boolean;
+  isFacultyOrAdmin: boolean;
   onUpdate: (data: {
     id: string;
     title?: string;
@@ -281,6 +289,7 @@ const GroupedEventList = ({
               event={ev}
               teamMembers={teamMembers}
               canEdit={isAdmin || ev.created_by === userId}
+              isFacultyOrAdmin={isFacultyOrAdmin}
               onUpdate={onUpdate}
               onDelete={onDelete}
             />
@@ -294,7 +303,7 @@ const GroupedEventList = ({
 const Events = () => {
   const { user, signOut } = useAuth();
   const { isAdmin } = useAdmin();
-  const { isResident } = useUserRole();
+  const { isResident, isFaculty } = useUserRole();
   const isMobile = useIsMobile();
 
   const { events, createEvent, updateEvent, deleteEvent } = useEvents();
@@ -473,6 +482,7 @@ const Events = () => {
             teamMembers={teamMembers}
             userId={user?.id}
             isAdmin={!isResident && !!isAdmin}
+            isFacultyOrAdmin={!!isAdmin || !!isFaculty}
             onUpdate={(data) => { if (!isResident) updateEvent.mutate(data); }}
             onDelete={(id) => { if (!isResident) deleteEvent.mutate(id); }}
             emptyMessage={activeTab === "program" ? "No program events" : "No didactics"}
