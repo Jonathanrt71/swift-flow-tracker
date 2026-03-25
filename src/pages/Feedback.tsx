@@ -49,7 +49,7 @@ const Feedback = () => {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"list" | "summary" | "report" | "milestones">("list");
-  const [myOnly, setMyOnly] = useState(false);
+  
   const [sortMode, setSortMode] = useState<"date" | "faculty">("date");
 
   // Fetch user IDs with the 'resident' role
@@ -91,7 +91,7 @@ const Feedback = () => {
 
   // Filter for list view
   const filtered = allFeedback.filter((fb) => {
-    if (myOnly && fb.faculty_id !== user?.id) return false;
+    if (fb.faculty_id !== user?.id) return false;
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       const residentName = (nameMap.get(fb.resident_id) || "").toLowerCase();
@@ -502,20 +502,6 @@ const Feedback = () => {
                 />
               </button>
             </div>
-            <button
-              onClick={() => setMyOnly(!myOnly)}
-              className={cn(
-                "flex items-center justify-center w-7 h-7 rounded-full transition-colors",
-                myOnly ? "bg-white shadow-sm" : ""
-              )}
-              style={{ background: myOnly ? "white" : "transparent" }}
-              title="Show only my feedback"
-            >
-              <UserCheck
-                className="h-3.5 w-3.5"
-                style={{ color: myOnly ? "#415162" : "#8A9AAB" }}
-              />
-            </button>
           </div>
           {/* Add button */}
           <CreateFeedbackDialog
