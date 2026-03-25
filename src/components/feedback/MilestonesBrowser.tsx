@@ -58,8 +58,6 @@ const MilestonesBrowser = () => {
                           background: isSubExpanded ? "#EEF0F2" : "#E7EBEF",
                           border: "0.5px solid #C9CED4",
                         }}
-                          border: "0.5px solid #C9CED4",
-                        }}
                       >
                         <span className="flex-1 text-xs" style={{ color: "#2D3748" }}>
                           {sub.code} — {sub.name}
