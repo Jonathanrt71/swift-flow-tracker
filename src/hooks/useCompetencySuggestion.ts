@@ -15,6 +15,7 @@ export function useCompetencySuggestion() {
     comment: string,
     sentiment?: "positive" | "negative",
     pgyLevel?: number,
+    competencyData?: any[],
   ) => {
     if (!comment || comment.trim().length < 10) {
       setSuggestions([]);
@@ -24,7 +25,7 @@ export function useCompetencySuggestion() {
     setLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke("suggest-competency", {
-        body: { comment, sentiment, pgyLevel },
+        body: { comment, sentiment, pgyLevel, competencies: competencyData },
       });
 
       if (error) throw error;
