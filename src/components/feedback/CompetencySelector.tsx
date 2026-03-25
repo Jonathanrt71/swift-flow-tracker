@@ -184,7 +184,19 @@ const CompetencySelector = ({ value, onChange, commentText, sentiment, pgyLevel 
     setExpandedSubId(null);
     setExpandedMileId(null);
     setAutoActive(true);
-    suggest(commentText || "", sentiment, pgyLevel);
+    const competencies = cats.map(cat => ({
+      code: cat.code,
+      name: cat.name,
+      subcategories: cat.subcategories.map(sub => ({
+        code: sub.code,
+        name: sub.name,
+        milestones: sub.milestones.map(m => ({
+          level: m.level,
+          description: m.description,
+        })),
+      })),
+    }));
+    suggest(commentText || "", sentiment, pgyLevel, competencies);
   };
 
   const handleSuggestionTap = (suggestion: CompetencySuggestion) => {

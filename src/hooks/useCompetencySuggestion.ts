@@ -15,6 +15,7 @@ export function useCompetencySuggestion() {
     comment: string,
     sentiment?: "positive" | "negative",
     pgyLevel?: number,
+    competencyData?: any[],
   ) => {
     if (!comment || comment.trim().length < 10) {
       setSuggestions([]);
