@@ -166,6 +166,7 @@ const CreateFeedbackDialog = ({ onSubmit, residents }: CreateFeedbackDialogProps
         >
           Save feedback
         </button>
+        </div>
       </DialogContent>
     </Dialog>
   );
