@@ -53,9 +53,11 @@ const MilestonesBrowser = () => {
                           setExpandedSubId(isSubExpanded ? null : sub.id);
                           setExpandedMileId(null);
                         }}
-                        className="w-full flex items-center gap-2 rounded-md px-3 py-2.5 text-left"
+                        className="w-full flex items-center gap-2 rounded-lg px-3 py-2.5 text-left"
                         style={{
-                          background: isSubExpanded ? "#EEF0F2" : "transparent",
+                          background: isSubExpanded ? "#EEF0F2" : "#E7EBEF",
+                          border: "0.5px solid #C9CED4",
+                        }}
                           border: "0.5px solid #C9CED4",
                         }}
                       >
