@@ -6,6 +6,7 @@ export interface ACGMEMilestone {
   level: number;
   description: string;
   summary: string | null;
+  examples: string[];
 }
 
 export interface ACGMESubcategory {
@@ -38,7 +39,7 @@ export function useACGMECompetencies() {
       const milestoneMap = new Map<string, ACGMEMilestone[]>();
       (miles.data || []).forEach((m: any) => {
         const arr = milestoneMap.get(m.subcategory_id) || [];
-        arr.push({ id: m.id, level: m.level, description: m.description, summary: m.summary ?? null });
+        arr.push({ id: m.id, level: m.level, description: m.description, summary: m.summary ?? null, examples: m.examples || [] });
         milestoneMap.set(m.subcategory_id, arr);
       });
 

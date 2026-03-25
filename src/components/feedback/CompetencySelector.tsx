@@ -193,6 +193,7 @@ const CompetencySelector = ({ value, onChange, commentText, sentiment, pgyLevel 
         milestones: sub.milestones.map(m => ({
           level: m.level,
           description: m.description,
+          examples: m.examples,
         })),
       })),
     }));
