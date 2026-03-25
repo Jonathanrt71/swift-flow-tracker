@@ -1,4 +1,4 @@
-// force rebuild v2
+// force rebuild v3 – test dot
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -272,6 +272,7 @@ const Index = () => {
               {searchOpen ? <X className="h-4 w-4" /> : <Search className="h-4 w-4" />}
             </Button>
             <NotificationBell />
+            <span className="w-2 h-2 rounded-full bg-primary" title="v3 test" />
           </div>
         </div>
         {searchOpen && (
