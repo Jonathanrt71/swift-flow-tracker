@@ -958,6 +958,103 @@ const Admin = () => {
           )}
         </div>
 
+        {/* Milestone Status */}
+        <div
+          className="rounded-lg overflow-hidden cursor-pointer"
+          style={{ background: "#E7EBEF", border: "0.5px solid #C9CED4" }}
+        >
+          <div
+            className="flex items-center px-3.5 py-3"
+            onClick={() => toggleSection("milestones")}
+          >
+            <span className="text-sm font-medium" style={{ color: "#2D3748" }}>Milestone status</span>
+          </div>
+          {expandedSection === "milestones" && (
+            <div className="px-3.5 pb-3 space-y-3" onClick={(e) => e.stopPropagation()}>
+              {/* Resident selector */}
+              <select
+                value={msResident}
+                onChange={(e) => setMsResident(e.target.value)}
+                className="w-full bg-background border border-border rounded-lg h-10 px-3 text-sm outline-none"
+              >
+                <option value="">Select resident...</option>
+                {residents.map((r) => (
+                  <option key={r.id} value={r.id}>{formatPersonName(r)}</option>
+                ))}
+              </select>
+
+              {msResident && msLoading && (
+                <div className="flex justify-center py-4">
+                  <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                </div>
+              )}
+
+              {msResident && !msLoading && acgmeData && (
+                <>
+                  {acgmeData.map((cat) => (
+                    <div key={cat.id}>
+                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide pt-3 pb-1 border-b border-border">
+                        {cat.name}
+                      </p>
+                      {cat.subcategories.map((sub) => (
+                        <div key={sub.id} className="flex items-center justify-between py-2">
+                          <span className="text-[13px] font-medium" style={{ color: "#2D3748" }}>
+                            {sub.code} — {sub.name}
+                          </span>
+                          <div className="flex items-center gap-1.5">
+                            {[0, 1, 2, 3, 4, 5].map((lvl) => {
+                              const selected = (msLevels[sub.id] ?? 0) === lvl;
+                              return (
+                                <button
+                                  key={lvl}
+                                  onClick={() => setMsLevels((prev) => ({ ...prev, [sub.id]: lvl }))}
+                                  className="flex items-center justify-center transition-all"
+                                  style={{
+                                    width: 28,
+                                    height: 28,
+                                    borderRadius: "50%",
+                                    fontSize: 12,
+                                    fontWeight: 500,
+                                    cursor: "pointer",
+                                    background: selected ? "#415162" : "#F5F3EE",
+                                    color: selected ? "#fff" : "#5F7285",
+                                    border: selected ? "2px solid #415162" : "1px solid #C9CED4",
+                                  }}
+                                >
+                                  {lvl}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ))}
+
+                  <div className="flex justify-end pt-2">
+                    <button
+                      onClick={handleMsSave}
+                      disabled={!msHasChanges || msSaving}
+                      style={{
+                        background: !msHasChanges || msSaving ? "#A0AEC0" : "#415162",
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: 6,
+                        padding: "8px 20px",
+                        fontSize: 13,
+                        fontWeight: 500,
+                        cursor: !msHasChanges || msSaving ? "default" : "pointer",
+                      }}
+                    >
+                      {msSaving ? "Saving..." : "Save changes"}
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+        </div>
+
         {/* App Settings */}
         <div
           className="rounded-lg overflow-hidden cursor-pointer"
