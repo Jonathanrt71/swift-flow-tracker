@@ -49,40 +49,56 @@ const EditUserDialog = ({
   isSelf,
   onUpdateRole,
   onUpdateProfile,
+  onUpdateUser,
 }: {
   u: ManagedUser;
   isSelf: boolean;
   onUpdateRole: (data: { user_id: string; role: UserRole }) => void;
   onUpdateProfile: (data: { id: string; display_name?: string; first_name?: string; last_name?: string; graduation_year?: number | null }) => void;
+  onUpdateUser: (data: { user_id: string; email?: string; password?: string }) => void;
 }) => {
   const [open, setOpen] = useState(false);
-  const [role, setRole] = useState<UserRole>(u.role);
-  const [displayName, setDisplayName] = useState(u.display_name || "");
+  const [email, setEmail] = useState(u.email || "");
+  const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState(u.first_name || "");
   const [lastName, setLastName] = useState(u.last_name || "");
+  const [role, setRole] = useState<UserRole>(u.role);
   const [graduationYear, setGraduationYear] = useState(u.graduation_year?.toString() || "");
 
   const handleOpen = (isOpen: boolean) => {
     if (isOpen) {
-      setRole(u.role);
-      setDisplayName(u.display_name || "");
+      setEmail(u.email || "");
+      setPassword("");
       setFirstName(u.first_name || "");
       setLastName(u.last_name || "");
+      setRole(u.role);
       setGraduationYear(u.graduation_year?.toString() || "");
     }
     setOpen(isOpen);
   };
 
   const handleSave = () => {
+    // Update auth fields (email/password) via edge function
+    const authUpdates: { user_id: string; email?: string; password?: string } = { user_id: u.id };
+    if (email !== (u.email || "")) authUpdates.email = email;
+    if (password) authUpdates.password = password;
+    if (authUpdates.email || authUpdates.password) {
+      onUpdateUser(authUpdates);
+    }
+
+    // Update role if changed
     if (role !== u.role) {
       onUpdateRole({ user_id: u.id, role });
     }
+
+    // Update profile fields
     const parsedYear = graduationYear ? parseInt(graduationYear, 10) : null;
+    const displayName = (firstName && lastName) ? `${firstName} ${lastName}` : u.display_name || "";
     const profileChanged =
-      displayName !== (u.display_name || "") ||
       firstName !== (u.first_name || "") ||
       lastName !== (u.last_name || "") ||
-      parsedYear !== (u.graduation_year ?? null);
+      parsedYear !== (u.graduation_year ?? null) ||
+      email !== (u.email || "");
     if (profileChanged) {
       onUpdateProfile({
         id: u.id,
@@ -90,12 +106,11 @@ const EditUserDialog = ({
         first_name: firstName,
         last_name: lastName,
         graduation_year: parsedYear,
+        email: email !== (u.email || "") ? email : undefined,
       });
     }
     setOpen(false);
   };
-
-  const effectiveRole = role;
 
   return (
     <Dialog open={open} onOpenChange={handleOpen}>
@@ -117,11 +132,22 @@ const EditUserDialog = ({
 
         <div className="px-5 pb-5 flex flex-col gap-3.5">
           <div className="space-y-1.5">
-            <Label className="text-xs text-muted-foreground">Display name</Label>
+            <Label className="text-xs text-muted-foreground">Email</Label>
             <Input
-              value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
-              placeholder="Display name"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="user@example.com"
+              className="bg-background rounded-lg"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground">Password</Label>
+            <Input
+              type="text"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Leave blank to keep current"
               className="bg-background rounded-lg"
             />
           </div>
@@ -145,22 +171,22 @@ const EditUserDialog = ({
           </div>
           <div className="space-y-1.5">
             <Label className="text-xs text-muted-foreground">Role</Label>
-            <Select value={role} onValueChange={(v) => setRole(v as UserRole)} disabled={isSelf}>
-              <SelectTrigger className="bg-background rounded-lg">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="resident">Resident</SelectItem>
-                <SelectItem value="faculty">Faculty</SelectItem>
-                <SelectItem value="admin">Admin</SelectItem>
-              </SelectContent>
-            </Select>
+            <select
+              value={role}
+              onChange={(e) => setRole(e.target.value as UserRole)}
+              disabled={isSelf}
+              className="w-full h-10 px-3 bg-background border border-border rounded-lg text-sm outline-none"
+            >
+              <option value="resident">Resident</option>
+              <option value="faculty">Faculty</option>
+              <option value="admin">Admin</option>
+            </select>
             {isSelf && (
               <p className="text-xs text-muted-foreground">You cannot change your own role.</p>
             )}
           </div>
 
-          {effectiveRole === "resident" && (
+          {role === "resident" && (
             <div className="space-y-1.5">
               <Label className="text-xs text-muted-foreground">Graduation year</Label>
               <Input
@@ -287,7 +313,6 @@ const AddUserDialog = ({
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [displayName, setDisplayName] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [role, setRole] = useState<UserRole>("resident");
@@ -297,7 +322,6 @@ const AddUserDialog = ({
     if (isOpen) {
       setEmail("");
       setPassword("");
-      setDisplayName("");
       setFirstName("");
       setLastName("");
       setRole("resident");
@@ -312,7 +336,7 @@ const AddUserDialog = ({
     onSubmit({
       email,
       password,
-      display_name: displayName || undefined,
+      display_name: (firstName && lastName) ? `${firstName} ${lastName}` : undefined,
       first_name: firstName || undefined,
       last_name: lastName || undefined,
       role,
@@ -530,7 +554,7 @@ const Admin = () => {
   const { user, signOut } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const { isAdmin, isAdminLoading, users, inviteUser, updateRole, updateProfile, deleteUser } = useAdmin();
+  const { isAdmin, isAdminLoading, users, inviteUser, updateUser, updateRole, updateProfile, deleteUser } = useAdmin();
   const { tags, createTag, updateTag, deleteTag } = useMeetingTags();
   const { links } = useMeetingTagLinks();
   const { categories, createCategory, updateCategory, deleteCategory } = useCompetencyCategories();
@@ -724,6 +748,7 @@ const Admin = () => {
                               isSelf={isSelf}
                               onUpdateRole={(data) => updateRole.mutate(data)}
                               onUpdateProfile={(data) => updateProfile.mutate(data)}
+                              onUpdateUser={(data) => updateUser.mutate(data)}
                             />
                             {!isSelf && (
                               <DeleteUserDialog

@@ -150,8 +150,28 @@ export function useAdmin() {
     },
   });
 
+  const updateUser = useMutation({
+    mutationFn: async (data: { user_id: string; email?: string; password?: string }) => {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await supabase.functions.invoke("admin-update-user", {
+        body: data,
+        headers: { Authorization: `Bearer ${session?.access_token}` },
+      });
+      if (res.error) throw new Error(res.error.message || "Failed to update user");
+      if (res.data?.error) throw new Error(res.data.error);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+      toast({ title: "User updated" });
+    },
+    onError: (err: Error) => {
+      toast({ title: "Failed to update user", description: err.message, variant: "destructive" });
+    },
+  });
+
   const updateProfile = useMutation({
-    mutationFn: async (data: { id: string; display_name?: string; first_name?: string; last_name?: string; graduation_year?: number | null }) => {
+    mutationFn: async (data: { id: string; display_name?: string; first_name?: string; last_name?: string; graduation_year?: number | null; email?: string }) => {
       const { id, ...fields } = data;
       const { error } = await supabase.from("profiles").update(fields).eq("id", id);
       if (error) throw error;
@@ -166,5 +186,5 @@ export function useAdmin() {
     },
   });
 
-  return { isAdmin: isAdmin.data, isAdminLoading: isAdmin.isLoading, users, inviteUser, updateRole, updateProfile, deleteUser };
+  return { isAdmin: isAdmin.data, isAdminLoading: isAdmin.isLoading, users, inviteUser, updateUser, updateRole, updateProfile, deleteUser };
 }
