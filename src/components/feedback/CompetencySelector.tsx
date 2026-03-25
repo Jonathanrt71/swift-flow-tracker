@@ -144,7 +144,7 @@ const CompetencySelector = ({ value, onChange, commentText, sentiment, pgyLevel,
   const cats = categories || [];
   const maxLevel = getMaxLevelForPgy(pgyLevel, pgyMaxLevels);
 
-  const select = (sel: CompetencySelection, milestoneLevel?: number) => {
+  const select = (sel: CompetencySelection, milestoneId?: string, milestoneLevel?: number) => {
     // Soft constraint: warn if manually selected level exceeds PGY max
     if (milestoneLevel && maxLevel && milestoneLevel > maxLevel && pgyLevel) {
       toast({
@@ -152,8 +152,8 @@ const CompetencySelector = ({ value, onChange, commentText, sentiment, pgyLevel,
       });
     }
     onChange(sel);
-    setExpandedSubId(null);
-    setExpandedMileId(null);
+    // Toggle milestone description open/closed; keep subcategory expanded
+    setExpandedMileId((prev) => (prev === milestoneId ? null : milestoneId ?? null));
   };
 
   const clear = () => {
@@ -428,7 +428,7 @@ const CompetencySelector = ({ value, onChange, commentText, sentiment, pgyLevel,
                                   milestoneId: mile.id,
                                   label: `${activeCat.code} > ${sub.code} > Level ${mile.level}`,
                                   color: activeCat.color,
-                                }, mile.level)
+                                }, mile.id, mile.level)
                               }
                               className="flex items-center gap-2 flex-1 min-w-0 text-left"
                             >
