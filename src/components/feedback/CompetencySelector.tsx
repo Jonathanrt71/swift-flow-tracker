@@ -445,6 +445,18 @@ const CompetencySelector = ({ value, onChange, commentText, sentiment, pgyLevel,
                                 {displayLabel}
                               </span>
                             </button>
+                            {isCurrentLevel && (
+                              <div
+                                className="shrink-0"
+                                style={{
+                                  width: 8,
+                                  height: 8,
+                                  borderRadius: "50%",
+                                  background: "#EF9F27",
+                                  border: "1.5px solid #BA7517",
+                                }}
+                              />
+                            )}
                             <button
                               type="button"
                               onClick={(e) => {
