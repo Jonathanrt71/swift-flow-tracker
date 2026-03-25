@@ -206,6 +206,9 @@ const EventCard = ({
               </div>
             )}
           </div>
+          {isFacultyOrAdmin && event.category === "didactic" && (
+            <EventEvaluation eventId={event.id} />
+          )}
         </div>
       )}
     </div>
