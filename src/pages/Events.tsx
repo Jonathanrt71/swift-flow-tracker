@@ -303,7 +303,7 @@ const GroupedEventList = ({
 const Events = () => {
   const { user, signOut } = useAuth();
   const { isAdmin } = useAdmin();
-  const { isResident } = useUserRole();
+  const { isResident, isFaculty } = useUserRole();
   const isMobile = useIsMobile();
 
   const { events, createEvent, updateEvent, deleteEvent } = useEvents();
@@ -482,6 +482,7 @@ const Events = () => {
             teamMembers={teamMembers}
             userId={user?.id}
             isAdmin={!isResident && !!isAdmin}
+            isFacultyOrAdmin={!!isAdmin || !!isFaculty}
             onUpdate={(data) => { if (!isResident) updateEvent.mutate(data); }}
             onDelete={(id) => { if (!isResident) deleteEvent.mutate(id); }}
             emptyMessage={activeTab === "program" ? "No program events" : "No didactics"}
