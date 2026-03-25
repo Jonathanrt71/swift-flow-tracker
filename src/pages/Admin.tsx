@@ -603,10 +603,10 @@ const Admin = () => {
     }
     setMsOriginal({ ...msLevels });
     setMsSaving(false);
-    const { toast } = await import("@/hooks/use-toast");
-    toast({ title: "Milestone status updated" });
   };
 
+  // Sync default report email and PGY max levels from settings
+  useEffect(() => {
     const fetchSettings = async () => {
       const { supabase } = await import("@/integrations/supabase/client");
       const { data } = await (supabase as any)
