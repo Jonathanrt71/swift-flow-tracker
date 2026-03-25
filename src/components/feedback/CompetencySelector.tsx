@@ -213,7 +213,15 @@ const CompetencySelector = ({ value, onChange, commentText, sentiment, pgyLevel,
         })),
       })),
     }));
-    suggest(commentText || "", sentiment, pgyLevel, competencies);
+    const currentLevelsObj: Record<string, number> = {};
+    statusMap.forEach((level, subId) => {
+      // Find the subcategory code for the subId
+      for (const cat of cats) {
+        const sub = cat.subcategories.find((s) => s.id === subId);
+        if (sub) { currentLevelsObj[sub.code] = level; break; }
+      }
+    });
+    suggest(commentText || "", sentiment, pgyLevel, competencies, Object.keys(currentLevelsObj).length > 0 ? currentLevelsObj : undefined);
   };
 
   const handleSuggestionTap = (suggestion: CompetencySuggestion) => {
