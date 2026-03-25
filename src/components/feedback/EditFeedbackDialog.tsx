@@ -90,9 +90,10 @@ const EditFeedbackDialog = ({ feedback, residents, onSubmit }: EditFeedbackDialo
         </button>
       </DialogTrigger>
       <DialogContent
-        className="rounded-lg border-0 p-5 max-w-[calc(100vw-2rem)] w-full sm:max-w-md"
+        className="rounded-lg border-0 p-5 max-w-[calc(100vw-2rem)] w-full sm:max-w-md overflow-hidden"
         style={{ background: "#F5F3EE" }}
       >
+        <div className="overflow-y-auto max-h-[80vh] overflow-x-hidden">
         <div className="flex items-center justify-between mb-5">
           <span className="text-base font-semibold" style={{ color: "#2D3748" }}>
             Edit feedback
@@ -179,6 +180,7 @@ const EditFeedbackDialog = ({ feedback, residents, onSubmit }: EditFeedbackDialo
         >
           Save changes
         </button>
+        </div>
       </DialogContent>
     </Dialog>
   );
