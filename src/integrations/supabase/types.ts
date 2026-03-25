@@ -736,6 +736,36 @@ export type Database = {
         }
         Relationships: []
       }
+      resident_milestone_status: {
+        Row: {
+          created_at: string | null
+          current_level: number
+          id: string
+          resident_id: string
+          subcategory_id: string
+          updated_at: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          current_level?: number
+          id?: string
+          resident_id: string
+          subcategory_id: string
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          current_level?: number
+          id?: string
+          resident_id?: string
+          subcategory_id?: string
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       tasks: {
         Row: {
           assigned_to: string | null
