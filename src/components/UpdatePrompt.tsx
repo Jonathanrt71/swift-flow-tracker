@@ -1,13 +1,20 @@
 import { useState, useEffect } from "react";
 
+const isMobileDevice = () => {
+  const ua = navigator.userAgent;
+  if (/Android|iPhone|iPod/i.test(ua)) return true;
+  // iPad with desktop-mode UA still has maxTouchPoints > 1
+  if (/iPad/i.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1))
+    return true;
+  return false;
+};
+
 const UpdatePrompt = () => {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    const handler = () => {
-      const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-      if (isMobile) setVisible(true);
-    };
+    if (!isMobileDevice()) return; // skip listener entirely on desktop
+    const handler = () => setVisible(true);
     window.addEventListener("pwa-update-available", handler);
     return () => window.removeEventListener("pwa-update-available", handler);
   }, []);
