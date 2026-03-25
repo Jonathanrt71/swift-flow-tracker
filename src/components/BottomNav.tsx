@@ -6,7 +6,7 @@ type AllowedRole = "admin" | "faculty" | "resident";
 
 const allNavItems = [
   { path: "/cbme", icon: BookOpen, allowed: ["admin"] as AllowedRole[] },
-  { path: "/events", icon: Calendar, allowed: ["admin"] as AllowedRole[] },
+  { path: "/events", icon: Calendar, allowed: ["admin", "faculty"] as AllowedRole[] },
   { path: "/feedback", icon: MessageSquare, allowed: ["admin", "faculty"] as AllowedRole[] },
   { path: "/tasks", icon: CheckSquare, allowed: ["admin"] as AllowedRole[] },
 ];
