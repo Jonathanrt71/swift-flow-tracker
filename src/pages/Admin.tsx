@@ -465,8 +465,8 @@ const RoleAccessSection = () => {
     {
       name: "CBME",
       rows: [
-        { action: "View page", a: <G />, f: <G />, r: <R /> },
-        { action: "Assess / edit / all scores", a: <G />, f: <G />, r: <R /> },
+        { action: "View page", a: <G />, f: <R />, r: <R /> },
+        { action: "Assess / edit / all scores", a: <G />, f: <R />, r: <R /> },
       ],
     },
     {
@@ -474,19 +474,22 @@ const RoleAccessSection = () => {
       rows: [
         { action: "View page", a: <G />, f: <G />, r: <R /> },
         { action: "Create / edit / delete", a: <G />, f: <G />, r: <R /> },
+        { action: "Evaluate didactics", a: <G />, f: <G />, r: <R /> },
       ],
     },
     {
       name: "Feedback",
       rows: [
-        { action: "All actions", a: <G />, f: <G />, r: <R /> },
+        { action: "View page", a: <G />, f: <G />, r: <R /> },
+        { action: "Create / edit / delete", a: <G />, f: <G />, r: <R /> },
+        { action: "Generate report", a: <G />, f: <G />, r: <R /> },
       ],
     },
     {
       name: "Meetings",
       rows: [
-        { action: "View page", a: <G />, f: <G />, r: <R /> },
-        { action: "Create / edit / delete", a: <G />, f: <G />, r: <R /> },
+        { action: "View page", a: <G />, f: <R />, r: <R /> },
+        { action: "Create / edit / delete", a: <G />, f: <R />, r: <R /> },
       ],
     },
     {
@@ -498,8 +501,8 @@ const RoleAccessSection = () => {
     {
       name: "Tasks",
       rows: [
-        { action: "View page", a: <G />, f: <G />, r: <R /> },
-        { action: "Create / edit / delete", a: <G />, f: <G />, r: <R /> },
+        { action: "View page", a: <G />, f: <R />, r: <R /> },
+        { action: "Create / edit / delete", a: <G />, f: <R />, r: <R /> },
       ],
     },
   ];
