@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { ChevronDown, ChevronUp, X, Sparkles, Loader2 } from "lucide-react";
 import { useACGMECompetencies, type ACGMECategory, type ACGMEMilestone } from "@/hooks/useACGMECompetencies";
 import { useCompetencySuggestion, type CompetencySuggestion } from "@/hooks/useCompetencySuggestion";
@@ -19,6 +21,7 @@ interface CompetencySelectorProps {
   commentText?: string;
   sentiment?: "positive" | "negative";
   pgyLevel?: number;
+  residentId?: string;
 }
 
 export function buildSelectionFromFeedback(
@@ -115,7 +118,7 @@ function MilestoneDescription({ milestone, accentColor }: { milestone: ACGMEMile
   );
 }
 
-const CompetencySelector = ({ value, onChange, commentText, sentiment, pgyLevel }: CompetencySelectorProps) => {
+const CompetencySelector = ({ value, onChange, commentText, sentiment, pgyLevel, residentId }: CompetencySelectorProps) => {
   const { data: categories } = useACGMECompetencies();
   const { suggestions, loading, suggest, clearSuggestions } = useCompetencySuggestion();
   const { data: pgyMaxLevels } = usePgyMaxLevels();
