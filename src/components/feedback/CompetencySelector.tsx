@@ -123,6 +123,19 @@ const CompetencySelector = ({ value, onChange, commentText, sentiment, pgyLevel,
   const { suggestions, loading, suggest, clearSuggestions } = useCompetencySuggestion();
   const { data: pgyMaxLevels } = usePgyMaxLevels();
   const { toast } = useToast();
+  const { data: milestoneStatus } = useQuery({
+    queryKey: ["resident-milestone-status", residentId],
+    queryFn: async () => {
+      const { data } = await (supabase as any)
+        .from("resident_milestone_status")
+        .select("subcategory_id, current_level")
+        .eq("resident_id", residentId);
+      return data || [];
+    },
+    enabled: !!residentId,
+  });
+  const statusMap = new Map<string, number>();
+  (milestoneStatus || []).forEach((s: any) => statusMap.set(s.subcategory_id, s.current_level));
   const [activeCatId, setActiveCatId] = useState<string | null>(value?.categoryId ?? null);
   const [expandedSubId, setExpandedSubId] = useState<string | null>(null);
   const [expandedMileId, setExpandedMileId] = useState<string | null>(null);
