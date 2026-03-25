@@ -35,8 +35,8 @@ const UpdatePrompt = () => {
         left: 0,
         right: 0,
         zIndex: 9999,
-        background: "#415162",
-        color: "#fff",
+        background: "#F5F3EE",
+        color: "#3D3A37",
         padding: "10px 16px",
         display: "flex",
         alignItems: "center",
@@ -49,8 +49,8 @@ const UpdatePrompt = () => {
         onClick={handleRefresh}
         style={{
           background: "transparent",
-          color: "#fff",
-          border: "1px solid rgba(255,255,255,0.6)",
+          color: "#3D3A37",
+          border: "1px solid rgba(61,58,55,0.3)",
           borderRadius: 6,
           padding: "5px 14px",
           fontSize: 13,
