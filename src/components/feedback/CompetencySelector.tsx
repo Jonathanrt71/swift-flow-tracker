@@ -101,7 +101,7 @@ function MilestoneDescription({ milestone, accentColor }: { milestone: ACGMEMile
         borderLeft: `2px solid ${accentColor || "#8A9AAB"}`,
         borderRadius: 8,
         padding: "10px 14px",
-        margin: "4px 12px 6px 64px",
+        margin: "4px 12px 6px 24px",
       }}
     >
       {bullets.map((b, i) => (
