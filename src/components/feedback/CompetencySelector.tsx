@@ -101,7 +101,7 @@ function MilestoneDescription({ milestone, accentColor }: { milestone: ACGMEMile
         borderLeft: `2px solid ${accentColor || "#8A9AAB"}`,
         borderRadius: 8,
         padding: "10px 14px",
-        margin: "4px 12px 6px 64px",
+        margin: "4px 12px 6px 24px",
       }}
     >
       {bullets.map((b, i) => (
@@ -411,9 +411,9 @@ const CompetencySelector = ({ value, onChange, commentText, sentiment, pgyLevel,
                           <div
                             className="w-full flex items-center gap-2"
                             style={{
-                              paddingLeft: 64,
-                              paddingRight: 12,
-                              borderTop: "0.5px solid #E7EBEF",
+                             paddingLeft: 24,
+                             paddingRight: 12,
+                             borderTop: "0.5px solid #E7EBEF",
                               paddingTop: 8,
                               paddingBottom: isMileExpanded ? 4 : 8,
                               background: isCurrentLevel ? "rgba(0,0,0,0.03)" : undefined,
