@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { format, parseISO } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
-import { List, PieChart, FileText, BookOpen, Pencil, Trash2, X as XIcon, Search, UserCheck, Calendar, User } from "lucide-react";
+import { List, PieChart, FileText, BookOpen, Pencil, Trash2, X as XIcon, Search, Calendar, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
