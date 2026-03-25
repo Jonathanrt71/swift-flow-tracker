@@ -220,6 +220,7 @@ const GroupedEventList = ({
   teamMembers,
   userId,
   isAdmin,
+  isFacultyOrAdmin,
   onUpdate,
   onDelete,
   emptyMessage,
@@ -228,6 +229,7 @@ const GroupedEventList = ({
   teamMembers: ReturnType<typeof useTeamMembers>["data"];
   userId: string | undefined;
   isAdmin: boolean;
+  isFacultyOrAdmin: boolean;
   onUpdate: (data: {
     id: string;
     title?: string;
@@ -287,6 +289,7 @@ const GroupedEventList = ({
               event={ev}
               teamMembers={teamMembers}
               canEdit={isAdmin || ev.created_by === userId}
+              isFacultyOrAdmin={isFacultyOrAdmin}
               onUpdate={onUpdate}
               onDelete={onDelete}
             />
