@@ -396,11 +396,21 @@ const CompetencySelector = ({ value, onChange, commentText, sentiment, pgyLevel,
                       const isMileExpanded = expandedMileId === mile.id;
                       const displayLabel = mile.summary || `Level ${mile.level}`;
                       const isSelected = value?.milestoneId === mile.id;
+                      const currentLevel = statusMap.get(sub.id);
+                      const isCurrentLevel = currentLevel !== undefined && currentLevel === mile.level;
                       return (
                         <div key={mile.id}>
                           <div
                             className="w-full flex items-center gap-2"
                             style={{
+                              paddingLeft: 64,
+                              paddingRight: 12,
+                              borderTop: "0.5px solid #E7EBEF",
+                              paddingTop: 8,
+                              paddingBottom: isMileExpanded ? 4 : 8,
+                              background: isCurrentLevel ? "rgba(0,0,0,0.03)" : undefined,
+                            }}
+                          >
                               paddingLeft: 64,
                               paddingRight: 12,
                               borderTop: "0.5px solid #E7EBEF",
