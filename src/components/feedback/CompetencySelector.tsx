@@ -428,7 +428,7 @@ const CompetencySelector = ({ value, onChange, commentText, sentiment, pgyLevel,
                                   milestoneId: mile.id,
                                   label: `${activeCat.code} > ${sub.code} > Level ${mile.level}`,
                                   color: activeCat.color,
-                                }, mile.level)
+                                }, mile.id, mile.level)
                               }
                               className="flex items-center gap-2 flex-1 min-w-0 text-left"
                             >
