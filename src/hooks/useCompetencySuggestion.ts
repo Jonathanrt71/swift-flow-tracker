@@ -25,7 +25,7 @@ export function useCompetencySuggestion() {
     setLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke("suggest-competency", {
-        body: { comment, sentiment, pgyLevel },
+        body: { comment, sentiment, pgyLevel, competencies: competencyData },
       });
 
       if (error) throw error;
