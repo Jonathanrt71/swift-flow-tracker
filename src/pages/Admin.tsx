@@ -605,6 +605,7 @@ const Admin = () => {
     }
     setMsOriginal({ ...msLevels });
     setMsSaving(false);
+    toast({ title: "Milestone status updated" });
   };
 
   // Sync default report email and PGY max levels from settings
