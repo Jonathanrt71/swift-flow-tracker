@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { ChevronDown, ChevronUp, X, Sparkles, Loader2 } from "lucide-react";
 import { useACGMECompetencies, type ACGMECategory, type ACGMEMilestone } from "@/hooks/useACGMECompetencies";
 import { useCompetencySuggestion, type CompetencySuggestion } from "@/hooks/useCompetencySuggestion";
@@ -19,6 +21,7 @@ interface CompetencySelectorProps {
   commentText?: string;
   sentiment?: "positive" | "negative";
   pgyLevel?: number;
+  residentId?: string;
 }
 
 export function buildSelectionFromFeedback(
@@ -115,11 +118,24 @@ function MilestoneDescription({ milestone, accentColor }: { milestone: ACGMEMile
   );
 }
 
-const CompetencySelector = ({ value, onChange, commentText, sentiment, pgyLevel }: CompetencySelectorProps) => {
+const CompetencySelector = ({ value, onChange, commentText, sentiment, pgyLevel, residentId }: CompetencySelectorProps) => {
   const { data: categories } = useACGMECompetencies();
   const { suggestions, loading, suggest, clearSuggestions } = useCompetencySuggestion();
   const { data: pgyMaxLevels } = usePgyMaxLevels();
   const { toast } = useToast();
+  const { data: milestoneStatus } = useQuery({
+    queryKey: ["resident-milestone-status", residentId],
+    queryFn: async () => {
+      const { data } = await (supabase as any)
+        .from("resident_milestone_status")
+        .select("subcategory_id, current_level")
+        .eq("resident_id", residentId);
+      return data || [];
+    },
+    enabled: !!residentId,
+  });
+  const statusMap = new Map<string, number>();
+  (milestoneStatus || []).forEach((s: any) => statusMap.set(s.subcategory_id, s.current_level));
   const [activeCatId, setActiveCatId] = useState<string | null>(value?.categoryId ?? null);
   const [expandedSubId, setExpandedSubId] = useState<string | null>(null);
   const [expandedMileId, setExpandedMileId] = useState<string | null>(null);
@@ -380,6 +396,8 @@ const CompetencySelector = ({ value, onChange, commentText, sentiment, pgyLevel 
                       const isMileExpanded = expandedMileId === mile.id;
                       const displayLabel = mile.summary || `Level ${mile.level}`;
                       const isSelected = value?.milestoneId === mile.id;
+                      const currentLevel = statusMap.get(sub.id);
+                      const isCurrentLevel = currentLevel !== undefined && currentLevel === mile.level;
                       return (
                         <div key={mile.id}>
                           <div
@@ -390,6 +408,7 @@ const CompetencySelector = ({ value, onChange, commentText, sentiment, pgyLevel 
                               borderTop: "0.5px solid #E7EBEF",
                               paddingTop: 8,
                               paddingBottom: isMileExpanded ? 4 : 8,
+                              background: isCurrentLevel ? "rgba(0,0,0,0.03)" : undefined,
                             }}
                           >
                             <button
@@ -426,6 +445,18 @@ const CompetencySelector = ({ value, onChange, commentText, sentiment, pgyLevel 
                                 {displayLabel}
                               </span>
                             </button>
+                            {isCurrentLevel && (
+                              <div
+                                className="shrink-0"
+                                style={{
+                                  width: 8,
+                                  height: 8,
+                                  borderRadius: "50%",
+                                  background: "#EF9F27",
+                                  border: "1.5px solid #BA7517",
+                                }}
+                              />
+                            )}
                             <button
                               type="button"
                               onClick={(e) => {

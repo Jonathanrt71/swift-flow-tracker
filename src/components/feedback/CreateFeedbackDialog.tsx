@@ -154,7 +154,7 @@ const CreateFeedbackDialog = ({ onSubmit, residents }: CreateFeedbackDialogProps
           const academicYear = now.getMonth() >= 6 ? now.getFullYear() + 1 : now.getFullYear();
           const pgy = academicYear - (r.graduation_year - 3);
           return pgy >= 1 ? pgy : undefined;
-        })()} />
+        })()} residentId={residentId} />
 
         {/* Save */}
         <button
