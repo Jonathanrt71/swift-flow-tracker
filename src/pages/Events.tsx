@@ -414,7 +414,8 @@ const Events = () => {
                   { mode: "list" as const, icon: <List className="h-3.5 w-3.5" /> },
                   { mode: "vertical" as const, icon: <VerticalTimelineIcon /> },
                   { mode: "gantt" as const, icon: <GanttIcon /> },
-                ] as const).map(({ mode, icon }) => (
+                  ...(isAdmin ? [{ mode: "evaluations" as const, icon: <ClipboardCheck className="h-3.5 w-3.5" /> }] : []),
+                ]).map(({ mode, icon }) => (
                   <button
                     key={mode}
                     onClick={() => setViewMode(mode)}
@@ -471,6 +472,8 @@ const Events = () => {
           <div className="flex justify-center py-12">
             <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
           </div>
+        ) : viewMode === "evaluations" ? (
+          <EventsEvaluationsView events={events.data || []} />
         ) : activeTab === "program" && viewMode === "gantt" ? (
           <EventsGantt
             events={programEvents}
