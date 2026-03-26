@@ -216,6 +216,9 @@ export default function EvaluationDialog({
                       textAlign: "center",
                       cursor: "pointer",
                       transition: "all 0.15s",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
                     }}
                   >
                     <div
@@ -224,19 +227,8 @@ export default function EvaluationDialog({
                         height: 14,
                         borderRadius: "50%",
                         background: card.dotColor,
-                        margin: "0 auto",
                       }}
                     />
-                    <div
-                      style={{
-                        fontSize: 11,
-                        fontWeight: 500,
-                        color: card.labelColor,
-                        marginTop: 6,
-                      }}
-                    >
-                      {card.label}
-                    </div>
                   </div>
                 );
               })}
