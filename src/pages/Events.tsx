@@ -253,6 +253,7 @@ const GroupedEventList = ({
   userId,
   isAdmin,
   isFacultyOrAdmin,
+  evaluationStatus,
   onUpdate,
   onDelete,
   emptyMessage,
@@ -262,6 +263,7 @@ const GroupedEventList = ({
   userId: string | undefined;
   isAdmin: boolean;
   isFacultyOrAdmin: boolean;
+  evaluationStatus?: Record<string, boolean>;
   onUpdate: (data: {
     id: string;
     title?: string;
@@ -322,6 +324,7 @@ const GroupedEventList = ({
               teamMembers={teamMembers}
               canEdit={isAdmin || ev.created_by === userId}
               isFacultyOrAdmin={isFacultyOrAdmin}
+              evaluationStatus={evaluationStatus}
               onUpdate={onUpdate}
               onDelete={onDelete}
             />
