@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { X } from "lucide-react";
 
-type Rating = "red" | "yellow" | "green";
+type Rating = "yellow" | "green" | "blue";
 
 const RATING_CARDS: {
   value: Rating;
@@ -26,31 +26,31 @@ const RATING_CARDS: {
   labelColor: string;
 }[] = [
   {
-    value: "red",
-    label: "Needs work",
-    bg: "#FCEBEB",
-    borderDefault: "#D5DAE0",
-    borderSelected: "#E24B4A",
-    dotColor: "#E24B4A",
-    labelColor: "#A32D2D",
-  },
-  {
     value: "yellow",
-    label: "Adequate",
-    bg: "#FAEEDA",
+    label: "Needs work",
+    bg: "#FBF3E0",
     borderDefault: "#D5DAE0",
-    borderSelected: "#EF9F27",
-    dotColor: "#EF9F27",
-    labelColor: "#854F0B",
+    borderSelected: "#D4A017",
+    dotColor: "#D4A017",
+    labelColor: "#8A6B0F",
   },
   {
     value: "green",
-    label: "Excellent",
-    bg: "#EAF3DE",
+    label: "Adequate",
+    bg: "#E4F0EB",
     borderDefault: "#D5DAE0",
-    borderSelected: "#639922",
-    dotColor: "#639922",
-    labelColor: "#3B6D11",
+    borderSelected: "#4A846C",
+    dotColor: "#4A846C",
+    labelColor: "#3A6A56",
+  },
+  {
+    value: "blue",
+    label: "Excellent",
+    bg: "#E8EDF2",
+    borderDefault: "#D5DAE0",
+    borderSelected: "#52657A",
+    dotColor: "#52657A",
+    labelColor: "#3E4F60",
   },
 ];
 

@@ -5,27 +5,27 @@ import { useToast } from "@/hooks/use-toast";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 
-type Rating = "red" | "yellow" | "green";
+type Rating = "yellow" | "green" | "blue";
 
 const DOT_STYLES: Record<Rating, { unselected: string; selected: string; hover: string }> = {
-  red: {
-    unselected: "background: #F5C4C4; border: 2px solid #C9CED4;",
-    selected: "background: #E24B4A; border: 2px solid #A32D2D;",
-    hover: "background: #F09595; border: 2px solid #C9CED4;",
-  },
   yellow: {
-    unselected: "background: #FAE4A8; border: 2px solid #C9CED4;",
-    selected: "background: #EF9F27; border: 2px solid #BA7517;",
-    hover: "background: #FAC775; border: 2px solid #C9CED4;",
+    unselected: "background: #F5E6B8; border: 2px solid #C9CED4;",
+    selected: "background: #D4A017; border: 2px solid #8A6B0F;",
+    hover: "background: #E8C55A; border: 2px solid #C9CED4;",
   },
   green: {
-    unselected: "background: #C0DD97; border: 2px solid #C9CED4;",
-    selected: "background: #639922; border: 2px solid #3B6D11;",
-    hover: "background: #97C459; border: 2px solid #C9CED4;",
+    unselected: "background: #B8D4C8; border: 2px solid #C9CED4;",
+    selected: "background: #4A846C; border: 2px solid #3A6A56;",
+    hover: "background: #82B8A0; border: 2px solid #C9CED4;",
+  },
+  blue: {
+    unselected: "background: #B8C4D0; border: 2px solid #C9CED4;",
+    selected: "background: #52657A; border: 2px solid #3E4F60;",
+    hover: "background: #8A9AAB; border: 2px solid #C9CED4;",
   },
 };
 
-const RATINGS: Rating[] = ["red", "yellow", "green"];
+const RATINGS: Rating[] = ["yellow", "green", "blue"];
 
 interface EventEvaluationProps {
   eventId: string;

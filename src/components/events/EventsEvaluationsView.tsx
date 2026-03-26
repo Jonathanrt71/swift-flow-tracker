@@ -20,9 +20,9 @@ interface EvaluationRow {
 }
 
 const ratingColor: Record<string, string> = {
-  green: "#639922",
-  yellow: "#EF9F27",
-  red: "#E24B4A",
+  blue: "#52657A",
+  green: "#4A846C",
+  yellow: "#D4A017",
 };
 
 const formatName = (p: EvaluationRow["profiles"]): string => {
@@ -42,7 +42,7 @@ const EvaluationCard = ({
   const hasEvals = evaluations.length > 0;
 
   const counts = useMemo(() => {
-    const c = { green: 0, yellow: 0, red: 0 };
+    const c = { blue: 0, green: 0, yellow: 0 };
     evaluations.forEach((e) => {
       if (e.rating in c) c[e.rating as keyof typeof c]++;
     });
@@ -93,7 +93,7 @@ const EvaluationCard = ({
         {/* Aggregate row */}
         <div className="flex items-center justify-between" style={{ marginTop: 10 }}>
           <div className="flex items-center" style={{ gap: 10 }}>
-            {(["green", "yellow", "red"] as const).map((r) => (
+            {(["blue", "green", "yellow"] as const).map((r) => (
               <div key={r} className="flex items-center gap-1">
                 <div
                   style={{
