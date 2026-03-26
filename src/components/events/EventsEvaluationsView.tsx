@@ -165,11 +165,27 @@ const EventsEvaluationsView = ({ events }: { events: ProgramEvent[] }) => {
   const { data: evaluations, isLoading } = useQuery({
     queryKey: ["event-evaluations-all"],
     queryFn: async () => {
-      const { data } = await supabase
+      const { data: evals } = await supabase
         .from("event_evaluations")
-        .select("*, profiles:evaluator_id(first_name, last_name, display_name)")
+        .select("*")
         .order("created_at", { ascending: false });
-      return (data || []) as EvaluationRow[];
+      if (!evals || evals.length === 0) return [] as EvaluationRow[];
+
+      const evaluatorIds = [...new Set(evals.map((e) => e.evaluator_id))];
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("id, first_name, last_name, display_name")
+        .in("id", evaluatorIds);
+
+      const profileMap: Record<string, EvaluationRow["profiles"]> = {};
+      (profiles || []).forEach((p) => {
+        profileMap[p.id] = { first_name: p.first_name, last_name: p.last_name, display_name: p.display_name };
+      });
+
+      return evals.map((e) => ({
+        ...e,
+        profiles: profileMap[e.evaluator_id] || null,
+      })) as EvaluationRow[];
     },
   });
 
