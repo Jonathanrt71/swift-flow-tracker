@@ -463,7 +463,7 @@ const CBME = () => {
               const assessments = allAssessments.data || [];
               const compMap = new Map((competencies.data || []).map((c) => [c.id, c.title]));
               const members = teamMembers || [];
-              const GRADE_COLORS: Record<number, string> = { 1: "#A63333", 2: "#D4B820", 3: "#5E9E82" };
+              const GRADE_COLORS: Record<number, string> = { 1: "#D4A017", 2: "#4A846C", 3: "#52657A" };
 
               const sorted = [...assessments].sort(
                 (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()

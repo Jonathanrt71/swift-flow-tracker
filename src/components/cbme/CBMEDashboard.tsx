@@ -14,7 +14,7 @@ const getColor = (name: string | null): string => {
   return cols[Math.abs(h) % cols.length];
 };
 
-const GRADE_COLORS: Record<number, string> = { 1: "#A63333", 2: "#D4B820", 3: "#5E9E82" };
+const GRADE_COLORS: Record<number, string> = { 1: "#D4A017", 2: "#4A846C", 3: "#52657A" };
 
 const GradeDot = ({ color, size = 16 }: { color: string; size?: number }) => (
   <div style={{ width: size, height: size, borderRadius: "50%", background: color, flexShrink: 0 }} />
@@ -100,15 +100,15 @@ const CBMEDashboard = ({
                 <span className="flex-1 min-w-0 text-sm font-medium truncate">{formatLastFirst(resident.display_name)}</span>
                 <div className="flex items-center gap-2 shrink-0">
                   <div className="flex items-center gap-1">
-                    <GradeDot color="#A63333" />
+                    <GradeDot color="#D4A017" />
                     <span style={{ fontSize: 12, fontWeight: 600, color: "#415162", minWidth: 12, textAlign: "center" }}>{neutralCount}</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <GradeDot color="#D4B820" />
+                    <GradeDot color="#4A846C" />
                     <span style={{ fontSize: 12, fontWeight: 600, color: "#415162", minWidth: 12, textAlign: "center" }}>{moderateCount}</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <GradeDot color="#5E9E82" />
+                    <GradeDot color="#52657A" />
                     <span style={{ fontSize: 12, fontWeight: 600, color: "#415162", minWidth: 12, textAlign: "center" }}>{minimalCount}</span>
                   </div>
                 </div>

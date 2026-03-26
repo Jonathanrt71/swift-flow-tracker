@@ -21,7 +21,7 @@ const getColor = (name: string | null): string => {
   return cols[Math.abs(h) % cols.length];
 };
 
-const GRADE_COLORS = { 1: "#A63333", 2: "#D4B820", 3: "#5E9E82" };
+const GRADE_COLORS = { 1: "#D4A017", 2: "#4A846C", 3: "#52657A" };
 
 const GradeDot = ({ color, size = 16 }: { color: string; size?: number }) => (
   <div style={{ width: size, height: size, borderRadius: "50%", background: color, flexShrink: 0 }} />
@@ -151,9 +151,9 @@ const AssessmentPopup = ({
             <div className="flex items-center px-4 py-2" style={{ borderBottom: "0.5px solid #C9CED4" }}>
               <div className="flex-1" />
               <div className="flex gap-3">
-                <div className="w-6 flex justify-center"><GradeDot color="#A63333" /></div>
-                <div className="w-6 flex justify-center"><GradeDot color="#D4B820" /></div>
-                <div className="w-6 flex justify-center"><GradeDot color="#5E9E82" /></div>
+                <div className="w-6 flex justify-center"><GradeDot color="#D4A017" /></div>
+                <div className="w-6 flex justify-center"><GradeDot color="#4A846C" /></div>
+                <div className="w-6 flex justify-center"><GradeDot color="#52657A" /></div>
               </div>
             </div>
 

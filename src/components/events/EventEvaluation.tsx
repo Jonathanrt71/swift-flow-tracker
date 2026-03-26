@@ -113,7 +113,7 @@ export default function EventEvaluation({ eventId }: EventEvaluationProps) {
 
   const buttonDisabled = !selectedRating || submitting || isLocked;
   const buttonText = isLocked ? "Submitted" : editing ? "Update evaluation" : "Submit evaluation";
-  const buttonBg = isLocked ? "#5E9E82" : buttonDisabled ? "#A0AEC0" : "#415162";
+  const buttonBg = isLocked ? "#52657A" : buttonDisabled ? "#A0AEC0" : "#415162";
 
   return (
     <div onClick={(e) => e.stopPropagation()}>
