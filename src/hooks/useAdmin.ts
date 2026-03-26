@@ -122,7 +122,11 @@ export function useAdmin() {
       return res.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+      // Small delay to ensure the edge function's DB write has propagated
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+        queryClient.invalidateQueries({ queryKey: ["team-members"] });
+      }, 500);
       toast({ title: "Role updated" });
     },
     onError: (err: Error) => {
