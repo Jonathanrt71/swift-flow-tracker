@@ -35,7 +35,7 @@ const App = () => (
               <Route path="/admin" element={<RoleRoute allowed={["admin"]}><Admin /></RoleRoute>} />
               <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
               <Route path="/meetings" element={<RoleRoute allowed={["admin"]}><Meetings /></RoleRoute>} />
-              <Route path="/events" element={<RoleRoute allowed={["admin", "faculty"]}><Events /></RoleRoute>} />
+              <Route path="/events" element={<RoleRoute allowed={["admin", "faculty", "resident"]}><Events /></RoleRoute>} />
               <Route path="/feedback" element={<RoleRoute allowed={["admin", "faculty"]}><Feedback /></RoleRoute>} />
               <Route path="/tasks" element={<RoleRoute allowed={["admin"]}><Index /></RoleRoute>} />
               <Route path="/cbme" element={<RoleRoute allowed={["admin"]}><CBME /></RoleRoute>} />
