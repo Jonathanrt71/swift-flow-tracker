@@ -343,6 +343,23 @@ const Events = () => {
 
   const { events, createEvent, updateEvent, deleteEvent } = useEvents();
   const { data: teamMembers } = useTeamMembers();
+  const isFacultyOrAdmin = !!isAdmin || !!isFaculty;
+
+  // Query evaluation status for current user (which events they've evaluated)
+  const { data: evaluationStatus } = useQuery({
+    queryKey: ["event-evaluation-status", user?.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("event_evaluations")
+        .select("event_id")
+        .eq("evaluator_id", user!.id);
+      const map: Record<string, boolean> = {};
+      (data || []).forEach((d) => { map[d.event_id] = true; });
+      return map;
+    },
+    enabled: !!user && isFacultyOrAdmin,
+  });
+
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<"program" | "didactic">("program");
