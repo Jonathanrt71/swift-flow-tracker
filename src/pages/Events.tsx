@@ -7,6 +7,8 @@ import { useAdmin } from "@/hooks/useAdmin";
 import { useUserRole } from "@/hooks/useUserRole";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,7 +27,7 @@ import { Button } from "@/components/ui/button";
 import BottomNav from "@/components/BottomNav";
 import CreateEventDialog from "@/components/events/CreateEventDialog";
 import EditEventDialog from "@/components/events/EditEventDialog";
-import EventEvaluation from "@/components/events/EventEvaluation";
+import EvaluationDialog from "@/components/events/EvaluationDialog";
 import EventsEvaluationsView from "@/components/events/EventsEvaluationsView";
 import EventsGantt from "@/components/events/EventsGantt";
 import EventsVerticalTimeline from "@/components/events/EventsVerticalTimeline";
@@ -81,6 +83,7 @@ const EventCard = ({
   teamMembers,
   canEdit,
   isFacultyOrAdmin,
+  evaluationStatus,
   onUpdate,
   onDelete,
 }: {
@@ -88,6 +91,7 @@ const EventCard = ({
   teamMembers: ReturnType<typeof useTeamMembers>["data"];
   canEdit: boolean;
   isFacultyOrAdmin: boolean;
+  evaluationStatus?: Record<string, boolean>;
   onUpdate: (data: {
     id: string;
     title?: string;
@@ -102,9 +106,11 @@ const EventCard = ({
   onDelete: (id: string) => void;
 }) => {
   const [expanded, setExpanded] = useState(false);
+  const [evalDialogOpen, setEvalDialogOpen] = useState(false);
   const members = teamMembers || [];
   const assignee = members.find((m) => m.id === event.assigned_to);
   const assigneeName = assignee?.display_name || null;
+  const hasEvaluated = evaluationStatus?.[event.id] ?? false;
 
   const formattedDate = (() => {
     try {
@@ -174,43 +180,68 @@ const EventCard = ({
                 </span>
               )}
             </div>
-            {canEdit && (
-              <div className="flex items-center gap-0.5 shrink-0 ml-2">
-                <EditEventDialog event={event} onUpdate={onUpdate} />
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <button
-                      className="flex items-center justify-center w-8 h-8 rounded-md bg-transparent text-destructive hover:bg-destructive/10 transition-colors"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent onClick={(e) => e.stopPropagation()}>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Delete event?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        This will permanently delete "{event.title}". This action cannot be undone.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction
-                        onClick={() => onDelete(event.id)}
-                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            <div className="flex items-center gap-0.5 shrink-0 ml-2">
+              {isFacultyOrAdmin && event.category === "didactic" && (
+                <button
+                  className="flex items-center justify-center w-8 h-8 rounded-md bg-transparent hover:bg-accent transition-colors"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setEvalDialogOpen(true);
+                  }}
+                  title="Evaluate session"
+                >
+                  <ClipboardCheck
+                    className="h-3.5 w-3.5"
+                    style={{ color: hasEvaluated ? "#5E9E82" : "#8A9AAB" }}
+                  />
+                </button>
+              )}
+              {canEdit && (
+                <>
+                  <EditEventDialog event={event} onUpdate={onUpdate} />
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <button
+                        className="flex items-center justify-center w-8 h-8 rounded-md bg-transparent text-destructive hover:bg-destructive/10 transition-colors"
+                        onClick={(e) => e.stopPropagation()}
                       >
-                        Delete
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </div>
-            )}
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete event?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This will permanently delete "{event.title}". This action cannot be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() => onDelete(event.id)}
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                          Delete
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </>
+              )}
+            </div>
           </div>
-          {isFacultyOrAdmin && event.category === "didactic" && (
-            <EventEvaluation eventId={event.id} />
-          )}
         </div>
+      )}
+
+      {isFacultyOrAdmin && event.category === "didactic" && (
+        <EvaluationDialog
+          open={evalDialogOpen}
+          onOpenChange={setEvalDialogOpen}
+          eventId={event.id}
+          eventTitle={event.title}
+          eventDate={event.event_date}
+          eventDescription={event.description}
+        />
       )}
     </div>
   );
@@ -222,6 +253,7 @@ const GroupedEventList = ({
   userId,
   isAdmin,
   isFacultyOrAdmin,
+  evaluationStatus,
   onUpdate,
   onDelete,
   emptyMessage,
@@ -231,6 +263,7 @@ const GroupedEventList = ({
   userId: string | undefined;
   isAdmin: boolean;
   isFacultyOrAdmin: boolean;
+  evaluationStatus?: Record<string, boolean>;
   onUpdate: (data: {
     id: string;
     title?: string;
@@ -291,6 +324,7 @@ const GroupedEventList = ({
               teamMembers={teamMembers}
               canEdit={isAdmin || ev.created_by === userId}
               isFacultyOrAdmin={isFacultyOrAdmin}
+              evaluationStatus={evaluationStatus}
               onUpdate={onUpdate}
               onDelete={onDelete}
             />
@@ -309,6 +343,23 @@ const Events = () => {
 
   const { events, createEvent, updateEvent, deleteEvent } = useEvents();
   const { data: teamMembers } = useTeamMembers();
+  const isFacultyOrAdmin = !!isAdmin || !!isFaculty;
+
+  // Query evaluation status for current user (which events they've evaluated)
+  const { data: evaluationStatus } = useQuery({
+    queryKey: ["event-evaluation-status", user?.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("event_evaluations")
+        .select("event_id")
+        .eq("evaluator_id", user!.id);
+      const map: Record<string, boolean> = {};
+      (data || []).forEach((d) => { map[d.event_id] = true; });
+      return map;
+    },
+    enabled: !!user && isFacultyOrAdmin,
+  });
+
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<"program" | "didactic">("program");
@@ -486,7 +537,8 @@ const Events = () => {
             teamMembers={teamMembers}
             userId={user?.id}
             isAdmin={!isResident && !!isAdmin}
-            isFacultyOrAdmin={!!isAdmin || !!isFaculty}
+            isFacultyOrAdmin={isFacultyOrAdmin}
+            evaluationStatus={evaluationStatus}
             onUpdate={(data) => { if (!isResident) updateEvent.mutate(data); }}
             onDelete={(id) => { if (!isResident) deleteEvent.mutate(id); }}
             emptyMessage={activeTab === "program" ? "No program events" : "No didactics"}
