@@ -83,6 +83,7 @@ const EventCard = ({
   teamMembers,
   canEdit,
   isFacultyOrAdmin,
+  evaluationStatus,
   onUpdate,
   onDelete,
 }: {
@@ -90,6 +91,7 @@ const EventCard = ({
   teamMembers: ReturnType<typeof useTeamMembers>["data"];
   canEdit: boolean;
   isFacultyOrAdmin: boolean;
+  evaluationStatus?: Record<string, boolean>;
   onUpdate: (data: {
     id: string;
     title?: string;
@@ -104,9 +106,11 @@ const EventCard = ({
   onDelete: (id: string) => void;
 }) => {
   const [expanded, setExpanded] = useState(false);
+  const [evalDialogOpen, setEvalDialogOpen] = useState(false);
   const members = teamMembers || [];
   const assignee = members.find((m) => m.id === event.assigned_to);
   const assigneeName = assignee?.display_name || null;
+  const hasEvaluated = evaluationStatus?.[event.id] ?? false;
 
   const formattedDate = (() => {
     try {
@@ -176,43 +180,68 @@ const EventCard = ({
                 </span>
               )}
             </div>
-            {canEdit && (
-              <div className="flex items-center gap-0.5 shrink-0 ml-2">
-                <EditEventDialog event={event} onUpdate={onUpdate} />
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <button
-                      className="flex items-center justify-center w-8 h-8 rounded-md bg-transparent text-destructive hover:bg-destructive/10 transition-colors"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent onClick={(e) => e.stopPropagation()}>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Delete event?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        This will permanently delete "{event.title}". This action cannot be undone.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction
-                        onClick={() => onDelete(event.id)}
-                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            <div className="flex items-center gap-0.5 shrink-0 ml-2">
+              {isFacultyOrAdmin && event.category === "didactic" && (
+                <button
+                  className="flex items-center justify-center w-8 h-8 rounded-md bg-transparent hover:bg-accent transition-colors"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setEvalDialogOpen(true);
+                  }}
+                  title="Evaluate session"
+                >
+                  <ClipboardCheck
+                    className="h-3.5 w-3.5"
+                    style={{ color: hasEvaluated ? "#5E9E82" : "#8A9AAB" }}
+                  />
+                </button>
+              )}
+              {canEdit && (
+                <>
+                  <EditEventDialog event={event} onUpdate={onUpdate} />
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <button
+                        className="flex items-center justify-center w-8 h-8 rounded-md bg-transparent text-destructive hover:bg-destructive/10 transition-colors"
+                        onClick={(e) => e.stopPropagation()}
                       >
-                        Delete
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </div>
-            )}
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete event?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This will permanently delete "{event.title}". This action cannot be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() => onDelete(event.id)}
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                          Delete
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </>
+              )}
+            </div>
           </div>
-          {isFacultyOrAdmin && event.category === "didactic" && (
-            <EventEvaluation eventId={event.id} />
-          )}
         </div>
+      )}
+
+      {isFacultyOrAdmin && event.category === "didactic" && (
+        <EvaluationDialog
+          open={evalDialogOpen}
+          onOpenChange={setEvalDialogOpen}
+          eventId={event.id}
+          eventTitle={event.title}
+          eventDate={event.event_date}
+          eventDescription={event.description}
+        />
       )}
     </div>
   );
