@@ -18,7 +18,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Calendar, BookOpen, Search, X, Trash2, List } from "lucide-react";
+import { Calendar, BookOpen, Search, X, Trash2, List, ClipboardCheck } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { formatCardDate } from "@/lib/dateFormat";
 import { Button } from "@/components/ui/button";
@@ -26,6 +26,7 @@ import BottomNav from "@/components/BottomNav";
 import CreateEventDialog from "@/components/events/CreateEventDialog";
 import EditEventDialog from "@/components/events/EditEventDialog";
 import EventEvaluation from "@/components/events/EventEvaluation";
+import EventsEvaluationsView from "@/components/events/EventsEvaluationsView";
 import EventsGantt from "@/components/events/EventsGantt";
 import EventsVerticalTimeline from "@/components/events/EventsVerticalTimeline";
 import NotificationBell from "@/components/NotificationBell";
@@ -311,8 +312,8 @@ const Events = () => {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<"program" | "didactic">("program");
-  const [viewMode, setViewMode] = useState<"list" | "vertical" | "gantt">("list");
-  const [lastProgramView, setLastProgramView] = useState<"list" | "vertical" | "gantt">("list");
+  const [viewMode, setViewMode] = useState<"list" | "vertical" | "gantt" | "evaluations">("list");
+  const [lastProgramView, setLastProgramView] = useState<"list" | "vertical" | "gantt" | "evaluations">("list");
 
   const ganttRangeLabel = useMemo(() => {
     const n = new Date();
@@ -413,7 +414,8 @@ const Events = () => {
                   { mode: "list" as const, icon: <List className="h-3.5 w-3.5" /> },
                   { mode: "vertical" as const, icon: <VerticalTimelineIcon /> },
                   { mode: "gantt" as const, icon: <GanttIcon /> },
-                ] as const).map(({ mode, icon }) => (
+                  ...(isAdmin ? [{ mode: "evaluations" as const, icon: <ClipboardCheck className="h-3.5 w-3.5" /> }] : []),
+                ]).map(({ mode, icon }) => (
                   <button
                     key={mode}
                     onClick={() => setViewMode(mode)}
@@ -470,6 +472,8 @@ const Events = () => {
           <div className="flex justify-center py-12">
             <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
           </div>
+        ) : viewMode === "evaluations" ? (
+          <EventsEvaluationsView events={events.data || []} />
         ) : activeTab === "program" && viewMode === "gantt" ? (
           <EventsGantt
             events={programEvents}
