@@ -27,7 +27,7 @@ Deno.serve(async (req) => {
 
     const { user_id, role } = await req.json();
     if (!user_id || !role) throw new Error("user_id and role are required");
-    if (!["admin", "user"].includes(role)) throw new Error("Invalid role");
+    if (!["admin", "faculty", "resident"].includes(role)) throw new Error("Invalid role");
     if (user_id === caller.id) throw new Error("Cannot change your own role");
 
     const adminClient = createClient(
