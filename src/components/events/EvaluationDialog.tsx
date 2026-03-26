@@ -46,7 +46,7 @@ const RATING_CARDS: {
   {
     value: "blue",
     label: "Excellent",
-    bg: "#E8EDF2",
+    bg: "#D6DEE6",
     borderDefault: "#D5DAE0",
     borderSelected: "#52657A",
     dotColor: "#52657A",
