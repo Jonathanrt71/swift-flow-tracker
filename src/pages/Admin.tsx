@@ -743,8 +743,10 @@ const Admin = () => {
                             {isSelf && (
                               <span className="ml-1 text-[11px] text-muted-foreground">(you)</span>
                             )}
-                            {u.email && (
+                            {u.email ? (
                               <p className="text-[11px] text-muted-foreground">{u.email}</p>
+                            ) : (
+                              <p className="text-[11px] text-muted-foreground italic">No email</p>
                             )}
                           </div>
                           <div className="flex items-center gap-1">
