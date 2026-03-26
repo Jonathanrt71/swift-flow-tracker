@@ -79,10 +79,12 @@ const EditUserDialog = ({
 
   const handleSave = () => {
     // Update auth fields (email/password) via edge function
-    const authUpdates: { user_id: string; email?: string; password?: string } = { user_id: u.id };
-    if (email !== (u.email || "")) authUpdates.email = email;
-    if (password) authUpdates.password = password;
-    if (authUpdates.email || authUpdates.password) {
+    const emailChanged = email && email !== (u.email || "");
+    const passwordChanged = !!password;
+    if (emailChanged || passwordChanged) {
+      const authUpdates: { user_id: string; email?: string; password?: string } = { user_id: u.id };
+      if (emailChanged) authUpdates.email = email;
+      if (passwordChanged) authUpdates.password = password;
       onUpdateUser(authUpdates);
     }
 
@@ -98,7 +100,7 @@ const EditUserDialog = ({
       firstName !== (u.first_name || "") ||
       lastName !== (u.last_name || "") ||
       parsedYear !== (u.graduation_year ?? null) ||
-      email !== (u.email || "");
+      emailChanged;
     if (profileChanged) {
       onUpdateProfile({
         id: u.id,
@@ -106,10 +108,8 @@ const EditUserDialog = ({
         first_name: firstName,
         last_name: lastName,
         graduation_year: parsedYear,
+        ...(emailChanged ? { email } : {}),
       });
-    }
-    if (email !== (u.email || "")) {
-      onUpdateUser({ user_id: u.id, email });
     }
     setOpen(false);
   };
