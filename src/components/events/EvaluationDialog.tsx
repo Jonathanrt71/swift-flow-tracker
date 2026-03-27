@@ -12,18 +12,19 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { X } from "lucide-react";
+import { X, ArrowDown, ArrowRight, ArrowUp } from "lucide-react";
 
 type Rating = "yellow" | "green" | "blue";
 
-const RATING_DOTS: {
+const RATING_OPTIONS: {
   value: Rating;
-  dotColor: string;
-  borderSelected: string;
+  color: string;
+  bgLight: string;
+  icon: typeof ArrowDown;
 }[] = [
-  { value: "yellow", dotColor: "#D4A017", borderSelected: "#D4A017" },
-  { value: "green", dotColor: "#4A846C", borderSelected: "#4A846C" },
-  { value: "blue", dotColor: "#52657A", borderSelected: "#52657A" },
+  { value: "yellow", color: "#D4A017", bgLight: "#F5ECD0", icon: ArrowDown },
+  { value: "green", color: "#4A846C", bgLight: "#D4EAE0", icon: ArrowRight },
+  { value: "blue", color: "#52657A", bgLight: "#D6DEE6", icon: ArrowUp },
 ];
 
 const CRITERIA = [
@@ -196,27 +197,28 @@ export default function EvaluationDialog({
             </div>
           </div>
 
-          {/* Rating header dots */}
+          {/* Rating header arrows */}
           <div>
             <div className="flex items-center justify-between" style={{ marginBottom: 8 }}>
               <span style={{ fontSize: 13, fontWeight: 500, color: "transparent" }}>Placeholder</span>
               <div className="flex items-center justify-center" style={{ width: 92, gap: 10 }}>
-                {RATING_DOTS.map((dot) => (
-                  <div
-                    key={dot.value}
-                    className="flex items-center justify-center"
-                    style={{ width: 24 }}
-                  >
+                {RATING_OPTIONS.map((opt) => {
+                  const Icon = opt.icon;
+                  return (
                     <div
+                      key={opt.value}
+                      className="flex items-center justify-center"
                       style={{
-                        width: 14,
-                        height: 14,
+                        width: 20,
+                        height: 20,
                         borderRadius: "50%",
-                        background: dot.dotColor,
+                        background: opt.bgLight,
                       }}
-                    />
-                  </div>
-                ))}
+                    >
+                      <Icon style={{ width: 12, height: 12, color: opt.color }} strokeWidth={2.5} />
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
@@ -236,21 +238,22 @@ export default function EvaluationDialog({
                     {criterion.label}
                   </span>
                   <div className="flex items-center justify-center" style={{ width: 92, gap: 10 }}>
-                    {RATING_DOTS.map((dot) => {
-                      const isSelected = ratings[criterion.key] === dot.value;
+                    {RATING_OPTIONS.map((opt) => {
+                      const isSelected = ratings[criterion.key] === opt.value;
+                      const Icon = opt.icon;
                       return (
                         <button
-                          key={dot.value}
+                          key={opt.value}
                           type="button"
-                          onClick={() => setRating(criterion.key, dot.value)}
+                          onClick={() => setRating(criterion.key, opt.value)}
                           style={{
                             width: 24,
                             height: 24,
                             borderRadius: "50%",
                             border: isSelected
-                              ? `2px solid ${dot.borderSelected}`
+                              ? `2px solid ${opt.color}`
                               : "1.5px solid #C9CED4",
-                            background: isSelected ? dot.dotColor : "transparent",
+                            background: isSelected ? opt.bgLight : "transparent",
                             cursor: "pointer",
                             padding: 0,
                             display: "flex",
@@ -258,7 +261,11 @@ export default function EvaluationDialog({
                             justifyContent: "center",
                             transition: "all 0.15s",
                           }}
-                        />
+                        >
+                          {isSelected && (
+                            <Icon style={{ width: 13, height: 13, color: opt.color }} strokeWidth={2.5} />
+                          )}
+                        </button>
                       );
                     })}
                   </div>
