@@ -23,9 +23,9 @@ const RATING_OPTIONS: {
   borderColor: string;
   icon: typeof ArrowDown;
 }[] = [
-  { value: "yellow", color: "#D4A017", borderColor: "#D4A017", bgLight: "#FBF3E0", icon: ArrowDown },
-  { value: "green", color: "#4A846C", borderColor: "#4A846C", bgLight: "#E4F0EB", icon: ArrowRight },
-  { value: "blue", color: "#52657A", borderColor: "#52657A", bgLight: "#D6DEE6", icon: ArrowUp },
+  { value: "yellow", color: "#3D3D3A", borderColor: "#D4A017", bgLight: "#FBF3E0", icon: ArrowDown },
+  { value: "green", color: "#3D3D3A", borderColor: "#4A846C", bgLight: "#E4F0EB", icon: ArrowRight },
+  { value: "blue", color: "#3D3D3A", borderColor: "#52657A", bgLight: "#D6DEE6", icon: ArrowUp },
 ];
 
 const CRITERIA = [
