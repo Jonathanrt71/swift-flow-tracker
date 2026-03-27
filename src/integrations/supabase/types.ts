@@ -325,6 +325,10 @@ export type Database = {
           id: string
           notes: string | null
           rating: string
+          rating_content: string | null
+          rating_overall: string | null
+          rating_preparation: string | null
+          rating_presentation: string | null
           updated_at: string | null
         }
         Insert: {
@@ -334,6 +338,10 @@ export type Database = {
           id?: string
           notes?: string | null
           rating: string
+          rating_content?: string | null
+          rating_overall?: string | null
+          rating_preparation?: string | null
+          rating_presentation?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -343,6 +351,10 @@ export type Database = {
           id?: string
           notes?: string | null
           rating?: string
+          rating_content?: string | null
+          rating_overall?: string | null
+          rating_preparation?: string | null
+          rating_presentation?: string | null
           updated_at?: string | null
         }
         Relationships: [
