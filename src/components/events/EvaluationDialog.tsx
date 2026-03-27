@@ -12,18 +12,19 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { X } from "lucide-react";
+import { X, ArrowDown, ArrowRight, ArrowUp } from "lucide-react";
 
 type Rating = "yellow" | "green" | "blue";
 
-const RATING_DOTS: {
+const RATING_OPTIONS: {
   value: Rating;
-  dotColor: string;
-  borderSelected: string;
+  color: string;
+  bgLight: string;
+  icon: typeof ArrowDown;
 }[] = [
-  { value: "yellow", dotColor: "#D4A017", borderSelected: "#D4A017" },
-  { value: "green", dotColor: "#4A846C", borderSelected: "#4A846C" },
-  { value: "blue", dotColor: "#52657A", borderSelected: "#52657A" },
+  { value: "yellow", color: "#D4A017", bgLight: "#F5ECD0", icon: ArrowDown },
+  { value: "green", color: "#4A846C", bgLight: "#D4EAE0", icon: ArrowRight },
+  { value: "blue", color: "#52657A", bgLight: "#D6DEE6", icon: ArrowUp },
 ];
 
 const CRITERIA = [
