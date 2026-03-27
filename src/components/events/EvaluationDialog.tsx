@@ -22,9 +22,9 @@ const RATING_OPTIONS: {
   bgLight: string;
   icon: typeof ArrowDown;
 }[] = [
-  { value: "yellow", color: "#D4A017", bgLight: "#F5ECD0", icon: ArrowDown },
-  { value: "green", color: "#4A846C", bgLight: "#D4EAE0", icon: ArrowRight },
-  { value: "blue", color: "#52657A", bgLight: "#D6DEE6", icon: ArrowUp },
+  { value: "yellow", color: "#2D3748", bgLight: "#F5ECD0", icon: ArrowDown },
+  { value: "green", color: "#2D3748", bgLight: "#D4EAE0", icon: ArrowRight },
+  { value: "blue", color: "#2D3748", bgLight: "#D6DEE6", icon: ArrowUp },
 ];
 
 const CRITERIA = [
