@@ -198,18 +198,26 @@ export default function EvaluationDialog({
 
           {/* Rating header dots */}
           <div>
-            <div className="flex items-center justify-end" style={{ gap: 16, paddingRight: 4, marginBottom: 8 }}>
-              {RATING_DOTS.map((dot) => (
-                <div
-                  key={dot.value}
-                  style={{
-                    width: 14,
-                    height: 14,
-                    borderRadius: "50%",
-                    background: dot.dotColor,
-                  }}
-                />
-              ))}
+            <div className="flex items-center justify-between" style={{ marginBottom: 8 }}>
+              <span style={{ fontSize: 13, fontWeight: 500, color: "transparent" }}>Placeholder</span>
+              <div className="flex items-center justify-center" style={{ width: 92, gap: 10 }}>
+                {RATING_DOTS.map((dot) => (
+                  <div
+                    key={dot.value}
+                    className="flex items-center justify-center"
+                    style={{ width: 24 }}
+                  >
+                    <div
+                      style={{
+                        width: 14,
+                        height: 14,
+                        borderRadius: "50%",
+                        background: dot.dotColor,
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
 
             {/* Criteria rows */}
@@ -219,7 +227,7 @@ export default function EvaluationDialog({
                   key={criterion.key}
                   className="flex items-center justify-between"
                   style={{
-                    padding: "10px 4px",
+                    padding: "10px 0",
                     borderTop: idx === 0 ? "0.5px solid #D5DAE0" : "none",
                     borderBottom: "0.5px solid #D5DAE0",
                   }}
@@ -227,7 +235,7 @@ export default function EvaluationDialog({
                   <span style={{ fontSize: 13, fontWeight: 500, color: "#2D3748" }}>
                     {criterion.label}
                   </span>
-                  <div className="flex items-center" style={{ gap: 10 }}>
+                  <div className="flex items-center justify-center" style={{ width: 92, gap: 10 }}>
                     {RATING_DOTS.map((dot) => {
                       const isSelected = ratings[criterion.key] === dot.value;
                       return (
