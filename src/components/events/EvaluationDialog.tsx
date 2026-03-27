@@ -16,43 +16,24 @@ import { X } from "lucide-react";
 
 type Rating = "yellow" | "green" | "blue";
 
-const RATING_CARDS: {
+const RATING_DOTS: {
   value: Rating;
-  label: string;
-  bg: string;
-  borderDefault: string;
-  borderSelected: string;
   dotColor: string;
-  labelColor: string;
+  borderSelected: string;
 }[] = [
-  {
-    value: "yellow",
-    label: "Needs work",
-    bg: "#FBF3E0",
-    borderDefault: "#D5DAE0",
-    borderSelected: "#D4A017",
-    dotColor: "#D4A017",
-    labelColor: "#8A6B0F",
-  },
-  {
-    value: "green",
-    label: "Adequate",
-    bg: "#E4F0EB",
-    borderDefault: "#D5DAE0",
-    borderSelected: "#4A846C",
-    dotColor: "#4A846C",
-    labelColor: "#3A6A56",
-  },
-  {
-    value: "blue",
-    label: "Excellent",
-    bg: "#D6DEE6",
-    borderDefault: "#D5DAE0",
-    borderSelected: "#52657A",
-    dotColor: "#52657A",
-    labelColor: "#3E4F60",
-  },
+  { value: "yellow", dotColor: "#D4A017", borderSelected: "#D4A017" },
+  { value: "green", dotColor: "#4A846C", borderSelected: "#4A846C" },
+  { value: "blue", dotColor: "#52657A", borderSelected: "#52657A" },
 ];
+
+const CRITERIA = [
+  { key: "rating_preparation", label: "Quality of preparation" },
+  { key: "rating_presentation", label: "Quality of presentation" },
+  { key: "rating_content", label: "Command of content" },
+  { key: "rating_overall", label: "Overall impression" },
+] as const;
+
+type CriteriaKey = typeof CRITERIA[number]["key"];
 
 interface EvaluationDialogProps {
   open: boolean;
@@ -75,7 +56,12 @@ export default function EvaluationDialog({
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const [selectedRating, setSelectedRating] = useState<Rating | null>(null);
+  const [ratings, setRatings] = useState<Record<CriteriaKey, Rating | null>>({
+    rating_preparation: null,
+    rating_presentation: null,
+    rating_content: null,
+    rating_overall: null,
+  });
   const [submitting, setSubmitting] = useState(false);
   const [existingId, setExistingId] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
@@ -92,7 +78,6 @@ export default function EvaluationDialog({
     },
   });
 
-  // Load existing evaluation when dialog opens
   useEffect(() => {
     if (!open || !user || loaded) return;
     (async () => {
@@ -103,7 +88,12 @@ export default function EvaluationDialog({
         .eq("evaluator_id", user.id)
         .maybeSingle();
       if (data) {
-        setSelectedRating(data.rating as Rating);
+        setRatings({
+          rating_preparation: (data as any).rating_preparation as Rating | null,
+          rating_presentation: (data as any).rating_presentation as Rating | null,
+          rating_content: (data as any).rating_content as Rating | null,
+          rating_overall: (data as any).rating_overall as Rating | null,
+        });
         setExistingId(data.id);
         if (data.notes && editor) {
           editor.commands.setContent(data.notes);
@@ -113,10 +103,14 @@ export default function EvaluationDialog({
     })();
   }, [open, user, eventId, editor, loaded]);
 
-  // Reset state when dialog closes
   useEffect(() => {
     if (!open) {
-      setSelectedRating(null);
+      setRatings({
+        rating_preparation: null,
+        rating_presentation: null,
+        rating_content: null,
+        rating_overall: null,
+      });
       setExistingId(null);
       setLoaded(false);
       if (editor) editor.commands.setContent("");
@@ -131,15 +125,25 @@ export default function EvaluationDialog({
     }
   })();
 
+  const setRating = (key: CriteriaKey, value: Rating) => {
+    setRatings((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const allRated = CRITERIA.every((c) => ratings[c.key] !== null);
+
   const handleSubmit = useCallback(async () => {
-    if (!user || !selectedRating || submitting) return;
+    if (!user || !allRated || submitting) return;
     setSubmitting(true);
     const notes = editor?.getHTML() || "";
-    const { error } = await supabase.from("event_evaluations").upsert(
+    const { error } = await (supabase as any).from("event_evaluations").upsert(
       {
         event_id: eventId,
         evaluator_id: user.id,
-        rating: selectedRating,
+        rating: ratings.rating_overall || "green",
+        rating_preparation: ratings.rating_preparation,
+        rating_presentation: ratings.rating_presentation,
+        rating_content: ratings.rating_content,
+        rating_overall: ratings.rating_overall,
         notes: notes === "<p></p>" ? "" : notes,
         updated_at: new Date().toISOString(),
       },
@@ -154,9 +158,9 @@ export default function EvaluationDialog({
       queryClient.invalidateQueries({ queryKey: ["event-evaluation-status"] });
       onOpenChange(false);
     }
-  }, [user, selectedRating, editor, eventId, submitting, toast, queryClient, onOpenChange]);
+  }, [user, allRated, ratings, editor, eventId, submitting, toast, queryClient, onOpenChange]);
 
-  const buttonDisabled = !selectedRating || submitting;
+  const buttonDisabled = !allRated || submitting;
   const buttonText = existingId ? "Update evaluation" : "Submit evaluation";
 
   return (
@@ -192,46 +196,66 @@ export default function EvaluationDialog({
             </div>
           </div>
 
-          {/* Rating cards */}
+          {/* Rating header dots */}
           <div>
-            <div style={{ fontSize: 11, color: "#8A9AAB", fontWeight: 500, marginBottom: 8 }}>
-              Rating
+            <div className="flex items-center justify-end" style={{ gap: 16, paddingRight: 4, marginBottom: 8 }}>
+              {RATING_DOTS.map((dot) => (
+                <div
+                  key={dot.value}
+                  style={{
+                    width: 14,
+                    height: 14,
+                    borderRadius: "50%",
+                    background: dot.dotColor,
+                  }}
+                />
+              ))}
             </div>
-            <div style={{ display: "flex", gap: 8 }}>
-              {RATING_CARDS.map((card) => {
-                const isSelected = selectedRating === card.value;
-                return (
-                  <div
-                    key={card.value}
-                    role="button"
-                    onClick={() => setSelectedRating(card.value)}
-                    style={{
-                      flex: 1,
-                      background: isSelected ? card.bg : card.bg,
-                      border: isSelected
-                        ? `2px solid ${card.borderSelected}`
-                        : `1.5px solid ${card.borderDefault}`,
-                      borderRadius: 8,
-                      padding: "10px 0",
-                      textAlign: "center",
-                      cursor: "pointer",
-                      transition: "all 0.15s",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <div
-                      style={{
-                        width: 14,
-                        height: 14,
-                        borderRadius: "50%",
-                        background: card.dotColor,
-                      }}
-                    />
+
+            {/* Criteria rows */}
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              {CRITERIA.map((criterion, idx) => (
+                <div
+                  key={criterion.key}
+                  className="flex items-center justify-between"
+                  style={{
+                    padding: "10px 4px",
+                    borderTop: idx === 0 ? "0.5px solid #D5DAE0" : "none",
+                    borderBottom: "0.5px solid #D5DAE0",
+                  }}
+                >
+                  <span style={{ fontSize: 13, fontWeight: 500, color: "#2D3748" }}>
+                    {criterion.label}
+                  </span>
+                  <div className="flex items-center" style={{ gap: 10 }}>
+                    {RATING_DOTS.map((dot) => {
+                      const isSelected = ratings[criterion.key] === dot.value;
+                      return (
+                        <button
+                          key={dot.value}
+                          type="button"
+                          onClick={() => setRating(criterion.key, dot.value)}
+                          style={{
+                            width: 24,
+                            height: 24,
+                            borderRadius: "50%",
+                            border: isSelected
+                              ? `2px solid ${dot.borderSelected}`
+                              : "1.5px solid #C9CED4",
+                            background: isSelected ? dot.dotColor : "transparent",
+                            cursor: "pointer",
+                            padding: 0,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            transition: "all 0.15s",
+                          }}
+                        />
+                      );
+                    })}
                   </div>
-                );
-              })}
+                </div>
+              ))}
             </div>
           </div>
 
