@@ -20,11 +20,12 @@ const RATING_OPTIONS: {
   value: Rating;
   color: string;
   bgLight: string;
+  borderColor: string;
   icon: typeof ArrowDown;
 }[] = [
-  { value: "yellow", color: "#2D3748", bgLight: "#F5ECD0", icon: ArrowDown },
-  { value: "green", color: "#2D3748", bgLight: "#D4EAE0", icon: ArrowRight },
-  { value: "blue", color: "#2D3748", bgLight: "#D6DEE6", icon: ArrowUp },
+  { value: "yellow", color: "#D4A017", borderColor: "#D4A017", bgLight: "#FBF3E0", icon: ArrowDown },
+  { value: "green", color: "#4A846C", borderColor: "#4A846C", bgLight: "#E4F0EB", icon: ArrowRight },
+  { value: "blue", color: "#52657A", borderColor: "#52657A", bgLight: "#D6DEE6", icon: ArrowUp },
 ];
 
 const CRITERIA = [
@@ -197,25 +198,29 @@ export default function EvaluationDialog({
             </div>
           </div>
 
-          {/* Rating header arrows */}
+          {/* Rating grid */}
           <div>
-            <div className="flex items-center justify-between" style={{ marginBottom: 8 }}>
-              <span style={{ fontSize: 13, fontWeight: 500, color: "transparent" }}>Placeholder</span>
-              <div className="flex items-center justify-center" style={{ width: 92, gap: 10 }}>
+            {/* Column headers */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 126px", alignItems: "center", marginBottom: 8 }}>
+              <span />
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", justifyItems: "center" }}>
                 {RATING_OPTIONS.map((opt) => {
                   const Icon = opt.icon;
                   return (
                     <div
                       key={opt.value}
-                      className="flex items-center justify-center"
                       style={{
-                        width: 24,
-                        height: 24,
+                        width: 32,
+                        height: 32,
                         borderRadius: "50%",
                         background: opt.bgLight,
+                        border: `2px solid ${opt.borderColor}`,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
                       }}
                     >
-                      <Icon style={{ width: 13, height: 13, color: opt.color }} strokeWidth={2.5} />
+                      <Icon style={{ width: 14, height: 14, color: opt.color }} strokeWidth={2.5} />
                     </div>
                   );
                 })}
@@ -223,55 +228,55 @@ export default function EvaluationDialog({
             </div>
 
             {/* Criteria rows */}
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              {CRITERIA.map((criterion, idx) => (
-                <div
-                  key={criterion.key}
-                  className="flex items-center justify-between"
-                  style={{
-                    padding: "10px 0",
-                    borderTop: idx === 0 ? "0.5px solid #D5DAE0" : "none",
-                    borderBottom: "0.5px solid #D5DAE0",
-                  }}
-                >
-                  <span style={{ fontSize: 13, fontWeight: 500, color: "#2D3748" }}>
-                    {criterion.label}
-                  </span>
-                  <div className="flex items-center justify-center" style={{ width: 92, gap: 10 }}>
-                    {RATING_OPTIONS.map((opt) => {
-                      const isSelected = ratings[criterion.key] === opt.value;
-                      const Icon = opt.icon;
-                      return (
-                        <button
-                          key={opt.value}
-                          type="button"
-                          onClick={() => setRating(criterion.key, opt.value)}
-                          style={{
-                            width: 24,
-                            height: 24,
-                            borderRadius: "50%",
-                            border: isSelected
-                              ? `2px solid ${opt.color}`
-                              : "1.5px solid #C9CED4",
-                            background: isSelected ? opt.bgLight : "transparent",
-                            cursor: "pointer",
-                            padding: 0,
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            transition: "all 0.15s",
-                          }}
-                        >
-                          {isSelected && (
-                            <Icon style={{ width: 13, height: 13, color: opt.color }} strokeWidth={2.5} />
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
+            {CRITERIA.map((criterion, idx) => (
+              <div
+                key={criterion.key}
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 126px",
+                  alignItems: "center",
+                  padding: "10px 0",
+                  borderTop: idx === 0 ? "0.5px solid #D5DAE0" : "none",
+                  borderBottom: "0.5px solid #D5DAE0",
+                }}
+              >
+                <span style={{ fontSize: 13, fontWeight: 500, color: "#2D3748" }}>
+                  {criterion.label}
+                </span>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", justifyItems: "center" }}>
+                  {RATING_OPTIONS.map((opt) => {
+                    const isSelected = ratings[criterion.key] === opt.value;
+                    const Icon = opt.icon;
+                    return (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => setRating(criterion.key, opt.value)}
+                        style={{
+                          width: 32,
+                          height: 32,
+                          borderRadius: "50%",
+                          border: isSelected
+                            ? `2px solid ${opt.borderColor}`
+                            : "1.5px solid #C9CED4",
+                          background: isSelected ? opt.bgLight : "transparent",
+                          cursor: "pointer",
+                          padding: 0,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          transition: "all 0.15s",
+                        }}
+                      >
+                        {isSelected && (
+                          <Icon style={{ width: 14, height: 14, color: opt.color }} strokeWidth={2.5} />
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
 
           {/* Notes */}
