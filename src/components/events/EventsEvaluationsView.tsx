@@ -10,6 +10,10 @@ interface EvaluationRow {
   event_id: string;
   evaluator_id: string;
   rating: string;
+  rating_preparation: string | null;
+  rating_presentation: string | null;
+  rating_content: string | null;
+  rating_overall: string | null;
   notes: string | null;
   created_at: string | null;
   profiles: {
@@ -31,6 +35,13 @@ const formatName = (p: EvaluationRow["profiles"]): string => {
   return p.display_name || "Unknown";
 };
 
+const CRITERIA_LABELS: { key: keyof Pick<EvaluationRow, "rating_preparation" | "rating_presentation" | "rating_content" | "rating_overall">; label: string }[] = [
+  { key: "rating_preparation", label: "Preparation" },
+  { key: "rating_presentation", label: "Presentation" },
+  { key: "rating_content", label: "Content" },
+  { key: "rating_overall", label: "Overall" },
+];
+
 const EvaluationCard = ({
   event,
   evaluations,
@@ -41,13 +52,31 @@ const EvaluationCard = ({
   const [expanded, setExpanded] = useState(false);
   const hasEvals = evaluations.length > 0;
 
-  const counts = useMemo(() => {
+  // Aggregate counts per criteria
+  const aggregateCounts = useMemo(() => {
+    const counts: Record<string, Record<string, number>> = {};
+    CRITERIA_LABELS.forEach((c) => {
+      counts[c.key] = { blue: 0, green: 0, yellow: 0 };
+    });
+    evaluations.forEach((e) => {
+      CRITERIA_LABELS.forEach((c) => {
+        const val = e[c.key];
+        if (val && val in counts[c.key]) counts[c.key][val]++;
+      });
+    });
+    return counts;
+  }, [evaluations]);
+
+  // Fallback to old single rating for legacy data
+  const legacyCounts = useMemo(() => {
     const c = { blue: 0, green: 0, yellow: 0 };
     evaluations.forEach((e) => {
       if (e.rating in c) c[e.rating as keyof typeof c]++;
     });
     return c;
   }, [evaluations]);
+
+  const hasNewRatings = evaluations.some((e) => e.rating_overall);
 
   const dateStr = (() => {
     try {
@@ -93,19 +122,38 @@ const EvaluationCard = ({
         {/* Aggregate row */}
         <div className="flex items-center justify-between" style={{ marginTop: 10 }}>
           <div className="flex items-center" style={{ gap: 10 }}>
-            {(["blue", "green", "yellow"] as const).map((r) => (
-              <div key={r} className="flex items-center gap-1">
-                <div
-                  style={{
-                    width: 12,
-                    height: 12,
-                    borderRadius: "50%",
-                    background: ratingColor[r],
-                  }}
-                />
-                <span style={{ fontSize: 11, color: "#5F7285" }}>{counts[r]}</span>
-              </div>
-            ))}
+            {hasNewRatings ? (
+              // Show overall rating counts from new columns
+              (["blue", "green", "yellow"] as const).map((r) => (
+                <div key={r} className="flex items-center gap-1">
+                  <div
+                    style={{
+                      width: 12,
+                      height: 12,
+                      borderRadius: "50%",
+                      background: ratingColor[r],
+                    }}
+                  />
+                  <span style={{ fontSize: 11, color: "#5F7285" }}>
+                    {aggregateCounts.rating_overall[r]}
+                  </span>
+                </div>
+              ))
+            ) : (
+              (["blue", "green", "yellow"] as const).map((r) => (
+                <div key={r} className="flex items-center gap-1">
+                  <div
+                    style={{
+                      width: 12,
+                      height: 12,
+                      borderRadius: "50%",
+                      background: ratingColor[r],
+                    }}
+                  />
+                  <span style={{ fontSize: 11, color: "#5F7285" }}>{legacyCounts[r]}</span>
+                </div>
+              ))
+            )}
           </div>
           <div className="flex items-center gap-1">
             <span style={{ fontSize: 11, color: "#8A9AAB", fontStyle: "italic" }}>
@@ -130,27 +178,48 @@ const EvaluationCard = ({
             {evaluations.map((ev, i) => (
               <div key={ev.id}>
                 {i > 0 && <div style={{ borderTop: "0.5px solid #D5DAE0" }} />}
-                <div className="flex gap-2 py-2.5" style={{ alignItems: "flex-start" }}>
-                  <div
-                    className="shrink-0 mt-1"
-                    style={{
-                      width: 10,
-                      height: 10,
-                      borderRadius: "50%",
-                      background: ratingColor[ev.rating] || "#8A9AAB",
-                    }}
-                  />
-                  <div className="min-w-0">
-                    <div style={{ fontSize: 12, fontWeight: 500, color: "#2D3748" }}>
-                      {formatName(ev.profiles)}
-                    </div>
-                    {ev.notes && (
-                      <div
-                        style={{ fontSize: 12, color: "#5F7285", lineHeight: 1.4, marginTop: 2 }}
-                        dangerouslySetInnerHTML={{ __html: ev.notes }}
-                      />
-                    )}
+                <div className="py-2.5" style={{ alignItems: "flex-start" }}>
+                  <div style={{ fontSize: 12, fontWeight: 500, color: "#2D3748", marginBottom: 4 }}>
+                    {formatName(ev.profiles)}
                   </div>
+                  {ev.rating_overall ? (
+                    <div className="flex flex-wrap gap-x-4 gap-y-1" style={{ marginBottom: ev.notes ? 4 : 0 }}>
+                      {CRITERIA_LABELS.map((c) => {
+                        const val = ev[c.key];
+                        return val ? (
+                          <div key={c.key} className="flex items-center gap-1">
+                            <div
+                              style={{
+                                width: 8,
+                                height: 8,
+                                borderRadius: "50%",
+                                background: ratingColor[val] || "#8A9AAB",
+                              }}
+                            />
+                            <span style={{ fontSize: 11, color: "#5F7285" }}>{c.label}</span>
+                          </div>
+                        ) : null;
+                      })}
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-1" style={{ marginBottom: ev.notes ? 4 : 0 }}>
+                      <div
+                        style={{
+                          width: 8,
+                          height: 8,
+                          borderRadius: "50%",
+                          background: ratingColor[ev.rating] || "#8A9AAB",
+                        }}
+                      />
+                      <span style={{ fontSize: 11, color: "#5F7285" }}>Overall</span>
+                    </div>
+                  )}
+                  {ev.notes && (
+                    <div
+                      style={{ fontSize: 12, color: "#5F7285", lineHeight: 1.4 }}
+                      dangerouslySetInnerHTML={{ __html: ev.notes }}
+                    />
+                  )}
                 </div>
               </div>
             ))}
@@ -184,6 +253,10 @@ const EventsEvaluationsView = ({ events }: { events: ProgramEvent[] }) => {
 
       return evals.map((e) => ({
         ...e,
+        rating_preparation: (e as any).rating_preparation || null,
+        rating_presentation: (e as any).rating_presentation || null,
+        rating_content: (e as any).rating_content || null,
+        rating_overall: (e as any).rating_overall || null,
         profiles: profileMap[e.evaluator_id] || null,
       })) as EvaluationRow[];
     },
