@@ -10,10 +10,11 @@ Deno.serve(async (req) => {
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) throw new Error("Missing authorization header");
 
-    const anonClient = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_ANON_KEY")!
-    );
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+
+    const anonClient = createClient(supabaseUrl, anonKey);
     const { data: { user: caller }, error: authError } = await anonClient.auth.getUser(
       authHeader.replace("Bearer ", "")
     );
@@ -29,11 +30,9 @@ Deno.serve(async (req) => {
     if (!user_id) throw new Error("user_id is required");
     if (user_id === caller.id) throw new Error("Cannot delete yourself");
 
-    const adminClient = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-    );
+    const adminClient = createClient(supabaseUrl, serviceRoleKey);
 
+    // Delete the user from auth (cascades to profiles/roles via FK)
     const { error } = await adminClient.auth.admin.deleteUser(user_id);
     if (error) throw error;
 

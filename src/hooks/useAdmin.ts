@@ -137,16 +137,24 @@ export function useAdmin() {
   const deleteUser = useMutation({
     mutationFn: async (user_id: string) => {
       const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) throw new Error("Not authenticated");
       const res = await supabase.functions.invoke("admin-delete-user", {
         body: { user_id },
-        headers: { Authorization: `Bearer ${session?.access_token}` },
+        headers: { Authorization: `Bearer ${session.access_token}` },
       });
-      if (res.error) throw new Error(res.error.message || "Failed to delete user");
+      if (res.error) {
+        // Try to extract message from FunctionsHttpError response body
+        const msg = typeof res.error === "object" && "message" in res.error
+          ? res.error.message
+          : String(res.error);
+        throw new Error(msg || "Failed to delete user");
+      }
       if (res.data?.error) throw new Error(res.data.error);
       return res.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+      queryClient.invalidateQueries({ queryKey: ["team-members"] });
       toast({ title: "User removed", description: "The user has been deleted." });
     },
     onError: (err: Error) => {
