@@ -209,13 +209,13 @@ export default function EvaluationDialog({
                       key={opt.value}
                       className="flex items-center justify-center"
                       style={{
-                        width: 20,
-                        height: 20,
+                        width: 24,
+                        height: 24,
                         borderRadius: "50%",
                         background: opt.bgLight,
                       }}
                     >
-                      <Icon style={{ width: 12, height: 12, color: opt.color }} strokeWidth={2.5} />
+                      <Icon style={{ width: 13, height: 13, color: opt.color }} strokeWidth={2.5} />
                     </div>
                   );
                 })}
