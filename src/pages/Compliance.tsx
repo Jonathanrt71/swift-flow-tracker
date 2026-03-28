@@ -419,11 +419,12 @@ function renderNarrativeContent(
           const before = text.slice(lastIdx, match.index);
           parts.push(...renderBold(before, key++));
         }
+        const reqNum = match[1]; // capture immediately before closure
         parts.push(
           <RequirementPill
             key={`pill-${key++}`}
-            number={match[1]}
-            onClick={() => onPillClick(match![1])}
+            number={reqNum}
+            onClick={() => onPillClick(reqNum)}
           />
         );
         lastIdx = match.index + match[0].length;
