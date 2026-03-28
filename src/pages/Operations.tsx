@@ -14,6 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import HeaderLogo from "@/components/HeaderLogo";
 import BottomNav from "@/components/BottomNav";
 import NotificationBell from "@/components/NotificationBell";
+import { TaskTemplatesSection } from "@/components/operations/TaskTemplatesSection";
 
 const iconMap: Record<string, React.FC<{ className?: string }>> = {
   home: Home, phone: Phone, calendar: Calendar, clock: Clock, shield: Shield,
@@ -514,6 +515,23 @@ const Operations = () => {
             {isLoading && <div style={{ padding: "16px", fontSize: 13, color: "#999" }}>Loading…</div>}
             {error && <div style={{ padding: "16px", fontSize: 13, color: "#c44" }}>Failed to load sections.</div>}
             {topSections.map(s => <TocItem key={s.id} section={s} />)}
+            {/* Static TOC entry for Task Templates */}
+            <button
+              onClick={() => scrollTo("task-templates")}
+              style={{
+                display: "flex", alignItems: "center", gap: 8, width: "100%",
+                padding: "9px 12px 9px 8px", fontSize: 13,
+                color: activeSectionId === "task-templates" ? "#415162" : "#777",
+                fontWeight: activeSectionId === "task-templates" ? 600 : 400,
+                background: activeSectionId === "task-templates" ? "#F0F2F4" : "transparent",
+                borderLeft: activeSectionId === "task-templates" ? "3px solid #415162" : "3px solid transparent",
+                border: "none", borderRight: "none", borderTop: "none", borderBottom: "none",
+                cursor: "pointer", textAlign: "left",
+              }}
+            >
+              <CheckSquare style={{ width: 15, height: 15, flexShrink: 0, opacity: activeSectionId === "task-templates" ? 1 : 0.55 }} />
+              <span>Task Templates</span>
+            </button>
           </nav>
 
           {/* Add top-level section */}
@@ -573,6 +591,20 @@ const Operations = () => {
             {isLoading && <div style={{ color: "#999", fontSize: 14, padding: "40px 0", textAlign: "center" }}>Loading operations manual…</div>}
             {error && <div style={{ color: "#c44", fontSize: 14 }}>Failed to load. Please refresh.</div>}
             {topSections.map(s => <SectionBlock key={s.id} section={s} />)}
+
+            {/* Task Templates — always shown, not an editable markdown section */}
+            {!isLoading && (
+              <div style={{ marginBottom: 52 }} ref={el => { if (el) sectionRefs.current.set("task-templates", el); }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 6 }}>
+                  <h1 style={{ fontSize: 20, fontWeight: 600, color: "#333", margin: 0 }}>Task Templates</h1>
+                </div>
+                <div style={{ fontSize: 11, color: "#bbb", marginBottom: 18 }}>
+                  Reusable task bundles · spawn into Tasks with one tap
+                </div>
+                <TaskTemplatesSection canEdit={canEdit} />
+                <div style={{ borderBottom: "1px solid #E0DDD8", marginTop: 28 }} />
+              </div>
+            )}
           </div>
         </div>
       </div>
