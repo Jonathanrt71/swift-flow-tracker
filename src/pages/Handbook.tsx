@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -142,44 +142,71 @@ const Handbook = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [activeSlug, setActiveSlug] = useState<string>("welcome");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [activeSlug, setActiveSlug] = useState<string>("");
+  const contentRef = useRef<HTMLDivElement>(null);
+  const sectionRefs = useRef<Map<string, HTMLElement>>(new Map());
 
-  const [editing, setEditing] = useState(false);
+  // Edit state
+  const [editingSlug, setEditingSlug] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState("");
   const [editContent, setEditContent] = useState("");
   const [showPreview, setShowPreview] = useState(false);
 
+  // Scroll to section from URL param on load
   useEffect(() => {
     const s = searchParams.get("section");
     if (s && sections?.find((sec) => sec.slug === s)) {
-      setActiveSlug(s);
+      setTimeout(() => scrollToSection(s), 100);
     }
-  }, [searchParams, sections]);
+  }, [sections]);
 
-  const activeSection = sections?.find((s) => s.slug === activeSlug) || sections?.[0];
-
+  // Track which section is visible while scrolling
   useEffect(() => {
-    setEditing(false);
-  }, [activeSlug]);
+    const container = contentRef.current;
+    if (!container || !sections?.length) return;
 
-  const handleNavClick = (slug: string) => {
-    setActiveSlug(slug);
+    const handleScroll = () => {
+      const containerTop = container.getBoundingClientRect().top;
+      let current = sections[0].slug;
+      for (const section of sections) {
+        const el = sectionRefs.current.get(section.slug);
+        if (el) {
+          const rect = el.getBoundingClientRect();
+          if (rect.top - containerTop <= 80) {
+            current = section.slug;
+          }
+        }
+      }
+      setActiveSlug(current);
+    };
+
+    container.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
+    return () => container.removeEventListener("scroll", handleScroll);
+  }, [sections]);
+
+  const scrollToSection = (slug: string) => {
+    const el = sectionRefs.current.get(slug);
+    const container = contentRef.current;
+    if (el && container) {
+      const containerTop = container.getBoundingClientRect().top + container.scrollTop;
+      const elTop = el.getBoundingClientRect().top + container.scrollTop;
+      container.scrollTo({ top: elTop - containerTop - 16, behavior: "smooth" });
+    }
     setSearchParams({ section: slug });
     setSidebarOpen(false);
-    document.getElementById("handbook-content")?.scrollTo(0, 0);
   };
 
-  const startEditing = () => {
-    if (!activeSection) return;
-    setEditTitle(activeSection.title);
-    setEditContent(activeSection.content);
+  const startEditing = (section: HandbookSection) => {
+    setEditTitle(section.title);
+    setEditContent(section.content);
     setShowPreview(false);
-    setEditing(true);
+    setEditingSlug(section.slug);
   };
 
   const cancelEditing = () => {
-    setEditing(false);
+    setEditingSlug(null);
     setEditTitle("");
     setEditContent("");
     setShowPreview(false);
@@ -200,7 +227,7 @@ const Handbook = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["handbook-sections"] });
-      setEditing(false);
+      setEditingSlug(null);
       toast({ title: "Section updated", description: "Handbook section saved successfully." });
     },
     onError: (err: any) => {
@@ -208,9 +235,8 @@ const Handbook = () => {
     },
   });
 
-  const handleSave = () => {
-    if (!activeSection) return;
-    saveMutation.mutate({ id: activeSection.id, title: editTitle.trim(), content: editContent });
+  const handleSave = (id: string) => {
+    saveMutation.mutate({ id, title: editTitle.trim(), content: editContent });
   };
 
   const formatDate = (d: string) => {
@@ -240,7 +266,7 @@ const Handbook = () => {
         </div>
       </header>
 
-      <div style={{ display: "flex", minHeight: "calc(100vh - 56px)" }}>
+      <div style={{ display: "flex", height: "calc(100vh - 56px)" }}>
         {sidebarOpen && (
           <div className="md:hidden fixed inset-0 z-30 bg-black/30" onClick={() => setSidebarOpen(false)} />
         )}
@@ -257,7 +283,7 @@ const Handbook = () => {
               return (
                 <button
                   key={section.id}
-                  onClick={() => handleNavClick(section.slug)}
+                  onClick={() => scrollToSection(section.slug)}
                   style={{
                     display: "flex", alignItems: "center", gap: 10, width: "100%",
                     padding: "10px 16px", fontSize: 13,
@@ -283,145 +309,157 @@ const Handbook = () => {
           </div>
         </aside>
 
-        {/* Content */}
-        <main id="handbook-content" style={{ flex: 1, overflowY: "auto", padding: "32px 40px", maxWidth: 720 }}>
-          {activeSection ? (
-            <>
-              {/* Title row */}
-              <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
-                {editing ? (
-                  <input
-                    value={editTitle}
-                    onChange={(e) => setEditTitle(e.target.value)}
-                    style={{
-                      fontSize: 22, fontWeight: 600, color: "#333",
-                      border: "1px solid #C9CED4", borderRadius: 6,
-                      padding: "4px 10px", background: "#fff", flex: 1, outline: "none",
-                    }}
-                  />
-                ) : (
-                  <h1 style={{ fontSize: 22, fontWeight: 600, color: "#333", margin: 0 }}>
-                    {activeSection.title}
-                  </h1>
-                )}
-                {isAdmin && !editing && (
-                  <button
-                    onClick={startEditing}
-                    title="Edit section"
-                    style={{
-                      display: "flex", alignItems: "center", gap: 6,
-                      padding: "6px 12px", fontSize: 13, color: "#415162",
-                      background: "transparent", border: "1px solid #C9CED4",
-                      borderRadius: 6, cursor: "pointer", flexShrink: 0, marginTop: 2,
-                    }}
-                  >
-                    <Pencil style={{ width: 14, height: 14 }} />
-                    Edit
-                  </button>
-                )}
-              </div>
-
-              <div style={{ fontSize: 12, color: "#aaa", marginBottom: editing ? 16 : 24, marginTop: 6 }}>
-                Updated {formatDate(activeSection.updated_at)}
-              </div>
-
-              {editing ? (
-                <>
-                  {/* Toolbar */}
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-                    <button
-                      onClick={() => setShowPreview(!showPreview)}
-                      style={{
-                        display: "flex", alignItems: "center", gap: 6,
-                        padding: "5px 10px", fontSize: 12,
-                        color: showPreview ? "#415162" : "#888",
-                        background: showPreview ? "#E7EBEF" : "transparent",
-                        border: "1px solid #C9CED4", borderRadius: 5, cursor: "pointer",
-                      }}
-                    >
-                      {showPreview ? <EyeOff style={{ width: 13, height: 13 }} /> : <Eye style={{ width: 13, height: 13 }} />}
-                      {showPreview ? "Hide preview" : "Show preview"}
-                    </button>
-                    <div style={{ display: "flex", gap: 8 }}>
-                      <button
-                        onClick={cancelEditing}
+        {/* Scrollable content — all sections rendered */}
+        <div
+          ref={contentRef}
+          style={{ flex: 1, overflowY: "auto", padding: "24px 40px 120px" }}
+        >
+          <div style={{ maxWidth: 680 }}>
+            {sections?.map((section) => {
+              const isEditing = editingSlug === section.slug;
+              return (
+                <div
+                  key={section.id}
+                  ref={(el) => { if (el) sectionRefs.current.set(section.slug, el); }}
+                  style={{ marginBottom: 48 }}
+                >
+                  {/* Section header */}
+                  <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
+                    {isEditing ? (
+                      <input
+                        value={editTitle}
+                        onChange={(e) => setEditTitle(e.target.value)}
                         style={{
-                          display: "flex", alignItems: "center", gap: 5,
-                          padding: "6px 14px", fontSize: 13, color: "#777",
-                          background: "transparent", border: "1px solid #C9CED4",
-                          borderRadius: 6, cursor: "pointer",
-                        }}
-                      >
-                        <X style={{ width: 14, height: 14 }} />
-                        Cancel
-                      </button>
-                      <button
-                        onClick={handleSave}
-                        disabled={saveMutation.isPending}
-                        style={{
-                          display: "flex", alignItems: "center", gap: 5,
-                          padding: "6px 14px", fontSize: 13, color: "#fff",
-                          background: saveMutation.isPending ? "#8a9baa" : "#415162",
-                          border: "none", borderRadius: 6,
-                          cursor: saveMutation.isPending ? "not-allowed" : "pointer",
-                        }}
-                      >
-                        <Save style={{ width: 14, height: 14 }} />
-                        {saveMutation.isPending ? "Saving..." : "Save"}
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Editor */}
-                  <div style={{
-                    display: showPreview ? "grid" : "block",
-                    gridTemplateColumns: showPreview ? "1fr 1fr" : undefined,
-                    gap: showPreview ? 16 : undefined,
-                  }}>
-                    <div>
-                      {showPreview && (
-                        <div style={{ fontSize: 11, color: "#999", marginBottom: 4, textTransform: "uppercase", letterSpacing: 0.5 }}>Markdown</div>
-                      )}
-                      <textarea
-                        value={editContent}
-                        onChange={(e) => setEditContent(e.target.value)}
-                        spellCheck
-                        style={{
-                          width: "100%", minHeight: 500, padding: 14, fontSize: 13,
-                          fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
-                          lineHeight: 1.6, color: "#333", background: "#fff",
-                          border: "1px solid #C9CED4", borderRadius: 6, outline: "none", resize: "vertical",
+                          fontSize: 22, fontWeight: 600, color: "#333",
+                          border: "1px solid #C9CED4", borderRadius: 6,
+                          padding: "4px 10px", background: "#fff", flex: 1, outline: "none",
                         }}
                       />
-                    </div>
-                    {showPreview && (
-                      <div>
-                        <div style={{ fontSize: 11, color: "#999", marginBottom: 4, textTransform: "uppercase", letterSpacing: 0.5 }}>Preview</div>
-                        <div style={{ padding: 14, background: "#fff", border: "1px solid #E7EBEF", borderRadius: 6, minHeight: 500, overflowY: "auto" }}>
-                          {renderMarkdown(editContent)}
-                        </div>
-                      </div>
+                    ) : (
+                      <h1 style={{ fontSize: 22, fontWeight: 600, color: "#333", margin: 0 }}>
+                        {section.title}
+                      </h1>
+                    )}
+                    {isAdmin && !isEditing && (
+                      <button
+                        onClick={() => startEditing(section)}
+                        title="Edit section"
+                        style={{
+                          display: "flex", alignItems: "center", gap: 6,
+                          padding: "6px 12px", fontSize: 13, color: "#415162",
+                          background: "transparent", border: "1px solid #C9CED4",
+                          borderRadius: 6, cursor: "pointer", flexShrink: 0, marginTop: 2,
+                        }}
+                      >
+                        <Pencil style={{ width: 14, height: 14 }} />
+                        Edit
+                      </button>
                     )}
                   </div>
 
-                  {/* Markdown help */}
-                  <div style={{ marginTop: 12, padding: "10px 14px", background: "#F0F2F4", borderRadius: 6, fontSize: 12, color: "#777", lineHeight: 1.6 }}>
-                    <span style={{ fontWeight: 500, color: "#555" }}>Markdown tips:</span>{" "}
-                    <code style={{ background: "#E7EBEF", padding: "1px 4px", borderRadius: 3, fontSize: 11 }}>## Heading</code>{" · "}
-                    <code style={{ background: "#E7EBEF", padding: "1px 4px", borderRadius: 3, fontSize: 11 }}>**bold**</code>{" · "}
-                    <code style={{ background: "#E7EBEF", padding: "1px 4px", borderRadius: 3, fontSize: 11 }}>- bullet item</code>{" · "}
-                    <code style={{ background: "#E7EBEF", padding: "1px 4px", borderRadius: 3, fontSize: 11 }}>1. numbered item</code>{" · "}
-                    Tables: <code style={{ background: "#E7EBEF", padding: "1px 4px", borderRadius: 3, fontSize: 11 }}>| Col 1 | Col 2 |</code>
+                  <div style={{ fontSize: 12, color: "#aaa", marginBottom: isEditing ? 16 : 20, marginTop: 6 }}>
+                    Updated {formatDate(section.updated_at)}
                   </div>
-                </>
-              ) : (
-                renderMarkdown(activeSection.content)
-              )}
-            </>
-          ) : !isLoading ? (
-            <p style={{ fontSize: 14, color: "#999" }}>Select a section from the sidebar.</p>
-          ) : null}
-        </main>
+
+                  {isEditing ? (
+                    <>
+                      {/* Edit toolbar */}
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+                        <button
+                          onClick={() => setShowPreview(!showPreview)}
+                          style={{
+                            display: "flex", alignItems: "center", gap: 6,
+                            padding: "5px 10px", fontSize: 12,
+                            color: showPreview ? "#415162" : "#888",
+                            background: showPreview ? "#E7EBEF" : "transparent",
+                            border: "1px solid #C9CED4", borderRadius: 5, cursor: "pointer",
+                          }}
+                        >
+                          {showPreview ? <EyeOff style={{ width: 13, height: 13 }} /> : <Eye style={{ width: 13, height: 13 }} />}
+                          {showPreview ? "Hide preview" : "Show preview"}
+                        </button>
+                        <div style={{ display: "flex", gap: 8 }}>
+                          <button
+                            onClick={cancelEditing}
+                            style={{
+                              display: "flex", alignItems: "center", gap: 5,
+                              padding: "6px 14px", fontSize: 13, color: "#777",
+                              background: "transparent", border: "1px solid #C9CED4",
+                              borderRadius: 6, cursor: "pointer",
+                            }}
+                          >
+                            <X style={{ width: 14, height: 14 }} />
+                            Cancel
+                          </button>
+                          <button
+                            onClick={() => handleSave(section.id)}
+                            disabled={saveMutation.isPending}
+                            style={{
+                              display: "flex", alignItems: "center", gap: 5,
+                              padding: "6px 14px", fontSize: 13, color: "#fff",
+                              background: saveMutation.isPending ? "#8a9baa" : "#415162",
+                              border: "none", borderRadius: 6,
+                              cursor: saveMutation.isPending ? "not-allowed" : "pointer",
+                            }}
+                          >
+                            <Save style={{ width: 14, height: 14 }} />
+                            {saveMutation.isPending ? "Saving..." : "Save"}
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Editor */}
+                      <div style={{
+                        display: showPreview ? "grid" : "block",
+                        gridTemplateColumns: showPreview ? "1fr 1fr" : undefined,
+                        gap: showPreview ? 16 : undefined,
+                      }}>
+                        <div>
+                          {showPreview && (
+                            <div style={{ fontSize: 11, color: "#999", marginBottom: 4, textTransform: "uppercase", letterSpacing: 0.5 }}>Markdown</div>
+                          )}
+                          <textarea
+                            value={editContent}
+                            onChange={(e) => setEditContent(e.target.value)}
+                            spellCheck
+                            style={{
+                              width: "100%", minHeight: 400, padding: 14, fontSize: 13,
+                              fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+                              lineHeight: 1.6, color: "#333", background: "#fff",
+                              border: "1px solid #C9CED4", borderRadius: 6, outline: "none", resize: "vertical",
+                            }}
+                          />
+                        </div>
+                        {showPreview && (
+                          <div>
+                            <div style={{ fontSize: 11, color: "#999", marginBottom: 4, textTransform: "uppercase", letterSpacing: 0.5 }}>Preview</div>
+                            <div style={{ padding: 14, background: "#fff", border: "1px solid #E7EBEF", borderRadius: 6, minHeight: 400, overflowY: "auto" }}>
+                              {renderMarkdown(editContent)}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      <div style={{ marginTop: 12, padding: "10px 14px", background: "#F0F2F4", borderRadius: 6, fontSize: 12, color: "#777", lineHeight: 1.6 }}>
+                        <span style={{ fontWeight: 500, color: "#555" }}>Markdown tips:</span>{" "}
+                        <code style={{ background: "#E7EBEF", padding: "1px 4px", borderRadius: 3, fontSize: 11 }}>## Heading</code>{" · "}
+                        <code style={{ background: "#E7EBEF", padding: "1px 4px", borderRadius: 3, fontSize: 11 }}>**bold**</code>{" · "}
+                        <code style={{ background: "#E7EBEF", padding: "1px 4px", borderRadius: 3, fontSize: 11 }}>- bullet item</code>{" · "}
+                        <code style={{ background: "#E7EBEF", padding: "1px 4px", borderRadius: 3, fontSize: 11 }}>1. numbered item</code>{" · "}
+                        Tables: <code style={{ background: "#E7EBEF", padding: "1px 4px", borderRadius: 3, fontSize: 11 }}>| Col 1 | Col 2 |</code>
+                      </div>
+                    </>
+                  ) : (
+                    renderMarkdown(section.content)
+                  )}
+
+                  {/* Section divider */}
+                  <div style={{ borderBottom: "1px solid #E0DDD8", marginTop: 32 }} />
+                </div>
+              );
+            })}
+          </div>
+        </div>
       </div>
 
       <BottomNav />
