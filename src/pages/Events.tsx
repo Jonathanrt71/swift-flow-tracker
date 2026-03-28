@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { cn } from "@/lib/utils";
-import { useEvents } from "@/hooks/useEvents";
+import { useEvents, EVENT_CATEGORY_LABELS, EVENT_CATEGORY_COLORS } from "@/hooks/useEvents";
 import type { ProgramEvent, EventCategory } from "@/hooks/useEvents";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
@@ -362,9 +362,10 @@ const Events = () => {
 
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeTab, setActiveTab] = useState<"program" | "didactic">("program");
+  const [activeCategory, setActiveCategory] = useState<EventCategory | "all">("all");
   const [viewMode, setViewMode] = useState<"list" | "vertical" | "gantt" | "evaluations">("list");
-  const [lastProgramView, setLastProgramView] = useState<"list" | "vertical" | "gantt" | "evaluations">("list");
+
+  const ALL_CATEGORIES: EventCategory[] = ["program", "didactic", "committee", "compliance", "administrative", "wellness", "faculty"];
 
   const ganttRangeLabel = useMemo(() => {
     const n = new Date();
@@ -377,7 +378,7 @@ const Events = () => {
 
   const filteredEvents = useMemo(() => {
     const all = events.data || [];
-    const byCategory = all.filter((e) => e.category === activeTab);
+    const byCategory = activeCategory === "all" ? all : all.filter((e) => e.category === activeCategory);
     if (!searchQuery.trim()) return byCategory;
     const q = searchQuery.toLowerCase();
     return byCategory.filter(
@@ -385,21 +386,19 @@ const Events = () => {
         e.title.toLowerCase().includes(q) ||
         (e.description || "").toLowerCase().includes(q)
     );
-  }, [events.data, activeTab, searchQuery]);
+  }, [events.data, activeCategory, searchQuery]);
 
   const programEvents = useMemo(() => {
-    return (events.data || []).filter((e) => e.category === "program");
-  }, [events.data]);
+    if (activeCategory === "all") return events.data || [];
+    return (events.data || []).filter((e) => e.category === activeCategory);
+  }, [events.data, activeCategory]);
 
-  const handleTabChange = (tab: "program" | "didactic") => {
-    if (tab === activeTab) return;
-    if (tab === "didactic") {
-      setLastProgramView(viewMode);
+  const handleCategoryChange = (cat: EventCategory | "all") => {
+    if (cat === activeCategory) return;
+    if (cat === "didactic") {
       setViewMode("list");
-    } else {
-      setViewMode(lastProgramView);
     }
-    setActiveTab(tab);
+    setActiveCategory(cat);
   };
 
   return (
@@ -436,29 +435,52 @@ const Events = () => {
         )}
       </header>
 
-      <main className="container max-w-[1200px] px-4 py-6">
-        {/* Row 1: Toolbar */}
-        <div className="flex items-center justify-between pb-2.5">
-          <div className="flex items-center">
-            {/* Program tab icon */}
+      <main className="container max-w-[1200px] px-4 py-4">
+        {/* Row 1: Category filter pills */}
+        <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch", marginBottom: 10, paddingBottom: 2 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, minWidth: "max-content" }}>
+            {/* All pill */}
             <button
-              onClick={() => handleTabChange("program")}
-              className="flex items-center justify-center w-8 h-8 transition-colors"
+              onClick={() => handleCategoryChange("all")}
               style={{
-                borderRadius: 8,
-                background: activeTab === "program" ? "#E7EBEF" : "transparent",
+                padding: "5px 12px", fontSize: 12, fontWeight: activeCategory === "all" ? 600 : 400,
+                borderRadius: 20, border: "none", cursor: "pointer", whiteSpace: "nowrap",
+                background: activeCategory === "all" ? "#415162" : "#E7EBEF",
+                color: activeCategory === "all" ? "#fff" : "#555",
+                transition: "background 0.15s",
               }}
             >
-              <Calendar
-                className="h-[18px] w-[18px]"
-                style={{ stroke: activeTab === "program" ? "#415162" : "#8A9AAB" }}
-              />
+              All
             </button>
+            {ALL_CATEGORIES.map((cat) => {
+              const isActive = activeCategory === cat;
+              const color = EVENT_CATEGORY_COLORS[cat];
+              return (
+                <button
+                  key={cat}
+                  onClick={() => handleCategoryChange(cat)}
+                  style={{
+                    padding: "5px 12px", fontSize: 12, fontWeight: isActive ? 600 : 400,
+                    borderRadius: 20, border: "none", cursor: "pointer", whiteSpace: "nowrap",
+                    background: isActive ? color : "#E7EBEF",
+                    color: isActive ? "#fff" : "#555",
+                    transition: "background 0.15s",
+                  }}
+                >
+                  {EVENT_CATEGORY_LABELS[cat]}
+                </button>
+              );
+            })}
+          </div>
+        </div>
 
-            {/* View toggle pill - only when program tab is active */}
-            {activeTab === "program" && (
+        {/* Row 2: View toggle + Add button */}
+        <div className="flex items-center justify-between pb-2.5">
+          <div className="flex items-center gap-2">
+            {/* View toggle pill — hidden when didactic-only selected */}
+            {activeCategory !== "didactic" && (
               <div
-                className="flex items-center rounded-full p-0.5 ml-1.5"
+                className="flex items-center rounded-full p-0.5"
                 style={{ background: "#D5DAE0" }}
               >
                 {([
@@ -481,36 +503,18 @@ const Events = () => {
                 ))}
               </div>
             )}
-
-            {/* Separator */}
-            <div className="mx-1.5" style={{ width: 1, height: 20, background: "#C9CED4" }} />
-
-            {/* Didactic tab icon */}
-            <button
-              onClick={() => handleTabChange("didactic")}
-              className="flex items-center justify-center w-8 h-8 transition-colors"
-              style={{
-                borderRadius: 8,
-                background: activeTab === "didactic" ? "#E7EBEF" : "transparent",
-              }}
-            >
-              <BookOpen
-                className="h-[18px] w-[18px]"
-                style={{ stroke: activeTab === "didactic" ? "#415162" : "#8A9AAB" }}
-              />
-            </button>
           </div>
 
           {!isResident && (
             <CreateEventDialog
               onSubmit={(data) => createEvent.mutate(data)}
-              defaultCategory={activeTab as EventCategory}
+              defaultCategory={activeCategory === "all" ? "program" : activeCategory as EventCategory}
             />
           )}
         </div>
 
-        {/* Row 2: Gantt label (only in gantt view + program tab) */}
-        {activeTab === "program" && viewMode === "gantt" && (
+        {/* Row 3: Gantt label (only in gantt view) */}
+        {viewMode === "gantt" && activeCategory !== "didactic" && (
           <div className="flex items-center justify-center pb-3">
             <span style={{ fontSize: 15, fontWeight: 500, color: "#2D3748" }}>
               {ganttRangeLabel}
@@ -525,11 +529,11 @@ const Events = () => {
           </div>
         ) : viewMode === "evaluations" ? (
           <EventsEvaluationsView events={events.data || []} />
-        ) : activeTab === "program" && viewMode === "gantt" ? (
+        ) : viewMode === "gantt" && activeCategory !== "didactic" ? (
           <EventsGantt
             events={programEvents}
           />
-        ) : activeTab === "program" && viewMode === "vertical" ? (
+        ) : viewMode === "vertical" && activeCategory !== "didactic" ? (
           <EventsVerticalTimeline events={programEvents} />
         ) : (
           <GroupedEventList
@@ -541,7 +545,7 @@ const Events = () => {
             evaluationStatus={evaluationStatus}
             onUpdate={(data) => { if (!isResident) updateEvent.mutate(data); }}
             onDelete={(id) => { if (!isResident) deleteEvent.mutate(id); }}
-            emptyMessage={activeTab === "program" ? "No program events" : "No didactics"}
+            emptyMessage={activeCategory === "all" ? "No events" : `No ${EVENT_CATEGORY_LABELS[activeCategory as EventCategory]} events`}
           />
         )}
       </main>

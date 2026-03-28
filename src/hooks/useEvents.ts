@@ -3,7 +3,34 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 
-export type EventCategory = "program" | "didactic";
+export type EventCategory =
+  | "program"
+  | "didactic"
+  | "committee"
+  | "compliance"
+  | "administrative"
+  | "wellness"
+  | "faculty";
+
+export const EVENT_CATEGORY_LABELS: Record<EventCategory, string> = {
+  program:        "Program",
+  didactic:       "Didactic",
+  committee:      "Committee",
+  compliance:     "Compliance",
+  administrative: "Administrative",
+  wellness:       "Wellness",
+  faculty:        "Faculty",
+};
+
+export const EVENT_CATEGORY_COLORS: Record<EventCategory, string> = {
+  program:        "#415162",
+  didactic:       "#52657A",
+  committee:      "#4A846C",
+  compliance:     "#D4A017",
+  administrative: "#7A6052",
+  wellness:       "#5A7A6A",
+  faculty:        "#6A5A7A",
+};
 
 export interface ProgramEvent {
   id: string;

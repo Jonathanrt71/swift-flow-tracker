@@ -1,6 +1,8 @@
 import { useMemo } from "react";
 import { format, parseISO } from "date-fns";
 import type { ProgramEvent } from "@/hooks/useEvents";
+import { EVENT_CATEGORY_LABELS, EVENT_CATEGORY_COLORS } from "@/hooks/useEvents";
+import type { EventCategory } from "@/hooks/useEvents";
 
 interface EventsVerticalTimelineProps {
   events: ProgramEvent[];
@@ -89,9 +91,9 @@ const EventsVerticalTimeline = ({ events }: EventsVerticalTimelineProps) => {
             const isLast =
               idx === g.items.length - 1 &&
               g === grouped[grouped.length - 1];
-            const dotColor = ev.category === "didactic" ? "#415162" : "#378ADD";
+            const dotColor = EVENT_CATEGORY_COLORS[ev.category as EventCategory] || "#415162";
             const timeLabel = getTimeLabel(ev);
-            const isProgramTag = ev.category === "program";
+            const catLabel = EVENT_CATEGORY_LABELS[ev.category as EventCategory] || ev.category;
 
             let dayNum = "";
             let dayOfWeek = "";
@@ -149,11 +151,11 @@ const EventsVerticalTimeline = ({ events }: EventsVerticalTimelineProps) => {
                       paddingRight: 8,
                       paddingTop: 2,
                       paddingBottom: 2,
-                      background: isProgramTag ? "#E6F1FB" : "#E1F5EE",
-                      color: isProgramTag ? "#0C447C" : "#085041",
+                      background: dotColor + "22",
+                      color: dotColor,
                     }}
                   >
-                    {isProgramTag ? "Program" : "Didactic"}
+                    {catLabel}
                   </span>
                 </div>
               </div>

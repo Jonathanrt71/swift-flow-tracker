@@ -20,7 +20,8 @@ import { format, parseISO } from "date-fns";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { formatPersonName } from "@/lib/dateFormat";
 import { useAuth } from "@/contexts/AuthContext";
-import type { EventCategory } from "@/hooks/useEvents";
+import type { EventCategory, EVENT_CATEGORY_LABELS } from "@/hooks/useEvents";
+import { EVENT_CATEGORY_LABELS as LABELS } from "@/hooks/useEvents";
 
 interface CreateEventDialogProps {
   onSubmit: (data: {
@@ -119,8 +120,13 @@ const CreateEventDialog = ({ onSubmit, defaultCategory }: CreateEventDialogProps
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="program">Program Event</SelectItem>
+                <SelectItem value="program">Program</SelectItem>
                 <SelectItem value="didactic">Didactic</SelectItem>
+                <SelectItem value="committee">Committee</SelectItem>
+                <SelectItem value="compliance">Compliance</SelectItem>
+                <SelectItem value="administrative">Administrative</SelectItem>
+                <SelectItem value="wellness">Wellness</SelectItem>
+                <SelectItem value="faculty">Faculty</SelectItem>
               </SelectContent>
             </Select>
           </div>
