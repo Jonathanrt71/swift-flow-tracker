@@ -56,7 +56,7 @@ export function useOperationsMutations() {
           icon: parentId ? "file-text" : "layers",
           content: "",
           display_order: maxOrder + 10,
-          role_visibility: "admin,faculty",
+          role_visibility: "all",
           doc_type: "operations",
           parent_id: parentId,
           updated_by: userId,
