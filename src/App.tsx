@@ -15,6 +15,7 @@ import Meetings from "./pages/Meetings.tsx";
 import Events from "./pages/Events.tsx";
 import CBME from "./pages/CBME.tsx";
 import Feedback from "./pages/Feedback.tsx";
+import Handbook from "./pages/Handbook.tsx";
 import UpdatePrompt from "./components/UpdatePrompt";
 
 const queryClient = new QueryClient();
@@ -39,6 +40,7 @@ const App = () => (
               <Route path="/feedback" element={<RoleRoute allowed={["admin", "faculty"]}><Feedback /></RoleRoute>} />
               <Route path="/tasks" element={<RoleRoute allowed={["admin"]}><Index /></RoleRoute>} />
               <Route path="/cbme" element={<RoleRoute allowed={["admin"]}><CBME /></RoleRoute>} />
+              <Route path="/handbook" element={<ProtectedRoute><Handbook /></ProtectedRoute>} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
