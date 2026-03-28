@@ -195,16 +195,15 @@ function TopicRow({ topic, allTags, canEdit, isAdmin, isFaculty, residents, curr
       <div style={{ background: "#fff", border: "1px solid #E7EBEF", borderRadius: 10, marginBottom: 8, overflow: "hidden" }}>
         {/* Collapsed row */}
         <div
-          style={{ display: "flex", alignItems: "center", gap: 10, padding: "11px 14px", cursor: isAdmin ? "pointer" : "default" }}
-          onClick={() => !editing && isAdmin && setExpanded(!expanded)}
+          style={{ display: "flex", alignItems: "center", gap: 10, padding: "11px 14px", cursor: "pointer" }}
+          onClick={() => !editing && setExpanded(!expanded)}
         >
           {/* Required dot */}
           {topic.is_required && <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#415162", flexShrink: 0 }} title="Required" />}
           {!topic.is_required && <div style={{ width: 6, height: 6, borderRadius: "50%", background: "transparent", flexShrink: 0 }} />}
 
-          <div style={{ flex: 1, minWidth: 0, display: "flex", alignItems: "center", gap: 6, overflow: "hidden" }}>
-            <span style={{ fontSize: 13, fontWeight: 500, color: "#333", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flexShrink: 1 }}>{topic.title}</span>
-            {(topic.tags || []).map(tag => <TagPill key={tag.id} tag={tag} />)}
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <span style={{ fontSize: 13, fontWeight: 500, color: "#333", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", display: "block" }}>{topic.title}</span>
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
@@ -216,22 +215,33 @@ function TopicRow({ topic, allTags, canEdit, isAdmin, isFaculty, residents, curr
                 {checkedCount}/{residents.length}
               </span>
             )}
-            {topic.url && (
-              <a href={topic.url} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()}
-                style={{ color: "#415162", display: "flex", alignItems: "center" }}>
-                <ExternalLink style={{ width: 14, height: 14 }} />
-              </a>
-            )}
-            {isAdmin && (
-              expanded ? <ChevronUp style={{ width: 14, height: 14, color: "#aaa" }} /> : <ChevronDown style={{ width: 14, height: 14, color: "#aaa" }} />
-            )}
+            {expanded ? <ChevronUp style={{ width: 14, height: 14, color: "#aaa" }} /> : <ChevronDown style={{ width: 14, height: 14, color: "#aaa" }} />}
           </div>
         </div>
 
         {/* Expanded */}
         {expanded && !editing && (
           <div style={{ borderTop: "1px solid #E7EBEF", padding: "12px 14px" }}>
-            {topic.notes && <p style={{ fontSize: 13, color: "#555", lineHeight: 1.6, marginBottom: 10 }}>{topic.notes}</p>}
+
+            {/* Tags — visible to all roles */}
+            {(topic.tags || []).length > 0 && (
+              <div style={{ display: "flex", flexWrap: "wrap" as const, gap: 5, marginBottom: 10 }}>
+                {(topic.tags || []).map(tag => <TagPill key={tag.id} tag={tag} />)}
+              </div>
+            )}
+
+            {/* Link button — visible to all roles */}
+            {topic.url && (
+              <a href={topic.url} target="_blank" rel="noreferrer"
+                style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12, color: "#415162", fontWeight: 500, textDecoration: "none", padding: "5px 10px", border: "1px solid #C9CED4", borderRadius: 6, background: "#F5F3EE", marginBottom: isAdmin ? 12 : 0 }}>
+                <ExternalLink style={{ width: 12, height: 12 }} />
+                Open resource
+              </a>
+            )}
+
+            {/* Admin-only content below */}
+            {isAdmin && (<>
+            {topic.notes && <p style={{ fontSize: 13, color: "#555", lineHeight: 1.6, marginBottom: 10, marginTop: 10 }}>{topic.notes}</p>}
 
             <div style={{ display: "flex", flexWrap: "wrap" as const, gap: 12, marginBottom: 12, fontSize: 12, color: "#888" }}>
               {topic.last_reviewed && <span>Last reviewed: {formatDate(topic.last_reviewed)}</span>}
@@ -285,6 +295,7 @@ function TopicRow({ topic, allTags, canEdit, isAdmin, isFaculty, residents, curr
                 </button>
               </div>
             )}
+            </>)}
           </div>
         )}
 
