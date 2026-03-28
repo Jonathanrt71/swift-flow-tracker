@@ -18,6 +18,7 @@ import Feedback from "./pages/Feedback.tsx";
 import Handbook from "./pages/Handbook.tsx";
 import Rotations from "./pages/Rotations.tsx";
 import Operations from "./pages/Operations.tsx";
+import Topics from "./pages/Topics.tsx";
 import UpdatePrompt from "./components/UpdatePrompt";
 
 const queryClient = new QueryClient();
@@ -45,6 +46,7 @@ const App = () => (
               <Route path="/handbook" element={<ProtectedRoute><Handbook /></ProtectedRoute>} />
               <Route path="/rotations" element={<ProtectedRoute><Rotations /></ProtectedRoute>} />
               <Route path="/operations" element={<RoleRoute allowed={["admin", "faculty"]}><Operations /></RoleRoute>} />
+              <Route path="/topics" element={<ProtectedRoute><Topics /></ProtectedRoute>} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

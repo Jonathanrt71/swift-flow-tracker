@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { CheckSquare, Calendar, BookOpen, BookMarked, Stethoscope, MessageSquare, ClipboardList } from "lucide-react";
+import { CheckSquare, Calendar, BookOpen, BookMarked, Stethoscope, MessageSquare, ClipboardList, BookOpenCheck } from "lucide-react";
 import { useUserRole } from "@/hooks/useUserRole";
 
 type AllowedRole = "admin" | "faculty" | "resident";
@@ -12,6 +12,7 @@ const allNavItems = [
   { path: "/operations", icon: ClipboardList, allowed: ["admin", "faculty"] as AllowedRole[] },
   { path: "/rotations", icon: Stethoscope, allowed: ["admin", "faculty", "resident"] as AllowedRole[] },
   { path: "/tasks", icon: CheckSquare, allowed: ["admin"] as AllowedRole[] },
+  { path: "/topics", icon: BookOpenCheck, allowed: ["admin", "faculty", "resident"] as AllowedRole[] },
 ];
 
 const BottomNav = () => {
