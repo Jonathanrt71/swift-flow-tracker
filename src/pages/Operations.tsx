@@ -62,11 +62,29 @@ function renderMarkdown(md: string) {
     const line = lines[i];
     if (line.trim() === "") { i++; continue; }
 
+    if (line.startsWith("### ")) {
+      elements.push(
+        <h3 key={key++} style={{ fontSize: 15, fontWeight: 600, color: "#333", margin: "18px 0 6px" }}>
+          {line.slice(4)}
+        </h3>
+      );
+      i++; continue;
+    }
+
     if (line.startsWith("## ")) {
       elements.push(
         <h2 key={key++} style={{ fontSize: 16, fontWeight: 600, color: "#415162", margin: "24px 0 10px", paddingBottom: 5, borderBottom: "1px solid #E7EBEF" }}>
           {line.slice(3)}
         </h2>
+      );
+      i++; continue;
+    }
+
+    if (line.startsWith("# ")) {
+      elements.push(
+        <h1 key={key++} style={{ fontSize: 19, fontWeight: 700, color: "#415162", margin: "26px 0 10px", paddingBottom: 6, borderBottom: "2px solid #E7EBEF" }}>
+          {line.slice(2)}
+        </h1>
       );
       i++; continue;
     }

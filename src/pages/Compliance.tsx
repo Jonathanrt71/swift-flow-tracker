@@ -301,13 +301,17 @@ function renderNarrativeContent(
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
 
-    // Headers
+    // Headers (check ### before ## before # so longer prefixes match first)
     if (line.startsWith("### ")) {
       elements.push(<h3 key={key++} style={{ fontSize: 15, fontWeight: 600, color: "#333", margin: "18px 0 6px" }}>{line.slice(4)}</h3>);
       continue;
     }
     if (line.startsWith("## ")) {
-      elements.push(<h2 key={key++} style={{ fontSize: 17, fontWeight: 600, color: "#333", margin: "22px 0 8px" }}>{line.slice(3)}</h2>);
+      elements.push(<h2 key={key++} style={{ fontSize: 17, fontWeight: 600, color: "#415162", margin: "22px 0 8px", paddingBottom: 5, borderBottom: "1px solid #E7EBEF" }}>{line.slice(3)}</h2>);
+      continue;
+    }
+    if (line.startsWith("# ")) {
+      elements.push(<h1 key={key++} style={{ fontSize: 19, fontWeight: 700, color: "#415162", margin: "26px 0 10px", paddingBottom: 6, borderBottom: "2px solid #E7EBEF" }}>{line.slice(2)}</h1>);
       continue;
     }
 
