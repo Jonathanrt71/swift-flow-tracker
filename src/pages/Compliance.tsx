@@ -83,18 +83,24 @@ function StatusSelector({ value, onChange }: { value: ComplianceStatus; onChange
 
 // ── Requirement Pill (for narrative doc) ─────────────────────────────────
 function RequirementPill({ number, onClick }: { number: string; onClick?: () => void }) {
+  const [hovered, setHovered] = useState(false);
   return (
     <button
-      onClick={onClick}
+      onClick={(e) => { e.stopPropagation(); onClick?.(); }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       style={{
         display: "inline-flex", alignItems: "center", gap: 3,
-        padding: "1px 7px", fontSize: 11, fontWeight: 600,
-        color: "#415162", background: "#E7EBEF",
+        padding: "2px 8px", fontSize: 11, fontWeight: 600,
+        color: hovered ? "#fff" : "#415162",
+        background: hovered ? "#415162" : "#E7EBEF",
         border: "1px solid #C9CED4", borderRadius: 10,
         cursor: onClick ? "pointer" : "default",
         fontFamily: "monospace", letterSpacing: 0.3,
+        transition: "all 0.15s ease",
+        textDecoration: hovered ? "none" : "none",
       }}
-      title={`View requirement ${number}`}
+      title={`Click to view requirement ${number}`}
     >
       {number}
     </button>
