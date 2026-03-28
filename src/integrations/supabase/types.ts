@@ -369,6 +369,7 @@ export type Database = {
       }
       events: {
         Row: {
+          archived: boolean
           assigned_to: string | null
           category: string
           created_at: string | null
@@ -378,11 +379,16 @@ export type Database = {
           end_time: string | null
           event_date: string
           id: string
+          next_occurrence_date: string | null
+          recurrence_confirmed: boolean
+          recurrence_parent_id: string | null
+          recurrence_pattern: string | null
           start_time: string | null
           title: string
           updated_at: string | null
         }
         Insert: {
+          archived?: boolean
           assigned_to?: string | null
           category?: string
           created_at?: string | null
@@ -392,11 +398,16 @@ export type Database = {
           end_time?: string | null
           event_date: string
           id?: string
+          next_occurrence_date?: string | null
+          recurrence_confirmed?: boolean
+          recurrence_parent_id?: string | null
+          recurrence_pattern?: string | null
           start_time?: string | null
           title: string
           updated_at?: string | null
         }
         Update: {
+          archived?: boolean
           assigned_to?: string | null
           category?: string
           created_at?: string | null
@@ -406,11 +417,23 @@ export type Database = {
           end_time?: string | null
           event_date?: string
           id?: string
+          next_occurrence_date?: string | null
+          recurrence_confirmed?: boolean
+          recurrence_parent_id?: string | null
+          recurrence_pattern?: string | null
           start_time?: string | null
           title?: string
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "events_recurrence_parent_id_fkey"
+            columns: ["recurrence_parent_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       feedback: {
         Row: {
@@ -480,6 +503,56 @@ export type Database = {
             columns: ["resident_id"]
             isOneToOne: false
             referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      handbook_sections: {
+        Row: {
+          content: string
+          display_order: number
+          doc_type: string
+          icon: string
+          id: string
+          parent_id: string | null
+          role_visibility: string
+          slug: string
+          title: string
+          updated_at: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          content: string
+          display_order?: number
+          doc_type?: string
+          icon?: string
+          id?: string
+          parent_id?: string | null
+          role_visibility?: string
+          slug: string
+          title: string
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          content?: string
+          display_order?: number
+          doc_type?: string
+          icon?: string
+          id?: string
+          parent_id?: string | null
+          role_visibility?: string
+          slug?: string
+          title?: string
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "handbook_sections_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "handbook_sections"
             referencedColumns: ["id"]
           },
         ]
@@ -775,6 +848,158 @@ export type Database = {
           subcategory_id?: string
           updated_at?: string | null
           updated_by?: string | null
+        }
+        Relationships: []
+      }
+      rotations: {
+        Row: {
+          attendings_notes: string | null
+          attire: string | null
+          contact_info: string | null
+          display_order: number
+          duration: string | null
+          emr_notes: string | null
+          hours: string | null
+          id: string
+          learning_goals: string | null
+          location: string | null
+          logistics: string | null
+          name: string
+          overview: string | null
+          pgy_levels: string[] | null
+          preparation: string | null
+          procedures: string | null
+          rotation_director: string | null
+          rotation_type: string
+          schedule_details: string | null
+          slug: string
+          updated_at: string | null
+          updated_by: string | null
+          vacation_eligible: boolean | null
+        }
+        Insert: {
+          attendings_notes?: string | null
+          attire?: string | null
+          contact_info?: string | null
+          display_order?: number
+          duration?: string | null
+          emr_notes?: string | null
+          hours?: string | null
+          id?: string
+          learning_goals?: string | null
+          location?: string | null
+          logistics?: string | null
+          name: string
+          overview?: string | null
+          pgy_levels?: string[] | null
+          preparation?: string | null
+          procedures?: string | null
+          rotation_director?: string | null
+          rotation_type?: string
+          schedule_details?: string | null
+          slug: string
+          updated_at?: string | null
+          updated_by?: string | null
+          vacation_eligible?: boolean | null
+        }
+        Update: {
+          attendings_notes?: string | null
+          attire?: string | null
+          contact_info?: string | null
+          display_order?: number
+          duration?: string | null
+          emr_notes?: string | null
+          hours?: string | null
+          id?: string
+          learning_goals?: string | null
+          location?: string | null
+          logistics?: string | null
+          name?: string
+          overview?: string | null
+          pgy_levels?: string[] | null
+          preparation?: string | null
+          procedures?: string | null
+          rotation_director?: string | null
+          rotation_type?: string
+          schedule_details?: string | null
+          slug?: string
+          updated_at?: string | null
+          updated_by?: string | null
+          vacation_eligible?: boolean | null
+        }
+        Relationships: []
+      }
+      task_template_items: {
+        Row: {
+          assignee_id: string | null
+          assignee_role: string
+          created_at: string | null
+          day_offset: number
+          description: string | null
+          id: string
+          sort_order: number
+          template_id: string
+          title: string
+        }
+        Insert: {
+          assignee_id?: string | null
+          assignee_role?: string
+          created_at?: string | null
+          day_offset?: number
+          description?: string | null
+          id?: string
+          sort_order?: number
+          template_id: string
+          title: string
+        }
+        Update: {
+          assignee_id?: string | null
+          assignee_role?: string
+          created_at?: string | null
+          day_offset?: number
+          description?: string | null
+          id?: string
+          sort_order?: number
+          template_id?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_template_items_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "task_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      task_templates: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          id: string
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
