@@ -17,6 +17,7 @@ import CBME from "./pages/CBME.tsx";
 import Feedback from "./pages/Feedback.tsx";
 import Handbook from "./pages/Handbook.tsx";
 import Rotations from "./pages/Rotations.tsx";
+import Operations from "./pages/Operations.tsx";
 import UpdatePrompt from "./components/UpdatePrompt";
 
 const queryClient = new QueryClient();
@@ -43,6 +44,7 @@ const App = () => (
               <Route path="/cbme" element={<RoleRoute allowed={["admin"]}><CBME /></RoleRoute>} />
               <Route path="/handbook" element={<ProtectedRoute><Handbook /></ProtectedRoute>} />
               <Route path="/rotations" element={<ProtectedRoute><Rotations /></ProtectedRoute>} />
+              <Route path="/operations" element={<RoleRoute allowed={["admin", "faculty"]}><Operations /></RoleRoute>} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
