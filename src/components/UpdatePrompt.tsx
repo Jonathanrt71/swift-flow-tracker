@@ -4,6 +4,14 @@ const UpdatePrompt = () => {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
+    // Only show the update banner when running as an installed PWA (homescreen app)
+    // In a regular browser tab, just reload silently on next navigation
+    const isStandalone =
+      window.matchMedia("(display-mode: standalone)").matches ||
+      (navigator as any).standalone === true;
+
+    if (!isStandalone) return;
+
     const handler = () => setVisible(true);
     window.addEventListener("pwa-update-available", handler);
     return () => window.removeEventListener("pwa-update-available", handler);
