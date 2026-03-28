@@ -16,7 +16,7 @@ import {
   useRequirements, useRequirementsMutations,
   useComplianceNarrative, useComplianceNarrativeMutations,
   ProgramRequirement, ComplianceNarrativeSection,
-  ComplianceStatus, STATUS_CONFIG, SECTION_NAMES, TYPE_LABELS,
+  ComplianceStatus, STATUS_CONFIG, SECTION_NAMES, TYPE_LABELS, SOURCE_CONFIG,
 } from "@/hooks/useCompliance";
 
 // ── Status Icon ──────────────────────────────────────────────────────────
@@ -263,6 +263,18 @@ function RequirementRow({
             }}>
               {typeCfg.label}
             </span>
+            {req.source && req.source !== "both" && (() => {
+              const srcCfg = SOURCE_CONFIG[req.source];
+              return srcCfg ? (
+                <span style={{
+                  fontSize: 10, fontWeight: 500, padding: "1px 5px",
+                  borderRadius: 3, color: srcCfg.color, background: srcCfg.bg,
+                  border: `1px solid ${srcCfg.color}30`,
+                }}>
+                  {srcCfg.short}
+                </span>
+              ) : null;
+            })()}
             <div style={{ marginLeft: "auto", flexShrink: 0 }}>
               <StatusIcon status={req.compliance_status} size={16} />
             </div>
@@ -490,6 +502,7 @@ const Compliance = () => {
   const [filterSection, setFilterSection] = useState<number | null>(null);
   const [filterStatus, setFilterStatus] = useState<ComplianceStatus | null>(null);
   const [filterType, setFilterType] = useState<string | null>(null);
+  const [filterSource, setFilterSource] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [collapsedSections, setCollapsedSections] = useState<Record<number, boolean>>({});
   const [highlightedReq, setHighlightedReq] = useState<string | null>(null);
@@ -567,6 +580,7 @@ const Compliance = () => {
       if (filterSection !== null && r.section_number !== filterSection) return false;
       if (filterStatus && r.compliance_status !== filterStatus) return false;
       if (filterType && r.requirement_type !== filterType) return false;
+      if (filterSource && r.source !== filterSource) return false;
       if (searchQuery) {
         const q = searchQuery.toLowerCase();
         return (
@@ -578,7 +592,7 @@ const Compliance = () => {
       }
       return true;
     });
-  }, [requirements, filterSection, filterStatus, filterType, searchQuery]);
+  }, [requirements, filterSection, filterStatus, filterType, filterSource, searchQuery]);
 
   // Group by section
   const groupedBySection = useMemo(() => {
@@ -610,6 +624,7 @@ const Compliance = () => {
     setFilterSection(null);
     setFilterStatus(null);
     setFilterType(null);
+    setFilterSource(null);
     setHighlightedReq(reqNumber);
 
     // Find the requirement and expand it
@@ -793,6 +808,16 @@ const Compliance = () => {
               <option value="core">Core</option>
               <option value="detail">Detail</option>
               <option value="outcome">Outcome</option>
+            </select>
+            <select
+              value={filterSource ?? ""}
+              onChange={e => setFilterSource(e.target.value || null)}
+              style={{ fontSize: 12, padding: "7px 8px", border: "1px solid #C9CED4", borderRadius: 6, background: "#fff", color: "#333" }}
+            >
+              <option value="">All Sources</option>
+              <option value="common">Common (CPR)</option>
+              <option value="specialty">FM-Specific</option>
+              <option value="both">Both</option>
             </select>
           </div>
 

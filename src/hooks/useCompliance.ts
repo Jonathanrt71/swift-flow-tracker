@@ -19,6 +19,7 @@ export interface ProgramRequirement {
   evidence_links: { label: string; url: string }[];
   last_reviewed_at: string | null;
   last_reviewed_by: string | null;
+  source: "common" | "specialty" | "both" | null;
   created_at: string;
   updated_at: string;
 }
@@ -60,6 +61,12 @@ export const TYPE_LABELS: Record<string, { label: string; color: string }> = {
   core:    { label: "Core",    color: "#415162" },
   detail:  { label: "Detail",  color: "#7A8FA0" },
   outcome: { label: "Outcome", color: "#52657A" },
+};
+
+export const SOURCE_CONFIG: Record<string, { label: string; short: string; color: string; bg: string }> = {
+  common:    { label: "Common (CPR)", short: "CPR",  color: "#7A8FA0", bg: "#EEF1F4" },
+  specialty: { label: "FM-Specific",  short: "FM",   color: "#52657A", bg: "#E7EBEF" },
+  both:      { label: "Both",         short: "Both", color: "#415162", bg: "#E0E4E8" },
 };
 
 // ── Requirements Queries ─────────────────────────────────────────────────
