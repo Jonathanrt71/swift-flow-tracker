@@ -189,7 +189,7 @@ export function useComplianceNarrativeMutations() {
           icon: parentId ? "file-text" : "shield-check",
           content: "",
           display_order: maxOrder + 10,
-          role_visibility: "admin",
+          role_visibility: "admin_only",
           doc_type: "compliance",
           parent_id: parentId,
           updated_by: userId,
