@@ -1,18 +1,19 @@
 import { Link, useLocation } from "react-router-dom";
-import { CheckSquare, Calendar, BookOpen, BookMarked, Stethoscope, MessageSquare, ClipboardList, BookOpenCheck } from "lucide-react";
+import { CheckSquare, Calendar, BookOpen, BookMarked, Stethoscope, MessageSquare, ClipboardList, BookOpenCheck, Home } from "lucide-react";
 import { useUserRole } from "@/hooks/useUserRole";
 
 type AllowedRole = "admin" | "faculty" | "resident";
 
 const allNavItems = [
-  { path: "/cbme", icon: BookOpen, allowed: ["admin"] as AllowedRole[] },
-  { path: "/events", icon: Calendar, allowed: ["admin", "faculty"] as AllowedRole[] },
-  { path: "/feedback", icon: MessageSquare, allowed: ["admin", "faculty"] as AllowedRole[] },
-  { path: "/handbook", icon: BookMarked, allowed: ["admin", "faculty", "resident"] as AllowedRole[] },
-  { path: "/operations", icon: ClipboardList, allowed: ["admin", "faculty"] as AllowedRole[] },
-  { path: "/rotations", icon: Stethoscope, allowed: ["admin", "faculty", "resident"] as AllowedRole[] },
-  { path: "/tasks", icon: CheckSquare, allowed: ["admin"] as AllowedRole[] },
-  { path: "/topics", icon: BookOpenCheck, allowed: ["admin", "faculty", "resident"] as AllowedRole[] },
+  { path: "/",        icon: Home,          allowed: ["admin"] as AllowedRole[] },
+  { path: "/feedback",icon: MessageSquare, allowed: ["admin", "faculty"] as AllowedRole[] },
+  { path: "/events",  icon: Calendar,      allowed: ["admin", "faculty"] as AllowedRole[] },
+  { path: "/tasks",   icon: CheckSquare,   allowed: ["admin"] as AllowedRole[] },
+  { path: "/cbme",    icon: BookOpen,      allowed: ["admin"] as AllowedRole[] },
+  { path: "/handbook",icon: BookMarked,    allowed: ["faculty", "resident"] as AllowedRole[] },
+  { path: "/topics",  icon: BookOpenCheck, allowed: ["faculty", "resident"] as AllowedRole[] },
+  { path: "/rotations",icon: Stethoscope,  allowed: ["resident"] as AllowedRole[] },
+  { path: "/operations",icon: ClipboardList, allowed: ["faculty"] as AllowedRole[] },
 ];
 
 const BottomNav = () => {

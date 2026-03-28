@@ -19,6 +19,7 @@ import Handbook from "./pages/Handbook.tsx";
 import Rotations from "./pages/Rotations.tsx";
 import Operations from "./pages/Operations.tsx";
 import Topics from "./pages/Topics.tsx";
+import Home from "./pages/Home.tsx";
 import UpdatePrompt from "./components/UpdatePrompt";
 
 const queryClient = new QueryClient();
@@ -35,7 +36,8 @@ const App = () => (
             <Routes>
               <Route path="/login" element={<Login />} />
               
-              <Route path="/" element={<RoleRoute allowed={["admin", "faculty"]}><Feedback /></RoleRoute>} />
+              <Route path="/" element={<RoleRoute allowed={["admin"]}><Home /></RoleRoute>} />
+              <Route path="/home" element={<RoleRoute allowed={["admin"]}><Home /></RoleRoute>} />
               <Route path="/admin" element={<RoleRoute allowed={["admin"]}><Admin /></RoleRoute>} />
               <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
               <Route path="/meetings" element={<RoleRoute allowed={["admin"]}><Meetings /></RoleRoute>} />
