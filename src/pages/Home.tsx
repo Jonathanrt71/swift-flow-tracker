@@ -77,6 +77,10 @@ const ADMIN_SECTIONS: { label: string; items: NavItem[] }[] = [
         label: "Admin", description: "Users, settings", path: "/admin", color: "#D4A017",
         icon: <SVGIcon color="#D4A017"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></SVGIcon>,
       },
+      {
+        label: "Compliance", description: "ACGME requirements", path: "/compliance", color: "#52657A",
+        icon: <SVGIcon color="#52657A"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></SVGIcon>,
+      },
     ],
   },
   {

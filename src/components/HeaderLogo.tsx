@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { CheckSquare, Users, Calendar, BookOpen, MessageSquare, Shield, User, LogOut, BookMarked, Stethoscope, ClipboardList, BookOpenCheck, Home } from "lucide-react";
+import { CheckSquare, Users, Calendar, BookOpen, MessageSquare, Shield, User, LogOut, BookMarked, Stethoscope, ClipboardList, BookOpenCheck, Home, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUserRole } from "@/hooks/useUserRole";
 
@@ -17,6 +17,7 @@ const allNavItems = [
   { path: "/topics",    label: "Topics",     icon: BookOpenCheck, allowed: ["admin", "faculty", "resident"] as AllowedRole[] },
   { path: "/meetings",  label: "Meetings",   icon: Users,         allowed: ["admin"] as AllowedRole[] },
   { path: "/tasks",     label: "Tasks",      icon: CheckSquare,   allowed: ["admin"] as AllowedRole[] },
+  { path: "/compliance",label: "Compliance", icon: ShieldCheck,   allowed: ["admin"] as AllowedRole[] },
 ];
 
 const HeaderLogo = ({
