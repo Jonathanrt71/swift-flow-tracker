@@ -136,22 +136,7 @@ export function useRequirementsMutations() {
     onSuccess: invalidate,
   });
 
-  const updateEvidenceLinks = useMutation({
-    mutationFn: async ({ id, links, userId }: { id: string; links: { label: string; url: string }[]; userId: string }) => {
-      const { error } = await (supabase
-        .from("program_requirements" as any)
-        .update({
-          evidence_links: links,
-          last_reviewed_at: new Date().toISOString(),
-          last_reviewed_by: userId,
-        } as any)
-        .eq("id", id) as any);
-      if (error) throw error;
-    },
-    onSuccess: invalidate,
-  });
-
-  return { updateStatus, updateNarrative, updateResponsible, updateEvidenceLinks };
+  return { updateStatus, updateNarrative, updateResponsible };
 }
 
 // ── Narrative Document Queries ───────────────────────────────────────────

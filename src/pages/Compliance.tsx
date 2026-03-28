@@ -1,7 +1,7 @@
 import { useState, useRef, useMemo, useCallback } from "react";
 import {
   Search, Filter, ChevronDown, ChevronRight, Save, X, Pencil,
-  Plus, Trash2, ExternalLink, Shield, FileText, User, Clock,
+  Plus, Trash2, Shield, FileText, User, Clock,
   CheckCircle2, AlertCircle, MinusCircle, HelpCircle, Eye, EyeOff,
   Menu, BookOpen, ClipboardList, Sparkles, Loader2,
 } from "lucide-react";
@@ -107,88 +107,6 @@ function RequirementPill({ number, onClick }: { number: string; onClick?: () => 
   );
 }
 
-// ── Evidence Link Editor ─────────────────────────────────────────────────
-function EvidenceLinksEditor({
-  links, onChange,
-}: {
-  links: { label: string; url: string }[];
-  onChange: (links: { label: string; url: string }[]) => void;
-}) {
-  const [adding, setAdding] = useState(false);
-  const [newLabel, setNewLabel] = useState("");
-  const [newUrl, setNewUrl] = useState("");
-
-  const addLink = () => {
-    if (!newLabel.trim() || !newUrl.trim()) return;
-    onChange([...links, { label: newLabel.trim(), url: newUrl.trim() }]);
-    setNewLabel("");
-    setNewUrl("");
-    setAdding(false);
-  };
-
-  const removeLink = (idx: number) => {
-    onChange(links.filter((_, i) => i !== idx));
-  };
-
-  return (
-    <div style={{ marginTop: 8 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-        <ExternalLink style={{ width: 13, height: 13, color: "#999" }} />
-        <span style={{ fontSize: 11, fontWeight: 600, color: "#888", textTransform: "uppercase", letterSpacing: 0.5 }}>Evidence</span>
-      </div>
-      {links.map((link, i) => (
-        <div key={i} style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
-          <a
-            href={link.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ fontSize: 13, color: "#415162", textDecoration: "underline" }}
-          >
-            {link.label}
-          </a>
-          <button
-            onClick={() => removeLink(i)}
-            style={{ background: "none", border: "none", cursor: "pointer", padding: 2, color: "#C0392B", display: "flex" }}
-          >
-            <X style={{ width: 12, height: 12 }} />
-          </button>
-        </div>
-      ))}
-      {adding ? (
-        <div style={{ display: "flex", gap: 6, alignItems: "flex-end", flexWrap: "wrap" }}>
-          <div>
-            <label style={{ fontSize: 10, color: "#999" }}>Label</label>
-            <input
-              value={newLabel}
-              onChange={e => setNewLabel(e.target.value)}
-              placeholder="e.g., Faculty Survey Results"
-              style={{ display: "block", fontSize: 12, padding: "4px 8px", border: "1px solid #C9CED4", borderRadius: 4, width: 180, background: "#fff" }}
-            />
-          </div>
-          <div>
-            <label style={{ fontSize: 10, color: "#999" }}>URL</label>
-            <input
-              value={newUrl}
-              onChange={e => setNewUrl(e.target.value)}
-              placeholder="https://..."
-              style={{ display: "block", fontSize: 12, padding: "4px 8px", border: "1px solid #C9CED4", borderRadius: 4, width: 220, background: "#fff" }}
-            />
-          </div>
-          <button onClick={addLink} style={{ padding: "4px 10px", fontSize: 12, color: "#fff", background: "#415162", border: "none", borderRadius: 4, cursor: "pointer" }}>Add</button>
-          <button onClick={() => setAdding(false)} style={{ padding: "4px 10px", fontSize: 12, color: "#666", background: "transparent", border: "1px solid #C9CED4", borderRadius: 4, cursor: "pointer" }}>Cancel</button>
-        </div>
-      ) : (
-        <button
-          onClick={() => setAdding(true)}
-          style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 12, color: "#415162", background: "none", border: "none", cursor: "pointer", padding: "2px 0" }}
-        >
-          <Plus style={{ width: 12, height: 12 }} /> Add evidence link
-        </button>
-      )}
-    </div>
-  );
-}
-
 // ── Requirement Row ──────────────────────────────────────────────────────
 function RequirementRow({
   req, users, userId, expanded, onToggle, mutations, onHighlight,
@@ -223,10 +141,6 @@ function RequirementRow({
 
   const handleResponsibleChange = (personId: string) => {
     mutations.updateResponsible.mutate({ id: req.id, personId: personId || null, userId });
-  };
-
-  const handleEvidenceChange = (links: { label: string; url: string }[]) => {
-    mutations.updateEvidenceLinks.mutate({ id: req.id, links, userId });
   };
 
   // Indentation based on requirement depth
@@ -368,9 +282,6 @@ function RequirementRow({
               </div>
             )}
           </div>
-
-          {/* Evidence links */}
-          <EvidenceLinksEditor links={req.evidence_links} onChange={handleEvidenceChange} />
         </div>
       )}
     </div>
