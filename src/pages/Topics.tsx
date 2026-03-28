@@ -203,10 +203,12 @@ function TopicRow({ topic, allTags, canEdit, isAdmin, isFaculty, residents, curr
           {!topic.is_required && <div style={{ width: 6, height: 6, borderRadius: "50%", background: "transparent", flexShrink: 0 }} />}
 
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
-              <span style={{ fontSize: 13, fontWeight: 500, color: "#333" }}>{topic.title}</span>
-              {(topic.tags || []).map(tag => <TagPill key={tag.id} tag={tag} />)}
-            </div>
+            <div style={{ fontSize: 13, fontWeight: 500, color: "#333", marginBottom: (topic.tags || []).length > 0 ? 4 : 0 }}>{topic.title}</div>
+            {(topic.tags || []).length > 0 && (
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+                {(topic.tags || []).map(tag => <TagPill key={tag.id} tag={tag} />)}
+              </div>
+            )}
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
