@@ -132,7 +132,8 @@ function AddItemForm({ templateId, itemCount, onDone }: { templateId: string; it
 
 function TemplateCard({ template, canEdit }: { template: TaskTemplate; canEdit: boolean }) {
   const { deleteTemplate, deleteItem, spawnTasks } = useTaskTemplates();
-  const { teamMembers } = useTeamMembers();
+  const teamQuery = useTeamMembers();
+  const teamMembers = teamQuery.data ?? [];
   const { user } = useAuth();
   const [expanded, setExpanded] = useState(false);
   const [spawning, setSpawning] = useState(false);

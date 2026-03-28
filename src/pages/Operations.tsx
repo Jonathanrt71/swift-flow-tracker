@@ -424,7 +424,7 @@ const Operations = () => {
 
         {/* Subsections */}
         {depth === 0 && subs.length > 0 && (
-          <div style={{ marginTop: 24, paddingLeft: 0, borderLeft: "2px solid #E7EBEF", paddingLeft: 16 }}>
+          <div style={{ marginTop: 24, borderLeft: "2px solid #E7EBEF", paddingLeft: 16 }}>
             {subs.map(sub => <SectionBlock key={sub.id} section={sub} depth={1} />)}
           </div>
         )}
