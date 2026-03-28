@@ -1,43 +1,29 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Home, Phone, Calendar, Clock, Shield, Repeat, FileText, TrendingUp,
   BookOpen, CalendarOff, CheckSquare, Moon, RefreshCw, Shirt, Heart,
   ShieldCheck, Globe, Coffee, AlertTriangle, MessageSquare, Layers,
-  Users, AlertCircle, Monitor,
+  Users, AlertCircle, Monitor, Pencil, X, Save, Eye, EyeOff,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
 import { useHandbook, HandbookSection } from "@/hooks/useHandbook";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import HeaderLogo from "@/components/HeaderLogo";
 import BottomNav from "@/components/BottomNav";
 import NotificationBell from "@/components/NotificationBell";
 
 const iconMap: Record<string, React.FC<{ className?: string }>> = {
-  home: Home,
-  phone: Phone,
-  calendar: Calendar,
-  clock: Clock,
-  shield: Shield,
-  repeat: Repeat,
-  "file-text": FileText,
-  "trending-up": TrendingUp,
-  "book-open": BookOpen,
-  "calendar-off": CalendarOff,
-  "check-square": CheckSquare,
-  moon: Moon,
-  "refresh-cw": RefreshCw,
-  shirt: Shirt,
-  heart: Heart,
-  "shield-check": ShieldCheck,
-  globe: Globe,
-  coffee: Coffee,
-  "alert-triangle": AlertTriangle,
-  "message-square": MessageSquare,
-  layers: Layers,
-  users: Users,
-  "alert-circle": AlertCircle,
-  monitor: Monitor,
+  home: Home, phone: Phone, calendar: Calendar, clock: Clock, shield: Shield,
+  repeat: Repeat, "file-text": FileText, "trending-up": TrendingUp,
+  "book-open": BookOpen, "calendar-off": CalendarOff, "check-square": CheckSquare,
+  moon: Moon, "refresh-cw": RefreshCw, shirt: Shirt, heart: Heart,
+  "shield-check": ShieldCheck, globe: Globe, coffee: Coffee,
+  "alert-triangle": AlertTriangle, "message-square": MessageSquare,
+  layers: Layers, users: Users, "alert-circle": AlertCircle, monitor: Monitor,
 };
 
 /* ── Minimal markdown renderer ── */
@@ -64,28 +50,20 @@ function renderMarkdown(md: string) {
 
   while (i < lines.length) {
     const line = lines[i];
-
-    // Blank line
     if (line.trim() === "") { i++; continue; }
 
-    // Heading
     if (line.startsWith("## ")) {
       elements.push(
-        <h2 key={key++} style={{
-          fontSize: 17, fontWeight: 600, color: "#415162",
-          margin: "28px 0 12px", paddingBottom: 6,
-          borderBottom: "1px solid #E7EBEF",
-        }}>
+        <h2 key={key++} style={{ fontSize: 17, fontWeight: 600, color: "#415162", margin: "28px 0 12px", paddingBottom: 6, borderBottom: "1px solid #E7EBEF" }}>
           {line.slice(3)}
         </h2>
       );
       i++; continue;
     }
 
-    // Table
     if (line.includes("|") && lines[i + 1]?.match(/^\|[-| ]+\|$/)) {
       const headerCells = line.split("|").map(c => c.trim()).filter(Boolean);
-      i += 2; // skip header + separator
+      i += 2;
       const rows: string[][] = [];
       while (i < lines.length && lines[i].includes("|")) {
         rows.push(lines[i].split("|").map(c => c.trim()).filter(Boolean));
@@ -93,17 +71,11 @@ function renderMarkdown(md: string) {
       }
       elements.push(
         <div key={key++} style={{ overflowX: "auto", margin: "12px 0 16px" }}>
-          <table style={{
-            width: "100%", borderCollapse: "collapse", fontSize: 13,
-          }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
             <thead>
               <tr>
                 {headerCells.map((h, j) => (
-                  <th key={j} style={{
-                    textAlign: "left", padding: "8px 12px",
-                    background: "#415162", color: "#fff",
-                    fontWeight: 500, fontSize: 12,
-                  }}>{h}</th>
+                  <th key={j} style={{ textAlign: "left", padding: "8px 12px", background: "#415162", color: "#fff", fontWeight: 500, fontSize: 12 }}>{h}</th>
                 ))}
               </tr>
             </thead>
@@ -111,11 +83,7 @@ function renderMarkdown(md: string) {
               {rows.map((row, ri) => (
                 <tr key={ri} style={{ background: ri % 2 === 1 ? "#F5F3EE" : "transparent" }}>
                   {row.map((cell, ci) => (
-                    <td key={ci} style={{
-                      padding: "7px 12px", fontSize: 13,
-                      borderBottom: "1px solid #E7EBEF",
-                      color: "#444",
-                    }}>{cell}</td>
+                    <td key={ci} style={{ padding: "7px 12px", fontSize: 13, borderBottom: "1px solid #E7EBEF", color: "#444" }}>{cell}</td>
                   ))}
                 </tr>
               ))}
@@ -126,7 +94,6 @@ function renderMarkdown(md: string) {
       continue;
     }
 
-    // Ordered list
     if (/^\d+\.\s/.test(line)) {
       const items: string[] = [];
       while (i < lines.length && /^\d+\.\s/.test(lines[i])) {
@@ -136,60 +103,53 @@ function renderMarkdown(md: string) {
       elements.push(
         <ol key={key++} style={{ paddingLeft: 20, margin: "8px 0 16px" }}>
           {items.map((item, j) => (
-            <li key={j} style={{ fontSize: 14, lineHeight: 1.7, color: "#555", marginBottom: 4 }}>
-              {renderInline(item)}
-            </li>
+            <li key={j} style={{ fontSize: 14, lineHeight: 1.7, color: "#555", marginBottom: 4 }}>{renderInline(item)}</li>
           ))}
         </ol>
       );
       continue;
     }
 
-    // Unordered list (top-level and nested)
-    if (line.startsWith("- ")) {
+    if (line.startsWith("- ") || line.startsWith("  - ")) {
       const items: { text: string; indent: number }[] = [];
       while (i < lines.length && (lines[i].startsWith("- ") || lines[i].startsWith("  - "))) {
         const indent = lines[i].startsWith("  - ") ? 1 : 0;
-        const text = lines[i].replace(/^\s*- /, "");
-        items.push({ text, indent });
+        items.push({ text: lines[i].replace(/^\s*- /, ""), indent });
         i++;
       }
       elements.push(
         <ul key={key++} style={{ paddingLeft: 20, margin: "8px 0 16px" }}>
           {items.map((item, j) => (
-            <li key={j} style={{
-              fontSize: 14, lineHeight: 1.7, color: "#555", marginBottom: 4,
-              marginLeft: item.indent * 20,
-            }}>
-              {renderInline(item.text)}
-            </li>
+            <li key={j} style={{ fontSize: 14, lineHeight: 1.7, color: "#555", marginBottom: 4, marginLeft: item.indent * 20 }}>{renderInline(item.text)}</li>
           ))}
         </ul>
       );
       continue;
     }
 
-    // Paragraph
     elements.push(
-      <p key={key++} style={{ fontSize: 14, lineHeight: 1.7, color: "#555", margin: "0 0 12px" }}>
-        {renderInline(line)}
-      </p>
+      <p key={key++} style={{ fontSize: 14, lineHeight: 1.7, color: "#555", margin: "0 0 12px" }}>{renderInline(line)}</p>
     );
     i++;
   }
-
   return elements;
 }
 
 const Handbook = () => {
-  const { signOut } = useAuth();
+  const { user, signOut } = useAuth();
   const { isAdmin } = useAdmin();
   const { data: sections, isLoading, error } = useHandbook();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeSlug, setActiveSlug] = useState<string>("welcome");
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Sync slug from URL param on mount
+  const [editing, setEditing] = useState(false);
+  const [editTitle, setEditTitle] = useState("");
+  const [editContent, setEditContent] = useState("");
+  const [showPreview, setShowPreview] = useState(false);
+
   useEffect(() => {
     const s = searchParams.get("section");
     if (s && sections?.find((sec) => sec.slug === s)) {
@@ -199,28 +159,71 @@ const Handbook = () => {
 
   const activeSection = sections?.find((s) => s.slug === activeSlug) || sections?.[0];
 
+  useEffect(() => {
+    setEditing(false);
+  }, [activeSlug]);
+
   const handleNavClick = (slug: string) => {
     setActiveSlug(slug);
     setSearchParams({ section: slug });
     setSidebarOpen(false);
-    // Scroll content to top
     document.getElementById("handbook-content")?.scrollTo(0, 0);
   };
 
+  const startEditing = () => {
+    if (!activeSection) return;
+    setEditTitle(activeSection.title);
+    setEditContent(activeSection.content);
+    setShowPreview(false);
+    setEditing(true);
+  };
+
+  const cancelEditing = () => {
+    setEditing(false);
+    setEditTitle("");
+    setEditContent("");
+    setShowPreview(false);
+  };
+
+  const saveMutation = useMutation({
+    mutationFn: async ({ id, title, content }: { id: string; title: string; content: string }) => {
+      const { error } = await supabase
+        .from("handbook_sections")
+        .update({
+          title,
+          content,
+          updated_at: new Date().toISOString(),
+          updated_by: user?.id || null,
+        } as any)
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["handbook-sections"] });
+      setEditing(false);
+      toast({ title: "Section updated", description: "Handbook section saved successfully." });
+    },
+    onError: (err: any) => {
+      toast({ title: "Error saving", description: err.message || "Failed to save section.", variant: "destructive" });
+    },
+  });
+
+  const handleSave = () => {
+    if (!activeSection) return;
+    saveMutation.mutate({ id: activeSection.id, title: editTitle.trim(), content: editContent });
+  };
+
   const formatDate = (d: string) => {
-    try {
-      return new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-    } catch { return ""; }
+    try { return new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }); }
+    catch { return ""; }
   };
 
   return (
     <div className="min-h-screen" style={{ background: "#F5F3EE" }}>
-      {/* Header */}
       <header className="sticky top-0 z-40" style={{ background: "#415162" }}>
         <div className="container flex items-center justify-between h-14 px-4">
           <HeaderLogo isAdmin={isAdmin} onSignOut={signOut} />
           <div className="flex items-center gap-1 text-white/50">
-            {/* Mobile sidebar toggle */}
             <button
               className="md:hidden bg-transparent border-none cursor-pointer p-2 text-white/70"
               onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -238,39 +241,16 @@ const Handbook = () => {
       </header>
 
       <div style={{ display: "flex", minHeight: "calc(100vh - 56px)" }}>
-        {/* Sidebar - always visible on desktop, toggled on mobile */}
-        {/* Mobile overlay */}
         {sidebarOpen && (
-          <div
-            className="md:hidden fixed inset-0 z-30 bg-black/30"
-            onClick={() => setSidebarOpen(false)}
-          />
+          <div className="md:hidden fixed inset-0 z-30 bg-black/30" onClick={() => setSidebarOpen(false)} />
         )}
         <aside
-          className={`
-            fixed md:sticky top-14 z-40 md:z-auto
-            h-[calc(100vh-56px)] overflow-y-auto
-            transition-transform duration-200
-            ${sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
-          `}
-          style={{
-            width: 250,
-            minWidth: 250,
-            background: "#fff",
-            borderRight: "1px solid #E7EBEF",
-          }}
+          className={`fixed md:sticky top-14 z-40 md:z-auto h-[calc(100vh-56px)] overflow-y-auto transition-transform duration-200 ${sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}
+          style={{ width: 250, minWidth: 250, background: "#fff", borderRight: "1px solid #E7EBEF" }}
         >
           <nav style={{ padding: "8px 0" }}>
-            {isLoading && (
-              <div style={{ padding: "20px 16px", fontSize: 13, color: "#999" }}>
-                Loading...
-              </div>
-            )}
-            {error && (
-              <div style={{ padding: "20px 16px", fontSize: 13, color: "#c44" }}>
-                Failed to load handbook sections.
-              </div>
-            )}
+            {isLoading && <div style={{ padding: "20px 16px", fontSize: 13, color: "#999" }}>Loading...</div>}
+            {error && <div style={{ padding: "20px 16px", fontSize: 13, color: "#c44" }}>Failed to load handbook sections.</div>}
             {sections?.map((section) => {
               const Icon = iconMap[section.icon] || FileText;
               const isActive = section.slug === activeSlug;
@@ -279,30 +259,17 @@ const Handbook = () => {
                   key={section.id}
                   onClick={() => handleNavClick(section.slug)}
                   style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 10,
-                    width: "100%",
-                    padding: "10px 16px",
-                    fontSize: 13,
+                    display: "flex", alignItems: "center", gap: 10, width: "100%",
+                    padding: "10px 16px", fontSize: 13,
                     color: isActive ? "#415162" : "#777",
                     fontWeight: isActive ? 600 : 400,
                     background: isActive ? "#F0F2F4" : "transparent",
                     borderLeft: isActive ? "3px solid #415162" : "3px solid transparent",
-                    border: "none",
-                    borderRight: "none",
-                    borderTop: "none",
-                    borderBottom: "none",
-                    cursor: "pointer",
-                    textAlign: "left",
-                    transition: "background 0.15s",
+                    border: "none", borderRight: "none", borderTop: "none", borderBottom: "none",
+                    cursor: "pointer", textAlign: "left", transition: "background 0.15s",
                   }}
-                  onMouseEnter={(e) => {
-                    if (!isActive) (e.currentTarget as HTMLElement).style.background = "#FAFAF8";
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!isActive) (e.currentTarget as HTMLElement).style.background = "transparent";
-                  }}
+                  onMouseEnter={(e) => { if (!isActive) (e.currentTarget as HTMLElement).style.background = "#FAFAF8"; }}
+                  onMouseLeave={(e) => { if (!isActive) (e.currentTarget as HTMLElement).style.background = "transparent"; }}
                 >
                   <Icon className="h-4 w-4" style={{ flexShrink: 0, opacity: isActive ? 1 : 0.6 }} />
                   <span>{section.title}</span>
@@ -310,46 +277,149 @@ const Handbook = () => {
               );
             })}
           </nav>
-          <div style={{
-            padding: "10px 16px",
-            borderTop: "1px solid #E7EBEF",
-            fontSize: 12,
-            color: "#aaa",
-            display: "flex",
-            justifyContent: "space-between",
-          }}>
+          <div style={{ padding: "10px 16px", borderTop: "1px solid #E7EBEF", fontSize: 12, color: "#aaa", display: "flex", justifyContent: "space-between" }}>
             <span>{sections?.length || 0} sections</span>
             <span>AY 2025–2026</span>
           </div>
         </aside>
 
         {/* Content */}
-        <main
-          id="handbook-content"
-          style={{
-            flex: 1,
-            overflowY: "auto",
-            padding: "32px 40px",
-            maxWidth: 720,
-          }}
-        >
+        <main id="handbook-content" style={{ flex: 1, overflowY: "auto", padding: "32px 40px", maxWidth: 720 }}>
           {activeSection ? (
             <>
-              <h1 style={{
-                fontSize: 22, fontWeight: 600, color: "#333",
-                margin: "0 0 6px",
-              }}>
-                {activeSection.title}
-              </h1>
-              <div style={{ fontSize: 12, color: "#aaa", marginBottom: 24 }}>
+              {/* Title row */}
+              <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
+                {editing ? (
+                  <input
+                    value={editTitle}
+                    onChange={(e) => setEditTitle(e.target.value)}
+                    style={{
+                      fontSize: 22, fontWeight: 600, color: "#333",
+                      border: "1px solid #C9CED4", borderRadius: 6,
+                      padding: "4px 10px", background: "#fff", flex: 1, outline: "none",
+                    }}
+                  />
+                ) : (
+                  <h1 style={{ fontSize: 22, fontWeight: 600, color: "#333", margin: 0 }}>
+                    {activeSection.title}
+                  </h1>
+                )}
+                {isAdmin && !editing && (
+                  <button
+                    onClick={startEditing}
+                    title="Edit section"
+                    style={{
+                      display: "flex", alignItems: "center", gap: 6,
+                      padding: "6px 12px", fontSize: 13, color: "#415162",
+                      background: "transparent", border: "1px solid #C9CED4",
+                      borderRadius: 6, cursor: "pointer", flexShrink: 0, marginTop: 2,
+                    }}
+                  >
+                    <Pencil style={{ width: 14, height: 14 }} />
+                    Edit
+                  </button>
+                )}
+              </div>
+
+              <div style={{ fontSize: 12, color: "#aaa", marginBottom: editing ? 16 : 24, marginTop: 6 }}>
                 Updated {formatDate(activeSection.updated_at)}
               </div>
-              {renderMarkdown(activeSection.content)}
+
+              {editing ? (
+                <>
+                  {/* Toolbar */}
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+                    <button
+                      onClick={() => setShowPreview(!showPreview)}
+                      style={{
+                        display: "flex", alignItems: "center", gap: 6,
+                        padding: "5px 10px", fontSize: 12,
+                        color: showPreview ? "#415162" : "#888",
+                        background: showPreview ? "#E7EBEF" : "transparent",
+                        border: "1px solid #C9CED4", borderRadius: 5, cursor: "pointer",
+                      }}
+                    >
+                      {showPreview ? <EyeOff style={{ width: 13, height: 13 }} /> : <Eye style={{ width: 13, height: 13 }} />}
+                      {showPreview ? "Hide preview" : "Show preview"}
+                    </button>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <button
+                        onClick={cancelEditing}
+                        style={{
+                          display: "flex", alignItems: "center", gap: 5,
+                          padding: "6px 14px", fontSize: 13, color: "#777",
+                          background: "transparent", border: "1px solid #C9CED4",
+                          borderRadius: 6, cursor: "pointer",
+                        }}
+                      >
+                        <X style={{ width: 14, height: 14 }} />
+                        Cancel
+                      </button>
+                      <button
+                        onClick={handleSave}
+                        disabled={saveMutation.isPending}
+                        style={{
+                          display: "flex", alignItems: "center", gap: 5,
+                          padding: "6px 14px", fontSize: 13, color: "#fff",
+                          background: saveMutation.isPending ? "#8a9baa" : "#415162",
+                          border: "none", borderRadius: 6,
+                          cursor: saveMutation.isPending ? "not-allowed" : "pointer",
+                        }}
+                      >
+                        <Save style={{ width: 14, height: 14 }} />
+                        {saveMutation.isPending ? "Saving..." : "Save"}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Editor */}
+                  <div style={{
+                    display: showPreview ? "grid" : "block",
+                    gridTemplateColumns: showPreview ? "1fr 1fr" : undefined,
+                    gap: showPreview ? 16 : undefined,
+                  }}>
+                    <div>
+                      {showPreview && (
+                        <div style={{ fontSize: 11, color: "#999", marginBottom: 4, textTransform: "uppercase", letterSpacing: 0.5 }}>Markdown</div>
+                      )}
+                      <textarea
+                        value={editContent}
+                        onChange={(e) => setEditContent(e.target.value)}
+                        spellCheck
+                        style={{
+                          width: "100%", minHeight: 500, padding: 14, fontSize: 13,
+                          fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+                          lineHeight: 1.6, color: "#333", background: "#fff",
+                          border: "1px solid #C9CED4", borderRadius: 6, outline: "none", resize: "vertical",
+                        }}
+                      />
+                    </div>
+                    {showPreview && (
+                      <div>
+                        <div style={{ fontSize: 11, color: "#999", marginBottom: 4, textTransform: "uppercase", letterSpacing: 0.5 }}>Preview</div>
+                        <div style={{ padding: 14, background: "#fff", border: "1px solid #E7EBEF", borderRadius: 6, minHeight: 500, overflowY: "auto" }}>
+                          {renderMarkdown(editContent)}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Markdown help */}
+                  <div style={{ marginTop: 12, padding: "10px 14px", background: "#F0F2F4", borderRadius: 6, fontSize: 12, color: "#777", lineHeight: 1.6 }}>
+                    <span style={{ fontWeight: 500, color: "#555" }}>Markdown tips:</span>{" "}
+                    <code style={{ background: "#E7EBEF", padding: "1px 4px", borderRadius: 3, fontSize: 11 }}>## Heading</code>{" · "}
+                    <code style={{ background: "#E7EBEF", padding: "1px 4px", borderRadius: 3, fontSize: 11 }}>**bold**</code>{" · "}
+                    <code style={{ background: "#E7EBEF", padding: "1px 4px", borderRadius: 3, fontSize: 11 }}>- bullet item</code>{" · "}
+                    <code style={{ background: "#E7EBEF", padding: "1px 4px", borderRadius: 3, fontSize: 11 }}>1. numbered item</code>{" · "}
+                    Tables: <code style={{ background: "#E7EBEF", padding: "1px 4px", borderRadius: 3, fontSize: 11 }}>| Col 1 | Col 2 |</code>
+                  </div>
+                </>
+              ) : (
+                renderMarkdown(activeSection.content)
+              )}
             </>
           ) : !isLoading ? (
-            <p style={{ fontSize: 14, color: "#999" }}>
-              Select a section from the sidebar.
-            </p>
+            <p style={{ fontSize: 14, color: "#999" }}>Select a section from the sidebar.</p>
           ) : null}
         </main>
       </div>
