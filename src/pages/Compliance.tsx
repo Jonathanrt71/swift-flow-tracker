@@ -3,11 +3,12 @@ import {
   Search, Filter, ChevronDown, ChevronRight, Save, X, Pencil,
   Plus, Trash2, ExternalLink, Shield, FileText, User, Clock,
   CheckCircle2, AlertCircle, MinusCircle, HelpCircle, Eye, EyeOff,
-  Menu, BookOpen, ClipboardList,
+  Menu, BookOpen, ClipboardList, Sparkles, Loader2,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import HeaderLogo from "@/components/HeaderLogo";
 import BottomNav from "@/components/BottomNav";
 import NotificationBell from "@/components/NotificationBell";
@@ -499,6 +500,65 @@ const Compliance = () => {
   const [narEditContent, setNarEditContent] = useState("");
   const [addingNarrative, setAddingNarrative] = useState(false);
   const [newNarTitle, setNewNarTitle] = useState("");
+  const [generatingId, setGeneratingId] = useState<string | null>(null);
+
+  // ── AI Narrative Generation ────────────────────────────────────────────
+  const handleGenerate = useCallback(async (section: ComplianceNarrativeSection) => {
+    if (!requirements) return;
+
+    // Extract section number from title (e.g., "Section 1: Oversight" → 1)
+    const secMatch = section.title.match(/Section\s*(\d+)/i);
+    const sectionNumber = secMatch ? Number(secMatch[1]) : null;
+
+    if (!sectionNumber) {
+      toast({ title: "Cannot determine section number", description: "Section title must contain 'Section N' to match requirements.", variant: "destructive" });
+      return;
+    }
+
+    // Gather all requirements for this section that have comments
+    const sectionReqs = requirements.filter(r => r.section_number === sectionNumber);
+    const reqsWithComments = sectionReqs.filter(r => r.compliance_narrative && r.compliance_narrative.trim());
+
+    if (reqsWithComments.length === 0) {
+      toast({ title: "No comments found", description: `Add comments to requirements in Section ${sectionNumber} first, then regenerate.`, variant: "destructive" });
+      return;
+    }
+
+    setGeneratingId(section.id);
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await supabase.functions.invoke("generate-compliance-narrative", {
+        body: {
+          section_number: sectionNumber,
+          section_name: SECTION_NAMES[sectionNumber],
+          requirements: sectionReqs.map(r => ({
+            requirement_number: r.requirement_number,
+            requirement_text: r.requirement_text,
+            requirement_type: r.requirement_type,
+            compliance_status: r.compliance_status,
+            compliance_narrative: r.compliance_narrative,
+          })),
+        },
+        headers: { Authorization: `Bearer ${session?.access_token}` },
+      });
+
+      if (res.error) throw new Error(res.error.message || "Generation failed");
+      if (res.data?.error) throw new Error(res.data.error);
+
+      const narrative = res.data?.narrative || "";
+
+      // Open the editor with the generated content
+      setNarEditTitle(section.title);
+      setNarEditContent(narrative);
+      setEditingNarId(section.id);
+      toast({ title: "Draft generated", description: "Review the narrative below and save when ready." });
+    } catch (err: any) {
+      toast({ title: "Generation failed", description: err.message, variant: "destructive" });
+    } finally {
+      setGeneratingId(null);
+    }
+  }, [requirements, toast]);
 
   // ── Filtering ──────────────────────────────────────────────────────────
   const filtered = useMemo(() => {
@@ -615,6 +675,7 @@ const Compliance = () => {
   // ══════════════════════════════════════════════════════════════════════
   return (
     <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh", background: "#F5F3EE" }}>
+      <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
       {/* Header */}
       <div style={{
         display: "flex", alignItems: "center", justifyContent: "space-between",
@@ -868,6 +929,22 @@ const Compliance = () => {
                       </>
                     ) : (
                       <>
+                        <button
+                          onClick={() => handleGenerate(section)}
+                          disabled={generatingId === section.id}
+                          style={{
+                            display: "flex", alignItems: "center", gap: 4,
+                            padding: "5px 10px", fontSize: 12, fontWeight: 500,
+                            color: generatingId === section.id ? "#999" : "#fff",
+                            background: generatingId === section.id ? "#E7EBEF" : "#4A846C",
+                            border: "none", borderRadius: 5, cursor: generatingId === section.id ? "wait" : "pointer",
+                          }}
+                        >
+                          {generatingId === section.id
+                            ? <><Loader2 style={{ width: 12, height: 12, animation: "spin 1s linear infinite" }} /> Generating…</>
+                            : <><Sparkles style={{ width: 12, height: 12 }} /> Generate</>
+                          }
+                        </button>
                         <button
                           onClick={() => startNarEdit(section)}
                           style={{ display: "flex", alignItems: "center", gap: 4, padding: "5px 10px", fontSize: 12, color: "#415162", background: "transparent", border: "1px solid #C9CED4", borderRadius: 5, cursor: "pointer" }}
