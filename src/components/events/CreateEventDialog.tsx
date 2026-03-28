@@ -20,8 +20,8 @@ import { format, parseISO } from "date-fns";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { formatPersonName } from "@/lib/dateFormat";
 import { useAuth } from "@/contexts/AuthContext";
-import type { EventCategory, EVENT_CATEGORY_LABELS } from "@/hooks/useEvents";
-import { EVENT_CATEGORY_LABELS as LABELS } from "@/hooks/useEvents";
+import type { EventCategory, EVENT_CATEGORY_LABELS, RecurrencePattern } from "@/hooks/useEvents";
+import { EVENT_CATEGORY_LABELS as LABELS, RECURRENCE_LABELS } from "@/hooks/useEvents";
 
 interface CreateEventDialogProps {
   onSubmit: (data: {
@@ -33,6 +33,7 @@ interface CreateEventDialogProps {
     description?: string;
     category: EventCategory;
     assigned_to?: string;
+    recurrence_pattern?: RecurrencePattern;
   }) => void;
   defaultCategory?: EventCategory;
 }
@@ -48,6 +49,7 @@ const CreateEventDialog = ({ onSubmit, defaultCategory }: CreateEventDialogProps
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState<EventCategory>(defaultCategory || "program");
   const [assignedTo, setAssignedTo] = useState(user?.id || "unassigned");
+  const [recurrencePattern, setRecurrencePattern] = useState<RecurrencePattern>("none");
   const { data: members } = useTeamMembers();
 
   const selectedDate = eventDate ? parseISO(eventDate) : undefined;
@@ -77,6 +79,7 @@ const CreateEventDialog = ({ onSubmit, defaultCategory }: CreateEventDialogProps
       description: description.trim() || undefined,
       category,
       assigned_to: assignedTo === "unassigned" ? undefined : assignedTo,
+      recurrence_pattern: recurrencePattern,
     });
     setOpen(false);
   };
@@ -225,6 +228,24 @@ const CreateEventDialog = ({ onSubmit, defaultCategory }: CreateEventDialogProps
               placeholder="Optional description"
               className="bg-background rounded-lg"
             />
+          </div>
+
+          {/* Repeats */}
+          <div className="px-5">
+            <Label className="text-xs text-muted-foreground mb-1 block">Repeats</Label>
+            <Select value={recurrencePattern} onValueChange={(v) => setRecurrencePattern(v as RecurrencePattern)}>
+              <SelectTrigger className="bg-background rounded-lg">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Does not repeat</SelectItem>
+                <SelectItem value="weekly">Weekly</SelectItem>
+                <SelectItem value="monthly">Monthly</SelectItem>
+                <SelectItem value="semi_annual">Every 6 months</SelectItem>
+                <SelectItem value="annually">Annually</SelectItem>
+                <SelectItem value="custom">Custom (manual date)</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="flex justify-end pt-3 border-t border-border">

@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { cn } from "@/lib/utils";
-import { useEvents, EVENT_CATEGORY_LABELS, EVENT_CATEGORY_COLORS } from "@/hooks/useEvents";
-import type { ProgramEvent, EventCategory } from "@/hooks/useEvents";
+import { useEvents, EVENT_CATEGORY_LABELS, EVENT_CATEGORY_COLORS, calcNextOccurrence, RECURRENCE_LABELS } from "@/hooks/useEvents";
+import type { ProgramEvent, EventCategory, RecurrencePattern } from "@/hooks/useEvents";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
 import { useUserRole } from "@/hooks/useUserRole";
@@ -86,6 +86,8 @@ const EventCard = ({
   evaluationStatus,
   onUpdate,
   onDelete,
+  onConfirmRecurrence,
+  onSkipRecurrence,
 }: {
   event: ProgramEvent;
   teamMembers: ReturnType<typeof useTeamMembers>["data"];
@@ -102,15 +104,35 @@ const EventCard = ({
     description?: string | null;
     category?: EventCategory;
     assigned_to?: string | null;
+    recurrence_pattern?: RecurrencePattern;
   }) => void;
   onDelete: (id: string) => void;
+  onConfirmRecurrence: (event: ProgramEvent, nextDate: string) => void;
+  onSkipRecurrence: (id: string) => void;
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [evalDialogOpen, setEvalDialogOpen] = useState(false);
+  const [confirmingRecurrence, setConfirmingRecurrence] = useState(false);
   const members = teamMembers || [];
   const assignee = members.find((m) => m.id === event.assigned_to);
   const assigneeName = assignee?.display_name || null;
   const hasEvaluated = evaluationStatus?.[event.id] ?? false;
+
+  // Recurrence logic
+  const hasRecurrence = event.recurrence_pattern && event.recurrence_pattern !== "none";
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const eventDate = new Date(event.event_date);
+  const isPastDue = eventDate < today;
+  const isRecurrenceOverdue = hasRecurrence && isPastDue && !event.recurrence_confirmed;
+  const isRecurrenceSoon = hasRecurrence && !isPastDue && !event.recurrence_confirmed &&
+    (eventDate.getTime() - today.getTime()) < 14 * 24 * 60 * 60 * 1000; // within 14 days
+
+  const suggestedNext = hasRecurrence
+    ? (event.recurrence_pattern === "custom" ? null : calcNextOccurrence(event.recurrence_pattern, event.event_date))
+    : null;
+
+  const [nextDateInput, setNextDateInput] = useState(suggestedNext || "");
 
   const formattedDate = (() => {
     try {
@@ -135,6 +157,16 @@ const EventCard = ({
       <div className="flex items-center min-h-[48px] px-2">
         <div className="flex-1 min-w-0 pl-2 pr-1 flex items-center gap-2">
           <span className="font-medium text-sm truncate">{event.title}</span>
+          {/* Recurrence status badge */}
+          {isRecurrenceOverdue && (
+            <span style={{ fontSize: 10, padding: "1px 6px", borderRadius: 10, background: "#FCEBEB", color: "#791F1F", whiteSpace: "nowrap", flexShrink: 0, fontWeight: 500 }}>↻ overdue</span>
+          )}
+          {isRecurrenceSoon && !isRecurrenceOverdue && (
+            <span style={{ fontSize: 10, padding: "1px 6px", borderRadius: 10, background: "#FAEEDA", color: "#633806", whiteSpace: "nowrap", flexShrink: 0, fontWeight: 500 }}>↻ confirm soon</span>
+          )}
+          {hasRecurrence && event.recurrence_confirmed && (
+            <span style={{ fontSize: 10, padding: "1px 6px", borderRadius: 10, background: "#EAF3DE", color: "#27500A", whiteSpace: "nowrap", flexShrink: 0, fontWeight: 500 }}>↻ confirmed</span>
+          )}
           {event.start_time && (
             <span className="text-[11px] whitespace-nowrap shrink-0 text-muted-foreground">
               {formatTime(event.start_time)}
@@ -230,6 +262,60 @@ const EventCard = ({
               )}
             </div>
           </div>
+
+          {/* Recurrence confirm/skip row — shown when overdue or soon */}
+          {canEdit && hasRecurrence && (isRecurrenceOverdue || isRecurrenceSoon) && !event.recurrence_confirmed && (
+            <div style={{ marginTop: 10, paddingTop: 10, borderTop: "1px solid #E7EBEF" }}>
+              <div style={{ fontSize: 11, color: isRecurrenceOverdue ? "#791F1F" : "#633806", fontWeight: 500, marginBottom: 6 }}>
+                {isRecurrenceOverdue ? "This event is overdue — confirm next occurrence?" : "Confirm next occurrence"}
+                {" · "}<span style={{ fontWeight: 400, color: "#888" }}>{RECURRENCE_LABELS[event.recurrence_pattern]}</span>
+              </div>
+              {confirmingRecurrence ? (
+                <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <span style={{ fontSize: 11, color: "#666" }}>Next date:</span>
+                    <input
+                      type="date"
+                      value={nextDateInput}
+                      onChange={e => setNextDateInput(e.target.value)}
+                      onClick={e => e.stopPropagation()}
+                      style={{ fontSize: 12, padding: "4px 8px", border: "1px solid #C9CED4", borderRadius: 5, outline: "none", background: "#fff", color: "#333" }}
+                    />
+                  </div>
+                  <button
+                    onClick={e => { e.stopPropagation(); onConfirmRecurrence(event, nextDateInput); setConfirmingRecurrence(false); }}
+                    disabled={!nextDateInput}
+                    style={{ padding: "5px 12px", fontSize: 11, fontWeight: 500, color: "#fff", background: "#415162", border: "none", borderRadius: 5, cursor: "pointer" }}
+                  >
+                    Confirm
+                  </button>
+                  <button
+                    onClick={e => { e.stopPropagation(); setConfirmingRecurrence(false); }}
+                    style={{ padding: "5px 10px", fontSize: 11, color: "#777", background: "transparent", border: "1px solid #C9CED4", borderRadius: 5, cursor: "pointer" }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              ) : (
+                <div style={{ display: "flex", gap: 6 }}>
+                  <button
+                    onClick={e => { e.stopPropagation(); setNextDateInput(suggestedNext || ""); setConfirmingRecurrence(true); }}
+                    style={{ padding: "5px 12px", fontSize: 11, fontWeight: 500, color: "#fff", background: "#415162", border: "none", borderRadius: 5, cursor: "pointer" }}
+                  >
+                    {suggestedNext
+                      ? `Confirm ${new Date(suggestedNext).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`
+                      : "Pick next date"}
+                  </button>
+                  <button
+                    onClick={e => { e.stopPropagation(); onSkipRecurrence(event.id); }}
+                    style={{ padding: "5px 10px", fontSize: 11, color: "#777", background: "transparent", border: "1px solid #C9CED4", borderRadius: 5, cursor: "pointer" }}
+                  >
+                    Skip
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
 
@@ -256,6 +342,8 @@ const GroupedEventList = ({
   evaluationStatus,
   onUpdate,
   onDelete,
+  onConfirmRecurrence,
+  onSkipRecurrence,
   emptyMessage,
 }: {
   events: ProgramEvent[];
@@ -274,8 +362,11 @@ const GroupedEventList = ({
     description?: string | null;
     category?: EventCategory;
     assigned_to?: string | null;
+    recurrence_pattern?: RecurrencePattern;
   }) => void;
   onDelete: (id: string) => void;
+  onConfirmRecurrence: (event: ProgramEvent, nextDate: string) => void;
+  onSkipRecurrence: (id: string) => void;
   emptyMessage: string;
 }) => {
   if (events.length === 0) {
@@ -327,6 +418,8 @@ const GroupedEventList = ({
               evaluationStatus={evaluationStatus}
               onUpdate={onUpdate}
               onDelete={onDelete}
+              onConfirmRecurrence={onConfirmRecurrence}
+              onSkipRecurrence={onSkipRecurrence}
             />
           ))}
         </div>
@@ -341,7 +434,7 @@ const Events = () => {
   const { isResident, isFaculty } = useUserRole();
   const isMobile = useIsMobile();
 
-  const { events, createEvent, updateEvent, deleteEvent } = useEvents();
+  const { events, createEvent, updateEvent, deleteEvent, confirmRecurrence, skipRecurrence } = useEvents();
   const { data: teamMembers } = useTeamMembers();
   const isFacultyOrAdmin = !!isAdmin || !!isFaculty;
 
@@ -545,6 +638,8 @@ const Events = () => {
             evaluationStatus={evaluationStatus}
             onUpdate={(data) => { if (!isResident) updateEvent.mutate(data); }}
             onDelete={(id) => { if (!isResident) deleteEvent.mutate(id); }}
+            onConfirmRecurrence={(event, nextDate) => { if (!isResident) confirmRecurrence.mutate({ event, nextDate }); }}
+            onSkipRecurrence={(id) => { if (!isResident) skipRecurrence.mutate(id); }}
             emptyMessage={activeCategory === "all" ? "No events" : `No ${EVENT_CATEGORY_LABELS[activeCategory as EventCategory]} events`}
           />
         )}

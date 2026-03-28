@@ -19,7 +19,8 @@ import { Calendar } from "@/components/ui/calendar";
 import { format, parseISO } from "date-fns";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { formatPersonName } from "@/lib/dateFormat";
-import type { ProgramEvent, EventCategory } from "@/hooks/useEvents";
+import type { ProgramEvent, EventCategory, RecurrencePattern } from "@/hooks/useEvents";
+import { RECURRENCE_LABELS } from "@/hooks/useEvents";
 
 interface EditEventDialogProps {
   event: ProgramEvent;
@@ -33,6 +34,7 @@ interface EditEventDialogProps {
     description?: string | null;
     category?: EventCategory;
     assigned_to?: string | null;
+    recurrence_pattern?: RecurrencePattern;
   }) => void;
 }
 
@@ -46,6 +48,7 @@ const EditEventDialog = ({ event, onUpdate }: EditEventDialogProps) => {
   const [description, setDescription] = useState(event.description || "");
   const [category, setCategory] = useState<EventCategory>(event.category as EventCategory);
   const [assignedTo, setAssignedTo] = useState(event.assigned_to || "unassigned");
+  const [recurrencePattern, setRecurrencePattern] = useState<RecurrencePattern>(event.recurrence_pattern || "none");
   const { data: members } = useTeamMembers();
 
   const selectedDate = eventDate ? parseISO(eventDate) : undefined;
@@ -60,6 +63,7 @@ const EditEventDialog = ({ event, onUpdate }: EditEventDialogProps) => {
       setDescription(event.description || "");
       setCategory(event.category as EventCategory);
       setAssignedTo(event.assigned_to || "unassigned");
+      setRecurrencePattern(event.recurrence_pattern || "none");
     }
     setOpen(isOpen);
   };
@@ -76,6 +80,7 @@ const EditEventDialog = ({ event, onUpdate }: EditEventDialogProps) => {
       description: description.trim() || null,
       category,
       assigned_to: assignedTo === "unassigned" ? null : assignedTo,
+      recurrence_pattern: recurrencePattern,
     });
     setOpen(false);
   };
@@ -227,6 +232,23 @@ const EditEventDialog = ({ event, onUpdate }: EditEventDialogProps) => {
               onChange={(e) => setDescription(e.target.value)}
               className="bg-background rounded-lg"
             />
+          </div>
+
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground">Repeats</Label>
+            <Select value={recurrencePattern} onValueChange={(v) => setRecurrencePattern(v as RecurrencePattern)}>
+              <SelectTrigger className="bg-background rounded-lg">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Does not repeat</SelectItem>
+                <SelectItem value="weekly">Weekly</SelectItem>
+                <SelectItem value="monthly">Monthly</SelectItem>
+                <SelectItem value="semi_annual">Every 6 months</SelectItem>
+                <SelectItem value="annually">Annually</SelectItem>
+                <SelectItem value="custom">Custom (manual date)</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="flex justify-end pt-3 border-t border-border">
