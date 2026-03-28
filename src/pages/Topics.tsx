@@ -194,7 +194,10 @@ function TopicRow({ topic, allTags, canEdit, isAdmin, isFaculty, residents, curr
     <>
       <div style={{ background: "#fff", border: "1px solid #E7EBEF", borderRadius: 10, marginBottom: 8, overflow: "hidden" }}>
         {/* Collapsed row */}
-        <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "11px 14px", cursor: "pointer" }} onClick={() => !editing && setExpanded(!expanded)}>
+        <div
+          style={{ display: "flex", alignItems: "center", gap: 10, padding: "11px 14px", cursor: (isAdmin || isFaculty) ? "pointer" : "default" }}
+          onClick={() => !editing && (isAdmin || isFaculty) && setExpanded(!expanded)}
+        >
           {/* Required dot */}
           {topic.is_required && <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#415162", flexShrink: 0 }} title="Required" />}
           {!topic.is_required && <div style={{ width: 6, height: 6, borderRadius: "50%", background: "transparent", flexShrink: 0 }} />}
@@ -221,7 +224,9 @@ function TopicRow({ topic, allTags, canEdit, isAdmin, isFaculty, residents, curr
                 <ExternalLink style={{ width: 14, height: 14 }} />
               </a>
             )}
-            {expanded ? <ChevronUp style={{ width: 14, height: 14, color: "#aaa" }} /> : <ChevronDown style={{ width: 14, height: 14, color: "#aaa" }} />}
+            {(isAdmin || isFaculty) && (
+              expanded ? <ChevronUp style={{ width: 14, height: 14, color: "#aaa" }} /> : <ChevronDown style={{ width: 14, height: 14, color: "#aaa" }} />
+            )}
           </div>
         </div>
 
