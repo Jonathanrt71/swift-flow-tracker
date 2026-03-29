@@ -7,7 +7,6 @@ import {
   Bold, Italic, List, ListOrdered, ListChecks,
   Link as LinkIcon, Unlink, Heading1, Heading2, Heading3,
 } from "lucide-react";
-import { useCallback, useEffect } from "react";
 
 interface SectionTipTapEditorProps {
   content: string;
@@ -24,57 +23,45 @@ const btnStyle = (active: boolean): React.CSSProperties => ({
   color: active ? "#415162" : "#777",
 });
 
-const SectionTipTapEditor = ({ content, onChange, readOnly = false, minHeight = 320 }: SectionTipTapEditorProps) => {
+/* ── Read-only renderer ──────────────────────────────────────────────
+   Renders saved HTML directly via dangerouslySetInnerHTML.
+   No TipTap instance = no ProseMirror overhead = smooth scrolling. */
+const ReadOnlySection = ({ content }: { content: string }) => (
+  <>
+    <style>{readOnlyStyles}</style>
+    <div
+      className="section-html-content"
+      style={{ fontSize: 14, lineHeight: 1.7, color: "#555" }}
+      dangerouslySetInnerHTML={{ __html: content }}
+    />
+  </>
+);
+
+/* ── Editable TipTap editor ──────────────────────────────────────────
+   Only mounted when a section is being actively edited. */
+const EditableEditor = ({ content, onChange, minHeight = 320 }: {
+  content: string; onChange: (html: string) => void; minHeight?: number;
+}) => {
   const editor = useEditor({
     extensions: [
-      StarterKit.configure({
-        heading: { levels: [1, 2, 3] },
-      }),
+      StarterKit.configure({ heading: { levels: [1, 2, 3] } }),
       Link.configure({
-        openOnClick: readOnly,
+        openOnClick: false,
         HTMLAttributes: { style: "color: #415162; text-decoration: underline; cursor: pointer;" },
       }),
       TaskList,
       TaskItem.configure({ nested: true }),
     ],
     content,
-    editable: !readOnly,
-    onUpdate: ({ editor }) => {
-      onChange(editor.getHTML());
-    },
+    editable: true,
+    onUpdate: ({ editor }) => { onChange(editor.getHTML()); },
   });
-
-  // Only sync content from parent when in read-only mode (e.g. switching displayed sections).
-  // In edit mode the editor owns its own state — re-setting content would reset the cursor.
-  useEffect(() => {
-    if (editor && readOnly && content !== editor.getHTML()) {
-      editor.commands.setContent(content);
-    }
-  }, [content, editor, readOnly]);
-
-  useEffect(() => {
-    if (editor) {
-      editor.setEditable(!readOnly);
-    }
-  }, [readOnly, editor]);
 
   if (!editor) return null;
 
-  if (readOnly) {
-    return (
-      <div
-        className="tiptap-section-readonly"
-        style={{ fontSize: 14, lineHeight: 1.7, color: "#555" }}
-      >
-        <style>{tiptapStyles}</style>
-        <EditorContent editor={editor} />
-      </div>
-    );
-  }
-
   return (
     <div>
-      <style>{tiptapStyles}</style>
+      <style>{editorStyles}</style>
       {/* Toolbar */}
       <div style={{
         display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap",
@@ -127,7 +114,6 @@ const SectionTipTapEditor = ({ content, onChange, readOnly = false, minHeight = 
         <div style={{ width: 1, height: 20, background: "#C9CED4", margin: "0 4px" }} />
         <button style={btnStyle(editor.isActive("link"))}
           onClick={() => {
-            if (!editor) return;
             const prev = editor.getAttributes("link").href;
             const url = window.prompt("URL", prev || "https://");
             if (url === null) return;
@@ -163,19 +149,30 @@ const SectionTipTapEditor = ({ content, onChange, readOnly = false, minHeight = 
   );
 };
 
-const tiptapStyles = `
-  .tiptap-section-readonly .ProseMirror { outline: none; }
-  .tiptap-section-readonly .ProseMirror p { margin: 0 0 10px; font-size: 14px; line-height: 1.7; color: #555; }
-  .tiptap-section-readonly .ProseMirror h1 { font-size: 19px; font-weight: 700; color: #415162; margin: 26px 0 10px; padding-bottom: 6px; border-bottom: 2px solid #E7EBEF; }
-  .tiptap-section-readonly .ProseMirror h2 { font-size: 16px; font-weight: 600; color: #415162; margin: 24px 0 10px; padding-bottom: 5px; border-bottom: 1px solid #E7EBEF; }
-  .tiptap-section-readonly .ProseMirror h3 { font-size: 15px; font-weight: 600; color: #333; margin: 18px 0 6px; }
-  .tiptap-section-readonly .ProseMirror ul { list-style: disc; padding-left: 20px; margin: 8px 0 16px; }
-  .tiptap-section-readonly .ProseMirror ol { list-style: decimal; padding-left: 20px; margin: 8px 0 16px; }
-  .tiptap-section-readonly .ProseMirror li { font-size: 14px; line-height: 1.7; color: #555; margin-bottom: 4px; }
-  .tiptap-section-readonly .ProseMirror ul[data-type="taskList"] { list-style: none; padding-left: 4px; }
-  .tiptap-section-readonly .ProseMirror ul[data-type="taskList"] li { display: flex; align-items: flex-start; gap: 6px; }
-  .tiptap-section-readonly .ProseMirror a { color: #415162; text-decoration: underline; }
+/* ── Main export ─────────────────────────────────────────────────────
+   Routes to lightweight HTML display or full TipTap editor. */
+const SectionTipTapEditor = ({ content, onChange, readOnly = false, minHeight = 320 }: SectionTipTapEditorProps) => {
+  if (readOnly) {
+    return <ReadOnlySection content={content} />;
+  }
+  return <EditableEditor content={content} onChange={onChange} minHeight={minHeight} />;
+};
 
+/* ── Styles ──────────────────────────────────────────────────────────── */
+const readOnlyStyles = `
+  .section-html-content h1 { font-size: 19px; font-weight: 700; color: #415162; margin: 26px 0 10px; padding-bottom: 6px; border-bottom: 2px solid #E7EBEF; }
+  .section-html-content h2 { font-size: 16px; font-weight: 600; color: #415162; margin: 24px 0 10px; padding-bottom: 5px; border-bottom: 1px solid #E7EBEF; }
+  .section-html-content h3 { font-size: 15px; font-weight: 600; color: #333; margin: 18px 0 6px; }
+  .section-html-content p { margin: 0 0 10px; font-size: 14px; line-height: 1.7; color: #555; }
+  .section-html-content ul { list-style: disc; padding-left: 20px; margin: 8px 0 16px; }
+  .section-html-content ol { list-style: decimal; padding-left: 20px; margin: 8px 0 16px; }
+  .section-html-content li { font-size: 14px; line-height: 1.7; color: #555; margin-bottom: 4px; }
+  .section-html-content a { color: #415162; text-decoration: underline; }
+  .section-html-content strong { font-weight: 600; }
+  .section-html-content em { font-style: italic; }
+`;
+
+const editorStyles = `
   .ProseMirror { outline: none; font-size: 14px; line-height: 1.7; color: #333; }
   .ProseMirror p { margin: 0 0 8px; }
   .ProseMirror h1 { font-size: 19px; font-weight: 700; color: #415162; margin: 20px 0 8px; }
