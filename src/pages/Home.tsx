@@ -91,6 +91,10 @@ const ADMIN_SECTIONS: { label: string; items: NavItem[] }[] = [
         icon: <SVGIcon color="#415162"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></SVGIcon>,
       },
       {
+        label: "GME Handbook", description: "GME policies", path: "/gme-handbook", color: "#52657A",
+        icon: <SVGIcon color="#52657A"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></SVGIcon>,
+      },
+      {
         label: "Rotations", path: "/rotations", color: "#4A846C",
         icon: <SVGIcon color="#4A846C"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.36 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.11 1h3a2 2 0 0 1 2 1.72c.1.41.2.81.32 1.2A2 2 0 0 1 7.91 8.5l-.46.46A16 16 0 0 0 13 14.55l.46-.46a2 2 0 0 1 2.11-.45c.39.12.79.22 1.2.32A2 2 0 0 1 18.5 16h.42A2 2 0 0 1 22 16.92z"/></SVGIcon>,
       },
