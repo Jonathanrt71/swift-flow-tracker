@@ -75,10 +75,6 @@ const ALL_SECTIONS: { label: string; items: NavItem[] }[] = [
         icon: <SVGIcon color="#52657A"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></SVGIcon>,
       },
       {
-        label: "Admin", description: "Users, settings", path: "/admin", color: "#D4A017", permissionKey: "admin.all",
-        icon: <SVGIcon color="#D4A017"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></SVGIcon>,
-      },
-      {
         label: "Compliance", description: "ACGME requirements", path: "/compliance", color: "#52657A", permissionKey: "compliance.view",
         icon: <SVGIcon color="#52657A"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></SVGIcon>,
       },
@@ -98,6 +94,15 @@ const ALL_SECTIONS: { label: string; items: NavItem[] }[] = [
       {
         label: "Rotations", path: "/rotations", color: "#4A846C",
         icon: <SVGIcon color="#4A846C"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.36 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.11 1h3a2 2 0 0 1 2 1.72c.1.41.2.81.32 1.2A2 2 0 0 1 7.91 8.5l-.46.46A16 16 0 0 0 13 14.55l.46-.46a2 2 0 0 1 2.11-.45c.39.12.79.22 1.2.32A2 2 0 0 1 18.5 16h.42A2 2 0 0 1 22 16.92z"/></SVGIcon>,
+      },
+    ],
+  },
+  {
+    label: "Administration",
+    items: [
+      {
+        label: "Admin", description: "Users, settings", path: "/admin", color: "#D4A017", permissionKey: "admin.all",
+        icon: <SVGIcon color="#D4A017"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></SVGIcon>,
       },
     ],
   },
