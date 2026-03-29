@@ -17,14 +17,35 @@ const NotificationBell = () => {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative">
-          <Bell className="h-4 w-4" />
+        <button
+          style={{
+            position: "relative",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: 36,
+            height: 36,
+            background: "transparent",
+            border: "none",
+            borderRadius: 6,
+            cursor: "pointer",
+            color: "rgba(255,255,255,0.8)",
+          }}
+        >
+          <Bell style={{ width: 17, height: 17 }} />
           {unreadCount > 0 && (
-            <span className="absolute -top-0.5 -right-0.5 h-4 min-w-4 rounded-full bg-destructive text-destructive-foreground text-[10px] flex items-center justify-center px-1 font-medium">
+            <span style={{
+              position: "absolute", top: -2, right: -2,
+              height: 16, minWidth: 16, borderRadius: 8,
+              background: "#c44", color: "#fff",
+              fontSize: 10, fontWeight: 600,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              padding: "0 4px",
+            }}>
               {unreadCount > 9 ? "9+" : unreadCount}
             </span>
           )}
-        </Button>
+        </button>
       </PopoverTrigger>
       <PopoverContent className="w-80 p-0" align="end">
         <div className="flex items-center justify-between px-4 py-3 border-b">
