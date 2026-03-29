@@ -32,8 +32,8 @@ const iconMap: Record<string, React.FC<{ className?: string; style?: React.CSSPr
 const Handbook = () => {
   const { user, signOut } = useAuth();
   const { isAdmin } = useAdmin();
-  const { role } = useUserRole();
-  const canEdit = isAdmin || role === "faculty";
+  const { canEditHandbook } = useUserRole();
+  const canEdit = isAdmin || canEditHandbook;
   const { data: allSections, isLoading, error } = useHandbook();
   const { updateSection, addSection, deleteSection } = useHandbookMutations();
   const { toast } = useToast();

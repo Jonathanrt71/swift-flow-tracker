@@ -50,12 +50,14 @@ const EditUserDialog = ({
   onUpdateRole,
   onUpdateProfile,
   onUpdateUser,
+  onUpdatePermissions,
 }: {
   u: ManagedUser;
   isSelf: boolean;
   onUpdateRole: (data: { user_id: string; role: UserRole }) => void;
   onUpdateProfile: (data: { id: string; display_name?: string; first_name?: string; last_name?: string; graduation_year?: number | null }) => void;
   onUpdateUser: (data: { user_id: string; email?: string; password?: string }) => void;
+  onUpdatePermissions: (data: { user_id: string; can_edit_handbook: boolean; can_edit_operations: boolean }) => void;
 }) => {
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState(u.email || "");
@@ -64,6 +66,8 @@ const EditUserDialog = ({
   const [lastName, setLastName] = useState(u.last_name || "");
   const [role, setRole] = useState<UserRole>(u.role);
   const [graduationYear, setGraduationYear] = useState(u.graduation_year?.toString() || "");
+  const [canEditHandbook, setCanEditHandbook] = useState(u.can_edit_handbook);
+  const [canEditOperations, setCanEditOperations] = useState(u.can_edit_operations);
 
   const handleOpen = (isOpen: boolean) => {
     if (isOpen) {
@@ -73,6 +77,8 @@ const EditUserDialog = ({
       setLastName(u.last_name || "");
       setRole(u.role);
       setGraduationYear(u.graduation_year?.toString() || "");
+      setCanEditHandbook(u.can_edit_handbook);
+      setCanEditOperations(u.can_edit_operations);
     }
     setOpen(isOpen);
   };
@@ -109,6 +115,15 @@ const EditUserDialog = ({
         last_name: lastName,
         graduation_year: parsedYear,
         ...(emailChanged ? { email } : {}),
+      });
+    }
+
+    // Update permissions if changed
+    if (canEditHandbook !== u.can_edit_handbook || canEditOperations !== u.can_edit_operations) {
+      onUpdatePermissions({
+        user_id: u.id,
+        can_edit_handbook: canEditHandbook,
+        can_edit_operations: canEditOperations,
       });
     }
     setOpen(false);
@@ -198,6 +213,31 @@ const EditUserDialog = ({
                 placeholder="2028"
                 className="bg-background rounded-lg"
               />
+            </div>
+          )}
+
+          {/* Edit permissions — not shown for admins (they always have full access) */}
+          {role !== "admin" && (
+            <div className="space-y-2 pt-1">
+              <Label className="text-xs text-muted-foreground">Edit permissions</Label>
+              <label className="flex items-center gap-2.5 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={canEditHandbook}
+                  onChange={(e) => setCanEditHandbook(e.target.checked)}
+                  style={{ width: 16, height: 16, accentColor: "#415162", cursor: "pointer" }}
+                />
+                <span className="text-sm">Can edit Handbook</span>
+              </label>
+              <label className="flex items-center gap-2.5 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={canEditOperations}
+                  onChange={(e) => setCanEditOperations(e.target.checked)}
+                  style={{ width: 16, height: 16, accentColor: "#415162", cursor: "pointer" }}
+                />
+                <span className="text-sm">Can edit Operations Manual</span>
+              </label>
             </div>
           )}
 
@@ -559,7 +599,7 @@ const Admin = () => {
   const { user, signOut } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const { isAdmin, isAdminLoading, users, inviteUser, updateUser, updateRole, updateProfile, deleteUser } = useAdmin();
+  const { isAdmin, isAdminLoading, users, inviteUser, updateUser, updateRole, updateProfile, deleteUser, updatePermissions } = useAdmin();
   const { tags, createTag, updateTag, deleteTag } = useMeetingTags();
   const { links } = useMeetingTagLinks();
   const { categories, createCategory, updateCategory, deleteCategory } = useCompetencyCategories();
@@ -756,6 +796,7 @@ const Admin = () => {
                               onUpdateRole={(data) => updateRole.mutate(data)}
                               onUpdateProfile={(data) => updateProfile.mutate(data)}
                               onUpdateUser={(data) => updateUser.mutate(data)}
+                              onUpdatePermissions={(data) => updatePermissions.mutate(data)}
                             />
                             {!isSelf && (
                               <DeleteUserDialog

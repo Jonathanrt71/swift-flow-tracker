@@ -12,6 +12,8 @@ export interface ManagedUser {
   last_name: string | null;
   graduation_year: number | null;
   role: UserRole;
+  can_edit_handbook: boolean;
+  can_edit_operations: boolean;
   created_at: string;
 }
 
@@ -43,21 +45,26 @@ export function useAdmin() {
 
       const { data: roles, error: rErr } = await supabase
         .from("user_roles")
-        .select("user_id, role");
+        .select("user_id, role, can_edit_handbook, can_edit_operations") as any;
       if (rErr) throw rErr;
 
-      const roleMap = new Map(roles.map((r) => [r.user_id, r.role]));
+      const roleMap = new Map((roles || []).map((r: any) => [r.user_id, r]));
 
-      return (profiles || []).map((p) => ({
-        id: p.id,
-        email: p.email || "",
-        display_name: p.display_name,
-        first_name: p.first_name,
-        last_name: p.last_name,
-        graduation_year: p.graduation_year ?? null,
-        role: (roleMap.get(p.id) || "resident") as UserRole,
-        created_at: p.created_at,
-      })) as ManagedUser[];
+      return (profiles || []).map((p) => {
+        const r = roleMap.get(p.id) as any;
+        return {
+          id: p.id,
+          email: p.email || "",
+          display_name: p.display_name,
+          first_name: p.first_name,
+          last_name: p.last_name,
+          graduation_year: p.graduation_year ?? null,
+          role: (r?.role || "resident") as UserRole,
+          can_edit_handbook: r?.can_edit_handbook ?? false,
+          can_edit_operations: r?.can_edit_operations ?? false,
+          created_at: p.created_at,
+        };
+      }) as ManagedUser[];
     },
   });
 
@@ -198,5 +205,26 @@ export function useAdmin() {
     },
   });
 
-  return { isAdmin: isAdmin.data, isAdminLoading: isAdmin.isLoading, users, inviteUser, updateUser, updateRole, updateProfile, deleteUser };
+  const updatePermissions = useMutation({
+    mutationFn: async (data: { user_id: string; can_edit_handbook: boolean; can_edit_operations: boolean }) => {
+      const { error } = await (supabase
+        .from("user_roles")
+        .update({
+          can_edit_handbook: data.can_edit_handbook,
+          can_edit_operations: data.can_edit_operations,
+        } as any)
+        .eq("user_id", data.user_id) as any);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+      queryClient.invalidateQueries({ queryKey: ["user-role"] });
+      toast({ title: "Permissions updated" });
+    },
+    onError: (err: Error) => {
+      toast({ title: "Failed to update permissions", description: err.message, variant: "destructive" });
+    },
+  });
+
+  return { isAdmin: isAdmin.data, isAdminLoading: isAdmin.isLoading, users, inviteUser, updateUser, updateRole, updateProfile, deleteUser, updatePermissions };
 }

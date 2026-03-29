@@ -38,8 +38,8 @@ const Operations = () => {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const { isAdmin } = useAdmin();
-  const { role } = useUserRole();
-  const canEdit = isAdmin || role === "faculty";
+  const { canEditOperations } = useUserRole();
+  const canEdit = isAdmin || canEditOperations;
   const { data: allSections, isLoading, error } = useOperations();
   const { updateSection, addSection, deleteSection } = useOperationsMutations();
   const { toast } = useToast();
