@@ -6,7 +6,7 @@ import {
   ShieldCheck, Globe, Coffee, AlertTriangle, MessageSquare, Layers,
   Users, AlertCircle, Monitor, Pencil, X, Save,
   Plus, ChevronDown, ChevronRight, Trash2, Menu,
-  CalendarPlus, ClipboardList,
+  CalendarPlus, ClipboardList, Eye, EyeOff,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
@@ -40,7 +40,9 @@ const Operations = () => {
   const { user, signOut } = useAuth();
   const { isAdmin } = useAdmin();
   const { has: hasPerm } = usePermissions();
-  const canEdit = hasPerm("operations.edit");
+  const hasEditPerm = hasPerm("operations.edit");
+  const [viewAsReader, setViewAsReader] = useState(false);
+  const canEdit = hasEditPerm && !viewAsReader;
   const { data: allSections, isLoading, error } = useOperations();
   const { updateSection, addSection, deleteSection } = useOperationsMutations();
   const { toast } = useToast();
@@ -502,6 +504,28 @@ const Operations = () => {
               <ChevronRight style={{ width: 14, height: 14, color: "#aaa" }} />
             </button>
           </div>
+
+          {/* Reader view toggle — only shown for users with edit permission */}
+          {hasEditPerm && (
+            <div style={{ marginBottom: 12 }}>
+              <button
+                onClick={() => setViewAsReader(!viewAsReader)}
+                style={{
+                  display: "flex", alignItems: "center", gap: 6,
+                  padding: "7px 12px", fontSize: 12,
+                  color: viewAsReader ? "#fff" : "#415162",
+                  background: viewAsReader ? "#415162" : "#E7EBEF",
+                  border: "1px solid #C9CED4", borderRadius: 6,
+                  cursor: "pointer", fontWeight: 500,
+                }}
+              >
+                {viewAsReader
+                  ? <><EyeOff style={{ width: 13, height: 13 }} /> Reader view</>
+                  : <><Eye style={{ width: 13, height: 13 }} /> Editor view</>
+                }
+              </button>
+            </div>
+          )}
 
           {/* Search bar */}
           <DocumentSearchBar
