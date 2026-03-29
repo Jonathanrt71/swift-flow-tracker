@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
 import { useUserRole } from "@/hooks/useUserRole";
+import { usePermissions } from "@/hooks/usePermissions";
 import { useCompetencies } from "@/hooks/useCompetencies";
 import { useCompetencyCategories } from "@/hooks/useCompetencyCategories";
 import { Button } from "@/components/ui/button";
@@ -197,6 +198,8 @@ const CBME = () => {
   const { user, signOut } = useAuth();
   const { isAdmin } = useAdmin();
   const { isFaculty } = useUserRole();
+  const { has: hasPerm } = usePermissions();
+  const canCreate = hasPerm("cbme.assess");
   const { competencies, myAssessments, allAssessments, createCompetency, updateCompetency, deleteCompetency, saveSections, saveAssessment } =
     useCompetencies();
   const { data: teamMembers } = useTeamMembers();
@@ -206,8 +209,6 @@ const CBME = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("list");
   const [dashboardView, setDashboardView] = useState<"mine" | "all">("mine");
-
-  const canCreate = isAdmin || isFaculty;
 
   const filteredCompetencies = (competencies.data || []).filter((c) => {
     if (!searchQuery.trim()) return true;

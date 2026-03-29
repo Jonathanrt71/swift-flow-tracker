@@ -30,6 +30,7 @@ import { useMeetingTags } from "@/hooks/useMeetingTags";
 import { useMeetingTagLinks } from "@/hooks/useMeetingTags";
 import { useCompetencyCategories } from "@/hooks/useCompetencyCategories";
 import type { UserRole, ManagedUser } from "@/hooks/useAdmin";
+import { useAllPermissions } from "@/hooks/usePermissions";
 import { formatPersonName } from "@/lib/dateFormat";
 
 /** Calculate PGY level from graduation year. Academic year starts July 1. */
@@ -487,67 +488,72 @@ const AddUserDialog = ({
 
 /* ── Role Access Report (read-only) ── */
 const RoleAccessSection = () => {
+  const { permMap, getLevel, cycleLevel, updatePermission, isLoading } = useAllPermissions();
+  const { toast } = useToast();
+
+  const colorMap: Record<string, string> = { full: "#5E9E82", view: "#D4B820", none: "#A63333" };
   const dot = (color: string) => (
-    <div
-      className="inline-block w-3 h-3 rounded-full"
-      style={{ background: color }}
-    />
+    <div className="inline-block w-3 h-3 rounded-full" style={{ background: color }} />
   );
-  const G = () => dot("#5E9E82");
-  const Y = () => dot("#D4B820");
-  const R = () => dot("#A63333");
+
+  const roles = ["admin", "faculty", "resident"] as const;
 
   const sections = [
-    {
-      name: "Admin",
-      rows: [
-        { action: "All actions", a: <G />, f: <R />, r: <R /> },
-      ],
-    },
-    {
-      name: "CBME",
-      rows: [
-        { action: "View page", a: <G />, f: <R />, r: <R /> },
-        { action: "Assess / edit / all scores", a: <G />, f: <R />, r: <R /> },
-      ],
-    },
-    {
-      name: "Events",
-      rows: [
-        { action: "View page", a: <G />, f: <G />, r: <R /> },
-        { action: "Create / edit / delete", a: <G />, f: <G />, r: <R /> },
-        { action: "Evaluate didactics", a: <G />, f: <G />, r: <R /> },
-      ],
-    },
-    {
-      name: "Feedback",
-      rows: [
-        { action: "View page", a: <G />, f: <G />, r: <R /> },
-        { action: "Create / edit / delete", a: <G />, f: <G />, r: <R /> },
-        { action: "Generate report", a: <G />, f: <G />, r: <R /> },
-      ],
-    },
-    {
-      name: "Meetings",
-      rows: [
-        { action: "View page", a: <G />, f: <R />, r: <R /> },
-        { action: "Create / edit / delete", a: <G />, f: <R />, r: <R /> },
-      ],
-    },
-    {
-      name: "Profile",
-      rows: [
-        { action: "View / edit own", a: <G />, f: <G />, r: <G /> },
-      ],
-    },
-    {
-      name: "Tasks",
-      rows: [
-        { action: "View page", a: <G />, f: <R />, r: <R /> },
-        { action: "Create / edit / delete", a: <G />, f: <R />, r: <R /> },
-      ],
-    },
+    { name: "Admin", rows: [
+      { action: "All actions", key: "admin.all" },
+    ]},
+    { name: "CBME", rows: [
+      { action: "View page", key: "cbme.view" },
+      { action: "Assess / edit / all scores", key: "cbme.assess" },
+    ]},
+    { name: "Compliance", rows: [
+      { action: "View page", key: "compliance.view" },
+    ]},
+    { name: "Events", rows: [
+      { action: "View page", key: "events.view" },
+      { action: "Create / edit / delete", key: "events.edit" },
+      { action: "Evaluate didactics", key: "events.evaluate" },
+    ]},
+    { name: "Feedback", rows: [
+      { action: "View page", key: "feedback.view" },
+      { action: "Create / edit / delete", key: "feedback.edit" },
+      { action: "Generate report", key: "feedback.report" },
+    ]},
+    { name: "Handbook", rows: [
+      { action: "View page", key: "handbook.view" },
+      { action: "Edit sections", key: "handbook.edit" },
+    ]},
+    { name: "Meetings", rows: [
+      { action: "View page", key: "meetings.view" },
+      { action: "Create / edit / delete", key: "meetings.edit" },
+    ]},
+    { name: "Operations", rows: [
+      { action: "View page", key: "operations.view" },
+      { action: "Edit sections", key: "operations.edit" },
+    ]},
+    { name: "Profile", rows: [
+      { action: "View / edit own", key: "profile.own" },
+    ]},
+    { name: "Tasks", rows: [
+      { action: "View page", key: "tasks.view" },
+      { action: "Create / edit / delete", key: "tasks.edit" },
+    ]},
+    { name: "Topics", rows: [
+      { action: "View page", key: "topics.view" },
+      { action: "Edit / manage", key: "topics.edit" },
+    ]},
   ];
+
+  const handleToggle = (role: string, key: string) => {
+    const current = getLevel(role, key);
+    const next = cycleLevel(current);
+    updatePermission.mutate(
+      { role, permission_key: key, access_level: next },
+      { onError: (e: any) => toast({ title: "Error", description: e.message, variant: "destructive" }) }
+    );
+  };
+
+  if (isLoading) return <div style={{ padding: 16, fontSize: 13, color: "#999" }}>Loading permissions…</div>;
 
   return (
     <div>
@@ -555,6 +561,7 @@ const RoleAccessSection = () => {
         <span className="flex items-center gap-1">{dot("#5E9E82")} Full</span>
         <span className="flex items-center gap-1">{dot("#D4B820")} View only</span>
         <span className="flex items-center gap-1">{dot("#A63333")} None</span>
+        <span style={{ marginLeft: 8, fontSize: 10, color: "#aaa" }}>Tap dots to change</span>
       </div>
       <table className="w-full text-[11px]" style={{ borderCollapse: "collapse" }}>
         <tbody>
@@ -579,11 +586,22 @@ const RoleAccessSection = () => {
                 )}
               </tr>
               {s.rows.map((row) => (
-                <tr key={row.action}>
+                <tr key={row.key}>
                   <td className="py-1 text-muted-foreground">{row.action}</td>
-                  <td className="py-1 text-center">{row.a}</td>
-                  <td className="py-1 text-center">{row.f}</td>
-                  <td className="py-1 text-center">{row.r}</td>
+                  {roles.map(r => {
+                    const level = getLevel(r, row.key);
+                    return (
+                      <td key={r} className="py-1 text-center">
+                        <button
+                          onClick={() => handleToggle(r, row.key)}
+                          style={{ background: "transparent", border: "none", cursor: "pointer", padding: 4, display: "inline-flex", alignItems: "center", justifyContent: "center" }}
+                          title={`${r}: ${level} → click to change`}
+                        >
+                          {dot(colorMap[level] || "#A63333")}
+                        </button>
+                      </td>
+                    );
+                  })}
                 </tr>
               ))}
             </React.Fragment>

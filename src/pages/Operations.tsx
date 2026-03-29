@@ -23,6 +23,7 @@ import { EVENT_CATEGORY_LABELS } from "@/hooks/useEvents";
 import type { EventCategory } from "@/hooks/useEvents";
 import { useDocumentSearch } from "@/hooks/useDocumentSearch";
 import DocumentSearchBar from "@/components/shared/DocumentSearchBar";
+import { usePermissions } from "@/hooks/usePermissions";
 
 const iconMap: Record<string, React.FC<{ className?: string; style?: React.CSSProperties }>> = {
   home: Home, phone: Phone, calendar: Calendar, clock: Clock, shield: Shield,
@@ -38,8 +39,8 @@ const Operations = () => {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const { isAdmin } = useAdmin();
-  const { canEditOperations } = useUserRole();
-  const canEdit = isAdmin || canEditOperations;
+  const { has: hasPerm } = usePermissions();
+  const canEdit = hasPerm("operations.edit");
   const { data: allSections, isLoading, error } = useOperations();
   const { updateSection, addSection, deleteSection } = useOperationsMutations();
   const { toast } = useToast();

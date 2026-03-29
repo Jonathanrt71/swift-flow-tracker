@@ -18,6 +18,7 @@ import NotificationBell from "@/components/NotificationBell";
 import SectionTipTapEditor from "@/components/shared/SectionTipTapEditor";
 import { useDocumentSearch } from "@/hooks/useDocumentSearch";
 import DocumentSearchBar from "@/components/shared/DocumentSearchBar";
+import { usePermissions } from "@/hooks/usePermissions";
 
 const iconMap: Record<string, React.FC<{ className?: string; style?: React.CSSProperties }>> = {
   home: Home, phone: Phone, calendar: Calendar, clock: Clock, shield: Shield,
@@ -32,8 +33,8 @@ const iconMap: Record<string, React.FC<{ className?: string; style?: React.CSSPr
 const Handbook = () => {
   const { user, signOut } = useAuth();
   const { isAdmin } = useAdmin();
-  const { canEditHandbook } = useUserRole();
-  const canEdit = isAdmin || canEditHandbook;
+  const { has: hasPerm } = usePermissions();
+  const canEdit = hasPerm("handbook.edit");
   const { data: allSections, isLoading, error } = useHandbook();
   const { updateSection, addSection, deleteSection } = useHandbookMutations();
   const { toast } = useToast();

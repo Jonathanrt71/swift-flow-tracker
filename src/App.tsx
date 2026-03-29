@@ -37,20 +37,20 @@ const App = () => (
             <Routes>
               <Route path="/login" element={<Login />} />
               
-              <Route path="/" element={<RoleRoute allowed={["admin"]}><Home /></RoleRoute>} />
-              <Route path="/home" element={<RoleRoute allowed={["admin"]}><Home /></RoleRoute>} />
-              <Route path="/admin" element={<RoleRoute allowed={["admin"]}><Admin /></RoleRoute>} />
+              <Route path="/" element={<RoleRoute permissionKey="admin.all"><Home /></RoleRoute>} />
+              <Route path="/home" element={<RoleRoute permissionKey="admin.all"><Home /></RoleRoute>} />
+              <Route path="/admin" element={<RoleRoute permissionKey="admin.all"><Admin /></RoleRoute>} />
               <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-              <Route path="/meetings" element={<RoleRoute allowed={["admin"]}><Meetings /></RoleRoute>} />
-              <Route path="/events" element={<RoleRoute allowed={["admin", "faculty", "resident"]}><Events /></RoleRoute>} />
-              <Route path="/feedback" element={<RoleRoute allowed={["admin", "faculty"]}><Feedback /></RoleRoute>} />
-              <Route path="/tasks" element={<RoleRoute allowed={["admin"]}><Index /></RoleRoute>} />
-              <Route path="/cbme" element={<RoleRoute allowed={["admin"]}><CBME /></RoleRoute>} />
-              <Route path="/handbook" element={<ProtectedRoute><Handbook /></ProtectedRoute>} />
+              <Route path="/meetings" element={<RoleRoute permissionKey="meetings.view"><Meetings /></RoleRoute>} />
+              <Route path="/events" element={<RoleRoute permissionKey="events.view"><Events /></RoleRoute>} />
+              <Route path="/feedback" element={<RoleRoute permissionKey="feedback.view"><Feedback /></RoleRoute>} />
+              <Route path="/tasks" element={<RoleRoute permissionKey="tasks.view"><Index /></RoleRoute>} />
+              <Route path="/cbme" element={<RoleRoute permissionKey="cbme.view"><CBME /></RoleRoute>} />
+              <Route path="/handbook" element={<RoleRoute permissionKey="handbook.view"><Handbook /></RoleRoute>} />
               <Route path="/rotations" element={<ProtectedRoute><Rotations /></ProtectedRoute>} />
-              <Route path="/operations" element={<RoleRoute allowed={["admin", "faculty"]}><Operations /></RoleRoute>} />
-              <Route path="/compliance" element={<RoleRoute allowed={["admin"]}><Compliance /></RoleRoute>} />
-              <Route path="/topics" element={<ProtectedRoute><Topics /></ProtectedRoute>} />
+              <Route path="/operations" element={<RoleRoute permissionKey="operations.view"><Operations /></RoleRoute>} />
+              <Route path="/compliance" element={<RoleRoute permissionKey="compliance.view"><Compliance /></RoleRoute>} />
+              <Route path="/topics" element={<RoleRoute permissionKey="topics.view"><Topics /></RoleRoute>} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

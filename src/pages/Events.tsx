@@ -5,6 +5,7 @@ import type { ProgramEvent, EventCategory, RecurrencePattern } from "@/hooks/use
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
 import { useUserRole } from "@/hooks/useUserRole";
+import { usePermissions } from "@/hooks/usePermissions";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useQuery } from "@tanstack/react-query";
@@ -436,7 +437,10 @@ const Events = () => {
 
   const { events, createEvent, updateEvent, deleteEvent, confirmRecurrence, skipRecurrence } = useEvents();
   const { data: teamMembers } = useTeamMembers();
-  const isFacultyOrAdmin = !!isAdmin || !!isFaculty;
+  const { has: hasPerm } = usePermissions();
+  const canEditEvents = hasPerm("events.edit");
+  const canEvaluate = hasPerm("events.evaluate");
+  const isFacultyOrAdmin = canEvaluate;
 
   // Query evaluation status for current user (which events they've evaluated)
   const { data: evaluationStatus } = useQuery({
@@ -580,7 +584,7 @@ const Events = () => {
                   { mode: "list" as const, icon: <List className="h-3.5 w-3.5" /> },
                   { mode: "vertical" as const, icon: <VerticalTimelineIcon /> },
                   { mode: "gantt" as const, icon: <GanttIcon /> },
-                  ...(isAdmin ? [{ mode: "evaluations" as const, icon: <ClipboardCheck className="h-3.5 w-3.5" /> }] : []),
+                  ...(canEvaluate ? [{ mode: "evaluations" as const, icon: <ClipboardCheck className="h-3.5 w-3.5" /> }] : []),
                 ]).map(({ mode, icon }) => (
                   <button
                     key={mode}
@@ -598,7 +602,7 @@ const Events = () => {
             )}
           </div>
 
-          {!isResident && (
+          {canEditEvents && (
             <CreateEventDialog
               onSubmit={(data) => createEvent.mutate(data)}
               defaultCategory={activeCategory === "all" ? "program" : activeCategory as EventCategory}
@@ -633,13 +637,13 @@ const Events = () => {
             events={filteredEvents}
             teamMembers={teamMembers}
             userId={user?.id}
-            isAdmin={!isResident && !!isAdmin}
+            isAdmin={canEditEvents}
             isFacultyOrAdmin={isFacultyOrAdmin}
             evaluationStatus={evaluationStatus}
-            onUpdate={(data) => { if (!isResident) updateEvent.mutate(data); }}
-            onDelete={(id) => { if (!isResident) deleteEvent.mutate(id); }}
-            onConfirmRecurrence={(event, nextDate) => { if (!isResident) confirmRecurrence.mutate({ event, nextDate }); }}
-            onSkipRecurrence={(id) => { if (!isResident) skipRecurrence.mutate(id); }}
+            onUpdate={(data) => { if (canEditEvents) updateEvent.mutate(data); }}
+            onDelete={(id) => { if (canEditEvents) deleteEvent.mutate(id); }}
+            onConfirmRecurrence={(event, nextDate) => { if (canEditEvents) confirmRecurrence.mutate({ event, nextDate }); }}
+            onSkipRecurrence={(id) => { if (canEditEvents) skipRecurrence.mutate(id); }}
             emptyMessage={activeCategory === "all" ? "No events" : `No ${EVENT_CATEGORY_LABELS[activeCategory as EventCategory]} events`}
           />
         )}

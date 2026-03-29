@@ -3,6 +3,7 @@ import { Plus, ExternalLink, Trash2, X, Check, ChevronDown, ChevronUp, Pencil, T
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
 import { useUserRole } from "@/hooks/useUserRole";
+import { usePermissions } from "@/hooks/usePermissions";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { useClinicalTopics, ClinicalTopic, TopicTag } from "@/hooks/useClinicalTopics";
 import HeaderLogo from "@/components/HeaderLogo";
@@ -397,8 +398,9 @@ const Topics = () => {
   const { user, signOut } = useAuth();
   const { isAdmin } = useAdmin();
   const { role } = useUserRole();
+  const { has: hasPerm } = usePermissions();
   const isFaculty = role === "faculty";
-  const canEdit = isAdmin || isFaculty;
+  const canEdit = hasPerm("topics.edit");
   const { teamMembers } = useTeamMembers();
   const residents = (teamMembers || []).filter((m: any) => m.role === "resident");
 

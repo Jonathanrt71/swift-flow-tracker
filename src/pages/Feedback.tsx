@@ -5,6 +5,7 @@ import { List, PieChart, FileText, BookOpen, Pencil, Trash2, X as XIcon, Search 
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
+import { usePermissions } from "@/hooks/usePermissions";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { useFeedback } from "@/hooks/useFeedback";
 import { useACGMECompetencies } from "@/hooks/useACGMECompetencies";
@@ -41,6 +42,9 @@ import {
 const Feedback = () => {
   const { user, signOut } = useAuth();
   const { isAdmin } = useAdmin();
+  const { has: hasPerm } = usePermissions();
+  const canEditFeedback = hasPerm("feedback.edit");
+  const canGenerateReport = hasPerm("feedback.report");
   const { data: teamMembers } = useTeamMembers();
   const { feedbackQuery, createFeedback, updateFeedback, deleteFeedback } = useFeedback();
   const { data: acgmeCategories } = useACGMECompetencies();
@@ -459,7 +463,7 @@ const Feedback = () => {
                   style={{ color: viewMode === "summary" ? "#415162" : "#8A9AAB" }}
                 />
               </button>
-              {isAdmin && (
+              {canGenerateReport && (
                 <button
                   onClick={() => setViewMode("report")}
                   className={cn(
@@ -497,7 +501,7 @@ const Feedback = () => {
 
         {/* Content */}
         <div className="flex flex-col gap-2">
-          {viewMode === "list" || (!isAdmin && viewMode === "report") ? renderCards() : viewMode === "summary" ? renderSummary() : viewMode === "report" ? <MilestoneReport /> : <MilestonesBrowser />}
+          {viewMode === "list" || (!canGenerateReport && viewMode === "report") ? renderCards() : viewMode === "summary" ? renderSummary() : viewMode === "report" ? <MilestoneReport /> : <MilestonesBrowser />}
         </div>
       </main>
 
