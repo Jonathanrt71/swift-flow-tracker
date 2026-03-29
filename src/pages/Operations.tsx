@@ -21,6 +21,8 @@ import { TaskTemplatesSection } from "@/components/operations/TaskTemplatesSecti
 import SectionTipTapEditor from "@/components/shared/SectionTipTapEditor";
 import { EVENT_CATEGORY_LABELS } from "@/hooks/useEvents";
 import type { EventCategory } from "@/hooks/useEvents";
+import { useDocumentSearch } from "@/hooks/useDocumentSearch";
+import DocumentSearchBar from "@/components/shared/DocumentSearchBar";
 
 const iconMap: Record<string, React.FC<{ className?: string; style?: React.CSSProperties }>> = {
   home: Home, phone: Phone, calendar: Calendar, clock: Clock, shield: Shield,
@@ -41,9 +43,14 @@ const Operations = () => {
   const { data: allSections, isLoading, error } = useOperations();
   const { updateSection, addSection, deleteSection } = useOperationsMutations();
   const { toast } = useToast();
+  const { results: searchResults, isSearching, query: searchQuery, search: doSearch, clear: clearSearch } = useDocumentSearch();
 
   const topSections = (allSections || []).filter(s => !s.parent_id);
   const getSubsections = (parentId: string) => (allSections || []).filter(s => s.parent_id === parentId);
+
+  // Map of section id → title for showing parent names in search results
+  const sectionTitles: Record<string, string> = {};
+  (allSections || []).forEach(s => { sectionTitles[s.id] = s.title; });
 
   const [tocOpen, setTocOpen] = useState(false);
   const [collapsedToc, setCollapsedToc] = useState<Record<string, boolean>>({});
@@ -494,6 +501,17 @@ const Operations = () => {
               <ChevronRight style={{ width: 14, height: 14, color: "#aaa" }} />
             </button>
           </div>
+
+          {/* Search bar */}
+          <DocumentSearchBar
+            query={searchQuery}
+            isSearching={isSearching}
+            results={searchResults}
+            onSearch={(q) => doSearch(q, "operations")}
+            onClear={clearSearch}
+            onResultClick={(r) => { clearSearch(); scrollTo(r.id); }}
+            sectionTitles={sectionTitles}
+          />
 
           <div style={{ maxWidth: 700 }}>
             {isLoading && <div style={{ color: "#999", fontSize: 14, padding: "40px 0", textAlign: "center" }}>Loading operations manual…</div>}

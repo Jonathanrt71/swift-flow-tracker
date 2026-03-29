@@ -15,6 +15,8 @@ import HeaderLogo from "@/components/HeaderLogo";
 import BottomNav from "@/components/BottomNav";
 import NotificationBell from "@/components/NotificationBell";
 import SectionTipTapEditor from "@/components/shared/SectionTipTapEditor";
+import { useDocumentSearch } from "@/hooks/useDocumentSearch";
+import DocumentSearchBar from "@/components/shared/DocumentSearchBar";
 
 const iconMap: Record<string, React.FC<{ className?: string; style?: React.CSSProperties }>> = {
   home: Home, phone: Phone, calendar: Calendar, clock: Clock, shield: Shield,
@@ -32,9 +34,13 @@ const Handbook = () => {
   const { data: allSections, isLoading, error } = useHandbook();
   const { updateSection, addSection, deleteSection } = useHandbookMutations();
   const { toast } = useToast();
+  const { results: searchResults, isSearching, query: searchQuery, search: doSearch, clear: clearSearch } = useDocumentSearch();
 
   const topSections = (allSections || []).filter(s => !s.parent_id);
   const getSubsections = (parentId: string) => (allSections || []).filter(s => s.parent_id === parentId);
+
+  const sectionTitles: Record<string, string> = {};
+  (allSections || []).forEach(s => { sectionTitles[s.id] = s.title; });
 
   const [tocOpen, setTocOpen] = useState(false);
   const [collapsedToc, setCollapsedToc] = useState<Record<string, boolean>>({});
@@ -344,6 +350,18 @@ const Handbook = () => {
               <ChevronRight style={{ width: 14, height: 14, color: "#aaa" }} />
             </button>
           </div>
+
+          {/* Search bar */}
+          <DocumentSearchBar
+            query={searchQuery}
+            isSearching={isSearching}
+            results={searchResults}
+            onSearch={(q) => doSearch(q, "handbook")}
+            onClear={clearSearch}
+            onResultClick={(r) => { clearSearch(); scrollTo(r.id); }}
+            sectionTitles={sectionTitles}
+          />
+
           <div style={{ maxWidth: 700 }}>
             {isLoading && <div style={{ color: "#999", fontSize: 14, padding: "40px 0", textAlign: "center" }}>Loading handbook…</div>}
             {error && <div style={{ color: "#c44", fontSize: 14 }}>Failed to load. Please refresh.</div>}

@@ -20,6 +20,21 @@ export default defineConfig(({ mode }) => ({
       registerType: "prompt",
       workbox: {
         clientsClaim: true,
+        skipWaiting: true,
+        navigateFallback: "index.html",
+        // Don't precache source maps or large assets that change frequently
+        globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
+        // Force network-first for navigation requests so Safari gets fresh HTML
+        runtimeCaching: [
+          {
+            urlPattern: ({ request }) => request.mode === "navigate",
+            handler: "NetworkFirst",
+            options: {
+              cacheName: "pages-cache",
+              networkTimeoutSeconds: 3,
+            },
+          },
+        ],
       },
       manifest: false,
     }),
