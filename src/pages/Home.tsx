@@ -5,6 +5,7 @@ import { useAdmin } from "@/hooks/useAdmin";
 import { usePermissions } from "@/hooks/usePermissions";
 import { supabase } from "@/integrations/supabase/client";
 import NotificationBell from "@/components/NotificationBell";
+import HeaderLogo from "@/components/HeaderLogo";
 
 interface NavItem {
   label: string;
@@ -186,13 +187,9 @@ const Home = () => {
     <div style={{ minHeight: "100vh", background: "#F5F3EE" }}>
       <header style={{ position: "sticky", top: 0, zIndex: 40, background: "#415162" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", height: 56, padding: "0 16px" }}>
-          <div>
-            <div style={{ fontSize: 14, fontWeight: 500, color: "#fff", lineHeight: 1.2 }}>FM Tasks</div>
-            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.55)" }}>HMC Family Medicine</div>
-          </div>
+          <HeaderLogo isAdmin={isAdmin} onSignOut={signOut} />
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <NotificationBell />
-            
           </div>
         </div>
       </header>

@@ -12,7 +12,7 @@ interface NavEntry {
 }
 
 const allNavItems: NavEntry[] = [
-  { path: "/",            label: "Home",         icon: Home },
+  { path: "/",            label: "FM App",       icon: Home },
   { path: "/cbme",        label: "CBME",         icon: BookOpen,      permissionKey: "cbme.view" },
   { path: "/events",      label: "Events",       icon: Calendar,      permissionKey: "events.view" },
   { path: "/feedback",    label: "Feedback",     icon: MessageSquare, permissionKey: "feedback.view" },
@@ -100,7 +100,7 @@ const HeaderLogo = ({
         onClick={() => setMenuOpen(!menuOpen)}
         className="border-none cursor-pointer p-0 bg-transparent"
       >
-        <span className="text-base font-medium text-white">{currentItem?.label || "Tasks"}</span>
+        <span className="text-base font-medium text-white">{currentItem?.label || "FM App"}</span>
       </button>
 
       {menuOpen && (
@@ -123,7 +123,7 @@ const HeaderLogo = ({
               )}
             >
               <Home className="h-4 w-4" />
-              Home
+              FM App
             </Link>
 
             <div style={{ height: 0.5, background: "rgba(255,255,255,0.15)" }} />
