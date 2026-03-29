@@ -400,7 +400,7 @@ const Topics = () => {
   const { has: hasPerm } = usePermissions();
   const isFaculty = role === "faculty";
   const canEdit = hasPerm("topics.edit");
-  const { teamMembers } = useTeamMembers();
+  const { data: teamMembers } = useTeamMembers();
   const residents = (teamMembers || []).filter((m: any) => m.role === "resident");
 
   const { topics, allTags, createTopic, updateTopic, deleteTopic, createTag, addCheckoff, deleteCheckoff } = useClinicalTopics();

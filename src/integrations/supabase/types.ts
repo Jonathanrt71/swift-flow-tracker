@@ -14,6 +14,138 @@ export type Database = {
   }
   public: {
     Tables: {
+      clinical_topics: {
+        Row: {
+          id: string
+          title: string
+          url: string | null
+          notes: string | null
+          is_required: boolean
+          last_reviewed: string | null
+          sort_order: number
+          created_by: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          title: string
+          url?: string | null
+          notes?: string | null
+          is_required?: boolean
+          last_reviewed?: string | null
+          sort_order?: number
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          title?: string
+          url?: string | null
+          notes?: string | null
+          is_required?: boolean
+          last_reviewed?: string | null
+          sort_order?: number
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      role_permissions: {
+        Row: {
+          id: string
+          role: string
+          permission_key: string
+          access_level: string
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          role: string
+          permission_key: string
+          access_level: string
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          role?: string
+          permission_key?: string
+          access_level?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      topic_checkoffs: {
+        Row: {
+          id: string
+          topic_id: string
+          resident_id: string
+          faculty_id: string
+          checked_off_at: string
+          notes: string | null
+        }
+        Insert: {
+          id?: string
+          topic_id: string
+          resident_id: string
+          faculty_id: string
+          checked_off_at?: string
+          notes?: string | null
+        }
+        Update: {
+          id?: string
+          topic_id?: string
+          resident_id?: string
+          faculty_id?: string
+          checked_off_at?: string
+          notes?: string | null
+        }
+        Relationships: []
+      }
+      topic_tag_links: {
+        Row: {
+          id: string
+          topic_id: string
+          tag_id: string
+        }
+        Insert: {
+          id?: string
+          topic_id: string
+          tag_id: string
+        }
+        Update: {
+          id?: string
+          topic_id?: string
+          tag_id?: string
+        }
+        Relationships: []
+      }
+      topic_tags: {
+        Row: {
+          id: string
+          name: string
+          color: string
+          tag_type: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          color: string
+          tag_type: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          color?: string
+          tag_type?: string
+          created_at?: string
+        }
+        Relationships: []
+      }
       app_settings: {
         Row: {
           key: string
