@@ -44,12 +44,13 @@ const SectionTipTapEditor = ({ content, onChange, readOnly = false, minHeight = 
     },
   });
 
-  // Sync content changes from parent (e.g. switching sections)
+  // Only sync content from parent when in read-only mode (e.g. switching displayed sections).
+  // In edit mode the editor owns its own state — re-setting content would reset the cursor.
   useEffect(() => {
-    if (editor && content !== editor.getHTML()) {
+    if (editor && readOnly && content !== editor.getHTML()) {
       editor.commands.setContent(content);
     }
-  }, [content, editor]);
+  }, [content, editor, readOnly]);
 
   useEffect(() => {
     if (editor) {
