@@ -2,23 +2,28 @@ import { useState, useRef, useCallback } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { CheckSquare, Users, Calendar, BookOpen, MessageSquare, Shield, User, LogOut, BookMarked, Stethoscope, ClipboardList, BookOpenCheck, Home, ShieldCheck, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useUserRole } from "@/hooks/useUserRole";
+import { usePermissions } from "@/hooks/usePermissions";
 
-type AllowedRole = "admin" | "faculty" | "resident";
+interface NavEntry {
+  path: string;
+  label: string;
+  icon: React.FC<{ className?: string }>;
+  permissionKey?: string; // if absent, always visible
+}
 
-const allNavItems = [
-  { path: "/",          label: "Home",       icon: Home,          allowed: ["admin", "faculty", "resident"] as AllowedRole[] },
-  { path: "/cbme",      label: "CBME",       icon: BookOpen,      allowed: ["admin"] as AllowedRole[] },
-  { path: "/events",    label: "Events",     icon: Calendar,      allowed: ["admin", "faculty"] as AllowedRole[] },
-  { path: "/feedback",  label: "Feedback",   icon: MessageSquare, allowed: ["admin", "faculty"] as AllowedRole[] },
-  { path: "/handbook",  label: "Handbook",   icon: BookMarked,    allowed: ["admin", "faculty", "resident"] as AllowedRole[] },
-  { path: "/gme-handbook", label: "GME Handbook", icon: FileText, allowed: ["admin"] as AllowedRole[] },
-  { path: "/operations",label: "Operations", icon: ClipboardList, allowed: ["admin", "faculty"] as AllowedRole[] },
-  { path: "/rotations", label: "Rotations",  icon: Stethoscope,   allowed: ["admin", "faculty", "resident"] as AllowedRole[] },
-  { path: "/topics",    label: "Topics",     icon: BookOpenCheck, allowed: ["admin", "faculty", "resident"] as AllowedRole[] },
-  { path: "/meetings",  label: "Meetings",   icon: Users,         allowed: ["admin"] as AllowedRole[] },
-  { path: "/tasks",     label: "Tasks",      icon: CheckSquare,   allowed: ["admin"] as AllowedRole[] },
-  { path: "/compliance",label: "Compliance", icon: ShieldCheck,   allowed: ["admin"] as AllowedRole[] },
+const allNavItems: NavEntry[] = [
+  { path: "/",            label: "Home",         icon: Home },
+  { path: "/cbme",        label: "CBME",         icon: BookOpen,      permissionKey: "cbme.view" },
+  { path: "/events",      label: "Events",       icon: Calendar,      permissionKey: "events.view" },
+  { path: "/feedback",    label: "Feedback",     icon: MessageSquare, permissionKey: "feedback.view" },
+  { path: "/handbook",    label: "Handbook",     icon: BookMarked,    permissionKey: "handbook.view" },
+  { path: "/gme-handbook",label: "GME Handbook", icon: FileText,      permissionKey: "gme_handbook.view" },
+  { path: "/operations",  label: "Operations",   icon: ClipboardList, permissionKey: "operations.view" },
+  { path: "/rotations",   label: "Rotations",    icon: Stethoscope },
+  { path: "/topics",      label: "Topics",       icon: BookOpenCheck, permissionKey: "topics.view" },
+  { path: "/meetings",    label: "Meetings",     icon: Users,         permissionKey: "meetings.view" },
+  { path: "/tasks",       label: "Tasks",        icon: CheckSquare,   permissionKey: "tasks.view" },
+  { path: "/compliance",  label: "Compliance",   icon: ShieldCheck,   permissionKey: "compliance.view" },
 ];
 
 const HeaderLogo = ({
@@ -32,12 +37,11 @@ const HeaderLogo = ({
   const [imageOpen, setImageOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const { role } = useUserRole();
-  const navItems = allNavItems.filter((item) => item.allowed.includes(role as AllowedRole));
+  const { has: hasPerm } = usePermissions();
+  const navItems = allNavItems.filter((item) => !item.permissionKey || hasPerm(item.permissionKey, "view"));
   const currentItem = allNavItems.find((n) => n.path === location.pathname)
-    || (location.pathname === "/" ? allNavItems.find((n) => n.path === "/feedback") : undefined)
-    || (location.pathname === "/admin" ? { path: "/admin", label: "Admin", icon: Shield, allowed: ["admin"] as AllowedRole[] } : undefined)
-    || (location.pathname === "/profile" ? { path: "/profile", label: "Profile", icon: User, allowed: ["admin", "faculty", "resident"] as AllowedRole[] } : undefined);
+    || (location.pathname === "/admin" ? { path: "/admin", label: "Admin", icon: Shield, permissionKey: "admin.all" } as NavEntry : undefined)
+    || (location.pathname === "/profile" ? { path: "/profile", label: "Profile", icon: User } as NavEntry : undefined);
   const Icon = currentItem?.icon || User;
 
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
