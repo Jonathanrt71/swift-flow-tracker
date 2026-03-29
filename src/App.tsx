@@ -16,6 +16,7 @@ import Events from "./pages/Events.tsx";
 import CBME from "./pages/CBME.tsx";
 import Feedback from "./pages/Feedback.tsx";
 import Handbook from "./pages/Handbook.tsx";
+import GMEHandbook from "./pages/GMEHandbook.tsx";
 import Rotations from "./pages/Rotations.tsx";
 import Operations from "./pages/Operations.tsx";
 import Compliance from "./pages/Compliance.tsx";
@@ -47,6 +48,7 @@ const App = () => (
               <Route path="/tasks" element={<RoleRoute permissionKey="tasks.view"><Index /></RoleRoute>} />
               <Route path="/cbme" element={<RoleRoute permissionKey="cbme.view"><CBME /></RoleRoute>} />
               <Route path="/handbook" element={<RoleRoute permissionKey="handbook.view"><Handbook /></RoleRoute>} />
+              <Route path="/gme-handbook" element={<RoleRoute permissionKey="gme_handbook.view"><GMEHandbook /></RoleRoute>} />
               <Route path="/rotations" element={<ProtectedRoute><Rotations /></ProtectedRoute>} />
               <Route path="/operations" element={<RoleRoute permissionKey="operations.view"><Operations /></RoleRoute>} />
               <Route path="/compliance" element={<RoleRoute permissionKey="compliance.view"><Compliance /></RoleRoute>} />

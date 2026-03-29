@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { CheckSquare, Calendar, BookOpen, BookMarked, Stethoscope, MessageSquare, ClipboardList, BookOpenCheck, Home, Shield } from "lucide-react";
+import { CheckSquare, Calendar, BookOpen, BookMarked, Stethoscope, MessageSquare, ClipboardList, BookOpenCheck, Home, Shield, FileText } from "lucide-react";
 import { useUserRole } from "@/hooks/useUserRole";
 
 type AllowedRole = "admin" | "faculty" | "resident";
@@ -11,6 +11,7 @@ const allNavItems = [
   { path: "/tasks",   icon: CheckSquare,   allowed: ["admin"] as AllowedRole[] },
   { path: "/cbme",    icon: BookOpen,      allowed: ["admin"] as AllowedRole[] },
   { path: "/handbook",icon: BookMarked,    allowed: ["faculty", "resident"] as AllowedRole[] },
+  { path: "/gme-handbook",icon: FileText, allowed: ["admin", "faculty"] as AllowedRole[] },
   { path: "/topics",  icon: BookOpenCheck, allowed: ["faculty", "resident"] as AllowedRole[] },
   { path: "/rotations",icon: Stethoscope,  allowed: ["resident"] as AllowedRole[] },
   { path: "/operations",icon: ClipboardList, allowed: ["faculty"] as AllowedRole[] },

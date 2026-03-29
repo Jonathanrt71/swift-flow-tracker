@@ -523,6 +523,10 @@ const RoleAccessSection = () => {
       { action: "View page", key: "handbook.view" },
       { action: "Edit sections", key: "handbook.edit" },
     ]},
+    { name: "GME Handbook", rows: [
+      { action: "View page", key: "gme_handbook.view" },
+      { action: "Edit sections", key: "gme_handbook.edit" },
+    ]},
     { name: "Meetings", rows: [
       { action: "View page", key: "meetings.view" },
       { action: "Create / edit / delete", key: "meetings.edit" },
