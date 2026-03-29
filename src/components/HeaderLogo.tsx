@@ -166,17 +166,22 @@ const HeaderLogo = ({
 
             {/* Admin */}
             {isAdmin && (
-              <Link
-                to="/admin"
-                onClick={() => setMenuOpen(false)}
-                className={cn(
-                  "flex items-center gap-3 px-4 py-2.5 text-sm",
-                  location.pathname === "/admin" ? "text-white bg-white/10" : "text-white/70"
-                )}
-              >
-                <Shield className="h-4 w-4" />
-                Admin
-              </Link>
+              <>
+                <div style={{ padding: "6px 16px 2px", fontSize: 10, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)" }}>
+                  Administration
+                </div>
+                <Link
+                  to="/admin"
+                  onClick={() => setMenuOpen(false)}
+                  className={cn(
+                    "flex items-center gap-3 px-4 py-2.5 text-sm",
+                    location.pathname === "/admin" ? "text-white bg-white/10" : "text-white/70"
+                  )}
+                >
+                  <Shield className="h-4 w-4" />
+                  Admin
+                </Link>
+              </>
             )}
             <Link
               to="/profile"
