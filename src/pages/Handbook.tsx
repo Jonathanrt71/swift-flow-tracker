@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
+import { useUserRole } from "@/hooks/useUserRole";
 import { useHandbook, useHandbookMutations, HandbookSection } from "@/hooks/useHandbook";
 import { useToast } from "@/hooks/use-toast";
 import HeaderLogo from "@/components/HeaderLogo";
@@ -31,6 +32,8 @@ const iconMap: Record<string, React.FC<{ className?: string; style?: React.CSSPr
 const Handbook = () => {
   const { user, signOut } = useAuth();
   const { isAdmin } = useAdmin();
+  const { role } = useUserRole();
+  const canEdit = isAdmin || role === "faculty";
   const { data: allSections, isLoading, error } = useHandbook();
   const { updateSection, addSection, deleteSection } = useHandbookMutations();
   const { toast } = useToast();
@@ -193,7 +196,7 @@ const Handbook = () => {
           ) : (
             <h1 style={{ fontSize: depth === 0 ? 20 : 16, fontWeight: 600, color: "#333", margin: 0, flex: 1 }}>{section.title}</h1>
           )}
-          {isAdmin && !isEditing && (
+          {canEdit && !isEditing && (
             <div style={{ display: "flex", gap: 4, flexShrink: 0, marginTop: 2 }}>
               <button
                 onClick={() => startEditing(section)}
@@ -242,7 +245,7 @@ const Handbook = () => {
             {section.content ? (
               <SectionTipTapEditor content={section.content} onChange={() => {}} readOnly />
             ) : (
-              <p style={{ fontSize: 14, color: "#bbb", fontStyle: "italic" }}>No content yet. {isAdmin && "Click Edit to add content."}</p>
+              <p style={{ fontSize: 14, color: "#bbb", fontStyle: "italic" }}>No content yet. {canEdit && "Click Edit to add content."}</p>
             )}
           </>
         )}
@@ -255,7 +258,7 @@ const Handbook = () => {
         )}
 
         {/* Add subsection button */}
-        {depth === 0 && isAdmin && editingId !== section.id && (
+        {depth === 0 && canEdit && editingId !== section.id && (
           <div style={{ marginTop: subs.length > 0 ? 8 : 0 }}>
             {addingParentId === section.id ? (
               <div style={{ display: "flex", gap: 8, alignItems: "center", marginTop: 8 }}>
@@ -317,7 +320,7 @@ const Handbook = () => {
             {topSections.map(s => <TocItem key={s.id} section={s} />)}
           </nav>
 
-          {isAdmin && (
+          {canEdit && (
             <div style={{ padding: "10px 12px", borderTop: "1px solid #E7EBEF" }}>
               {addingParentId === null ? (
                 <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
