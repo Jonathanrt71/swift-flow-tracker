@@ -4,7 +4,7 @@ import {
   DialogContent,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Plus, ThumbsUp, ThumbsDown } from "lucide-react";
+import { Plus, ThumbsUp, ThumbsDown, Minus } from "lucide-react";
 import { formatPersonName } from "@/lib/dateFormat";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -14,7 +14,7 @@ interface CreateFeedbackDialogProps {
   onSubmit: (data: {
     resident_id: string;
     comment: string;
-    sentiment: "positive" | "negative";
+    sentiment: "positive" | "negative" | "neutral";
     competency_category_id?: string | null;
     competency_subcategory_id?: string | null;
     competency_milestone_id?: string | null;
@@ -25,7 +25,7 @@ interface CreateFeedbackDialogProps {
 const CreateFeedbackDialog = ({ onSubmit, residents }: CreateFeedbackDialogProps) => {
   const [open, setOpen] = useState(false);
   const [residentId, setResidentId] = useState("");
-  const [sentiment, setSentiment] = useState<"positive" | "negative" | null>(null);
+  const [sentiment, setSentiment] = useState<"positive" | "negative" | "neutral" | null>(null);
   const [competency, setCompetency] = useState<CompetencySelection | null>(null);
 
   const editor = useEditor({
@@ -124,17 +124,6 @@ const CreateFeedbackDialog = ({ onSubmit, residents }: CreateFeedbackDialogProps
           <div className="flex gap-3">
             <button
               type="button"
-              onClick={() => setSentiment("positive")}
-              className="flex-1 flex items-center justify-center py-2.5 rounded-lg transition-opacity"
-              style={{
-                background: "#5E9E82",
-                opacity: sentiment === null || sentiment === "positive" ? 1 : 0.3,
-              }}
-            >
-              <ThumbsUp className="h-5 w-5" style={{ color: "#F5F3EE" }} />
-            </button>
-            <button
-              type="button"
               onClick={() => setSentiment("negative")}
               className="flex-1 flex items-center justify-center py-2.5 rounded-lg transition-opacity"
               style={{
@@ -143,6 +132,28 @@ const CreateFeedbackDialog = ({ onSubmit, residents }: CreateFeedbackDialogProps
               }}
             >
               <ThumbsDown className="h-5 w-5" style={{ color: "#F5F3EE" }} />
+            </button>
+            <button
+              type="button"
+              onClick={() => setSentiment("neutral")}
+              className="flex-1 flex items-center justify-center py-2.5 rounded-lg transition-opacity"
+              style={{
+                background: "#C49A1A",
+                opacity: sentiment === null || sentiment === "neutral" ? 1 : 0.3,
+              }}
+            >
+              <Minus className="h-5 w-5" style={{ color: "#F5F3EE" }} />
+            </button>
+            <button
+              type="button"
+              onClick={() => setSentiment("positive")}
+              className="flex-1 flex items-center justify-center py-2.5 rounded-lg transition-opacity"
+              style={{
+                background: "#5E9E82",
+                opacity: sentiment === null || sentiment === "positive" ? 1 : 0.3,
+              }}
+            >
+              <ThumbsUp className="h-5 w-5" style={{ color: "#F5F3EE" }} />
             </button>
           </div>
         </div>

@@ -114,11 +114,12 @@ const Feedback = () => {
 
   // Summary data
   const residentSummary = useMemo(() => {
-    const map = new Map<string, { positive: number; negative: number }>();
+    const map = new Map<string, { positive: number; negative: number; neutral: number }>();
     myFeedback.forEach((fb) => {
-      if (!map.has(fb.resident_id)) map.set(fb.resident_id, { positive: 0, negative: 0 });
+      if (!map.has(fb.resident_id)) map.set(fb.resident_id, { positive: 0, negative: 0, neutral: 0 });
       const entry = map.get(fb.resident_id)!;
       if (fb.sentiment === "positive") entry.positive++;
+      else if (fb.sentiment === "neutral") entry.neutral++;
       else entry.negative++;
     });
     return Array.from(map.entries())
@@ -180,7 +181,7 @@ const Feedback = () => {
       const dateInfo = formatCardDate(fb.created_at);
       const residentName = nameMap.get(fb.resident_id) || "?";
       const facultyName = nameMap.get(fb.faculty_id) || "?";
-      const dotColor = fb.sentiment === "positive" ? "#5E9E82" : "#A63333";
+      const dotColor = fb.sentiment === "positive" ? "#5E9E82" : fb.sentiment === "neutral" ? "#C49A1A" : "#A63333";
 
       elements.push(
         <div
@@ -327,9 +328,11 @@ const Feedback = () => {
           </span>
           <span className="text-[11px]" style={{ color: "#5F7285" }}>{r.positive}</span>
           <div className="w-2 h-2 rounded-full shrink-0" style={{ background: "#5E9E82" }} />
+          <span className="text-[11px]" style={{ color: "#5F7285" }}>{r.neutral}</span>
+          <div className="w-2 h-2 rounded-full shrink-0" style={{ background: "#C49A1A" }} />
           <span className="text-[11px]" style={{ color: "#5F7285" }}>{r.negative}</span>
           <div className="w-2 h-2 rounded-full shrink-0" style={{ background: "#A63333" }} />
-          <FeedbackPie positive={r.positive} negative={r.negative} />
+          <FeedbackPie positive={r.positive} negative={r.negative} neutral={r.neutral} />
         </div>
       </div>
     ));
@@ -380,41 +383,37 @@ const Feedback = () => {
               const total = myFeedback.length;
               const posCount = myFeedback.filter((fb) => fb.sentiment === "positive").length;
               const negCount = myFeedback.filter((fb) => fb.sentiment === "negative").length;
-              const posPct = total > 0 ? (posCount / total) * 100 : 50;
-              const negPct = total > 0 ? (negCount / total) * 100 : 50;
-              const posAngle = (posPct / 100) * 360;
-              const r = 12;
-              const cx = 14;
-              const cy = 14;
-              const toRad = (deg: number) => (deg - 90) * (Math.PI / 180);
-              const posEndX = cx + r * Math.cos(toRad(posAngle));
-              const posEndY = cy + r * Math.sin(toRad(posAngle));
-              const largePos = posAngle > 180 ? 1 : 0;
-              const largeNeg = posAngle <= 180 ? 1 : 0;
+              const neuCount = myFeedback.filter((fb) => fb.sentiment === "neutral").length;
+              const posPct = total > 0 ? (posCount / total) * 100 : 0;
+              const negPct = total > 0 ? (negCount / total) * 100 : 0;
+              const neuPct = total > 0 ? (neuCount / total) * 100 : 0;
 
               if (total === 0) return null;
+
+              const cx = 14, cy = 14, r = 12;
+              const toRad = (deg: number) => (deg * Math.PI) / 180;
+              const pt = (angle: number) => ({
+                x: cx + r * Math.sin(toRad(angle)),
+                y: cy - r * Math.cos(toRad(angle)),
+              });
+              const arc = (start: number, sweep: number, color: string) => {
+                if (sweep <= 0) return null;
+                if (sweep >= 359.99) return <circle key={color} cx={cx} cy={cy} r={r} fill={color} />;
+                const s = pt(start); const e = pt(start + sweep);
+                return <path key={color} d={`M${cx} ${cy} L${s.x} ${s.y} A${r} ${r} 0 ${sweep > 180 ? 1 : 0} 1 ${e.x} ${e.y} Z`} fill={color} />;
+              };
+              const negAngle = (negCount / total) * 360;
+              const neuAngle = (neuCount / total) * 360;
+              const posAngle = (posCount / total) * 360;
 
               return (
                 <Popover>
                   <PopoverTrigger asChild>
                     <button className="shrink-0 bg-transparent border-none cursor-pointer p-0">
                       <svg width="28" height="28" viewBox="0 0 28 28">
-                        {posCount === total ? (
-                          <circle cx={cx} cy={cy} r={r} fill="#5E9E82" />
-                        ) : negCount === total ? (
-                          <circle cx={cx} cy={cy} r={r} fill="#A63333" />
-                        ) : (
-                          <>
-                            <path
-                              d={`M${cx},${cy - r} A${r},${r} 0 ${largePos},1 ${posEndX},${posEndY} L${cx},${cy} Z`}
-                              fill="#5E9E82"
-                            />
-                            <path
-                              d={`M${posEndX},${posEndY} A${r},${r} 0 ${largeNeg},1 ${cx},${cy - r} L${cx},${cy} Z`}
-                              fill="#A63333"
-                            />
-                          </>
-                        )}
+                        {arc(0, negAngle, "#A63333")}
+                        {arc(negAngle, neuAngle, "#C49A1A")}
+                        {arc(negAngle + neuAngle, posAngle, "#5E9E82")}
                       </svg>
                     </button>
                   </PopoverTrigger>
@@ -423,6 +422,10 @@ const Feedback = () => {
                       <div className="flex items-center gap-2">
                         <div className="w-3 h-3 rounded-full" style={{ background: "#5E9E82" }} />
                         <span>Positive: {Math.round(posPct)}% ({posCount})</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full" style={{ background: "#C49A1A" }} />
+                        <span>Neutral: {Math.round(neuPct)}% ({neuCount})</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <div className="w-3 h-3 rounded-full" style={{ background: "#A63333" }} />

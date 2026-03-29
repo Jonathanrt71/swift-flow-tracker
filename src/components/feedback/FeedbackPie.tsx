@@ -1,5 +1,6 @@
-const FeedbackPie = ({ positive, negative }: { positive: number; negative: number }) => {
-  const total = positive + negative;
+const FeedbackPie = ({ positive, negative, neutral = 0 }: { positive: number; negative: number; neutral?: number }) => {
+  const total = positive + negative + neutral;
+
   if (total === 0) {
     return (
       <svg width="28" height="28" viewBox="0 0 28 28">
@@ -8,7 +9,7 @@ const FeedbackPie = ({ positive, negative }: { positive: number; negative: numbe
     );
   }
 
-  if (negative === 0) {
+  if (total === positive) {
     return (
       <svg width="28" height="28" viewBox="0 0 28 28">
         <circle cx="14" cy="14" r="14" fill="#5E9E82" />
@@ -16,7 +17,7 @@ const FeedbackPie = ({ positive, negative }: { positive: number; negative: numbe
     );
   }
 
-  if (positive === 0) {
+  if (total === negative) {
     return (
       <svg width="28" height="28" viewBox="0 0 28 28">
         <circle cx="14" cy="14" r="14" fill="#A63333" />
@@ -24,19 +25,43 @@ const FeedbackPie = ({ positive, negative }: { positive: number; negative: numbe
     );
   }
 
-  const positiveAngle = (positive / total) * 360;
-  const rad = (positiveAngle * Math.PI) / 180;
-  const x = 14 + 14 * Math.sin(rad);
-  const y = 14 - 14 * Math.cos(rad);
-  const largeArc = positiveAngle > 180 ? 1 : 0;
+  if (total === neutral) {
+    return (
+      <svg width="28" height="28" viewBox="0 0 28 28">
+        <circle cx="14" cy="14" r="14" fill="#C49A1A" />
+      </svg>
+    );
+  }
+
+  const cx = 14, cy = 14, r = 14;
+  const toRad = (deg: number) => (deg * Math.PI) / 180;
+  const point = (angle: number) => ({
+    x: cx + r * Math.sin(toRad(angle)),
+    y: cy - r * Math.cos(toRad(angle)),
+  });
+
+  const negAngle = (negative / total) * 360;
+  const neuAngle = (neutral / total) * 360;
+  const posAngle = (positive / total) * 360;
+
+  const slices = [
+    { color: "#A63333", start: 0, sweep: negAngle },
+    { color: "#C49A1A", start: negAngle, sweep: neuAngle },
+    { color: "#5E9E82", start: negAngle + neuAngle, sweep: posAngle },
+  ].filter(s => s.sweep > 0);
+
+  const arc = (start: number, sweep: number) => {
+    const s = point(start);
+    const e = point(start + sweep);
+    const large = sweep > 180 ? 1 : 0;
+    return `M${cx} ${cy} L${s.x} ${s.y} A${r} ${r} 0 ${large} 1 ${e.x} ${e.y} Z`;
+  };
 
   return (
     <svg width="28" height="28" viewBox="0 0 28 28">
-      <circle cx="14" cy="14" r="14" fill="#A63333" />
-      <path
-        d={`M14 14 L14 0 A14 14 0 ${largeArc} 1 ${x} ${y} Z`}
-        fill="#5E9E82"
-      />
+      {slices.map((s, i) => (
+        <path key={i} d={arc(s.start, s.sweep)} fill={s.color} />
+      ))}
     </svg>
   );
 };

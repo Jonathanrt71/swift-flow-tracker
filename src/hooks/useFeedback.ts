@@ -8,7 +8,7 @@ export interface Feedback {
   resident_id: string;
   faculty_id: string;
   comment: string;
-  sentiment: "positive" | "negative";
+  sentiment: "positive" | "negative" | "neutral";
   created_at: string;
   competency_category_id: string | null;
   competency_subcategory_id: string | null;
@@ -37,7 +37,7 @@ export function useFeedback() {
     mutationFn: async (input: {
       resident_id: string;
       comment: string;
-      sentiment: "positive" | "negative";
+      sentiment: "positive" | "negative" | "neutral";
       competency_category_id?: string | null;
       competency_subcategory_id?: string | null;
       competency_milestone_id?: string | null;
@@ -67,7 +67,7 @@ export function useFeedback() {
       id: string;
       resident_id?: string;
       comment?: string;
-      sentiment?: "positive" | "negative";
+      sentiment?: "positive" | "negative" | "neutral";
       competency_category_id?: string | null;
       competency_subcategory_id?: string | null;
       competency_milestone_id?: string | null;

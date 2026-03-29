@@ -19,7 +19,7 @@ interface CompetencySelectorProps {
   value: CompetencySelection | null;
   onChange: (value: CompetencySelection | null) => void;
   commentText?: string;
-  sentiment?: "positive" | "negative";
+  sentiment?: "positive" | "negative" | "neutral";
   pgyLevel?: number;
   residentId?: string;
 }
