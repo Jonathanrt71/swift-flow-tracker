@@ -5,7 +5,7 @@ import { useUserRole } from "@/hooks/useUserRole";
 type AllowedRole = "admin" | "faculty" | "resident";
 
 const allNavItems = [
-  { path: "/",        icon: Home,          allowed: ["admin"] as AllowedRole[] },
+  { path: "/",        icon: Home,          allowed: ["admin", "faculty", "resident"] as AllowedRole[] },
   { path: "/feedback",icon: MessageSquare, allowed: ["admin", "faculty"] as AllowedRole[] },
   { path: "/events",  icon: Calendar,      allowed: ["admin", "faculty"] as AllowedRole[] },
   { path: "/tasks",   icon: CheckSquare,   allowed: ["admin"] as AllowedRole[] },
@@ -19,10 +19,7 @@ const allNavItems = [
 ];
 
 const BottomNav = () => {
-  const { role, isResident } = useUserRole();
-
-  // Residents only see Profile (no bottom nav needed)
-  if (isResident) return null;
+  const { role } = useUserRole();
 
   const navItems = allNavItems.filter((item) =>
     item.allowed.includes(role as AllowedRole)

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
+import { usePermissions } from "@/hooks/usePermissions";
 import { supabase } from "@/integrations/supabase/client";
 import BottomNav from "@/components/BottomNav";
 import NotificationBell from "@/components/NotificationBell";
@@ -12,6 +13,7 @@ interface NavItem {
   path: string;
   color: string;
   icon: React.ReactNode;
+  permissionKey?: string;
 }
 
 const Icon = ({ path, color, size = 18 }: { path: string | React.ReactNode; color: string; size?: number }) => (
@@ -36,24 +38,24 @@ const ChevronRight = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9CED4" strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
 );
 
-const ADMIN_SECTIONS: { label: string; items: NavItem[] }[] = [
+const ALL_SECTIONS: { label: string; items: NavItem[] }[] = [
   {
     label: "Clinical",
     items: [
       {
-        label: "Feedback", path: "/feedback", color: "#415162",
+        label: "Feedback", path: "/feedback", color: "#415162", permissionKey: "feedback.view",
         icon: <SVGIcon color="#415162"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></SVGIcon>,
       },
       {
-        label: "Topics", path: "/topics", color: "#4A846C",
+        label: "Topics", path: "/topics", color: "#4A846C", permissionKey: "topics.view",
         icon: <SVGIcon color="#4A846C"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></SVGIcon>,
       },
       {
-        label: "CBME", path: "/cbme", color: "#52657A",
+        label: "CBME", path: "/cbme", color: "#52657A", permissionKey: "cbme.view",
         icon: <SVGIcon color="#52657A"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></SVGIcon>,
       },
       {
-        label: "Events", path: "/events", color: "#D4A017",
+        label: "Events", path: "/events", color: "#D4A017", permissionKey: "events.view",
         icon: <SVGIcon color="#D4A017"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></SVGIcon>,
       },
     ],
@@ -62,23 +64,23 @@ const ADMIN_SECTIONS: { label: string; items: NavItem[] }[] = [
     label: "Program",
     items: [
       {
-        label: "Operations", description: "Manual, task templates", path: "/operations", color: "#415162",
+        label: "Operations", description: "Manual, task templates", path: "/operations", color: "#415162", permissionKey: "operations.view",
         icon: <SVGIcon color="#415162"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></SVGIcon>,
       },
       {
-        label: "Meetings", description: "CCC, PEC, GMEC", path: "/meetings", color: "#4A846C",
+        label: "Meetings", description: "CCC, PEC, GMEC", path: "/meetings", color: "#4A846C", permissionKey: "meetings.view",
         icon: <SVGIcon color="#4A846C"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></SVGIcon>,
       },
       {
-        label: "Tasks", description: "Assignments & checklists", path: "/tasks", color: "#52657A",
+        label: "Tasks", description: "Assignments & checklists", path: "/tasks", color: "#52657A", permissionKey: "tasks.view",
         icon: <SVGIcon color="#52657A"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></SVGIcon>,
       },
       {
-        label: "Admin", description: "Users, settings", path: "/admin", color: "#D4A017",
+        label: "Admin", description: "Users, settings", path: "/admin", color: "#D4A017", permissionKey: "admin.all",
         icon: <SVGIcon color="#D4A017"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></SVGIcon>,
       },
       {
-        label: "Compliance", description: "ACGME requirements", path: "/compliance", color: "#52657A",
+        label: "Compliance", description: "ACGME requirements", path: "/compliance", color: "#52657A", permissionKey: "compliance.view",
         icon: <SVGIcon color="#52657A"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></SVGIcon>,
       },
     ],
@@ -87,11 +89,11 @@ const ADMIN_SECTIONS: { label: string; items: NavItem[] }[] = [
     label: "Reference",
     items: [
       {
-        label: "Handbook", path: "/handbook", color: "#415162",
+        label: "Handbook", path: "/handbook", color: "#415162", permissionKey: "handbook.view",
         icon: <SVGIcon color="#415162"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></SVGIcon>,
       },
       {
-        label: "GME Handbook", description: "GME policies", path: "/gme-handbook", color: "#52657A",
+        label: "GME Handbook", description: "GME policies", path: "/gme-handbook", color: "#52657A", permissionKey: "gme_handbook.view",
         icon: <SVGIcon color="#52657A"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></SVGIcon>,
       },
       {
@@ -124,6 +126,7 @@ function getDayLabel() {
 const Home = () => {
   const { user, signOut } = useAuth();
   const { isAdmin } = useAdmin();
+  const { has: hasPerm } = usePermissions();
   const navigate = useNavigate();
   const [firstName, setFirstName] = useState<string>("");
 
@@ -199,24 +202,29 @@ const Home = () => {
           <div style={{ fontSize: 12, color: "#8A9AAB" }}>{getDayLabel()} · {getAcademicYear()}</div>
         </div>
 
-        {/* Sections */}
-        {ADMIN_SECTIONS.map(section => (
-          <div key={section.label} style={{ marginBottom: 20 }}>
-            <div style={{ fontSize: 10, fontWeight: 500, color: "#8A9AAB", textTransform: "uppercase", letterSpacing: 0.7, marginBottom: 8 }}>
-              {section.label}
+        {/* Sections — filtered by user permissions */}
+        {ALL_SECTIONS.map(section => {
+          const visibleItems = section.items.filter(item =>
+            !item.permissionKey || hasPerm(item.permissionKey, "view")
+          );
+          if (visibleItems.length === 0) return null;
+          return (
+            <div key={section.label} style={{ marginBottom: 20 }}>
+              <div style={{ fontSize: 10, fontWeight: 500, color: "#8A9AAB", textTransform: "uppercase", letterSpacing: 0.7, marginBottom: 8 }}>
+                {section.label}
+              </div>
+              {section.label === "Clinical" ? (
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                  {visibleItems.map(item => <NavCard key={item.path} item={item} full={false} />)}
+                </div>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  {visibleItems.map(item => <NavCard key={item.path} item={item} full={true} />)}
+                </div>
+              )}
             </div>
-            {/* Clinical uses 2-col grid; Program/Reference use full-width rows */}
-            {section.label === "Clinical" ? (
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-                {section.items.map(item => <NavCard key={item.path} item={item} full={false} />)}
-              </div>
-            ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {section.items.map(item => <NavCard key={item.path} item={item} full={true} />)}
-              </div>
-            )}
-          </div>
-        ))}
+          );
+        })}
       </main>
 
       <BottomNav />

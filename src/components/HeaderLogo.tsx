@@ -7,7 +7,7 @@ import { useUserRole } from "@/hooks/useUserRole";
 type AllowedRole = "admin" | "faculty" | "resident";
 
 const allNavItems = [
-  { path: "/",          label: "Home",       icon: Home,          allowed: ["admin"] as AllowedRole[] },
+  { path: "/",          label: "Home",       icon: Home,          allowed: ["admin", "faculty", "resident"] as AllowedRole[] },
   { path: "/cbme",      label: "CBME",       icon: BookOpen,      allowed: ["admin"] as AllowedRole[] },
   { path: "/events",    label: "Events",     icon: Calendar,      allowed: ["admin", "faculty"] as AllowedRole[] },
   { path: "/feedback",  label: "Feedback",   icon: MessageSquare, allowed: ["admin", "faculty"] as AllowedRole[] },

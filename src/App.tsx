@@ -38,8 +38,8 @@ const App = () => (
             <Routes>
               <Route path="/login" element={<Login />} />
               
-              <Route path="/" element={<RoleRoute permissionKey="admin.all"><Home /></RoleRoute>} />
-              <Route path="/home" element={<RoleRoute permissionKey="admin.all"><Home /></RoleRoute>} />
+              <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+              <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
               <Route path="/admin" element={<RoleRoute permissionKey="admin.all"><Admin /></RoleRoute>} />
               <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
               <Route path="/meetings" element={<RoleRoute permissionKey="meetings.view"><Meetings /></RoleRoute>} />
