@@ -16,14 +16,21 @@ const allNavItems: NavEntry[] = [
   { path: "/cbme",        label: "CBME",         icon: BookOpen,      permissionKey: "cbme.view" },
   { path: "/events",      label: "Events",       icon: Calendar,      permissionKey: "events.view" },
   { path: "/feedback",    label: "Feedback",     icon: MessageSquare, permissionKey: "feedback.view" },
-  { path: "/handbook",    label: "Handbook",     icon: BookMarked,    permissionKey: "handbook.view" },
-  { path: "/gme-handbook",label: "GME Handbook", icon: FileText,      permissionKey: "gme_handbook.view" },
-  { path: "/operations",  label: "Operations",   icon: ClipboardList, permissionKey: "operations.view" },
-  { path: "/rotations",   label: "Rotations",    icon: Stethoscope },
   { path: "/topics",      label: "Topics",       icon: BookOpenCheck, permissionKey: "topics.view" },
-  { path: "/meetings",    label: "Meetings",     icon: Users,         permissionKey: "meetings.view" },
-  { path: "/tasks",       label: "Tasks",        icon: CheckSquare,   permissionKey: "tasks.view" },
   { path: "/compliance",  label: "Compliance",   icon: ShieldCheck,   permissionKey: "compliance.view" },
+  { path: "/meetings",    label: "Meetings",     icon: Users,         permissionKey: "meetings.view" },
+  { path: "/operations",  label: "Operations",   icon: ClipboardList, permissionKey: "operations.view" },
+  { path: "/tasks",       label: "Tasks",        icon: CheckSquare,   permissionKey: "tasks.view" },
+  { path: "/gme-handbook",label: "GME Handbook", icon: FileText,      permissionKey: "gme_handbook.view" },
+  { path: "/handbook",    label: "Handbook",     icon: BookMarked,    permissionKey: "handbook.view" },
+  { path: "/rotations",   label: "Rotations",    icon: Stethoscope },
+];
+
+interface NavSection { label: string; paths: string[]; }
+const navSections: NavSection[] = [
+  { label: "Clinical",  paths: ["/cbme", "/events", "/feedback", "/topics"] },
+  { label: "Program",   paths: ["/compliance", "/meetings", "/operations", "/tasks"] },
+  { label: "Reference", paths: ["/gme-handbook", "/handbook", "/rotations"] },
 ];
 
 const HeaderLogo = ({
@@ -38,7 +45,6 @@ const HeaderLogo = ({
   const location = useLocation();
   const navigate = useNavigate();
   const { has: hasPerm } = usePermissions();
-  const navItems = allNavItems.filter((item) => !item.permissionKey || hasPerm(item.permissionKey, "view"));
   const currentItem = allNavItems.find((n) => n.path === location.pathname)
     || (location.pathname === "/admin" ? { path: "/admin", label: "Admin", icon: Shield, permissionKey: "admin.all" } as NavEntry : undefined)
     || (location.pathname === "/profile" ? { path: "/profile", label: "Profile", icon: User } as NavEntry : undefined);
@@ -105,35 +111,66 @@ const HeaderLogo = ({
           />
           <div
             className="absolute top-full left-0 mt-2 z-[70] rounded-lg overflow-hidden shadow-lg"
-            style={{ background: "#415162", minWidth: 160 }}
+            style={{ background: "#415162", minWidth: 180 }}
           >
-            {navItems.map((item) => {
-              const ItemIcon = item.icon;
-              const isActive = location.pathname === item.path;
+            {/* Home */}
+            <Link
+              to="/"
+              onClick={() => setMenuOpen(false)}
+              className={cn(
+                "flex items-center gap-3 px-4 py-2.5 text-sm",
+                location.pathname === "/" ? "text-white bg-white/10" : "text-white/70"
+              )}
+            >
+              <Home className="h-4 w-4" />
+              Home
+            </Link>
+
+            <div style={{ height: 0.5, background: "rgba(255,255,255,0.15)" }} />
+
+            {/* Sectioned nav */}
+            {navSections.map((section, si) => {
+              const sectionItems = section.paths
+                .map(p => allNavItems.find(n => n.path === p))
+                .filter((item): item is NavEntry => !!item && (!item.permissionKey || hasPerm(item.permissionKey, "view")));
+              if (sectionItems.length === 0) return null;
               return (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  onClick={() => setMenuOpen(false)}
-                  className={cn(
-                    "flex items-center gap-3 px-4 py-3 text-sm",
-                    isActive ? "text-white bg-white/10" : "text-white/70"
-                  )}
-                >
-                  <ItemIcon className="h-4 w-4" />
-                  {item.label}
-                </Link>
+                <div key={section.label}>
+                  {si > 0 && <div style={{ height: 0.5, background: "rgba(255,255,255,0.15)" }} />}
+                  <div style={{ padding: "6px 16px 2px", fontSize: 10, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)" }}>
+                    {section.label}
+                  </div>
+                  {sectionItems.map((item) => {
+                    const ItemIcon = item.icon;
+                    const isActive = location.pathname === item.path;
+                    return (
+                      <Link
+                        key={item.path}
+                        to={item.path}
+                        onClick={() => setMenuOpen(false)}
+                        className={cn(
+                          "flex items-center gap-3 px-4 py-2.5 text-sm",
+                          isActive ? "text-white bg-white/10" : "text-white/70"
+                        )}
+                      >
+                        <ItemIcon className="h-4 w-4" />
+                        {item.label}
+                      </Link>
+                    );
+                  })}
+                </div>
               );
             })}
 
-            <div style={{ height: 0.5, background: "rgba(255,255,255,0.15)", margin: "0" }} />
+            <div style={{ height: 0.5, background: "rgba(255,255,255,0.15)" }} />
 
+            {/* Admin */}
             {isAdmin && (
               <Link
                 to="/admin"
                 onClick={() => setMenuOpen(false)}
                 className={cn(
-                  "flex items-center gap-3 px-4 py-3 text-sm",
+                  "flex items-center gap-3 px-4 py-2.5 text-sm",
                   location.pathname === "/admin" ? "text-white bg-white/10" : "text-white/70"
                 )}
               >
@@ -145,7 +182,7 @@ const HeaderLogo = ({
               to="/profile"
               onClick={() => setMenuOpen(false)}
               className={cn(
-                "flex items-center gap-3 px-4 py-3 text-sm",
+                "flex items-center gap-3 px-4 py-2.5 text-sm",
                 location.pathname === "/profile" ? "text-white bg-white/10" : "text-white/70"
               )}
             >
@@ -155,7 +192,7 @@ const HeaderLogo = ({
             {onSignOut && (
               <button
                 onClick={() => { onSignOut(); setMenuOpen(false); }}
-                className="flex items-center gap-3 px-4 py-3 text-sm text-white/70 w-full border-none bg-transparent cursor-pointer text-left"
+                className="flex items-center gap-3 px-4 py-2.5 text-sm text-white/70 w-full border-none bg-transparent cursor-pointer text-left"
               >
                 <LogOut className="h-4 w-4" />
                 Log out
