@@ -130,7 +130,7 @@ function getDayLabel() {
 const Home = () => {
   const { user, signOut } = useAuth();
   const { isAdmin } = useAdmin();
-  const { has: hasPerm } = usePermissions();
+  const { has: hasPerm, isLoading: permsLoading } = usePermissions();
   const navigate = useNavigate();
   const [firstName, setFirstName] = useState<string>("");
 
@@ -207,7 +207,13 @@ const Home = () => {
         </div>
 
         {/* Sections — filtered by user permissions */}
-        {ALL_SECTIONS.map(section => {
+        {permsLoading ? (
+          <div style={{ padding: "20px 0", textAlign: "center" }}>
+            <div style={{ width: 20, height: 20, border: "2px solid #C9CED4", borderTopColor: "#415162", borderRadius: "50%", animation: "spin 0.7s linear infinite", margin: "0 auto" }} />
+            <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+          </div>
+        ) : (
+        ALL_SECTIONS.map(section => {
           const visibleItems = section.items.filter(item =>
             !item.permissionKey || hasPerm(item.permissionKey, "view")
           );
@@ -228,7 +234,8 @@ const Home = () => {
               )}
             </div>
           );
-        })}
+        })
+        )}
       </main>
 
     </div>
