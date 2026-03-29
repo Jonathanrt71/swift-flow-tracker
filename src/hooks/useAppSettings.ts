@@ -5,11 +5,13 @@ import { useToast } from "@/hooks/use-toast";
 export interface AppSettings {
   faculty_task_limit: number;
   resident_task_limit: number;
+  nav_image_url: string;
 }
 
 const DEFAULTS: AppSettings = {
   faculty_task_limit: 10,
   resident_task_limit: 5,
+  nav_image_url: "/yosemite-header.png",
 };
 
 export function useAppSettings() {
@@ -28,6 +30,7 @@ export function useAppSettings() {
       (data || []).forEach((row: any) => {
         if (row.key === "faculty_task_limit") settings.faculty_task_limit = parseInt(row.value, 10);
         if (row.key === "resident_task_limit") settings.resident_task_limit = parseInt(row.value, 10);
+        if (row.key === "nav_image_url") settings.nav_image_url = row.value;
       });
       return settings;
     },

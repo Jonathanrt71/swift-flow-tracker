@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { CheckSquare, Users, Calendar, BookOpen, MessageSquare, Shield, User, LogOut, BookMarked, Stethoscope, ClipboardList, BookOpenCheck, Home, ShieldCheck, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { usePermissions } from "@/hooks/usePermissions";
+import { useAppSettings } from "@/hooks/useAppSettings";
 
 interface NavEntry {
   path: string;
@@ -45,6 +46,8 @@ const HeaderLogo = ({
   const location = useLocation();
   const navigate = useNavigate();
   const { has: hasPerm } = usePermissions();
+  const { settings } = useAppSettings();
+  const navImageUrl = settings.nav_image_url || "/yosemite-header.png";
   const currentItem = allNavItems.find((n) => n.path === location.pathname)
     || (location.pathname === "/admin" ? { path: "/admin", label: "Admin", icon: Shield, permissionKey: "admin.all" } as NavEntry : undefined)
     || (location.pathname === "/profile" ? { path: "/profile", label: "Profile", icon: User } as NavEntry : undefined);
@@ -94,7 +97,7 @@ const HeaderLogo = ({
         onContextMenu={(e) => e.preventDefault()}
         className="w-8 h-8 rounded-md overflow-hidden border-none cursor-pointer p-0 bg-transparent select-none"
       >
-        <img src="/yosemite-header.png" alt="" className="w-8 h-8 rounded-md object-cover pointer-events-none" draggable={false} />
+        <img src={navImageUrl} alt="" className="w-8 h-8 rounded-md object-cover pointer-events-none" draggable={false} />
       </button>
       <button
         onClick={() => setMenuOpen(!menuOpen)}
@@ -220,7 +223,7 @@ const HeaderLogo = ({
             }}
           >
             <img
-              src="/yosemite-header.png"
+              src={navImageUrl}
               alt="Yosemite"
               className="max-w-[90vw] max-h-[90vh] rounded-xl shadow-2xl object-contain"
               onClick={(e) => e.stopPropagation()}

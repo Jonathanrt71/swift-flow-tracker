@@ -640,6 +640,7 @@ const Admin = () => {
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [defaultReportEmail, setDefaultReportEmail] = useState("");
+  const [navImageUploading, setNavImageUploading] = useState(false);
   const [pgyMaxLevels, setPgyMaxLevels] = useState<Record<string, string>>({
     pgy_max_level_1: "2",
     pgy_max_level_2: "3",
@@ -1185,6 +1186,60 @@ const Admin = () => {
                 >
                   <Check className="h-4 w-4" />
                 </button>
+              </div>
+
+              {/* Nav bar image */}
+              <div className="pt-2">
+                <label className="text-xs text-muted-foreground font-medium">Nav bar image</label>
+                <div className="flex items-center gap-3 mt-1.5">
+                  <img
+                    src={settings.nav_image_url || "/yosemite-header.png"}
+                    alt="Nav"
+                    style={{ width: 36, height: 36, borderRadius: 6, objectFit: "cover", border: "1px solid #C9CED4", flexShrink: 0 }}
+                  />
+                  <div className="flex-1">
+                    <label
+                      style={{
+                        display: "inline-block", fontSize: 12, padding: "5px 12px",
+                        background: "#E7EBEF", border: "0.5px solid #C9CED4",
+                        borderRadius: 6, cursor: navImageUploading ? "not-allowed" : "pointer",
+                        color: "#415162", fontWeight: 500,
+                      }}
+                    >
+                      {navImageUploading ? "Uploading…" : "Choose image"}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        style={{ display: "none" }}
+                        disabled={navImageUploading}
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          setNavImageUploading(true);
+                          try {
+                            const ext = file.name.split(".").pop();
+                            const path = `nav-image.${ext}`;
+                            const { error: upErr } = await (supabase as any).storage
+                              .from("app-assets")
+                              .upload(path, file, { upsert: true });
+                            if (upErr) throw upErr;
+                            const { data: urlData } = (supabase as any).storage
+                              .from("app-assets")
+                              .getPublicUrl(path);
+                            const publicUrl = `${urlData.publicUrl}?t=${Date.now()}`;
+                            updateSetting.mutate({ key: "nav_image_url", value: publicUrl });
+                          } catch (err: any) {
+                            toast({ title: "Upload failed", description: err.message, variant: "destructive" });
+                          } finally {
+                            setNavImageUploading(false);
+                            e.target.value = "";
+                          }
+                        }}
+                      />
+                    </label>
+                    <p className="text-xs text-muted-foreground mt-1">Replaces the header thumbnail on all pages</p>
+                  </div>
+                </div>
               </div>
 
               {/* PGY milestone constraints */}
