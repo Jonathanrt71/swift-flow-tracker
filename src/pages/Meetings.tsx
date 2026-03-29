@@ -29,7 +29,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import BottomNav from "@/components/BottomNav";
 import CreateMeetingDialog from "@/components/meetings/CreateMeetingDialog";
 import MeetingNotesDialog from "@/components/meetings/MeetingNotesDialog";
 import CreateTaskDialog from "@/components/tasks/CreateTaskDialog";
@@ -559,7 +558,6 @@ const Meetings = () => {
         </div>
       </main>
 
-      <BottomNav />
     </div>
   );
 };

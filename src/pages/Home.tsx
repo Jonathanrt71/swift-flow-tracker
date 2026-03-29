@@ -4,7 +4,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
 import { usePermissions } from "@/hooks/usePermissions";
 import { supabase } from "@/integrations/supabase/client";
-import BottomNav from "@/components/BottomNav";
 import NotificationBell from "@/components/NotificationBell";
 
 interface NavItem {
@@ -227,7 +226,6 @@ const Home = () => {
         })}
       </main>
 
-      <BottomNav />
     </div>
   );
 };

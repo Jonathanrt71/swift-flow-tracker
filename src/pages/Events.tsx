@@ -25,7 +25,6 @@ import { Calendar, BookOpen, Search, X, Trash2, List, ClipboardCheck } from "luc
 import { format, parseISO } from "date-fns";
 import { formatCardDate } from "@/lib/dateFormat";
 import { Button } from "@/components/ui/button";
-import BottomNav from "@/components/BottomNav";
 import CreateEventDialog from "@/components/events/CreateEventDialog";
 import EditEventDialog from "@/components/events/EditEventDialog";
 import EvaluationDialog from "@/components/events/EvaluationDialog";
@@ -649,7 +648,6 @@ const Events = () => {
         )}
       </main>
 
-      <BottomNav />
     </div>
   );
 };

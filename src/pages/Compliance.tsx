@@ -10,7 +10,6 @@ import { useAdmin } from "@/hooks/useAdmin";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import HeaderLogo from "@/components/HeaderLogo";
-import BottomNav from "@/components/BottomNav";
 import NotificationBell from "@/components/NotificationBell";
 import {
   useRequirements, useRequirementsMutations,
@@ -988,7 +987,6 @@ const Compliance = () => {
         </div>
       )}
 
-      <BottomNav />
     </div>
   );
 };

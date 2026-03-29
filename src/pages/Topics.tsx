@@ -7,7 +7,6 @@ import { usePermissions } from "@/hooks/usePermissions";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { useClinicalTopics, ClinicalTopic, TopicTag } from "@/hooks/useClinicalTopics";
 import HeaderLogo from "@/components/HeaderLogo";
-import BottomNav from "@/components/BottomNav";
 import NotificationBell from "@/components/NotificationBell";
 
 const TAG_COLORS = ["#415162","#4A846C","#52657A","#D4A017","#7A6052","#6A5A7A","#5A7A6A","#378ADD","#993556","#D85A30","#7F77DD","#1D9E75","#E24B4A","#BA7517"];
@@ -502,7 +501,6 @@ const Topics = () => {
           />
         ))}
       </main>
-      <BottomNav />
     </div>
   );
 };

@@ -12,7 +12,6 @@ import { LogOut, CheckCircle2, ListTodo, Shield, User, Star, UserCheck, Users, H
 import TaskCard from "@/components/tasks/TaskCard";
 import CreateTaskDialog from "@/components/tasks/CreateTaskDialog";
 import NotificationBell from "@/components/NotificationBell";
-import BottomNav from "@/components/BottomNav";
 import type { Task } from "@/hooks/useTasks";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { useMeetings } from "@/hooks/useMeetings";
@@ -378,7 +377,6 @@ const Index = () => {
           </TabsContent>
         </Tabs>
       </main>
-      <BottomNav />
     </div>
   );
 };

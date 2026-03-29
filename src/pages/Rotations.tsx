@@ -10,7 +10,6 @@ import { useRotations, Rotation } from "@/hooks/useRotations";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import HeaderLogo from "@/components/HeaderLogo";
-import BottomNav from "@/components/BottomNav";
 import NotificationBell from "@/components/NotificationBell";
 
 /* ── Inline markdown renderer (same as Handbook) ── */
@@ -297,7 +296,6 @@ const Rotations = () => {
         )}
       </main>
 
-      <BottomNav />
     </div>
   );
 };

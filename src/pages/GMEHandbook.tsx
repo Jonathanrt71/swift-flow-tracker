@@ -13,7 +13,6 @@ import { useUserRole } from "@/hooks/useUserRole";
 import { useGMEHandbook, useGMEHandbookMutations, GMEHandbookSection } from "@/hooks/useGMEHandbook";
 import { useToast } from "@/hooks/use-toast";
 import HeaderLogo from "@/components/HeaderLogo";
-import BottomNav from "@/components/BottomNav";
 import NotificationBell from "@/components/NotificationBell";
 import SectionTipTapEditor from "@/components/shared/SectionTipTapEditor";
 import { useDocumentSearch } from "@/hooks/useDocumentSearch";
@@ -411,7 +410,6 @@ const GMEHandbook = () => {
         </div>
       )}
 
-      <BottomNav />
     </div>
   );
 };

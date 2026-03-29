@@ -13,7 +13,6 @@ import { useUserRole } from "@/hooks/useUserRole";
 import { useHandbook, useHandbookMutations, HandbookSection } from "@/hooks/useHandbook";
 import { useToast } from "@/hooks/use-toast";
 import HeaderLogo from "@/components/HeaderLogo";
-import BottomNav from "@/components/BottomNav";
 import NotificationBell from "@/components/NotificationBell";
 import SectionTipTapEditor from "@/components/shared/SectionTipTapEditor";
 import { useDocumentSearch } from "@/hooks/useDocumentSearch";
@@ -411,7 +410,6 @@ const Handbook = () => {
         </div>
       )}
 
-      <BottomNav />
     </div>
   );
 };
