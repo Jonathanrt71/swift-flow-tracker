@@ -4,7 +4,7 @@ import {
   Home, Phone, Calendar, Clock, Shield, Repeat, FileText, TrendingUp,
   BookOpen, CalendarOff, CheckSquare, Moon, RefreshCw, Shirt, Heart,
   ShieldCheck, Globe, Coffee, AlertTriangle, MessageSquare, Layers,
-  Users, AlertCircle, Monitor, Pencil, X, Save, Eye, EyeOff,
+  Users, AlertCircle, Monitor, Pencil, X, Save,
   Menu, ChevronDown, ChevronRight, Plus, Trash2,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -14,8 +14,9 @@ import { useToast } from "@/hooks/use-toast";
 import HeaderLogo from "@/components/HeaderLogo";
 import BottomNav from "@/components/BottomNav";
 import NotificationBell from "@/components/NotificationBell";
+import SectionTipTapEditor from "@/components/shared/SectionTipTapEditor";
 
-const iconMap: Record<string, React.FC<{ className?: string }>> = {
+const iconMap: Record<string, React.FC<{ className?: string; style?: React.CSSProperties }>> = {
   home: Home, phone: Phone, calendar: Calendar, clock: Clock, shield: Shield,
   repeat: Repeat, "file-text": FileText, "trending-up": TrendingUp,
   "book-open": BookOpen, "calendar-off": CalendarOff, "check-square": CheckSquare,
@@ -24,105 +25,6 @@ const iconMap: Record<string, React.FC<{ className?: string }>> = {
   "alert-triangle": AlertTriangle, "message-square": MessageSquare,
   layers: Layers, users: Users, "alert-circle": AlertCircle, monitor: Monitor,
 };
-
-/* ── Markdown renderer ── */
-function renderMarkdown(md: string) {
-  const lines = md.split("\n");
-  const elements: React.ReactNode[] = [];
-  let i = 0;
-  let key = 0;
-
-  const renderInline = (text: string): React.ReactNode[] => {
-    const parts: React.ReactNode[] = [];
-    const re = /\*\*(.+?)\*\*/g;
-    let last = 0;
-    let match: RegExpExecArray | null;
-    let k = 0;
-    while ((match = re.exec(text)) !== null) {
-      if (match.index > last) parts.push(text.slice(last, match.index));
-      parts.push(<strong key={`b${k++}`}>{match[1]}</strong>);
-      last = re.lastIndex;
-    }
-    if (last < text.length) parts.push(text.slice(last));
-    return parts;
-  };
-
-  while (i < lines.length) {
-    const line = lines[i];
-    if (line.trim() === "") { i++; continue; }
-
-    if (line.startsWith("### ")) {
-      elements.push(<h3 key={key++} style={{ fontSize: 15, fontWeight: 600, color: "#333", margin: "18px 0 6px" }}>{line.slice(4)}</h3>);
-      i++; continue;
-    }
-    if (line.startsWith("## ")) {
-      elements.push(<h2 key={key++} style={{ fontSize: 17, fontWeight: 600, color: "#415162", margin: "28px 0 12px", paddingBottom: 6, borderBottom: "1px solid #E7EBEF" }}>{line.slice(3)}</h2>);
-      i++; continue;
-    }
-    if (line.startsWith("# ")) {
-      elements.push(<h1 key={key++} style={{ fontSize: 19, fontWeight: 700, color: "#415162", margin: "26px 0 10px", paddingBottom: 6, borderBottom: "2px solid #E7EBEF" }}>{line.slice(2)}</h1>);
-      i++; continue;
-    }
-
-    if (line.includes("|") && lines[i + 1]?.match(/^\|[-| ]+\|$/)) {
-      const headerCells = line.split("|").map(c => c.trim()).filter(Boolean);
-      i += 2;
-      const rows: string[][] = [];
-      while (i < lines.length && lines[i].includes("|")) {
-        rows.push(lines[i].split("|").map(c => c.trim()).filter(Boolean));
-        i++;
-      }
-      elements.push(
-        <div key={key++} style={{ overflowX: "auto", margin: "12px 0 16px" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
-            <thead>
-              <tr>{headerCells.map((h, j) => <th key={j} style={{ textAlign: "left", padding: "7px 10px", background: "#415162", color: "#fff", fontWeight: 500, fontSize: 12 }}>{h}</th>)}</tr>
-            </thead>
-            <tbody>
-              {rows.map((row, ri) => (
-                <tr key={ri} style={{ background: ri % 2 === 1 ? "#F5F3EE" : "transparent" }}>
-                  {row.map((cell, ci) => <td key={ci} style={{ padding: "6px 10px", fontSize: 13, borderBottom: "1px solid #E7EBEF", color: "#444" }}>{cell}</td>)}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      );
-      continue;
-    }
-
-    if (/^\d+\.\s/.test(line)) {
-      const items: string[] = [];
-      while (i < lines.length && /^\d+\.\s/.test(lines[i])) { items.push(lines[i].replace(/^\d+\.\s/, "")); i++; }
-      elements.push(
-        <ol key={key++} style={{ paddingLeft: 18, margin: "6px 0 14px" }}>
-          {items.map((item, j) => <li key={j} style={{ fontSize: 14, lineHeight: 1.7, color: "#555", marginBottom: 3 }}>{renderInline(item)}</li>)}
-        </ol>
-      );
-      continue;
-    }
-
-    if (line.startsWith("- ") || line.startsWith("  - ")) {
-      const items: { text: string; indent: number }[] = [];
-      while (i < lines.length && (lines[i].startsWith("- ") || lines[i].startsWith("  - "))) {
-        items.push({ text: lines[i].replace(/^\s*- /, ""), indent: lines[i].startsWith("  - ") ? 1 : 0 });
-        i++;
-      }
-      elements.push(
-        <ul key={key++} style={{ paddingLeft: 20, margin: "8px 0 16px" }}>
-          {items.map((item, j) => (
-            <li key={j} style={{ fontSize: 14, lineHeight: 1.7, color: "#555", marginBottom: 4, marginLeft: item.indent * 20 }}>{renderInline(item.text)}</li>
-          ))}
-        </ul>
-      );
-      continue;
-    }
-
-    elements.push(<p key={key++} style={{ fontSize: 14, lineHeight: 1.7, color: "#555", margin: "0 0 12px" }}>{renderInline(line)}</p>);
-    i++;
-  }
-  return elements;
-}
 
 const Handbook = () => {
   const { user, signOut } = useAuth();
@@ -140,7 +42,6 @@ const Handbook = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState("");
   const [editContent, setEditContent] = useState("");
-  const [showPreview, setShowPreview] = useState(false);
   const [addingParentId, setAddingParentId] = useState<string | null | undefined>(undefined);
   const [newSectionTitle, setNewSectionTitle] = useState("");
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
@@ -177,8 +78,13 @@ const Handbook = () => {
     setTocOpen(false);
   };
 
-  const startEditing = (s: HandbookSection) => { setEditTitle(s.title); setEditContent(s.content); setShowPreview(false); setEditingId(s.id); };
-  const cancelEditing = () => { setEditingId(null); setEditTitle(""); setEditContent(""); setShowPreview(false); };
+  const startEditing = (s: HandbookSection) => {
+    setEditTitle(s.title);
+    setEditContent(s.content || "");
+    setEditingId(s.id);
+  };
+
+  const cancelEditing = () => { setEditingId(null); setEditTitle(""); setEditContent(""); };
 
   const handleSave = (id: string) => {
     updateSection.mutate(
@@ -215,30 +121,39 @@ const Handbook = () => {
     catch { return ""; }
   };
 
+  // ── TOC Item ─────────────────────────────────────────────────────────
   const TocItem = ({ section, depth = 0 }: { section: HandbookSection; depth?: number }) => {
     const Icon = iconMap[section.icon] || FileText;
     const subs = getSubsections(section.id);
     const isActive = activeSectionId === section.id || subs.some(s => s.id === activeSectionId);
     const isCollapsed = collapsedToc[section.id];
+
     return (
       <div>
         <div style={{ display: "flex", alignItems: "center", gap: 0 }}>
           {subs.length > 0 && (
-            <button onClick={() => setCollapsedToc(p => ({ ...p, [section.id]: !p[section.id] }))} style={{ background: "transparent", border: "none", cursor: "pointer", padding: "0 2px", color: "#aaa", display: "flex", alignItems: "center" }}>
+            <button
+              onClick={() => setCollapsedToc(p => ({ ...p, [section.id]: !p[section.id] }))}
+              style={{ background: "transparent", border: "none", cursor: "pointer", padding: "0 2px", color: "#aaa", display: "flex", alignItems: "center" }}
+            >
               {isCollapsed ? <ChevronRight style={{ width: 13, height: 13 }} /> : <ChevronDown style={{ width: 13, height: 13 }} />}
             </button>
           )}
-          <button onClick={() => scrollTo(section.id)} style={{
-            flex: 1, display: "flex", alignItems: "center", gap: 8,
-            padding: depth === 0 ? "9px 12px 9px 8px" : "7px 12px 7px 28px",
-            fontSize: depth === 0 ? 13 : 12,
-            color: isActive ? "#415162" : "#777", fontWeight: isActive ? 600 : 400,
-            background: isActive ? "#F0F2F4" : "transparent",
-            borderLeft: isActive ? "3px solid #415162" : "3px solid transparent",
-            border: "none", borderRight: "none", borderTop: "none", borderBottom: "none",
-            cursor: "pointer", textAlign: "left",
-          }}>
-            {depth === 0 && <Icon className="h-4 w-4" style={{ flexShrink: 0, opacity: isActive ? 1 : 0.55, width: 15, height: 15 }} />}
+          <button
+            onClick={() => scrollTo(section.id)}
+            style={{
+              flex: 1, display: "flex", alignItems: "center", gap: 8,
+              padding: depth === 0 ? "9px 12px 9px 8px" : "7px 12px 7px 28px",
+              fontSize: depth === 0 ? 13 : 12,
+              color: isActive ? "#415162" : "#777",
+              fontWeight: isActive ? 600 : 400,
+              background: isActive ? "#F0F2F4" : "transparent",
+              borderLeft: isActive ? "3px solid #415162" : "3px solid transparent",
+              border: "none", borderRight: "none", borderTop: "none", borderBottom: "none",
+              cursor: "pointer", textAlign: "left",
+            }}
+          >
+            {depth === 0 && <Icon style={{ flexShrink: 0, opacity: isActive ? 1 : 0.55, width: 15, height: 15 }} />}
             <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{section.title}</span>
           </button>
         </div>
@@ -247,91 +162,113 @@ const Handbook = () => {
     );
   };
 
+  // ── Section Content Block ─────────────────────────────────────────────
   const SectionBlock = ({ section, depth = 0 }: { section: HandbookSection; depth?: number }) => {
     const subs = getSubsections(section.id);
     const isEditing = editingId === section.id;
+
     return (
-      <div ref={el => { if (el) sectionRefs.current.set(section.id, el); }} style={{ marginBottom: depth === 0 ? 52 : 32 }}>
+      <div
+        ref={el => { if (el) sectionRefs.current.set(section.id, el); }}
+        style={{ marginBottom: depth === 0 ? 52 : 32 }}
+      >
+        {/* Header */}
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10 }}>
           {isEditing ? (
-            <input value={editTitle} onChange={e => setEditTitle(e.target.value)} style={{ fontSize: depth === 0 ? 20 : 16, fontWeight: 600, color: "#333", border: "1px solid #C9CED4", borderRadius: 6, padding: "3px 10px", background: "#fff", flex: 1, outline: "none" }} />
+            <input
+              value={editTitle}
+              onChange={e => setEditTitle(e.target.value)}
+              style={{
+                fontSize: depth === 0 ? 20 : 16, fontWeight: 600, color: "#333",
+                border: "1px solid #C9CED4", borderRadius: 6, padding: "3px 10px",
+                background: "#fff", flex: 1, outline: "none",
+              }}
+            />
           ) : (
-            <h1 style={{ fontSize: depth === 0 ? 20 : 16, fontWeight: 600, color: "#333", margin: 0, lineHeight: 1.3 }}>
-              {depth === 1 && <span style={{ color: "#C9CED4", marginRight: 6 }}>›</span>}
-              {section.title}
-            </h1>
+            <h1 style={{ fontSize: depth === 0 ? 20 : 16, fontWeight: 600, color: "#333", margin: 0, flex: 1 }}>{section.title}</h1>
           )}
           {isAdmin && !isEditing && (
             <div style={{ display: "flex", gap: 4, flexShrink: 0, marginTop: 2 }}>
-              <button onClick={() => startEditing(section)} title="Edit" style={{ display: "flex", alignItems: "center", gap: 4, padding: "5px 10px", fontSize: 12, color: "#415162", background: "transparent", border: "1px solid #C9CED4", borderRadius: 5, cursor: "pointer" }}>
+              <button
+                onClick={() => startEditing(section)}
+                title="Edit"
+                style={{ display: "flex", alignItems: "center", gap: 4, padding: "5px 10px", fontSize: 12, color: "#415162", background: "transparent", border: "1px solid #C9CED4", borderRadius: 5, cursor: "pointer" }}
+              >
                 <Pencil style={{ width: 12, height: 12 }} /> Edit
               </button>
-              <button onClick={() => setConfirmDeleteId(section.id)} title="Delete" style={{ display: "flex", alignItems: "center", padding: "5px 8px", fontSize: 12, color: "#c44", background: "transparent", border: "1px solid #f0c0c0", borderRadius: 5, cursor: "pointer" }}>
+              <button
+                onClick={() => setConfirmDeleteId(section.id)}
+                title="Delete"
+                style={{ display: "flex", alignItems: "center", padding: "5px 8px", fontSize: 12, color: "#c44", background: "transparent", border: "1px solid #f0c0c0", borderRadius: 5, cursor: "pointer" }}
+              >
                 <Trash2 style={{ width: 12, height: 12 }} />
               </button>
             </div>
           )}
         </div>
 
-        <div style={{ fontSize: 11, color: "#bbb", marginBottom: isEditing ? 14 : 16, marginTop: 4 }}>Updated {formatDate(section.updated_at)}</div>
+        <div style={{ fontSize: 11, color: "#bbb", marginBottom: isEditing ? 14 : 16, marginTop: 4 }}>
+          Updated {formatDate(section.updated_at)}
+        </div>
 
         {isEditing ? (
           <>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8, flexWrap: "wrap", gap: 6 }}>
-              <button onClick={() => setShowPreview(!showPreview)} style={{ display: "flex", alignItems: "center", gap: 5, padding: "5px 9px", fontSize: 12, color: showPreview ? "#415162" : "#888", background: showPreview ? "#E7EBEF" : "transparent", border: "1px solid #C9CED4", borderRadius: 5, cursor: "pointer" }}>
-                {showPreview ? <EyeOff style={{ width: 12, height: 12 }} /> : <Eye style={{ width: 12, height: 12 }} />}
-                {showPreview ? "Hide preview" : "Preview"}
+            <SectionTipTapEditor
+              content={editContent}
+              onChange={setEditContent}
+              minHeight={320}
+            />
+            <div style={{ display: "flex", gap: 6, justifyContent: "flex-end", marginTop: 10 }}>
+              <button onClick={cancelEditing} style={{ display: "flex", alignItems: "center", gap: 4, padding: "6px 14px", fontSize: 12, color: "#777", background: "transparent", border: "1px solid #C9CED4", borderRadius: 5, cursor: "pointer" }}>
+                <X style={{ width: 12, height: 12 }} /> Cancel
               </button>
-              <div style={{ display: "flex", gap: 6 }}>
-                <button onClick={cancelEditing} style={{ display: "flex", alignItems: "center", gap: 4, padding: "5px 12px", fontSize: 12, color: "#777", background: "transparent", border: "1px solid #C9CED4", borderRadius: 5, cursor: "pointer" }}>
-                  <X style={{ width: 12, height: 12 }} /> Cancel
-                </button>
-                <button onClick={() => handleSave(section.id)} disabled={updateSection.isPending} style={{ display: "flex", alignItems: "center", gap: 4, padding: "5px 12px", fontSize: 12, color: "#fff", background: updateSection.isPending ? "#8a9baa" : "#415162", border: "none", borderRadius: 5, cursor: updateSection.isPending ? "not-allowed" : "pointer" }}>
-                  <Save style={{ width: 12, height: 12 }} /> {updateSection.isPending ? "Saving…" : "Save"}
-                </button>
-              </div>
-            </div>
-            <div style={{ display: showPreview ? "grid" : "block", gridTemplateColumns: showPreview ? "1fr 1fr" : undefined, gap: 12 }}>
-              <div>
-                {showPreview && <div style={{ fontSize: 10, color: "#bbb", marginBottom: 3, textTransform: "uppercase", letterSpacing: 0.5 }}>Markdown</div>}
-                <textarea value={editContent} onChange={e => setEditContent(e.target.value)} spellCheck style={{ width: "100%", minHeight: 320, padding: 12, fontSize: 13, fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", lineHeight: 1.6, color: "#333", background: "#fff", border: "1px solid #C9CED4", borderRadius: 6, outline: "none", resize: "vertical", boxSizing: "border-box" }} />
-              </div>
-              {showPreview && (
-                <div>
-                  <div style={{ fontSize: 10, color: "#bbb", marginBottom: 3, textTransform: "uppercase", letterSpacing: 0.5 }}>Preview</div>
-                  <div style={{ padding: 12, background: "#fff", border: "1px solid #E7EBEF", borderRadius: 6, minHeight: 320, overflowY: "auto" }}>{renderMarkdown(editContent)}</div>
-                </div>
-              )}
-            </div>
-            <div style={{ marginTop: 10, padding: "8px 12px", background: "#F0F2F4", borderRadius: 6, fontSize: 11, color: "#888", lineHeight: 1.6 }}>
-              <span style={{ fontWeight: 500, color: "#666" }}>Formatting: </span>
-              <code style={{ background: "#E7EBEF", padding: "1px 3px", borderRadius: 3, fontSize: 10 }}># Heading</code>{" · "}
-              <code style={{ background: "#E7EBEF", padding: "1px 3px", borderRadius: 3, fontSize: 10 }}>## Subheading</code>{" · "}
-              <code style={{ background: "#E7EBEF", padding: "1px 3px", borderRadius: 3, fontSize: 10 }}>**bold**</code>{" · "}
-              <code style={{ background: "#E7EBEF", padding: "1px 3px", borderRadius: 3, fontSize: 10 }}>- bullet</code>{" · "}
-              <code style={{ background: "#E7EBEF", padding: "1px 3px", borderRadius: 3, fontSize: 10 }}>1. numbered</code>
+              <button
+                onClick={() => handleSave(section.id)}
+                disabled={updateSection.isPending}
+                style={{ display: "flex", alignItems: "center", gap: 4, padding: "6px 14px", fontSize: 12, color: "#fff", background: updateSection.isPending ? "#8a9baa" : "#415162", border: "none", borderRadius: 5, cursor: updateSection.isPending ? "not-allowed" : "pointer" }}
+              >
+                <Save style={{ width: 12, height: 12 }} /> {updateSection.isPending ? "Saving…" : "Save"}
+              </button>
             </div>
           </>
         ) : (
-          <>{section.content ? renderMarkdown(section.content) : <p style={{ fontSize: 14, color: "#bbb", fontStyle: "italic" }}>No content yet. {isAdmin && "Click Edit to add content."}</p>}</>
+          <>
+            {section.content ? (
+              <SectionTipTapEditor content={section.content} onChange={() => {}} readOnly />
+            ) : (
+              <p style={{ fontSize: 14, color: "#bbb", fontStyle: "italic" }}>No content yet. {isAdmin && "Click Edit to add content."}</p>
+            )}
+          </>
         )}
 
+        {/* Subsections */}
         {depth === 0 && subs.length > 0 && (
           <div style={{ marginTop: 24, borderLeft: "2px solid #E7EBEF", paddingLeft: 16 }}>
             {subs.map(sub => <SectionBlock key={sub.id} section={sub} depth={1} />)}
           </div>
         )}
 
+        {/* Add subsection button */}
         {depth === 0 && isAdmin && editingId !== section.id && (
           <div style={{ marginTop: subs.length > 0 ? 8 : 0 }}>
             {addingParentId === section.id ? (
               <div style={{ display: "flex", gap: 8, alignItems: "center", marginTop: 8 }}>
-                <input autoFocus value={newSectionTitle} onChange={e => setNewSectionTitle(e.target.value)} onKeyDown={e => { if (e.key === "Enter") handleAddSection(section.id); if (e.key === "Escape") { setAddingParentId(undefined); setNewSectionTitle(""); } }} placeholder="Subsection title…" style={{ flex: 1, padding: "6px 10px", fontSize: 13, border: "1px solid #C9CED4", borderRadius: 6, outline: "none", background: "#fff" }} />
+                <input
+                  autoFocus
+                  value={newSectionTitle}
+                  onChange={e => setNewSectionTitle(e.target.value)}
+                  onKeyDown={e => { if (e.key === "Enter") handleAddSection(section.id); if (e.key === "Escape") { setAddingParentId(undefined); setNewSectionTitle(""); } }}
+                  placeholder="Subsection title…"
+                  style={{ flex: 1, padding: "6px 10px", fontSize: 13, border: "1px solid #C9CED4", borderRadius: 6, outline: "none", background: "#fff" }}
+                />
                 <button onClick={() => handleAddSection(section.id)} style={{ padding: "6px 12px", fontSize: 12, color: "#fff", background: "#415162", border: "none", borderRadius: 5, cursor: "pointer" }}>Add</button>
                 <button onClick={() => { setAddingParentId(undefined); setNewSectionTitle(""); }} style={{ padding: "6px 10px", fontSize: 12, color: "#777", background: "transparent", border: "1px solid #C9CED4", borderRadius: 5, cursor: "pointer" }}>Cancel</button>
               </div>
             ) : (
-              <button onClick={() => { setAddingParentId(section.id); setNewSectionTitle(""); }} style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 8, padding: "4px 10px", fontSize: 11, color: "#999", background: "transparent", border: "1px dashed #C9CED4", borderRadius: 5, cursor: "pointer" }}>
+              <button
+                onClick={() => { setAddingParentId(section.id); setNewSectionTitle(""); }}
+                style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 8, padding: "4px 10px", fontSize: 11, color: "#999", background: "transparent", border: "1px dashed #C9CED4", borderRadius: 5, cursor: "pointer" }}
+              >
                 <Plus style={{ width: 11, height: 11 }} /> Add subsection
               </button>
             )}

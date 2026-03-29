@@ -1,22 +1,28 @@
 import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Home, Phone, Calendar, Clock, Shield, Repeat, FileText, TrendingUp,
   BookOpen, CalendarOff, CheckSquare, Moon, RefreshCw, Shirt, Heart,
   ShieldCheck, Globe, Coffee, AlertTriangle, MessageSquare, Layers,
-  Users, AlertCircle, Monitor, Pencil, X, Save, Eye, EyeOff,
-  Plus, ChevronDown, ChevronRight, Trash2, GripVertical, Menu,
+  Users, AlertCircle, Monitor, Pencil, X, Save,
+  Plus, ChevronDown, ChevronRight, Trash2, Menu,
+  CalendarPlus, ClipboardList,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
 import { useUserRole } from "@/hooks/useUserRole";
 import { useOperations, useOperationsMutations, OperationsSection } from "@/hooks/useOperations";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import HeaderLogo from "@/components/HeaderLogo";
 import BottomNav from "@/components/BottomNav";
 import NotificationBell from "@/components/NotificationBell";
 import { TaskTemplatesSection } from "@/components/operations/TaskTemplatesSection";
+import SectionTipTapEditor from "@/components/shared/SectionTipTapEditor";
+import { EVENT_CATEGORY_LABELS } from "@/hooks/useEvents";
+import type { EventCategory } from "@/hooks/useEvents";
 
-const iconMap: Record<string, React.FC<{ className?: string }>> = {
+const iconMap: Record<string, React.FC<{ className?: string; style?: React.CSSProperties }>> = {
   home: Home, phone: Phone, calendar: Calendar, clock: Clock, shield: Shield,
   repeat: Repeat, "file-text": FileText, "trending-up": TrendingUp,
   "book-open": BookOpen, "calendar-off": CalendarOff, "check-square": CheckSquare,
@@ -26,128 +32,8 @@ const iconMap: Record<string, React.FC<{ className?: string }>> = {
   layers: Layers, users: Users, "alert-circle": AlertCircle, monitor: Monitor,
 };
 
-const APP_ROUTES = [
-  { label: "Feedback", path: "/feedback" },
-  { label: "Tasks", path: "/tasks" },
-  { label: "Events", path: "/events" },
-  { label: "Meetings", path: "/meetings" },
-  { label: "Handbook", path: "/handbook" },
-  { label: "Rotations", path: "/rotations" },
-  { label: "CBME", path: "/cbme" },
-  { label: "Admin", path: "/admin" },
-];
-
-function renderMarkdown(md: string) {
-  const lines = md.split("\n");
-  const elements: React.ReactNode[] = [];
-  let i = 0;
-  let key = 0;
-
-  const renderInline = (text: string): React.ReactNode[] => {
-    const parts: React.ReactNode[] = [];
-    const re = /\*\*(.+?)\*\*/g;
-    let last = 0;
-    let match: RegExpExecArray | null;
-    let k = 0;
-    while ((match = re.exec(text)) !== null) {
-      if (match.index > last) parts.push(text.slice(last, match.index));
-      parts.push(<strong key={`b${k++}`}>{match[1]}</strong>);
-      last = re.lastIndex;
-    }
-    if (last < text.length) parts.push(text.slice(last));
-    return parts;
-  };
-
-  while (i < lines.length) {
-    const line = lines[i];
-    if (line.trim() === "") { i++; continue; }
-
-    if (line.startsWith("### ")) {
-      elements.push(
-        <h3 key={key++} style={{ fontSize: 15, fontWeight: 600, color: "#333", margin: "18px 0 6px" }}>
-          {line.slice(4)}
-        </h3>
-      );
-      i++; continue;
-    }
-
-    if (line.startsWith("## ")) {
-      elements.push(
-        <h2 key={key++} style={{ fontSize: 16, fontWeight: 600, color: "#415162", margin: "24px 0 10px", paddingBottom: 5, borderBottom: "1px solid #E7EBEF" }}>
-          {line.slice(3)}
-        </h2>
-      );
-      i++; continue;
-    }
-
-    if (line.startsWith("# ")) {
-      elements.push(
-        <h1 key={key++} style={{ fontSize: 19, fontWeight: 700, color: "#415162", margin: "26px 0 10px", paddingBottom: 6, borderBottom: "2px solid #E7EBEF" }}>
-          {line.slice(2)}
-        </h1>
-      );
-      i++; continue;
-    }
-
-    if (line.includes("|") && lines[i + 1]?.match(/^\|[-| ]+\|$/)) {
-      const headerCells = line.split("|").map(c => c.trim()).filter(Boolean);
-      i += 2;
-      const rows: string[][] = [];
-      while (i < lines.length && lines[i].includes("|")) {
-        rows.push(lines[i].split("|").map(c => c.trim()).filter(Boolean));
-        i++;
-      }
-      elements.push(
-        <div key={key++} style={{ overflowX: "auto", margin: "12px 0 16px" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
-            <thead>
-              <tr>{headerCells.map((h, j) => <th key={j} style={{ textAlign: "left", padding: "7px 10px", background: "#415162", color: "#fff", fontWeight: 500, fontSize: 12 }}>{h}</th>)}</tr>
-            </thead>
-            <tbody>
-              {rows.map((row, ri) => (
-                <tr key={ri} style={{ background: ri % 2 === 1 ? "#F5F3EE" : "transparent" }}>
-                  {row.map((cell, ci) => <td key={ci} style={{ padding: "6px 10px", fontSize: 13, borderBottom: "1px solid #E7EBEF", color: "#444" }}>{cell}</td>)}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      );
-      continue;
-    }
-
-    if (/^\d+\.\s/.test(line)) {
-      const items: string[] = [];
-      while (i < lines.length && /^\d+\.\s/.test(lines[i])) { items.push(lines[i].replace(/^\d+\.\s/, "")); i++; }
-      elements.push(
-        <ol key={key++} style={{ paddingLeft: 18, margin: "6px 0 14px" }}>
-          {items.map((item, j) => <li key={j} style={{ fontSize: 14, lineHeight: 1.7, color: "#555", marginBottom: 3 }}>{renderInline(item)}</li>)}
-        </ol>
-      );
-      continue;
-    }
-
-    if (line.startsWith("- ") || line.startsWith("  - ")) {
-      const items: { text: string; indent: number }[] = [];
-      while (i < lines.length && (lines[i].startsWith("- ") || lines[i].startsWith("  - "))) {
-        items.push({ text: lines[i].replace(/^\s*- /, ""), indent: lines[i].startsWith("  - ") ? 1 : 0 });
-        i++;
-      }
-      elements.push(
-        <ul key={key++} style={{ paddingLeft: 18, margin: "6px 0 14px" }}>
-          {items.map((item, j) => <li key={j} style={{ fontSize: 14, lineHeight: 1.7, color: "#555", marginBottom: 3, marginLeft: item.indent * 18 }}>{renderInline(item.text)}</li>)}
-        </ul>
-      );
-      continue;
-    }
-
-    elements.push(<p key={key++} style={{ fontSize: 14, lineHeight: 1.7, color: "#555", margin: "0 0 10px" }}>{renderInline(line)}</p>);
-    i++;
-  }
-  return elements;
-}
-
 const Operations = () => {
+  const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const { isAdmin } = useAdmin();
   const { role } = useUserRole();
@@ -156,33 +42,35 @@ const Operations = () => {
   const { updateSection, addSection, deleteSection } = useOperationsMutations();
   const { toast } = useToast();
 
-  // Separate top-level and subsections
   const topSections = (allSections || []).filter(s => !s.parent_id);
   const getSubsections = (parentId: string) => (allSections || []).filter(s => s.parent_id === parentId);
 
-  // Mobile TOC drawer
   const [tocOpen, setTocOpen] = useState(false);
-  // Collapsed top-level sections in TOC (desktop)
   const [collapsedToc, setCollapsedToc] = useState<Record<string, boolean>>({});
-  // Active section tracking
   const [activeSectionId, setActiveSectionId] = useState<string>("");
-  // Edit state
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState("");
   const [editContent, setEditContent] = useState("");
-  const [showPreview, setShowPreview] = useState(false);
-  // Add section modal
   const [addingParentId, setAddingParentId] = useState<string | null | undefined>(undefined);
   const [newSectionTitle, setNewSectionTitle] = useState("");
-  // Link picker
-  const [showLinkPicker, setShowLinkPicker] = useState(false);
-  // Delete confirm
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+
+  // Create Event dialog state
+  const [createEventForSection, setCreateEventForSection] = useState<OperationsSection | null>(null);
+  const [eventTitle, setEventTitle] = useState("");
+  const [eventDate, setEventDate] = useState(new Date().toISOString().split("T")[0]);
+  const [eventCategory, setEventCategory] = useState<EventCategory>("program");
+  const [eventDescription, setEventDescription] = useState("");
+
+  // Create Task Template dialog state
+  const [createTemplateForSection, setCreateTemplateForSection] = useState<OperationsSection | null>(null);
+  const [templateName, setTemplateName] = useState("");
+  const [templateCategory, setTemplateCategory] = useState("");
+  const [templateDescription, setTemplateDescription] = useState("");
 
   const contentRef = useRef<HTMLDivElement>(null);
   const sectionRefs = useRef<Map<string, HTMLElement>>(new Map());
 
-  // Scroll tracking
   useEffect(() => {
     const container = contentRef.current;
     if (!container || !allSections?.length) return;
@@ -214,12 +102,11 @@ const Operations = () => {
 
   const startEditing = (s: OperationsSection) => {
     setEditTitle(s.title);
-    setEditContent(s.content);
-    setShowPreview(false);
+    setEditContent(s.content || "");
     setEditingId(s.id);
   };
 
-  const cancelEditing = () => { setEditingId(null); setEditTitle(""); setEditContent(""); setShowPreview(false); };
+  const cancelEditing = () => { setEditingId(null); setEditTitle(""); setEditContent(""); };
 
   const handleSave = (id: string) => {
     updateSection.mutate(
@@ -229,11 +116,6 @@ const Operations = () => {
         onError: (e: any) => toast({ title: "Error saving", description: e.message, variant: "destructive" }),
       }
     );
-  };
-
-  const insertLink = (path: string) => {
-    setEditContent(prev => prev + `\n\nSee the [${path.replace("/", "")} module](${path}) for more information.`);
-    setShowLinkPicker(false);
   };
 
   const handleAddSection = (parentId: string | null) => {
@@ -254,6 +136,53 @@ const Operations = () => {
       onSuccess: () => { setConfirmDeleteId(null); toast({ title: "Section deleted" }); },
       onError: (e: any) => toast({ title: "Error", description: e.message, variant: "destructive" }),
     });
+  };
+
+  const handleCreateEvent = async () => {
+    if (!eventTitle.trim() || !createEventForSection) return;
+    try {
+      const { error } = await supabase
+        .from("events")
+        .insert({
+          title: eventTitle.trim(),
+          event_date: eventDate,
+          category: eventCategory,
+          description: eventDescription.trim() || `Linked to Operations Manual: ${createEventForSection.title}`,
+          created_by: user?.id,
+          recurrence_pattern: "none",
+          recurrence_confirmed: false,
+          archived: false,
+        });
+      if (error) throw error;
+      toast({ title: "Event created", description: `"${eventTitle.trim()}" added to Events` });
+      setCreateEventForSection(null);
+      setEventTitle("");
+      setEventDescription("");
+    } catch (e: any) {
+      toast({ title: "Error creating event", description: e.message, variant: "destructive" });
+    }
+  };
+
+  const handleCreateTemplate = async () => {
+    if (!templateName.trim() || !createTemplateForSection) return;
+    try {
+      const { error } = await supabase
+        .from("task_templates")
+        .insert({
+          name: templateName.trim(),
+          description: templateDescription.trim() || `From Operations Manual: ${createTemplateForSection.title}`,
+          category: templateCategory || null,
+          created_by: user?.id,
+        });
+      if (error) throw error;
+      toast({ title: "Template created", description: `"${templateName.trim()}" added to Task Templates` });
+      setCreateTemplateForSection(null);
+      setTemplateName("");
+      setTemplateDescription("");
+      setTemplateCategory("");
+    } catch (e: any) {
+      toast({ title: "Error creating template", description: e.message, variant: "destructive" });
+    }
   };
 
   const formatDate = (d: string) => {
@@ -293,7 +222,7 @@ const Operations = () => {
               cursor: "pointer", textAlign: "left",
             }}
           >
-            {depth === 0 && <Icon className="h-4 w-4" style={{ flexShrink: 0, opacity: isActive ? 1 : 0.55, width: 15, height: 15 }} />}
+            {depth === 0 && <Icon style={{ flexShrink: 0, opacity: isActive ? 1 : 0.55, width: 15, height: 15 }} />}
             <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{section.title}</span>
           </button>
         </div>
@@ -325,10 +254,7 @@ const Operations = () => {
               }}
             />
           ) : (
-            <h1 style={{ fontSize: depth === 0 ? 20 : 16, fontWeight: 600, color: "#333", margin: 0, lineHeight: 1.3 }}>
-              {depth === 1 && <span style={{ color: "#C9CED4", marginRight: 6 }}>›</span>}
-              {section.title}
-            </h1>
+            <h1 style={{ fontSize: depth === 0 ? 20 : 16, fontWeight: 600, color: "#333", margin: 0, flex: 1 }}>{section.title}</h1>
           )}
           {canEdit && !isEditing && (
             <div style={{ display: "flex", gap: 4, flexShrink: 0, marginTop: 2 }}>
@@ -356,88 +282,61 @@ const Operations = () => {
 
         {isEditing ? (
           <>
-            {/* Edit toolbar */}
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8, flexWrap: "wrap", gap: 6 }}>
-              <div style={{ display: "flex", gap: 6 }}>
-                <button
-                  onClick={() => setShowPreview(!showPreview)}
-                  style={{ display: "flex", alignItems: "center", gap: 5, padding: "5px 9px", fontSize: 12, color: showPreview ? "#415162" : "#888", background: showPreview ? "#E7EBEF" : "transparent", border: "1px solid #C9CED4", borderRadius: 5, cursor: "pointer" }}
-                >
-                  {showPreview ? <EyeOff style={{ width: 12, height: 12 }} /> : <Eye style={{ width: 12, height: 12 }} />}
-                  {showPreview ? "Hide preview" : "Preview"}
-                </button>
-                <div style={{ position: "relative" }}>
-                  <button
-                    onClick={() => setShowLinkPicker(!showLinkPicker)}
-                    style={{ display: "flex", alignItems: "center", gap: 5, padding: "5px 9px", fontSize: 12, color: "#888", background: "transparent", border: "1px solid #C9CED4", borderRadius: 5, cursor: "pointer" }}
-                  >
-                    Link to page
-                  </button>
-                  {showLinkPicker && (
-                    <div style={{ position: "absolute", top: "100%", left: 0, zIndex: 50, background: "#fff", border: "1px solid #C9CED4", borderRadius: 8, boxShadow: "0 4px 16px rgba(0,0,0,0.12)", minWidth: 180, padding: 4 }}>
-                      {APP_ROUTES.map(r => (
-                        <button
-                          key={r.path}
-                          onClick={() => insertLink(r.path)}
-                          style={{ display: "block", width: "100%", textAlign: "left", padding: "8px 12px", fontSize: 13, color: "#415162", background: "transparent", border: "none", cursor: "pointer", borderRadius: 4 }}
-                          onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = "#F0F2F4"}
-                          onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = "transparent"}
-                        >
-                          {r.label}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-              <div style={{ display: "flex", gap: 6 }}>
-                <button onClick={cancelEditing} style={{ display: "flex", alignItems: "center", gap: 4, padding: "5px 12px", fontSize: 12, color: "#777", background: "transparent", border: "1px solid #C9CED4", borderRadius: 5, cursor: "pointer" }}>
-                  <X style={{ width: 12, height: 12 }} /> Cancel
-                </button>
-                <button
-                  onClick={() => handleSave(section.id)}
-                  disabled={updateSection.isPending}
-                  style={{ display: "flex", alignItems: "center", gap: 4, padding: "5px 12px", fontSize: 12, color: "#fff", background: updateSection.isPending ? "#8a9baa" : "#415162", border: "none", borderRadius: 5, cursor: updateSection.isPending ? "not-allowed" : "pointer" }}
-                >
-                  <Save style={{ width: 12, height: 12 }} /> {updateSection.isPending ? "Saving…" : "Save"}
-                </button>
-              </div>
-            </div>
-
-            <div style={{ display: showPreview ? "grid" : "block", gridTemplateColumns: showPreview ? "1fr 1fr" : undefined, gap: 12 }}>
-              <div>
-                {showPreview && <div style={{ fontSize: 10, color: "#bbb", marginBottom: 3, textTransform: "uppercase", letterSpacing: 0.5 }}>Markdown</div>}
-                <textarea
-                  value={editContent}
-                  onChange={e => setEditContent(e.target.value)}
-                  spellCheck
-                  style={{ width: "100%", minHeight: 320, padding: 12, fontSize: 13, fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", lineHeight: 1.6, color: "#333", background: "#fff", border: "1px solid #C9CED4", borderRadius: 6, outline: "none", resize: "vertical", boxSizing: "border-box" }}
-                />
-              </div>
-              {showPreview && (
-                <div>
-                  <div style={{ fontSize: 10, color: "#bbb", marginBottom: 3, textTransform: "uppercase", letterSpacing: 0.5 }}>Preview</div>
-                  <div style={{ padding: 12, background: "#fff", border: "1px solid #E7EBEF", borderRadius: 6, minHeight: 320, overflowY: "auto" }}>
-                    {renderMarkdown(editContent)}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div style={{ marginTop: 10, padding: "8px 12px", background: "#F0F2F4", borderRadius: 6, fontSize: 11, color: "#888", lineHeight: 1.6 }}>
-              <span style={{ fontWeight: 500, color: "#666" }}>Markdown: </span>
-              <code style={{ background: "#E7EBEF", padding: "1px 3px", borderRadius: 3, fontSize: 10 }}>## Heading</code>{" · "}
-              <code style={{ background: "#E7EBEF", padding: "1px 3px", borderRadius: 3, fontSize: 10 }}>**bold**</code>{" · "}
-              <code style={{ background: "#E7EBEF", padding: "1px 3px", borderRadius: 3, fontSize: 10 }}>- bullet</code>{" · "}
-              <code style={{ background: "#E7EBEF", padding: "1px 3px", borderRadius: 3, fontSize: 10 }}>1. numbered</code>
+            <SectionTipTapEditor
+              content={editContent}
+              onChange={setEditContent}
+              minHeight={320}
+            />
+            <div style={{ display: "flex", gap: 6, justifyContent: "flex-end", marginTop: 10 }}>
+              <button onClick={cancelEditing} style={{ display: "flex", alignItems: "center", gap: 4, padding: "6px 14px", fontSize: 12, color: "#777", background: "transparent", border: "1px solid #C9CED4", borderRadius: 5, cursor: "pointer" }}>
+                <X style={{ width: 12, height: 12 }} /> Cancel
+              </button>
+              <button
+                onClick={() => handleSave(section.id)}
+                disabled={updateSection.isPending}
+                style={{ display: "flex", alignItems: "center", gap: 4, padding: "6px 14px", fontSize: 12, color: "#fff", background: updateSection.isPending ? "#8a9baa" : "#415162", border: "none", borderRadius: 5, cursor: updateSection.isPending ? "not-allowed" : "pointer" }}
+              >
+                <Save style={{ width: 12, height: 12 }} /> {updateSection.isPending ? "Saving…" : "Save"}
+              </button>
             </div>
           </>
         ) : (
           <>
-            {section.content ? renderMarkdown(section.content) : (
+            {section.content ? (
+              <SectionTipTapEditor content={section.content} onChange={() => {}} readOnly />
+            ) : (
               <p style={{ fontSize: 14, color: "#bbb", fontStyle: "italic" }}>No content yet. {canEdit && "Click Edit to add content."}</p>
             )}
           </>
+        )}
+
+        {/* Action buttons — Create Event / Create Task Template (top-level sections only) */}
+        {canEdit && !isEditing && depth === 0 && (
+          <div style={{ display: "flex", gap: 8, marginTop: 16, flexWrap: "wrap" }}>
+            <button
+              onClick={() => {
+                setCreateEventForSection(section);
+                setEventTitle(section.title);
+                setEventDescription(`Linked to Operations Manual: ${section.title}`);
+                setEventDate(new Date().toISOString().split("T")[0]);
+                setEventCategory("program");
+              }}
+              style={{ display: "flex", alignItems: "center", gap: 5, padding: "6px 12px", fontSize: 12, color: "#415162", background: "#E7EBEF", border: "1px solid #C9CED4", borderRadius: 6, cursor: "pointer" }}
+            >
+              <CalendarPlus style={{ width: 13, height: 13 }} /> Create Event
+            </button>
+            <button
+              onClick={() => {
+                setCreateTemplateForSection(section);
+                setTemplateName(`${section.title} Prep`);
+                setTemplateDescription(`From Operations Manual: ${section.title}`);
+                setTemplateCategory("");
+              }}
+              style={{ display: "flex", alignItems: "center", gap: 5, padding: "6px 12px", fontSize: 12, color: "#415162", background: "#E7EBEF", border: "1px solid #C9CED4", borderRadius: 6, cursor: "pointer" }}
+            >
+              <ClipboardList style={{ width: 13, height: 13 }} /> Create Task Template
+            </button>
+          </div>
         )}
 
         {/* Subsections */}
@@ -447,7 +346,7 @@ const Operations = () => {
           </div>
         )}
 
-        {/* Add subsection button (depth 0 only, admin/faculty) */}
+        {/* Add subsection button */}
         {depth === 0 && canEdit && editingId !== section.id && (
           <div style={{ marginTop: subs.length > 0 ? 8 : 0 }}>
             {addingParentId === section.id ? (
@@ -499,7 +398,6 @@ const Operations = () => {
       </header>
 
       <div style={{ display: "flex", height: "calc(100vh - 56px)" }}>
-        {/* Overlay for mobile TOC */}
         {tocOpen && (
           <div
             style={{ position: "fixed", inset: 0, zIndex: 30, background: "rgba(0,0,0,0.3)" }}
@@ -510,21 +408,14 @@ const Operations = () => {
         {/* Sidebar TOC */}
         <aside
           style={{
-            position: "fixed",
-            top: 56,
-            left: 0,
-            zIndex: 40,
-            height: "calc(100vh - 56px)",
-            width: 256,
-            minWidth: 256,
-            background: "#fff",
-            borderRight: "1px solid #E7EBEF",
+            position: "fixed", top: 56, left: 0, zIndex: 40,
+            height: "calc(100vh - 56px)", width: 256, minWidth: 256,
+            background: "#fff", borderRight: "1px solid #E7EBEF",
             overflowY: "auto",
             transform: tocOpen ? "translateX(0)" : "translateX(-100%)",
             transition: "transform 0.2s ease",
           }}
         >
-          {/* Sidebar header */}
           <div style={{ padding: "14px 16px 10px", borderBottom: "1px solid #E7EBEF" }}>
             <div style={{ fontSize: 11, fontWeight: 600, color: "#415162", textTransform: "uppercase", letterSpacing: 0.8 }}>Operations Manual</div>
           </div>
@@ -592,7 +483,6 @@ const Operations = () => {
           ref={contentRef}
           style={{ flex: 1, overflowY: "auto", padding: "24px 20px 120px" }}
         >
-          {/* Mobile TOC accordion (always visible at top on mobile) */}
           <div style={{ marginBottom: 24 }}>
             <button
               onClick={() => setTocOpen(true)}
@@ -610,7 +500,7 @@ const Operations = () => {
             {error && <div style={{ color: "#c44", fontSize: 14 }}>Failed to load. Please refresh.</div>}
             {topSections.map(s => <SectionBlock key={s.id} section={s} />)}
 
-            {/* Task Templates — always shown, not an editable markdown section */}
+            {/* Task Templates */}
             {!isLoading && (
               <div style={{ marginBottom: 52 }} ref={el => { if (el) sectionRefs.current.set("task-templates", el); }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 6 }}>
@@ -636,6 +526,102 @@ const Operations = () => {
             <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
               <button onClick={() => setConfirmDeleteId(null)} style={{ padding: "8px 16px", fontSize: 13, color: "#777", background: "transparent", border: "1px solid #C9CED4", borderRadius: 6, cursor: "pointer" }}>Cancel</button>
               <button onClick={() => handleDelete(confirmDeleteId)} style={{ padding: "8px 16px", fontSize: 13, color: "#fff", background: "#c44444", border: "none", borderRadius: 6, cursor: "pointer" }}>Delete</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Create Event dialog */}
+      {createEventForSection && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 100, background: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
+          <div style={{ background: "#fff", borderRadius: 14, padding: 24, maxWidth: 400, width: "100%", boxShadow: "0 8px 32px rgba(0,0,0,0.18)" }}>
+            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 4 }}>
+              <h3 style={{ fontSize: 15, fontWeight: 600, color: "#333" }}>Create Event</h3>
+              <button onClick={() => setCreateEventForSection(null)} style={{ background: "transparent", border: "none", cursor: "pointer", padding: 2, color: "#aaa" }}><X style={{ width: 16, height: 16 }} /></button>
+            </div>
+            <p style={{ fontSize: 12, color: "#888", marginBottom: 16 }}>From section: {createEventForSection.title}</p>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              <div>
+                <label style={{ fontSize: 11, color: "#888", textTransform: "uppercase", letterSpacing: 0.5, display: "block", marginBottom: 4 }}>Event title</label>
+                <input value={eventTitle} onChange={e => setEventTitle(e.target.value)}
+                  style={{ width: "100%", padding: "7px 10px", fontSize: 13, border: "1px solid #C9CED4", borderRadius: 6, outline: "none", background: "#fff", boxSizing: "border-box" }} />
+              </div>
+              <div>
+                <label style={{ fontSize: 11, color: "#888", textTransform: "uppercase", letterSpacing: 0.5, display: "block", marginBottom: 4 }}>Date</label>
+                <input type="date" value={eventDate} onChange={e => setEventDate(e.target.value)}
+                  style={{ width: "100%", padding: "7px 10px", fontSize: 13, border: "1px solid #C9CED4", borderRadius: 6, outline: "none", background: "#fff", boxSizing: "border-box" }} />
+              </div>
+              <div>
+                <label style={{ fontSize: 11, color: "#888", textTransform: "uppercase", letterSpacing: 0.5, display: "block", marginBottom: 4 }}>Category</label>
+                <select value={eventCategory} onChange={e => setEventCategory(e.target.value as EventCategory)}
+                  style={{ width: "100%", padding: "7px 10px", fontSize: 13, border: "1px solid #C9CED4", borderRadius: 6, outline: "none", background: "#fff", boxSizing: "border-box" }}>
+                  {(Object.entries(EVENT_CATEGORY_LABELS) as [EventCategory, string][]).map(([key, label]) => (
+                    <option key={key} value={key}>{label}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label style={{ fontSize: 11, color: "#888", textTransform: "uppercase", letterSpacing: 0.5, display: "block", marginBottom: 4 }}>Description (optional)</label>
+                <textarea value={eventDescription} onChange={e => setEventDescription(e.target.value)} rows={3}
+                  style={{ width: "100%", padding: "7px 10px", fontSize: 13, border: "1px solid #C9CED4", borderRadius: 6, outline: "none", background: "#fff", resize: "vertical", boxSizing: "border-box" }} />
+              </div>
+            </div>
+
+            <div style={{ display: "flex", gap: 8, marginTop: 18 }}>
+              <button onClick={() => setCreateEventForSection(null)} style={{ flex: 1, padding: "8px 0", fontSize: 13, color: "#777", background: "transparent", border: "1px solid #C9CED4", borderRadius: 7, cursor: "pointer" }}>Cancel</button>
+              <button onClick={handleCreateEvent} disabled={!eventTitle.trim()}
+                style={{ flex: 1, padding: "8px 0", fontSize: 13, color: "#fff", background: eventTitle.trim() ? "#415162" : "#aaa", border: "none", borderRadius: 7, cursor: eventTitle.trim() ? "pointer" : "not-allowed", fontWeight: 500 }}>
+                Create Event
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Create Task Template dialog */}
+      {createTemplateForSection && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 100, background: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
+          <div style={{ background: "#fff", borderRadius: 14, padding: 24, maxWidth: 400, width: "100%", boxShadow: "0 8px 32px rgba(0,0,0,0.18)" }}>
+            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 4 }}>
+              <h3 style={{ fontSize: 15, fontWeight: 600, color: "#333" }}>Create Task Template</h3>
+              <button onClick={() => setCreateTemplateForSection(null)} style={{ background: "transparent", border: "none", cursor: "pointer", padding: 2, color: "#aaa" }}><X style={{ width: 16, height: 16 }} /></button>
+            </div>
+            <p style={{ fontSize: 12, color: "#888", marginBottom: 16 }}>From section: {createTemplateForSection.title}</p>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              <div>
+                <label style={{ fontSize: 11, color: "#888", textTransform: "uppercase", letterSpacing: 0.5, display: "block", marginBottom: 4 }}>Template name</label>
+                <input value={templateName} onChange={e => setTemplateName(e.target.value)}
+                  style={{ width: "100%", padding: "7px 10px", fontSize: 13, border: "1px solid #C9CED4", borderRadius: 6, outline: "none", background: "#fff", boxSizing: "border-box" }} />
+              </div>
+              <div>
+                <label style={{ fontSize: 11, color: "#888", textTransform: "uppercase", letterSpacing: 0.5, display: "block", marginBottom: 4 }}>Category</label>
+                <select value={templateCategory} onChange={e => setTemplateCategory(e.target.value)}
+                  style={{ width: "100%", padding: "7px 10px", fontSize: 13, border: "1px solid #C9CED4", borderRadius: 6, outline: "none", background: "#fff", boxSizing: "border-box", color: templateCategory ? "#333" : "#aaa" }}>
+                  <option value="">Select category…</option>
+                  <option value="program">Program</option>
+                  <option value="didactic">Didactic</option>
+                  <option value="committee">Committee</option>
+                  <option value="compliance">Compliance</option>
+                  <option value="administrative">Administrative</option>
+                  <option value="wellness">Wellness</option>
+                  <option value="faculty">Faculty</option>
+                </select>
+              </div>
+              <div>
+                <label style={{ fontSize: 11, color: "#888", textTransform: "uppercase", letterSpacing: 0.5, display: "block", marginBottom: 4 }}>Description (optional)</label>
+                <textarea value={templateDescription} onChange={e => setTemplateDescription(e.target.value)} rows={3}
+                  style={{ width: "100%", padding: "7px 10px", fontSize: 13, border: "1px solid #C9CED4", borderRadius: 6, outline: "none", background: "#fff", resize: "vertical", boxSizing: "border-box" }} />
+              </div>
+            </div>
+
+            <div style={{ display: "flex", gap: 8, marginTop: 18 }}>
+              <button onClick={() => setCreateTemplateForSection(null)} style={{ flex: 1, padding: "8px 0", fontSize: 13, color: "#777", background: "transparent", border: "1px solid #C9CED4", borderRadius: 7, cursor: "pointer" }}>Cancel</button>
+              <button onClick={handleCreateTemplate} disabled={!templateName.trim()}
+                style={{ flex: 1, padding: "8px 0", fontSize: 13, color: "#fff", background: templateName.trim() ? "#415162" : "#aaa", border: "none", borderRadius: 7, cursor: templateName.trim() ? "pointer" : "not-allowed", fontWeight: 500 }}>
+                Create Template
+              </button>
             </div>
           </div>
         </div>
