@@ -93,7 +93,7 @@ const ALL_SECTIONS: { label: string; items: NavItem[] }[] = [
         icon: <SVGIcon color="#415162"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></SVGIcon>,
       },
       {
-        label: "Rotations", path: "/rotations", color: "#4A846C",
+        label: "Rotations", path: "/rotations", color: "#4A846C", permissionKey: "rotations.view",
         icon: <SVGIcon color="#4A846C"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.36 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.11 1h3a2 2 0 0 1 2 1.72c.1.41.2.81.32 1.2A2 2 0 0 1 7.91 8.5l-.46.46A16 16 0 0 0 13 14.55l.46-.46a2 2 0 0 1 2.11-.45c.39.12.79.22 1.2.32A2 2 0 0 1 18.5 16h.42A2 2 0 0 1 22 16.92z"/></SVGIcon>,
       },
     ],
