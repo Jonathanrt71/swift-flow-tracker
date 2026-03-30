@@ -13,7 +13,7 @@ export function useCompetencySuggestion() {
 
   const suggest = async (
     comment: string,
-    sentiment?: "positive" | "negative",
+    sentiment?: "positive" | "negative" | "neutral",
     pgyLevel?: number,
     competencyData?: any[],
     currentLevels?: Record<string, number>,
