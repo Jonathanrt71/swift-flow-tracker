@@ -24,7 +24,7 @@ const allNavItems: NavEntry[] = [
   { path: "/tasks",       label: "Tasks",        icon: CheckSquare,   permissionKey: "tasks.view" },
   { path: "/gme-handbook",label: "GME Handbook", icon: FileText,      permissionKey: "gme_handbook.view" },
   { path: "/handbook",    label: "Handbook",     icon: BookMarked,    permissionKey: "handbook.view" },
-  { path: "/rotations",   label: "Rotations",    icon: Stethoscope },
+  { path: "/rotations",   label: "Rotations",    icon: Stethoscope,   permissionKey: "rotations.view" },
 ];
 
 interface NavSection { label: string; paths: string[]; }
