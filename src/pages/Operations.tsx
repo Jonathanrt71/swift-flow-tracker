@@ -50,6 +50,46 @@ const Operations = () => {
   const topSections = (allSections || []).filter(s => !s.parent_id);
   const getSubsections = (parentId: string) => (allSections || []).filter(s => s.parent_id === parentId);
 
+  // Linked events & task templates per section
+  const [linkedEvents, setLinkedEvents] = useState<Record<string, any[]>>({});
+  const [linkedTemplates, setLinkedTemplates] = useState<Record<string, any[]>>({});
+  const [linkedRefresh, setLinkedRefresh] = useState(0);
+
+  useEffect(() => {
+    if (!allSections?.length) return;
+    const sectionIds = allSections.map(s => s.id);
+    // Fetch events linked to operations sections
+    supabase
+      .from("events")
+      .select("id, title, event_date, category, operations_section_id")
+      .in("operations_section_id", sectionIds)
+      .eq("archived", false)
+      .order("event_date", { ascending: true })
+      .then(({ data }) => {
+        const grouped: Record<string, any[]> = {};
+        (data || []).forEach(e => {
+          if (!e.operations_section_id) return;
+          if (!grouped[e.operations_section_id]) grouped[e.operations_section_id] = [];
+          grouped[e.operations_section_id].push(e);
+        });
+        setLinkedEvents(grouped);
+      });
+    // Fetch task templates linked to operations sections
+    supabase
+      .from("task_templates")
+      .select("id, name, category, operations_section_id")
+      .in("operations_section_id", sectionIds)
+      .then(({ data }) => {
+        const grouped: Record<string, any[]> = {};
+        (data || []).forEach(t => {
+          if (!t.operations_section_id) return;
+          if (!grouped[t.operations_section_id]) grouped[t.operations_section_id] = [];
+          grouped[t.operations_section_id].push(t);
+        });
+        setLinkedTemplates(grouped);
+      });
+  }, [allSections, linkedRefresh]);
+
   // Map of section id → title for showing parent names in search results
   const sectionTitles: Record<string, string> = {};
   (allSections || []).forEach(s => { sectionTitles[s.id] = s.title; });
@@ -161,9 +201,11 @@ const Operations = () => {
           recurrence_pattern: "none",
           recurrence_confirmed: false,
           archived: false,
+          operations_section_id: createEventForSection.id,
         });
       if (error) throw error;
       toast({ title: "Event created", description: `"${eventTitle.trim()}" added to Events` });
+      setLinkedRefresh(r => r + 1);
       setCreateEventForSection(null);
       setEventTitle("");
       setEventDescription("");
@@ -182,9 +224,11 @@ const Operations = () => {
           description: templateDescription.trim() || `From Operations Manual: ${createTemplateForSection.title}`,
           category: templateCategory || null,
           created_by: user?.id,
+          operations_section_id: createTemplateForSection.id,
         });
       if (error) throw error;
       toast({ title: "Template created", description: `"${templateName.trim()}" added to Task Templates` });
+      setLinkedRefresh(r => r + 1);
       setCreateTemplateForSection(null);
       setTemplateName("");
       setTemplateDescription("");
@@ -318,6 +362,59 @@ const Operations = () => {
             )}
           </>
         )}
+
+        {/* Linked events & task templates for this section */}
+        {(() => {
+          const sectionEvents = linkedEvents[section.id] || [];
+          const sectionTemplates = linkedTemplates[section.id] || [];
+          if (sectionEvents.length === 0 && sectionTemplates.length === 0) return null;
+          return (
+            <div style={{ marginTop: 16 }}>
+              {sectionEvents.length > 0 && (
+                <div style={{ marginBottom: sectionTemplates.length > 0 ? 10 : 0 }}>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: "#8a9baa", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 6 }}>Linked Events</div>
+                  {sectionEvents.map((ev: any) => (
+                    <div
+                      key={ev.id}
+                      onClick={() => navigate("/events")}
+                      style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 10px", marginBottom: 4, background: "#F5F3EE", border: "1px solid #E7EBEF", borderRadius: 6, cursor: "pointer", fontSize: 13 }}
+                    >
+                      <Calendar style={{ width: 13, height: 13, color: "#415162", flexShrink: 0 }} />
+                      <span style={{ flex: 1, color: "#333", fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{ev.title}</span>
+                      {ev.category && (
+                        <span style={{ fontSize: 10, padding: "2px 6px", borderRadius: 4, background: "#E7EBEF", color: "#52657A", flexShrink: 0 }}>
+                          {EVENT_CATEGORY_LABELS[ev.category as EventCategory] || ev.category}
+                        </span>
+                      )}
+                      <span style={{ fontSize: 11, color: "#999", flexShrink: 0 }}>{formatDate(ev.event_date)}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {sectionTemplates.length > 0 && (
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: "#8a9baa", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 6 }}>Linked Task Templates</div>
+                  {sectionTemplates.map((t: any) => (
+                    <div
+                      key={t.id}
+                      onClick={() => {
+                        const el = document.getElementById("task-templates-section");
+                        if (el) el.scrollIntoView({ behavior: "smooth" });
+                      }}
+                      style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 10px", marginBottom: 4, background: "#F5F3EE", border: "1px solid #E7EBEF", borderRadius: 6, cursor: "pointer", fontSize: 13 }}
+                    >
+                      <ClipboardList style={{ width: 13, height: 13, color: "#415162", flexShrink: 0 }} />
+                      <span style={{ flex: 1, color: "#333", fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{t.name}</span>
+                      {t.category && (
+                        <span style={{ fontSize: 10, padding: "2px 6px", borderRadius: 4, background: "#E7EBEF", color: "#52657A", flexShrink: 0 }}>{t.category}</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })()}
 
         {/* Action buttons — Create Event / Create Task Template (top-level sections only) */}
         {canEdit && !isEditing && depth === 0 && (
@@ -548,7 +645,7 @@ const Operations = () => {
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 6 }}>
                   <h1 style={{ fontSize: 20, fontWeight: 600, color: "#333", margin: 0 }}>Task Templates</h1>
                 </div>
-                <div style={{ fontSize: 11, color: "#bbb", marginBottom: 18 }}>
+                <div id="task-templates-section" style={{ fontSize: 11, color: "#bbb", marginBottom: 18 }}>
                   Reusable task bundles · spawn into Tasks with one tap
                 </div>
                 <TaskTemplatesSection canEdit={canEdit} />
