@@ -141,33 +141,36 @@ const EditFeedbackDialog = ({ feedback, residents, onSubmit }: EditFeedbackDialo
               onClick={() => setSentiment("negative")}
               className="flex-1 flex items-center justify-center py-2.5 rounded-lg transition-opacity"
               style={{
-                background: "#A63333",
+                background: "#FBF3E0",
+                border: "2px solid #D4A017",
                 opacity: sentiment === "negative" ? 1 : 0.3,
               }}
             >
-              <ThumbsDown className="h-5 w-5" style={{ color: "#F5F3EE" }} />
+              <ThumbsDown className="h-5 w-5" style={{ color: "#3D3D3A" }} />
             </button>
             <button
               type="button"
               onClick={() => setSentiment("neutral")}
               className="flex-1 flex items-center justify-center py-2.5 rounded-lg transition-opacity"
               style={{
-                background: "#C49A1A",
+                background: "#E4F0EB",
+                border: "2px solid #4A846C",
                 opacity: sentiment === "neutral" ? 1 : 0.3,
               }}
             >
-              <Minus className="h-5 w-5" style={{ color: "#F5F3EE" }} />
+              <Minus className="h-5 w-5" style={{ color: "#3D3D3A" }} />
             </button>
             <button
               type="button"
               onClick={() => setSentiment("positive")}
               className="flex-1 flex items-center justify-center py-2.5 rounded-lg transition-opacity"
               style={{
-                background: "#5E9E82",
+                background: "#D6DEE6",
+                border: "2px solid #52657A",
                 opacity: sentiment === "positive" ? 1 : 0.3,
               }}
             >
-              <ThumbsUp className="h-5 w-5" style={{ color: "#F5F3EE" }} />
+              <ThumbsUp className="h-5 w-5" style={{ color: "#3D3D3A" }} />
             </button>
           </div>
         </div>

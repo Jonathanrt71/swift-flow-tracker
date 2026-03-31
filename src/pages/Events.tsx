@@ -151,7 +151,10 @@ const EventCard = ({
 
   return (
     <div
-      className="bg-muted border border-border rounded-[10px] overflow-hidden transition-all mb-2 cursor-pointer"
+      className="border rounded-[10px] overflow-hidden transition-all mb-2 cursor-pointer"
+      style={{ background: "#E7EBEF", borderColor: "#D5DAE0" }}
+      onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = "#DFE3E8"}
+      onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = "#E7EBEF"}
       onClick={() => setExpanded(!expanded)}
     >
       <div className="flex items-center min-h-[48px] px-2">
@@ -461,7 +464,7 @@ const Events = () => {
   const [activeCategory, setActiveCategory] = useState<EventCategory | "all">("all");
   const [viewMode, setViewMode] = useState<"list" | "vertical" | "gantt" | "evaluations">("list");
 
-  const ALL_CATEGORIES: EventCategory[] = ["program", "didactic", "committee", "compliance", "administrative", "wellness", "faculty"];
+  const ALL_CATEGORIES: EventCategory[] = ["program", "didactic"];
 
   const ganttRangeLabel = useMemo(() => {
     const n = new Date();
@@ -532,43 +535,6 @@ const Events = () => {
       </header>
 
       <main className="container max-w-[1200px] px-4 py-4">
-        {/* Row 1: Category filter pills */}
-        <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch", marginBottom: 10, paddingBottom: 2 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 6, minWidth: "max-content" }}>
-            {/* All pill */}
-            <button
-              onClick={() => handleCategoryChange("all")}
-              style={{
-                padding: "5px 12px", fontSize: 12, fontWeight: activeCategory === "all" ? 600 : 400,
-                borderRadius: 20, border: "none", cursor: "pointer", whiteSpace: "nowrap",
-                background: activeCategory === "all" ? "#415162" : "#E7EBEF",
-                color: activeCategory === "all" ? "#fff" : "#555",
-                transition: "background 0.15s",
-              }}
-            >
-              All
-            </button>
-            {ALL_CATEGORIES.map((cat) => {
-              const isActive = activeCategory === cat;
-              const color = EVENT_CATEGORY_COLORS[cat];
-              return (
-                <button
-                  key={cat}
-                  onClick={() => handleCategoryChange(cat)}
-                  style={{
-                    padding: "5px 12px", fontSize: 12, fontWeight: isActive ? 600 : 400,
-                    borderRadius: 20, border: "none", cursor: "pointer", whiteSpace: "nowrap",
-                    background: isActive ? color : "#E7EBEF",
-                    color: isActive ? "#fff" : "#555",
-                    transition: "background 0.15s",
-                  }}
-                >
-                  {EVENT_CATEGORY_LABELS[cat]}
-                </button>
-              );
-            })}
-          </div>
-        </div>
 
         {/* Row 2: View toggle + Add button */}
         <div className="flex items-center justify-between pb-2.5">

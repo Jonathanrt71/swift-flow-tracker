@@ -125,11 +125,6 @@ const CreateEventDialog = ({ onSubmit, defaultCategory }: CreateEventDialogProps
               <SelectContent>
                 <SelectItem value="program">Program</SelectItem>
                 <SelectItem value="didactic">Didactic</SelectItem>
-                <SelectItem value="committee">Committee</SelectItem>
-                <SelectItem value="compliance">Compliance</SelectItem>
-                <SelectItem value="administrative">Administrative</SelectItem>
-                <SelectItem value="wellness">Wellness</SelectItem>
-                <SelectItem value="faculty">Faculty</SelectItem>
               </SelectContent>
             </Select>
           </div>

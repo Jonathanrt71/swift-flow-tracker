@@ -12,7 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { X, ArrowDown, ArrowRight, ArrowUp } from "lucide-react";
+import { X, ThumbsDown, Minus, ThumbsUp } from "lucide-react";
 
 type Rating = "yellow" | "green" | "blue";
 
@@ -21,11 +21,11 @@ const RATING_OPTIONS: {
   color: string;
   bgLight: string;
   borderColor: string;
-  icon: typeof ArrowDown;
+  icon: typeof ThumbsDown;
 }[] = [
-  { value: "yellow", color: "#3D3D3A", borderColor: "#D4A017", bgLight: "#FBF3E0", icon: ArrowDown },
-  { value: "green", color: "#3D3D3A", borderColor: "#4A846C", bgLight: "#E4F0EB", icon: ArrowRight },
-  { value: "blue", color: "#3D3D3A", borderColor: "#52657A", bgLight: "#D6DEE6", icon: ArrowUp },
+  { value: "yellow", color: "#3D3D3A", borderColor: "#D4A017", bgLight: "#FBF3E0", icon: ThumbsDown },
+  { value: "green", color: "#3D3D3A", borderColor: "#4A846C", bgLight: "#E4F0EB", icon: Minus },
+  { value: "blue", color: "#3D3D3A", borderColor: "#52657A", bgLight: "#D6DEE6", icon: ThumbsUp },
 ];
 
 const CRITERIA = [
@@ -168,7 +168,8 @@ export default function EvaluationDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="bg-muted border-border rounded-xl p-0 [&>button[class*='absolute']]:hidden max-w-sm"
+        className="border-border rounded-xl p-0 [&>button[class*='absolute']]:hidden max-w-sm"
+        style={{ background: "#F5F3EE" }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -288,19 +289,13 @@ export default function EvaluationDialog({
           </div>
 
           {/* Submit */}
-          <div style={{ display: "flex", justifyContent: "flex-end" }}>
+          <div>
             <button
               disabled={buttonDisabled}
               onClick={handleSubmit}
+              className="w-full rounded-lg py-3 text-sm font-medium text-white disabled:opacity-50"
               style={{
-                background: buttonDisabled ? "#A0AEC0" : "#415162",
-                color: "white",
-                border: "none",
-                borderRadius: 6,
-                padding: "8px 24px",
-                fontSize: 13,
-                fontWeight: 500,
-                cursor: buttonDisabled ? "default" : "pointer",
+                background: "#415162",
               }}
             >
               {buttonText}

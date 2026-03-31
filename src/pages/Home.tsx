@@ -26,8 +26,8 @@ const Icon = ({ path, color, size = 18 }: { path: string | React.ReactNode; colo
   </div>
 );
 
-const SVGIcon = ({ children, color, size = 18 }: { children: React.ReactNode; color: string; size?: number }) => (
-  <div style={{ width: 36, height: 36, borderRadius: 8, background: color + "18", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+const SVGIcon = ({ children, color, bg, size = 18 }: { children: React.ReactNode; color: string; bg?: string; size?: number }) => (
+  <div style={{ width: 36, height: 36, borderRadius: 8, background: bg || (color + "18"), display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       {children}
     </svg>
@@ -44,19 +44,19 @@ const ALL_SECTIONS: { label: string; items: NavItem[] }[] = [
     items: [
       {
         label: "CBME", path: "/cbme", color: "#52657A", permissionKey: "cbme.view",
-        icon: <SVGIcon color="#52657A"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></SVGIcon>,
+        icon: <SVGIcon color="#3D3D3A" bg="#D6DEE6"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></SVGIcon>,
       },
       {
         label: "Events", path: "/events", color: "#D4A017", permissionKey: "events.view",
-        icon: <SVGIcon color="#D4A017"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></SVGIcon>,
+        icon: <SVGIcon color="#3D3D3A" bg="#FBF3E0"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></SVGIcon>,
       },
       {
-        label: "Feedback", path: "/feedback", color: "#415162", permissionKey: "feedback.view",
-        icon: <SVGIcon color="#415162"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></SVGIcon>,
+        label: "Feedback", path: "/feedback", color: "#9F2929", permissionKey: "feedback.view",
+        icon: <SVGIcon color="#3D3D3A" bg="#F0DADA"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></SVGIcon>,
       },
       {
         label: "Topics", path: "/topics", color: "#4A846C", permissionKey: "topics.view",
-        icon: <SVGIcon color="#4A846C"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></SVGIcon>,
+        icon: <SVGIcon color="#3D3D3A" bg="#E4F0EB"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></SVGIcon>,
       },
     ],
   },
@@ -64,20 +64,20 @@ const ALL_SECTIONS: { label: string; items: NavItem[] }[] = [
     label: "Program",
     items: [
       {
-        label: "Compliance", description: "ACGME requirements", path: "/compliance", color: "#52657A", permissionKey: "compliance.view",
-        icon: <SVGIcon color="#52657A"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></SVGIcon>,
+        label: "Compliance", description: "ACGME requirements", path: "/compliance", color: "#3D3D3D", permissionKey: "compliance.view",
+        icon: <SVGIcon color="#3D3D3A" bg="#E0E0E0"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></SVGIcon>,
       },
       {
         label: "Meetings", description: "CCC, PEC, GMEC", path: "/meetings", color: "#4A846C", permissionKey: "meetings.view",
-        icon: <SVGIcon color="#4A846C"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></SVGIcon>,
+        icon: <SVGIcon color="#3D3D3A" bg="#E4F0EB"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></SVGIcon>,
       },
       {
-        label: "Operations", description: "Manual, task templates", path: "/operations", color: "#415162", permissionKey: "operations.view",
-        icon: <SVGIcon color="#415162"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></SVGIcon>,
+        label: "Operations", description: "Manual, task templates", path: "/operations", color: "#52657A", permissionKey: "operations.view",
+        icon: <SVGIcon color="#3D3D3A" bg="#D6DEE6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></SVGIcon>,
       },
       {
-        label: "Tasks", description: "Assignments & checklists", path: "/tasks", color: "#52657A", permissionKey: "tasks.view",
-        icon: <SVGIcon color="#52657A"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></SVGIcon>,
+        label: "Tasks", description: "Assignments & checklists", path: "/tasks", color: "#D4A017", permissionKey: "tasks.view",
+        icon: <SVGIcon color="#3D3D3A" bg="#FBF3E0"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></SVGIcon>,
       },
     ],
   },
@@ -85,16 +85,16 @@ const ALL_SECTIONS: { label: string; items: NavItem[] }[] = [
     label: "Reference",
     items: [
       {
-        label: "GME Handbook", description: "GME policies", path: "/gme-handbook", color: "#52657A", permissionKey: "gme_handbook.view",
-        icon: <SVGIcon color="#52657A"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></SVGIcon>,
+        label: "GME Handbook", description: "GME policies", path: "/gme-handbook", color: "#9F2929", permissionKey: "gme_handbook.view",
+        icon: <SVGIcon color="#3D3D3A" bg="#F0DADA"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></SVGIcon>,
       },
       {
-        label: "Handbook", path: "/handbook", color: "#415162", permissionKey: "handbook.view",
-        icon: <SVGIcon color="#415162"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></SVGIcon>,
+        label: "Handbook", path: "/handbook", color: "#52657A", permissionKey: "handbook.view",
+        icon: <SVGIcon color="#3D3D3A" bg="#D6DEE6"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></SVGIcon>,
       },
       {
         label: "Rotations", path: "/rotations", color: "#4A846C", permissionKey: "rotations.view",
-        icon: <SVGIcon color="#4A846C"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.36 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.11 1h3a2 2 0 0 1 2 1.72c.1.41.2.81.32 1.2A2 2 0 0 1 7.91 8.5l-.46.46A16 16 0 0 0 13 14.55l.46-.46a2 2 0 0 1 2.11-.45c.39.12.79.22 1.2.32A2 2 0 0 1 18.5 16h.42A2 2 0 0 1 22 16.92z"/></SVGIcon>,
+        icon: <SVGIcon color="#3D3D3A" bg="#E4F0EB"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.36 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.11 1h3a2 2 0 0 1 2 1.72c.1.41.2.81.32 1.2A2 2 0 0 1 7.91 8.5l-.46.46A16 16 0 0 0 13 14.55l.46-.46a2 2 0 0 1 2.11-.45c.39.12.79.22 1.2.32A2 2 0 0 1 18.5 16h.42A2 2 0 0 1 22 16.92z"/></SVGIcon>,
       },
     ],
   },
@@ -102,8 +102,8 @@ const ALL_SECTIONS: { label: string; items: NavItem[] }[] = [
     label: "Administration",
     items: [
       {
-        label: "Admin", description: "Users, settings", path: "/admin", color: "#D4A017", permissionKey: "admin.all",
-        icon: <SVGIcon color="#D4A017"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></SVGIcon>,
+        label: "Admin", description: "Users, settings", path: "/admin", color: "#3D3D3D", permissionKey: "admin.all",
+        icon: <SVGIcon color="#3D3D3A" bg="#E0E0E0"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></SVGIcon>,
       },
     ],
   },
@@ -153,8 +153,8 @@ const Home = () => {
     <div
       onClick={() => navigate(item.path)}
       style={{
-        background: "#fff",
-        border: "1px solid #E7EBEF",
+        background: "#E7EBEF",
+        border: "1px solid #D5DAE0",
         borderRadius: 10,
         padding: "12px 14px",
         display: "flex",
@@ -163,8 +163,8 @@ const Home = () => {
         cursor: "pointer",
         transition: "background 0.12s",
       }}
-      onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = "#F8F7F5"}
-      onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = "#fff"}
+      onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = "#DFE3E8"}
+      onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = "#E7EBEF"}
     >
       {item.icon}
       {full ? (
