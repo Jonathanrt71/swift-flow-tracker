@@ -92,34 +92,33 @@ const CreateEventDialog = ({ onSubmit, defaultCategory }: CreateEventDialogProps
         </button>
       </DialogTrigger>
       <DialogContent
-        className="w-[calc(100%-2rem)] max-w-md overflow-y-auto bg-muted border-border rounded-xl p-0 max-h-[85vh] [&>button[class*='absolute']]:hidden"
+        className="rounded-lg p-5 max-w-[calc(100vw-2rem)] w-full sm:max-w-md overflow-hidden"
+        style={{ background: "#F5F3EE", border: "1px solid #C9CED4", boxShadow: "0 4px 24px rgba(0,0,0,0.12)" }}
         overlayClassName="bg-background/60 backdrop-blur-sm"
       >
-        <div className="flex items-center justify-between px-5 pt-4 pb-2">
-          <div className="text-base font-medium">New event</div>
-          <button
-            onClick={() => setOpen(false)}
-            className="flex items-center justify-center w-9 h-9 bg-transparent border-none cursor-pointer"
-          >
-            <X className="h-4 w-4 text-foreground" />
-          </button>
+        <div className="overflow-y-auto max-h-[80vh] overflow-x-hidden">
+        <div className="flex items-center justify-between mb-5">
+          <span className="text-base font-semibold" style={{ color: "#2D3748" }}>
+            New event
+          </span>
         </div>
 
-        <div className="px-5 pb-5 flex flex-col gap-3.5">
-          <div className="space-y-1.5">
-            <Label className="text-xs text-muted-foreground">Title</Label>
+        <div className="flex flex-col gap-4">
+          <div>
+            <label className="text-xs block mb-1.5" style={{ color: "#5F7285" }}>Title</label>
             <Input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Event title"
-              className="bg-background rounded-lg"
+              className="rounded-lg focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none"
+              style={{ borderColor: "#C9CED4", background: "#fff" }}
             />
           </div>
 
-          <div className="space-y-1.5">
-            <Label className="text-xs text-muted-foreground">Category</Label>
+          <div>
+            <label className="text-xs block mb-1.5" style={{ color: "#5F7285" }}>Category</label>
             <Select value={category} onValueChange={(v) => setCategory(v as EventCategory)}>
-              <SelectTrigger className="bg-background rounded-lg">
+              <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none" style={{ borderColor: "#C9CED4", background: "#fff" }}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -129,15 +128,18 @@ const CreateEventDialog = ({ onSubmit, defaultCategory }: CreateEventDialogProps
             </Select>
           </div>
 
-          <div className="space-y-1.5">
-            <Label className="text-xs text-muted-foreground">Date</Label>
+          <div>
+            <label className="text-xs block mb-1.5" style={{ color: "#5F7285" }}>Date</label>
             <Popover>
               <PopoverTrigger asChild>
-                <button className="flex items-center justify-between w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-left">
-                  <span className={eventDate ? "text-foreground" : "text-muted-foreground"}>
+                <button
+                  className="flex items-center justify-between w-full px-3 py-2 border rounded-lg text-sm text-left"
+                  style={{ borderColor: "#C9CED4", background: "#fff", color: eventDate ? "#2D3748" : "#8A9AAB" }}
+                >
+                  <span>
                     {eventDate ? format(parseISO(eventDate), "MMM d, yyyy") : "Select date"}
                   </span>
-                  <CalendarIcon className="h-4 w-4 text-muted-foreground" />
+                  <CalendarIcon className="h-4 w-4" style={{ color: "#8A9AAB" }} />
                 </button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
@@ -153,15 +155,18 @@ const CreateEventDialog = ({ onSubmit, defaultCategory }: CreateEventDialogProps
             </Popover>
           </div>
 
-          <div className="space-y-1.5">
-            <Label className="text-xs text-muted-foreground">End date (optional)</Label>
+          <div>
+            <label className="text-xs block mb-1.5" style={{ color: "#5F7285" }}>End date (optional)</label>
             <Popover>
               <PopoverTrigger asChild>
-                <button className="flex items-center justify-between w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-left">
-                  <span className={endDate ? "text-foreground" : "text-muted-foreground"}>
+                <button
+                  className="flex items-center justify-between w-full px-3 py-2 border rounded-lg text-sm text-left"
+                  style={{ borderColor: "#C9CED4", background: "#fff", color: endDate ? "#2D3748" : "#8A9AAB" }}
+                >
+                  <span>
                     {endDate ? format(parseISO(endDate), "MMM d, yyyy") : "Same as start"}
                   </span>
-                  <CalendarIcon className="h-4 w-4 text-muted-foreground" />
+                  <CalendarIcon className="h-4 w-4" style={{ color: "#8A9AAB" }} />
                 </button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
@@ -178,30 +183,32 @@ const CreateEventDialog = ({ onSubmit, defaultCategory }: CreateEventDialogProps
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">Start time</Label>
+            <div>
+              <label className="text-xs block mb-1.5" style={{ color: "#5F7285" }}>Start time</label>
               <Input
                 type="time"
                 value={startTime}
                 onChange={(e) => setStartTime(e.target.value)}
-                className="bg-background rounded-lg"
+                className="rounded-lg focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none"
+                style={{ borderColor: "#C9CED4", background: "#fff" }}
               />
             </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">End time</Label>
+            <div>
+              <label className="text-xs block mb-1.5" style={{ color: "#5F7285" }}>End time</label>
               <Input
                 type="time"
                 value={endTime}
                 onChange={(e) => setEndTime(e.target.value)}
-                className="bg-background rounded-lg"
+                className="rounded-lg focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none"
+                style={{ borderColor: "#C9CED4", background: "#fff" }}
               />
             </div>
           </div>
 
-          <div className="space-y-1.5">
-            <Label className="text-xs text-muted-foreground">Assign to</Label>
+          <div>
+            <label className="text-xs block mb-1.5" style={{ color: "#5F7285" }}>Assign to</label>
             <Select value={assignedTo} onValueChange={setAssignedTo}>
-              <SelectTrigger className="bg-background rounded-lg">
+              <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none" style={{ borderColor: "#C9CED4", background: "#fff" }}>
                 <SelectValue placeholder="Unassigned" />
               </SelectTrigger>
               <SelectContent>
@@ -215,21 +222,21 @@ const CreateEventDialog = ({ onSubmit, defaultCategory }: CreateEventDialogProps
             </Select>
           </div>
 
-          <div className="space-y-1.5">
-            <Label className="text-xs text-muted-foreground">Description</Label>
+          <div>
+            <label className="text-xs block mb-1.5" style={{ color: "#5F7285" }}>Description</label>
             <Input
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Optional description"
-              className="bg-background rounded-lg"
+              className="rounded-lg focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none"
+              style={{ borderColor: "#C9CED4", background: "#fff" }}
             />
           </div>
 
-          {/* Repeats */}
-          <div className="px-5">
-            <Label className="text-xs text-muted-foreground mb-1 block">Repeats</Label>
+          <div>
+            <label className="text-xs block mb-1.5" style={{ color: "#5F7285" }}>Repeats</label>
             <Select value={recurrencePattern} onValueChange={(v) => setRecurrencePattern(v as RecurrencePattern)}>
-              <SelectTrigger className="bg-background rounded-lg">
+              <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none" style={{ borderColor: "#C9CED4", background: "#fff" }}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -243,15 +250,15 @@ const CreateEventDialog = ({ onSubmit, defaultCategory }: CreateEventDialogProps
             </Select>
           </div>
 
-          <div className="flex justify-end pt-3 border-t border-border">
-            <button
-              onClick={handleSubmit}
-              disabled={!title.trim() || !eventDate}
-              className="flex items-center justify-center w-11 h-11 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50"
-            >
-              <Check className="h-4 w-4" />
-            </button>
-          </div>
+          <button
+            onClick={handleSubmit}
+            disabled={!title.trim() || !eventDate}
+            className="w-full rounded-lg py-3 text-sm font-medium text-white disabled:opacity-50"
+            style={{ background: "#415162" }}
+          >
+            Save event
+          </button>
+        </div>
         </div>
       </DialogContent>
     </Dialog>

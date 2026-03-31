@@ -4,6 +4,13 @@ import {
   DialogContent,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Plus, ThumbsUp, ThumbsDown, Minus } from "lucide-react";
 import { formatPersonName } from "@/lib/dateFormat";
 import { useEditor, EditorContent } from "@tiptap/react";
@@ -76,8 +83,9 @@ const CreateFeedbackDialog = ({ onSubmit, residents }: CreateFeedbackDialogProps
         </button>
       </DialogTrigger>
       <DialogContent
-        className="rounded-lg border-0 p-5 max-w-[calc(100vw-2rem)] w-full sm:max-w-md overflow-hidden"
-        style={{ background: "#F5F3EE" }}
+        className="rounded-lg p-5 max-w-[calc(100vw-2rem)] w-full sm:max-w-md overflow-hidden"
+        style={{ background: "#F5F3EE", border: "1px solid #C9CED4", boxShadow: "0 4px 24px rgba(0,0,0,0.12)" }}
+        overlayClassName="bg-background/60 backdrop-blur-sm"
       >
         <div className="overflow-y-auto max-h-[80vh] overflow-x-hidden">
         <div className="flex items-center justify-between mb-5">
@@ -91,19 +99,18 @@ const CreateFeedbackDialog = ({ onSubmit, residents }: CreateFeedbackDialogProps
           <label className="text-xs block mb-1.5" style={{ color: "#5F7285" }}>
             Resident
           </label>
-          <select
-            value={residentId}
-            onChange={(e) => setResidentId(e.target.value)}
-            className="w-full rounded-lg border px-3 py-2.5 text-sm bg-white"
-            style={{ borderColor: "#C9CED4", color: "#2D3748" }}
-          >
-            <option value="">Select resident...</option>
-            {sortedResidents.map((r) => (
-              <option key={r.id} value={r.id}>
-                {formatPersonName(r)}
-              </option>
-            ))}
-          </select>
+          <Select value={residentId || "unselected"} onValueChange={(v) => setResidentId(v === "unselected" ? "" : v)}>
+            <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0" style={{ borderColor: "#C9CED4", background: "#fff" }}>
+              <SelectValue placeholder="Select resident..." />
+            </SelectTrigger>
+            <SelectContent>
+              {sortedResidents.map((r) => (
+                <SelectItem key={r.id} value={r.id}>
+                  {formatPersonName(r)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Comment (TipTap, no toolbar) */}
