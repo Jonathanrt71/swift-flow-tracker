@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
 import HeaderLogo from "@/components/HeaderLogo";
+import NotificationBell from "@/components/NotificationBell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -152,8 +153,10 @@ const Profile = () => {
   return (
     <div className="min-h-screen" style={{ background: "#F5F3EE" }}>
       <header className="sticky top-0 z-40" style={{ background: "#415162" }}>
-        <div className="container flex items-center justify-between h-14 px-4">
-          <HeaderLogo isAdmin={isAdmin} onSignOut={signOut} />
+        <div className="container flex items-center h-14 px-4">
+          <HeaderLogo isAdmin={isAdmin} onSignOut={signOut}>
+            <NotificationBell />
+          </HeaderLogo>
         </div>
       </header>
 

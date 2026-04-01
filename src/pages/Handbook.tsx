@@ -294,14 +294,13 @@ const Handbook = () => {
   return (
     <div style={{ minHeight: "100vh", background: "#F5F3EE" }}>
       <header style={{ position: "sticky", top: 0, zIndex: 40, background: "#415162" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", height: 56, padding: "0 16px" }}>
-          <HeaderLogo isAdmin={isAdmin} onSignOut={signOut} />
-          <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-            <button onClick={() => setTocOpen(!tocOpen)} style={{ background: "transparent", border: "none", cursor: "pointer", padding: 8, color: "rgba(255,255,255,0.75)", display: "flex", alignItems: "center" }} aria-label="Toggle table of contents">
+        <div style={{ display: "flex", alignItems: "center", height: 56, padding: "0 16px" }}>
+          <HeaderLogo isAdmin={isAdmin} onSignOut={signOut}>
+            <button onClick={() => setTocOpen(!tocOpen)} style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 36, height: 36, background: "transparent", border: "none", borderRadius: 6, cursor: "pointer", color: "rgba(255,255,255,0.75)" }} aria-label="Toggle table of contents">
               <Menu style={{ width: 18, height: 18 }} />
             </button>
             <NotificationBell />
-          </div>
+          </HeaderLogo>
         </div>
       </header>
 

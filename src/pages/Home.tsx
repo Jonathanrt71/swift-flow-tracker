@@ -186,11 +186,10 @@ const Home = () => {
   return (
     <div style={{ minHeight: "100vh", background: "#F5F3EE" }}>
       <header style={{ position: "sticky", top: 0, zIndex: 40, background: "#415162" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", height: 56, padding: "0 16px" }}>
-          <HeaderLogo isAdmin={isAdmin} onSignOut={signOut} />
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <div style={{ display: "flex", alignItems: "center", height: 56, padding: "0 16px" }}>
+          <HeaderLogo isAdmin={isAdmin} onSignOut={signOut} >
             <NotificationBell />
-          </div>
+          </HeaderLogo>
         </div>
       </header>
 

@@ -503,13 +503,12 @@ const Events = () => {
   return (
     <div className="min-h-screen bg-background pb-20">
       <header className="bg-[#415162] sticky top-0 z-40">
-        <div className="container flex items-center justify-between h-14 px-4">
-          <HeaderLogo isAdmin={isAdmin} onSignOut={() => signOut()} />
-          <div className="flex items-center gap-1 text-white/50">
+        <div className="container flex items-center h-14 px-4">
+          <HeaderLogo isAdmin={isAdmin} onSignOut={() => signOut()}>
             <Button
               variant="ghost"
               size="icon"
-              className="hover:bg-transparent"
+              className="hover:bg-transparent text-white/50"
               title="Search"
               onClick={() => {
                 setSearchOpen(!searchOpen);
@@ -519,7 +518,7 @@ const Events = () => {
               {searchOpen ? <X className="h-4 w-4" /> : <Search className="h-4 w-4" />}
             </Button>
             <NotificationBell />
-          </div>
+          </HeaderLogo>
         </div>
         {searchOpen && (
           <div className="container px-4 pb-3">

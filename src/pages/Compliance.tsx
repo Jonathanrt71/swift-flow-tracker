@@ -397,7 +397,7 @@ function renderNarrativeContent(
 // MAIN COMPLIANCE PAGE
 // ══════════════════════════════════════════════════════════════════════════
 const Compliance = () => {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const { isAdmin, users: adminUsers } = useAdmin();
   const { toast } = useToast();
 
@@ -614,13 +614,11 @@ const Compliance = () => {
       <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
       {/* Header */}
       <div style={{
-        display: "flex", alignItems: "center", justifyContent: "space-between",
-        padding: "14px 16px", background: "#415162", color: "#fff",
+        display: "flex", alignItems: "center", padding: "14px 16px", background: "#415162", color: "#fff",
       }}>
-        <HeaderLogo />
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <NotificationBell />
-        </div>
+        <HeaderLogo isAdmin={isAdmin} onSignOut={signOut}>
+            <NotificationBell />
+          </HeaderLogo>
       </div>
 
       {/* Title + Tabs */}
