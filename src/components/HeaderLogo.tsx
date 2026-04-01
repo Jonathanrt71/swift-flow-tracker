@@ -126,7 +126,7 @@ const HeaderLogo = ({
               )}
             >
               <Home className="h-4 w-4" />
-              FM App
+              FM App ·
             </Link>
 
             <div style={{ height: 0.5, background: "rgba(255,255,255,0.15)" }} />
