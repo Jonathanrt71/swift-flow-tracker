@@ -57,38 +57,9 @@ const Operations = () => {
   const [linkedRefresh, setLinkedRefresh] = useState(0);
 
   useEffect(() => {
-    if (!allSections?.length) return;
-    const sectionIds = allSections.map(s => s.id);
-    // Fetch events linked to operations sections
-    supabase
-      .from("events")
-      .select("id, title, event_date, category, operations_section_id")
-      .in("operations_section_id", sectionIds)
-      .eq("archived", false)
-      .order("event_date", { ascending: true })
-      .then(({ data }) => {
-        const grouped: Record<string, any[]> = {};
-        (data || []).forEach(e => {
-          if (!e.operations_section_id) return;
-          if (!grouped[e.operations_section_id]) grouped[e.operations_section_id] = [];
-          grouped[e.operations_section_id].push(e);
-        });
-        setLinkedEvents(grouped);
-      });
-    // Fetch task templates linked to operations sections
-    supabase
-      .from("task_templates")
-      .select("id, name, category, operations_section_id")
-      .in("operations_section_id", sectionIds)
-      .then(({ data }) => {
-        const grouped: Record<string, any[]> = {};
-        (data || []).forEach(t => {
-          if (!t.operations_section_id) return;
-          if (!grouped[t.operations_section_id]) grouped[t.operations_section_id] = [];
-          grouped[t.operations_section_id].push(t);
-        });
-        setLinkedTemplates(grouped);
-      });
+    // No linked events/templates columns exist yet — clear state
+    setLinkedEvents({});
+    setLinkedTemplates({});
   }, [allSections, linkedRefresh]);
 
   // Map of section id → title for showing parent names in search results
