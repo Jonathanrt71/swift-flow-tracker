@@ -14,138 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      clinical_topics: {
-        Row: {
-          id: string
-          title: string
-          url: string | null
-          notes: string | null
-          is_required: boolean
-          last_reviewed: string | null
-          sort_order: number
-          created_by: string | null
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          title: string
-          url?: string | null
-          notes?: string | null
-          is_required?: boolean
-          last_reviewed?: string | null
-          sort_order?: number
-          created_by?: string | null
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          title?: string
-          url?: string | null
-          notes?: string | null
-          is_required?: boolean
-          last_reviewed?: string | null
-          sort_order?: number
-          created_by?: string | null
-          created_at?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      role_permissions: {
-        Row: {
-          id: string
-          role: string
-          permission_key: string
-          access_level: string
-          updated_at: string | null
-        }
-        Insert: {
-          id?: string
-          role: string
-          permission_key: string
-          access_level: string
-          updated_at?: string | null
-        }
-        Update: {
-          id?: string
-          role?: string
-          permission_key?: string
-          access_level?: string
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      topic_checkoffs: {
-        Row: {
-          id: string
-          topic_id: string
-          resident_id: string
-          faculty_id: string
-          checked_off_at: string
-          notes: string | null
-        }
-        Insert: {
-          id?: string
-          topic_id: string
-          resident_id: string
-          faculty_id: string
-          checked_off_at?: string
-          notes?: string | null
-        }
-        Update: {
-          id?: string
-          topic_id?: string
-          resident_id?: string
-          faculty_id?: string
-          checked_off_at?: string
-          notes?: string | null
-        }
-        Relationships: []
-      }
-      topic_tag_links: {
-        Row: {
-          id: string
-          topic_id: string
-          tag_id: string
-        }
-        Insert: {
-          id?: string
-          topic_id: string
-          tag_id: string
-        }
-        Update: {
-          id?: string
-          topic_id?: string
-          tag_id?: string
-        }
-        Relationships: []
-      }
-      topic_tags: {
-        Row: {
-          id: string
-          name: string
-          color: string
-          tag_type: string
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          name: string
-          color: string
-          tag_type: string
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          name?: string
-          color?: string
-          tag_type?: string
-          created_at?: string
-        }
-        Relationships: []
-      }
       app_settings: {
         Row: {
           key: string
@@ -161,6 +29,45 @@ export type Database = {
           key?: string
           updated_at?: string | null
           value?: string
+        }
+        Relationships: []
+      }
+      clinical_topics: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          id: string
+          is_required: boolean
+          last_reviewed: string | null
+          notes: string | null
+          sort_order: number
+          title: string
+          updated_at: string | null
+          url: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          is_required?: boolean
+          last_reviewed?: string | null
+          notes?: string | null
+          sort_order?: number
+          title: string
+          updated_at?: string | null
+          url?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          is_required?: boolean
+          last_reviewed?: string | null
+          notes?: string | null
+          sort_order?: number
+          title?: string
+          updated_at?: string | null
+          url?: string | null
         }
         Relationships: []
       }
@@ -644,6 +551,7 @@ export type Database = {
           content: string
           display_order: number
           doc_type: string
+          fts: unknown
           icon: string
           id: string
           parent_id: string | null
@@ -657,6 +565,7 @@ export type Database = {
           content: string
           display_order?: number
           doc_type?: string
+          fts?: unknown
           icon?: string
           id?: string
           parent_id?: string | null
@@ -670,6 +579,7 @@ export type Database = {
           content?: string
           display_order?: number
           doc_type?: string
+          fts?: unknown
           icon?: string
           id?: string
           parent_id?: string | null
@@ -953,6 +863,72 @@ export type Database = {
         }
         Relationships: []
       }
+      program_requirements: {
+        Row: {
+          compliance_narrative: string | null
+          compliance_status: string
+          created_at: string | null
+          evidence_links: Json | null
+          id: string
+          last_reviewed_at: string | null
+          last_reviewed_by: string | null
+          parent_requirement_number: string | null
+          requirement_number: string
+          requirement_text: string
+          requirement_type: string
+          responsible_person_id: string | null
+          section_name: string
+          section_number: number
+          sort_order: number
+          source: string | null
+          subsection_key: string
+          subsection_name: string
+          updated_at: string | null
+        }
+        Insert: {
+          compliance_narrative?: string | null
+          compliance_status?: string
+          created_at?: string | null
+          evidence_links?: Json | null
+          id?: string
+          last_reviewed_at?: string | null
+          last_reviewed_by?: string | null
+          parent_requirement_number?: string | null
+          requirement_number: string
+          requirement_text: string
+          requirement_type: string
+          responsible_person_id?: string | null
+          section_name: string
+          section_number: number
+          sort_order: number
+          source?: string | null
+          subsection_key: string
+          subsection_name?: string
+          updated_at?: string | null
+        }
+        Update: {
+          compliance_narrative?: string | null
+          compliance_status?: string
+          created_at?: string | null
+          evidence_links?: Json | null
+          id?: string
+          last_reviewed_at?: string | null
+          last_reviewed_by?: string | null
+          parent_requirement_number?: string | null
+          requirement_number?: string
+          requirement_text?: string
+          requirement_type?: string
+          responsible_person_id?: string | null
+          section_name?: string
+          section_number?: number
+          sort_order?: number
+          source?: string | null
+          subsection_key?: string
+          subsection_name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       resident_milestone_status: {
         Row: {
           created_at: string | null
@@ -980,6 +956,33 @@ export type Database = {
           subcategory_id?: string
           updated_at?: string | null
           updated_by?: string | null
+        }
+        Relationships: []
+      }
+      role_permissions: {
+        Row: {
+          access_level: string
+          created_at: string | null
+          id: string
+          permission_key: string
+          role: string
+          updated_at: string | null
+        }
+        Insert: {
+          access_level?: string
+          created_at?: string | null
+          id?: string
+          permission_key: string
+          role: string
+          updated_at?: string | null
+        }
+        Update: {
+          access_level?: string
+          created_at?: string | null
+          id?: string
+          permission_key?: string
+          role?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -1204,18 +1207,116 @@ export type Database = {
           },
         ]
       }
+      topic_checkoffs: {
+        Row: {
+          checked_off_at: string
+          created_at: string | null
+          faculty_id: string
+          id: string
+          notes: string | null
+          resident_id: string
+          topic_id: string
+        }
+        Insert: {
+          checked_off_at?: string
+          created_at?: string | null
+          faculty_id: string
+          id?: string
+          notes?: string | null
+          resident_id: string
+          topic_id: string
+        }
+        Update: {
+          checked_off_at?: string
+          created_at?: string | null
+          faculty_id?: string
+          id?: string
+          notes?: string | null
+          resident_id?: string
+          topic_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "topic_checkoffs_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "clinical_topics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      topic_tag_links: {
+        Row: {
+          tag_id: string
+          topic_id: string
+        }
+        Insert: {
+          tag_id: string
+          topic_id: string
+        }
+        Update: {
+          tag_id?: string
+          topic_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "topic_tag_links_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "topic_tags"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "topic_tag_links_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "clinical_topics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      topic_tags: {
+        Row: {
+          color: string
+          created_at: string | null
+          id: string
+          name: string
+          tag_type: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string | null
+          id?: string
+          name: string
+          tag_type?: string
+        }
+        Update: {
+          color?: string
+          created_at?: string | null
+          id?: string
+          name?: string
+          tag_type?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
+          can_edit_handbook: boolean
+          can_edit_operations: boolean
           id: string
           role: Database["public"]["Enums"]["app_role"]
           user_id: string
         }
         Insert: {
+          can_edit_handbook?: boolean
+          can_edit_operations?: boolean
           id?: string
           role: Database["public"]["Enums"]["app_role"]
           user_id: string
         }
         Update: {
+          can_edit_handbook?: boolean
+          can_edit_operations?: boolean
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
@@ -1254,6 +1355,43 @@ export type Database = {
         }
         Relationships: []
       }
+      program_requirements_attention: {
+        Row: {
+          compliance_narrative: string | null
+          compliance_status: string | null
+          requirement_number: string | null
+          requirement_text: string | null
+          section_name: string | null
+          subsection_name: string | null
+        }
+        Insert: {
+          compliance_narrative?: string | null
+          compliance_status?: string | null
+          requirement_number?: string | null
+          requirement_text?: string | null
+          section_name?: string | null
+          subsection_name?: string | null
+        }
+        Update: {
+          compliance_narrative?: string | null
+          compliance_status?: string | null
+          requirement_number?: string | null
+          requirement_text?: string | null
+          section_name?: string | null
+          subsection_name?: string | null
+        }
+        Relationships: []
+      }
+      program_requirements_summary: {
+        Row: {
+          compliance_status: string | null
+          count: number | null
+          requirement_type: string | null
+          section_name: string | null
+          section_number: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       has_role: {
@@ -1262,6 +1400,21 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      search_handbook_sections: {
+        Args: { doc_type_filter?: string; search_query: string }
+        Returns: {
+          content: string
+          display_order: number
+          doc_type: string
+          headline: string
+          icon: string
+          id: string
+          parent_id: string
+          rank: number
+          title: string
+          updated_at: string
+        }[]
       }
     }
     Enums: {
