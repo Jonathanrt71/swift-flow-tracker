@@ -68,6 +68,10 @@ const ALL_SECTIONS: { label: string; items: NavItem[] }[] = [
         icon: <SVGIcon color="#52657A" bg="#e4eaf0"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></SVGIcon>,
       },
       {
+        label: "Announcements", description: "Program updates", path: "/announcements", color: "#52657A", permissionKey: "announcements.view",
+        icon: <SVGIcon color="#52657A" bg="#e4eaf0"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></SVGIcon>,
+      },
+      {
         label: "Meetings", description: "CCC, PEC, GMEC", path: "/meetings", color: "#4A846C", permissionKey: "meetings.view",
         icon: <SVGIcon color="#52657A" bg="#e4eaf0"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></SVGIcon>,
       },

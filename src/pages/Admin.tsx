@@ -507,6 +507,10 @@ const RoleAccessSection = () => {
       { action: "View page", key: "cbme.view" },
       { action: "Assess / edit / all scores", key: "cbme.assess" },
     ]},
+    { name: "Announcements", rows: [
+      { action: "View page", key: "announcements.view" },
+      { action: "Create / edit / delete", key: "announcements.edit" },
+    ]},
     { name: "Compliance", rows: [
       { action: "View page", key: "compliance.view" },
     ]},

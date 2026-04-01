@@ -12,6 +12,7 @@ import NotFound from "./pages/NotFound.tsx";
 import Admin from "./pages/Admin.tsx";
 import Profile from "./pages/Profile.tsx";
 import Meetings from "./pages/Meetings.tsx";
+import Announcements from "./pages/Announcements.tsx";
 import Events from "./pages/Events.tsx";
 import CBME from "./pages/CBME.tsx";
 import Feedback from "./pages/Feedback.tsx";
@@ -43,6 +44,7 @@ const App = () => (
               <Route path="/admin" element={<RoleRoute permissionKey="admin.all"><Admin /></RoleRoute>} />
               <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
               <Route path="/meetings" element={<RoleRoute permissionKey="meetings.view"><Meetings /></RoleRoute>} />
+              <Route path="/announcements" element={<RoleRoute permissionKey="announcements.view"><Announcements /></RoleRoute>} />
               <Route path="/events" element={<RoleRoute permissionKey="events.view"><Events /></RoleRoute>} />
               <Route path="/feedback" element={<RoleRoute permissionKey="feedback.view"><Feedback /></RoleRoute>} />
               <Route path="/tasks" element={<RoleRoute permissionKey="tasks.view"><Index /></RoleRoute>} />
