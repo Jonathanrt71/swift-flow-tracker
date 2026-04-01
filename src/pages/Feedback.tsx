@@ -181,7 +181,7 @@ const Feedback = () => {
       const dateInfo = formatCardDate(fb.created_at);
       const residentName = nameMap.get(fb.resident_id) || "?";
       const facultyName = nameMap.get(fb.faculty_id) || "?";
-      const dotColor = fb.sentiment === "positive" ? "#5E9E82" : fb.sentiment === "neutral" ? "#C49A1A" : "#A63333";
+      const dotColor = fb.sentiment === "positive" ? "#52657A" : fb.sentiment === "neutral" ? "#4A846C" : "#D4A017";
 
       elements.push(
         <div
@@ -253,7 +253,7 @@ const Feedback = () => {
                   <AlertDialog>
                      <AlertDialogTrigger asChild>
                        <button
-                         className="p-1 text-[#8A9AAB] hover:text-[#A63333]"
+                         className="p-1 text-[#8A9AAB] hover:text-[#c44444]"
                          onClick={(e) => e.stopPropagation()}
                        >
                          <Trash2 className="h-3.5 w-3.5" />
@@ -327,11 +327,11 @@ const Feedback = () => {
             {r.name}
           </span>
           <span className="text-[11px]" style={{ color: "#5F7285" }}>{r.positive}</span>
-          <div className="w-2 h-2 rounded-full shrink-0" style={{ background: "#5E9E82" }} />
+          <div className="w-2 h-2 rounded-full shrink-0" style={{ background: "#52657A" }} />
           <span className="text-[11px]" style={{ color: "#5F7285" }}>{r.neutral}</span>
-          <div className="w-2 h-2 rounded-full shrink-0" style={{ background: "#C49A1A" }} />
+          <div className="w-2 h-2 rounded-full shrink-0" style={{ background: "#4A846C" }} />
           <span className="text-[11px]" style={{ color: "#5F7285" }}>{r.negative}</span>
-          <div className="w-2 h-2 rounded-full shrink-0" style={{ background: "#A63333" }} />
+          <div className="w-2 h-2 rounded-full shrink-0" style={{ background: "#D4A017" }} />
           <FeedbackPie positive={r.positive} negative={r.negative} neutral={r.neutral} />
         </div>
       </div>
@@ -410,24 +410,24 @@ const Feedback = () => {
                   <PopoverTrigger asChild>
                     <button className="shrink-0 bg-transparent border-none cursor-pointer p-0">
                       <svg width="28" height="28" viewBox="0 0 28 28">
-                        {arc(0, negAngle, "#A63333")}
-                        {arc(negAngle, neuAngle, "#C49A1A")}
-                        {arc(negAngle + neuAngle, posAngle, "#5E9E82")}
+                        {arc(0, negAngle, "#D4A017")}
+                        {arc(negAngle, neuAngle, "#4A846C")}
+                        {arc(negAngle + neuAngle, posAngle, "#52657A")}
                       </svg>
                     </button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-3" align="start">
                     <div className="flex flex-col gap-1.5 text-sm">
                       <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full" style={{ background: "#5E9E82" }} />
+                        <div className="w-3 h-3 rounded-full" style={{ background: "#52657A" }} />
                         <span>Positive: {Math.round(posPct)}% ({posCount})</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full" style={{ background: "#C49A1A" }} />
+                        <div className="w-3 h-3 rounded-full" style={{ background: "#4A846C" }} />
                         <span>Neutral: {Math.round(neuPct)}% ({neuCount})</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full" style={{ background: "#A63333" }} />
+                        <div className="w-3 h-3 rounded-full" style={{ background: "#D4A017" }} />
                         <span>Negative: {Math.round(negPct)}% ({negCount})</span>
                       </div>
                       <div className="text-xs text-muted-foreground mt-1">Total: {total}</div>
@@ -499,6 +499,10 @@ const Feedback = () => {
           />
         </div>
 
+        {/* View title */}
+        <div style={{ fontSize: 13, fontWeight: 500, color: "#8A9AAB", margin: "10px 0 6px" }}>
+          {viewMode === "list" ? "Feedback list" : viewMode === "summary" ? "Resident summary" : viewMode === "report" ? "Milestone report" : "CBME milestones"}
+        </div>
 
         {/* Content */}
         <div className="flex flex-col gap-2">
