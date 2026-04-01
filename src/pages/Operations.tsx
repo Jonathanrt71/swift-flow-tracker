@@ -203,7 +203,7 @@ const Operations = () => {
           recurrence_confirmed: false,
           archived: false,
           operations_section_id: createEventForSection.id,
-        });
+        } as any);
       if (error) throw error;
       toast({ title: "Event created", description: `"${eventTitle.trim()}" added to Events` });
       setLinkedRefresh(r => r + 1);
@@ -226,7 +226,7 @@ const Operations = () => {
           category: templateCategory || null,
           created_by: user?.id,
           operations_section_id: createTemplateForSection.id,
-        });
+        } as any);
       if (error) throw error;
       toast({ title: "Template created", description: `"${templateName.trim()}" added to Task Templates` });
       setLinkedRefresh(r => r + 1);
