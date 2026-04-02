@@ -10,7 +10,8 @@ export type EventCategory =
   | "compliance"
   | "administrative"
   | "wellness"
-  | "faculty";
+  | "faculty"
+  | "community";
 
 export const EVENT_CATEGORY_LABELS: Record<EventCategory, string> = {
   program:        "Program",
@@ -20,6 +21,7 @@ export const EVENT_CATEGORY_LABELS: Record<EventCategory, string> = {
   administrative: "Administrative",
   wellness:       "Wellness",
   faculty:        "Faculty",
+  community:      "Community",
 };
 
 export const EVENT_CATEGORY_COLORS: Record<EventCategory, string> = {
@@ -30,6 +32,7 @@ export const EVENT_CATEGORY_COLORS: Record<EventCategory, string> = {
   administrative: "#7A6052",
   wellness:       "#5A7A6A",
   faculty:        "#6A5A7A",
+  community:      "#5A8A9A",
 };
 
 export type RecurrencePattern = "none" | "weekly" | "monthly" | "semi_annual" | "annually" | "custom";
