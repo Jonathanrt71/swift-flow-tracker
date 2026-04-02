@@ -45,14 +45,16 @@ function getDayLabel() {
 }
 
 function formatDate(d: string) {
-  const date = new Date(d + "T00:00:00");
+  const clean = d.split("T")[0];
+  const date = new Date(clean + "T00:00:00");
   return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
 function daysUntil(d: string) {
   const now = new Date();
   now.setHours(0, 0, 0, 0);
-  const target = new Date(d + "T00:00:00");
+  const clean = d.split("T")[0];
+  const target = new Date(clean + "T00:00:00");
   const diff = Math.ceil((target.getTime() - now.getTime()) / 86400000);
   if (diff < 0) return `${Math.abs(diff)}d overdue`;
   if (diff === 0) return "Today";
