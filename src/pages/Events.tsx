@@ -1,7 +1,8 @@
 import { useState, useMemo } from "react";
 import { cn } from "@/lib/utils";
-import { useEvents, EVENT_CATEGORY_LABELS, EVENT_CATEGORY_COLORS, calcNextOccurrence, RECURRENCE_LABELS } from "@/hooks/useEvents";
+import { useEvents, calcNextOccurrence, RECURRENCE_LABELS } from "@/hooks/useEvents";
 import type { ProgramEvent, EventCategory, RecurrencePattern } from "@/hooks/useEvents";
+import { useEventCategories } from "@/hooks/useEventCategories";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
 import { useUserRole } from "@/hooks/useUserRole";
@@ -470,10 +471,10 @@ const Events = () => {
 
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeCategory, setActiveCategory] = useState<EventCategory | "all">("all");
+  const [activeCategory, setActiveCategory] = useState<string>("all");
   const [viewMode, setViewMode] = useState<"list" | "vertical" | "gantt">("list");
 
-  const ALL_CATEGORIES: EventCategory[] = ["program", "didactic"];
+  const { categories, categoryLabels } = useEventCategories();
 
   const ganttRangeLabel = useMemo(() => {
     const n = new Date();
@@ -496,7 +497,7 @@ const Events = () => {
     );
   }, [events.data, activeCategory, searchQuery]);
 
-  const handleCategoryChange = (cat: EventCategory | "all") => {
+  const handleCategoryChange = (cat: string) => {
     if (cat === activeCategory) return;
     setActiveCategory(cat);
   };
@@ -547,24 +548,41 @@ const Events = () => {
 
         {/* Row 1: Category tabs */}
         <div className="flex items-center" style={{ borderBottom: "1px solid #D5DAE0", marginBottom: 10 }}>
-          {(["all", "program", "didactic"] as const).map((cat) => (
+          <button
+            onClick={() => handleCategoryChange("all")}
+            style={{
+              padding: "6px 0",
+              marginRight: 20,
+              border: "none",
+              borderBottom: activeCategory === "all" ? "2px solid #415162" : "2px solid transparent",
+              cursor: "pointer",
+              fontSize: 13,
+              fontWeight: activeCategory === "all" ? 700 : 500,
+              background: "transparent",
+              color: activeCategory === "all" ? "#415162" : "#8A9AAB",
+              transition: "all 0.15s",
+            }}
+          >
+            All
+          </button>
+          {categories.map((cat) => (
             <button
-              key={cat}
-              onClick={() => handleCategoryChange(cat)}
+              key={cat.name}
+              onClick={() => handleCategoryChange(cat.name)}
               style={{
                 padding: "6px 0",
                 marginRight: 20,
                 border: "none",
-                borderBottom: activeCategory === cat ? "2px solid #415162" : "2px solid transparent",
+                borderBottom: activeCategory === cat.name ? "2px solid #415162" : "2px solid transparent",
                 cursor: "pointer",
                 fontSize: 13,
-                fontWeight: activeCategory === cat ? 700 : 500,
+                fontWeight: activeCategory === cat.name ? 700 : 500,
                 background: "transparent",
-                color: activeCategory === cat ? "#415162" : "#8A9AAB",
+                color: activeCategory === cat.name ? "#415162" : "#8A9AAB",
                 transition: "all 0.15s",
               }}
             >
-              {cat === "all" ? "All" : cat === "program" ? "Program" : "Didactic"}
+              {cat.label}
             </button>
           ))}
         </div>
@@ -629,7 +647,7 @@ const Events = () => {
             onDelete={(id) => { if (canEditEvents) deleteEvent.mutate(id); }}
             onConfirmRecurrence={(event, nextDate) => { if (canEditEvents) confirmRecurrence.mutate({ event, nextDate }); }}
             onSkipRecurrence={(id) => { if (canEditEvents) skipRecurrence.mutate(id); }}
-            emptyMessage={activeCategory === "all" ? "No events" : `No ${EVENT_CATEGORY_LABELS[activeCategory as EventCategory]} events`}
+            emptyMessage={activeCategory === "all" ? "No events" : `No ${categoryLabels[activeCategory] || activeCategory} events`}
           />
         )}
       </main>

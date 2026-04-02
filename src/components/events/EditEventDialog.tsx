@@ -21,6 +21,7 @@ import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { formatPersonName } from "@/lib/dateFormat";
 import type { ProgramEvent, EventCategory, RecurrencePattern } from "@/hooks/useEvents";
 import { RECURRENCE_LABELS } from "@/hooks/useEvents";
+import { useEventCategories } from "@/hooks/useEventCategories";
 
 interface EditEventDialogProps {
   event: ProgramEvent;
@@ -50,6 +51,7 @@ const EditEventDialog = ({ event, onUpdate }: EditEventDialogProps) => {
   const [assignedTo, setAssignedTo] = useState(event.assigned_to || "unassigned");
   const [recurrencePattern, setRecurrencePattern] = useState<RecurrencePattern>(event.recurrence_pattern || "none");
   const { data: members } = useTeamMembers();
+  const { categories } = useEventCategories();
 
   const selectedDate = eventDate ? parseISO(eventDate) : undefined;
 
@@ -128,13 +130,9 @@ const EditEventDialog = ({ event, onUpdate }: EditEventDialogProps) => {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="program">Program</SelectItem>
-                <SelectItem value="didactic">Didactic</SelectItem>
-                <SelectItem value="committee">Committee</SelectItem>
-                <SelectItem value="compliance">Compliance</SelectItem>
-                <SelectItem value="administrative">Administrative</SelectItem>
-                <SelectItem value="wellness">Wellness</SelectItem>
-                <SelectItem value="faculty">Faculty</SelectItem>
+                {categories.map((c) => (
+                  <SelectItem key={c.name} value={c.name}>{c.label}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>

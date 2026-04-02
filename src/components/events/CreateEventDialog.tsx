@@ -20,8 +20,9 @@ import { format, parseISO } from "date-fns";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { formatPersonName } from "@/lib/dateFormat";
 import { useAuth } from "@/contexts/AuthContext";
-import type { EventCategory, EVENT_CATEGORY_LABELS, RecurrencePattern } from "@/hooks/useEvents";
-import { EVENT_CATEGORY_LABELS as LABELS, RECURRENCE_LABELS } from "@/hooks/useEvents";
+import type { EventCategory, RecurrencePattern } from "@/hooks/useEvents";
+import { RECURRENCE_LABELS } from "@/hooks/useEvents";
+import { useEventCategories } from "@/hooks/useEventCategories";
 
 interface CreateEventDialogProps {
   onSubmit: (data: {
@@ -51,6 +52,7 @@ const CreateEventDialog = ({ onSubmit, defaultCategory }: CreateEventDialogProps
   const [assignedTo, setAssignedTo] = useState(user?.id || "unassigned");
   const [recurrencePattern, setRecurrencePattern] = useState<RecurrencePattern>("none");
   const { data: members } = useTeamMembers();
+  const { categories } = useEventCategories();
 
   const selectedDate = eventDate ? parseISO(eventDate) : undefined;
 
@@ -122,8 +124,9 @@ const CreateEventDialog = ({ onSubmit, defaultCategory }: CreateEventDialogProps
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="program">Program</SelectItem>
-                <SelectItem value="didactic">Didactic</SelectItem>
+                {categories.map((c) => (
+                  <SelectItem key={c.name} value={c.name}>{c.label}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
