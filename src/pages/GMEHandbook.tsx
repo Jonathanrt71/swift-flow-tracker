@@ -329,11 +329,11 @@ const GMEHandbook = () => {
         )}
       </header>
 
-      <div style={{ display: "flex", height: "calc(100vh - 56px)" }}>
-        {tocOpen && <div style={{ position: "fixed", inset: 0, zIndex: 30, background: "rgba(0,0,0,0.3)" }} onClick={() => setTocOpen(false)} />}
+      <div style={{ display: "flex", height: "calc(100vh - 56px)", position: "relative", overflow: "hidden" }}>
+        {tocOpen && <div style={{ position: "absolute", inset: 0, zIndex: 30, background: "rgba(0,0,0,0.3)" }} onClick={() => setTocOpen(false)} />}
 
         <aside style={{
-          position: "fixed", top: 56, left: 0, zIndex: 40, height: "calc(100vh - 56px)",
+          position: "absolute", top: 0, left: 0, zIndex: 40, height: "100%",
           width: 300, minWidth: 300, background: "#F5F3EE", borderRight: "1px solid #E7EBEF",
           overflowY: "auto", transform: tocOpen ? "translateX(0)" : "translateX(-100%)", transition: "transform 0.2s ease",
         }}>
