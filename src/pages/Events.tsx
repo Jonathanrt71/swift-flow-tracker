@@ -202,23 +202,29 @@ const EventCard = ({
       </div>
 
       {expanded && (
-        <div className="pb-2 pl-3 pr-3">
+        <div style={{ background: "#D5DAE0", padding: "8px 12px 10px" }} onClick={(e) => e.stopPropagation()}>
+          <div className="text-[11px] text-muted-foreground" style={{ marginBottom: 8 }}>
+            {formattedDate}{timeRange ? ` · ${timeRange}` : ""}
+            {event.description && <> · {event.description}</>}
+          </div>
+          <OperationsLinkPill sectionId={(event as any).operations_section_id} />
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 flex-1 min-w-0 flex-wrap">
-              <span className="text-[11px] text-muted-foreground whitespace-nowrap shrink-0">
-                {formattedDate}{timeRange ? ` · ${timeRange}` : ""}
-              </span>
-              {event.description && (
-                <span className="text-xs text-muted-foreground truncate min-w-0">
-                  {event.description}
-                </span>
-              )}
-              <OperationsLinkPill sectionId={(event as any).operations_section_id} />
-            </div>
-            <div className="flex items-center gap-0.5 shrink-0 ml-2">
+            <div className="flex items-center gap-2">
               {isFacultyOrAdmin && event.category === "didactic" && (
                 <button
-                  className="flex items-center justify-center w-8 h-8 rounded-md bg-transparent hover:bg-accent transition-colors"
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 5,
+                    padding: "4px 10px",
+                    fontSize: 11,
+                    fontWeight: 500,
+                    color: hasEvaluated ? "#5E9E82" : "#415162",
+                    background: "#E7EBEF",
+                    border: "0.5px solid #C9CED4",
+                    borderRadius: 6,
+                    cursor: "pointer",
+                  }}
                   onClick={(e) => {
                     e.stopPropagation();
                     setEvalDialogOpen(true);
@@ -227,10 +233,13 @@ const EventCard = ({
                 >
                   <ClipboardCheck
                     className="h-3.5 w-3.5"
-                    style={{ color: hasEvaluated ? "#5E9E82" : "#8A9AAB" }}
+                    style={{ color: hasEvaluated ? "#5E9E82" : "#415162" }}
                   />
+                  {hasEvaluated ? "Evaluated" : "Evaluate"}
                 </button>
               )}
+            </div>
+            <div className="flex items-center gap-0.5 shrink-0">
               {canEdit && (
                 <>
                   <EditEventDialog event={event} onUpdate={onUpdate} />
