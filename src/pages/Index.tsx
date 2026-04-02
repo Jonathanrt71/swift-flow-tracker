@@ -1,3 +1,4 @@
+//sync
 // force rebuild v3 – test dot
 import { useState } from "react";
 import { Link } from "react-router-dom";
@@ -8,7 +9,20 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LogOut, CheckCircle2, ListTodo, Shield, User, Star, UserCheck, Users, HandCoins, Search, X, SendHorizonal } from "lucide-react";
+import {
+  LogOut,
+  CheckCircle2,
+  ListTodo,
+  Shield,
+  User,
+  Star,
+  UserCheck,
+  Users,
+  HandCoins,
+  Search,
+  X,
+  SendHorizonal,
+} from "lucide-react";
 import TaskCard from "@/components/tasks/TaskCard";
 import CreateTaskDialog from "@/components/tasks/CreateTaskDialog";
 import NotificationBell from "@/components/NotificationBell";
@@ -28,15 +42,7 @@ const Index = () => {
 
   const meetingNames = new Map<string, string>();
   meetings.data?.forEach((m) => meetingNames.set(m.id, m.title));
-  const {
-    tasks,
-    isLoading,
-    createTask,
-    updateTask,
-    toggleComplete,
-    toggleStar,
-    deleteTask,
-  } = useTasks();
+  const { tasks, isLoading, createTask, updateTask, toggleComplete, toggleStar, deleteTask } = useTasks();
 
   const now = new Date();
 
@@ -68,12 +74,13 @@ const Index = () => {
     t.assigned_to === user?.id || (t.subtasks?.some(isAssignedToMe) ?? false);
 
   // Helper to check if task or any subtask is owed to current user
-  const isOwedToMe = (t: Task): boolean =>
-    t.owed_to === user?.id || (t.subtasks?.some(isOwedToMe) ?? false);
+  const isOwedToMe = (t: Task): boolean => t.owed_to === user?.id || (t.subtasks?.some(isOwedToMe) ?? false);
 
   const assignedToMe = activeTasks.filter(isAssignedToMe).sort(sortByDueDate);
   const owedToMe = activeTasks.filter(isOwedToMe).sort(sortByDueDate);
-  const iOweOthers = activeTasks.filter((t) => t.assigned_to === user?.id && t.owed_to && t.owed_to !== user?.id).sort(sortByDueDate);
+  const iOweOthers = activeTasks
+    .filter((t) => t.assigned_to === user?.id && t.owed_to && t.owed_to !== user?.id)
+    .sort(sortByDueDate);
   const starredTasks = activeTasks.filter((t) => t.starred).sort(sortByDueDate);
 
   const sortedActive = [...activeTasks].sort(sortByDueDate);
@@ -125,9 +132,7 @@ const Index = () => {
 
   const getDueBucket = (task: Task): number => {
     if (!task.due_date) return 3;
-    const days = Math.ceil(
-      (new Date(task.due_date).getTime() - now.getTime()) / 86400000
-    );
+    const days = Math.ceil((new Date(task.due_date).getTime() - now.getTime()) / 86400000);
     if (days <= 7) return 0; // overdue and this week
     if (days <= 30) return 1;
     return 2;
@@ -177,9 +182,12 @@ const Index = () => {
       const monthLabel = getMonthLabel(task);
       if (monthKey !== prevMonth && monthLabel) {
         elements.push(
-          <div key={`month-${monthKey}`} className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider pt-3 pb-1">
+          <div
+            key={`month-${monthKey}`}
+            className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider pt-3 pb-1"
+          >
             {monthLabel}
-          </div>
+          </div>,
         );
       }
       prevMonth = monthKey;
@@ -189,13 +197,13 @@ const Index = () => {
           task={task}
           isOverdue={isOverdue(task)}
           teamMembers={teamMembers || []}
-        meetingNames={meetingNames}
+          meetingNames={meetingNames}
           onToggleComplete={(d) => toggleComplete.mutate(d)}
           onUpdate={(d) => updateTask.mutate(d)}
           onDelete={(id) => deleteTask.mutate(id)}
           onCreateSubtask={(d) => createTask.mutate(d)}
           onToggleStar={(d) => toggleStar.mutate(d)}
-        />
+        />,
       );
     });
 
@@ -227,9 +235,12 @@ const Index = () => {
       const assigneeName = teamMembers?.find((m) => m.id === assigneeId)?.display_name || assigneeId || "";
       if (assigneeName !== prevAssignee) {
         elements.push(
-          <div key={`assignee-${assigneeId}-${task.id}`} className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider pt-3 pb-1">
+          <div
+            key={`assignee-${assigneeId}-${task.id}`}
+            className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider pt-3 pb-1"
+          >
             {assigneeName}
-          </div>
+          </div>,
         );
       }
       prevAssignee = assigneeName;
@@ -239,13 +250,13 @@ const Index = () => {
           task={task}
           isOverdue={isOverdue(task)}
           teamMembers={teamMembers || []}
-        meetingNames={meetingNames}
+          meetingNames={meetingNames}
           onToggleComplete={(d) => toggleComplete.mutate(d)}
           onUpdate={(d) => updateTask.mutate(d)}
           onDelete={(id) => deleteTask.mutate(id)}
           onCreateSubtask={(d) => createTask.mutate(d)}
           onToggleStar={(d) => toggleStar.mutate(d)}
-        />
+        />,
       );
     });
 
@@ -256,7 +267,7 @@ const Index = () => {
     <div className="min-h-screen bg-background pb-20">
       <header className="bg-[#415162] sticky top-0 z-40">
         <div className="container flex items-center h-14 px-4">
-          <HeaderLogo isAdmin={isAdmin} onSignOut={signOut} >
+          <HeaderLogo isAdmin={isAdmin} onSignOut={signOut}>
             <Button
               variant="ghost"
               size="icon"
@@ -311,50 +322,38 @@ const Index = () => {
                 <CheckCircle2 className="h-4 w-4" />
               </TabsTrigger>
             </TabsList>
-            <CreateTaskDialog
-              onSubmit={(data) => createTask.mutate(data)}
-              loading={createTask.isPending}
-              inlineIcon
-            />
+            <CreateTaskDialog onSubmit={(data) => createTask.mutate(data)} loading={createTask.isPending} inlineIcon />
           </div>
 
           <TabsContent value="active" className="space-y-3 mt-0">
             {renderGroupedTaskList(
               sortedActive,
               <ListTodo className="h-10 w-10 mx-auto" />,
-              "No active tasks. Create one to get started!"
+              "No active tasks. Create one to get started!",
             )}
           </TabsContent>
 
           <TabsContent value="byAssignee" className="space-y-3 mt-0">
-            {renderByAssigneeList(
-              sortedByAssignee,
-              <Users className="h-10 w-10 mx-auto" />,
-              "No active tasks."
-            )}
+            {renderByAssigneeList(sortedByAssignee, <Users className="h-10 w-10 mx-auto" />, "No active tasks.")}
           </TabsContent>
 
           <TabsContent value="assigned" className="space-y-3 mt-0">
             {renderGroupedTaskList(
               assignedToMe,
               <UserCheck className="h-10 w-10 mx-auto" />,
-              "No tasks assigned to you."
+              "No tasks assigned to you.",
             )}
           </TabsContent>
 
           <TabsContent value="owedToMe" className="space-y-3 mt-0">
-            {renderGroupedTaskList(
-              owedToMe,
-              <HandCoins className="h-10 w-10 mx-auto" />,
-              "No tasks owed to you."
-            )}
+            {renderGroupedTaskList(owedToMe, <HandCoins className="h-10 w-10 mx-auto" />, "No tasks owed to you.")}
           </TabsContent>
 
           <TabsContent value="iOweOthers" className="space-y-3 mt-0">
             {renderGroupedTaskList(
               iOweOthers,
               <SendHorizonal className="h-10 w-10 mx-auto" />,
-              "No tasks you owe to others."
+              "No tasks you owe to others.",
             )}
           </TabsContent>
 
@@ -362,16 +361,12 @@ const Index = () => {
             {renderGroupedTaskList(
               starredTasks,
               <Star className="h-10 w-10 mx-auto" />,
-              "No starred tasks. Star a task to pin it here."
+              "No starred tasks. Star a task to pin it here.",
             )}
           </TabsContent>
 
           <TabsContent value="completed" className="space-y-3 mt-0">
-            {renderTaskList(
-              completedTasks,
-              <CheckCircle2 className="h-10 w-10 mx-auto" />,
-              "No completed tasks yet."
-            )}
+            {renderTaskList(completedTasks, <CheckCircle2 className="h-10 w-10 mx-auto" />, "No completed tasks yet.")}
           </TabsContent>
         </Tabs>
       </main>
