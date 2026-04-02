@@ -12,7 +12,6 @@ import NotFound from "./pages/NotFound.tsx";
 import Admin from "./pages/Admin.tsx";
 import Profile from "./pages/Profile.tsx";
 import Meetings from "./pages/Meetings.tsx";
-import Announcements from "./pages/Announcements.tsx";
 import Events from "./pages/Events.tsx";
 import CBME from "./pages/CBME.tsx";
 import Feedback from "./pages/Feedback.tsx";
@@ -22,6 +21,7 @@ import Rotations from "./pages/Rotations.tsx";
 import Operations from "./pages/Operations.tsx";
 import Compliance from "./pages/Compliance.tsx";
 import Topics from "./pages/Topics.tsx";
+import Announcements from "./pages/Announcements.tsx";
 import Home from "./pages/Home.tsx";
 import UpdatePrompt from "./components/UpdatePrompt";
 
@@ -35,7 +35,7 @@ const App = () => (
       <UpdatePrompt />
       <BrowserRouter>
         <AuthProvider>
-          <div className="mx-auto w-full max-w-[1200px] min-h-screen relative shadow-lg">
+          <div className="mx-auto w-full max-w-[1024px] min-h-screen relative shadow-lg">
             <Routes>
               <Route path="/login" element={<Login />} />
               
@@ -44,7 +44,6 @@ const App = () => (
               <Route path="/admin" element={<RoleRoute permissionKey="admin.all"><Admin /></RoleRoute>} />
               <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
               <Route path="/meetings" element={<RoleRoute permissionKey="meetings.view"><Meetings /></RoleRoute>} />
-              <Route path="/announcements" element={<RoleRoute permissionKey="announcements.view"><Announcements /></RoleRoute>} />
               <Route path="/events" element={<RoleRoute permissionKey="events.view"><Events /></RoleRoute>} />
               <Route path="/feedback" element={<RoleRoute permissionKey="feedback.view"><Feedback /></RoleRoute>} />
               <Route path="/tasks" element={<RoleRoute permissionKey="tasks.view"><Index /></RoleRoute>} />
@@ -55,6 +54,7 @@ const App = () => (
               <Route path="/operations" element={<RoleRoute permissionKey="operations.view"><Operations /></RoleRoute>} />
               <Route path="/compliance" element={<RoleRoute permissionKey="compliance.view"><Compliance /></RoleRoute>} />
               <Route path="/topics" element={<RoleRoute permissionKey="topics.view"><Topics /></RoleRoute>} />
+              <Route path="/announcements" element={<RoleRoute permissionKey="announcements.view"><Announcements /></RoleRoute>} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
