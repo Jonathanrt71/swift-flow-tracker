@@ -1,35 +1,17 @@
-//synci
-// force rebuild v3 – test dot
+// force rebuild v4
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { cn } from "@/lib/utils";
 import { format, parseISO } from "date-fns";
 import { useTasks } from "@/hooks/useTasks";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
-import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  LogOut,
-  CheckCircle2,
-  ListTodo,
-  Shield,
-  User,
-  Star,
-  UserCheck,
-  Users,
-  HandCoins,
-  Search,
-  X,
-  SendHorizonal,
-} from "lucide-react";
+import { ListTodo, CheckCircle2, Star, Search, X } from "lucide-react";
 import TaskCard from "@/components/tasks/TaskCard";
 import CreateTaskDialog from "@/components/tasks/CreateTaskDialog";
 import NotificationBell from "@/components/NotificationBell";
 import type { Task } from "@/hooks/useTasks";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { useMeetings } from "@/hooks/useMeetings";
-import { useToast } from "@/components/ui/use-toast";
 import HeaderLogo from "@/components/HeaderLogo";
 
 const Index = () => {
@@ -42,7 +24,15 @@ const Index = () => {
 
   const meetingNames = new Map<string, string>();
   meetings.data?.forEach((m) => meetingNames.set(m.id, m.title));
-  const { tasks, isLoading, createTask, updateTask, toggleComplete, toggleStar, deleteTask } = useTasks();
+  const {
+    tasks,
+    isLoading,
+    createTask,
+    updateTask,
+    toggleComplete,
+    toggleStar,
+    deleteTask,
+  } = useTasks();
 
   const now = new Date();
 
@@ -56,10 +46,9 @@ const Index = () => {
     );
   };
 
-  const activeTasks = tasks.filter((t) => !t.completed && searchFilter(t));
-  const completedTasks = tasks
-    .filter((t) => t.completed && searchFilter(t))
-    .sort((a, b) => new Date(b.completed_at!).getTime() - new Date(a.completed_at!).getTime());
+  // Helper to check if task or any subtask is assigned to current user
+  const isAssignedToMe = (t: Task): boolean =>
+    t.assigned_to === user?.id || t.created_by === user?.id || (t.subtasks?.some(isAssignedToMe) ?? false);
 
   // Default sort: due date (soonest first, no date last)
   const sortByDueDate = (a: Task, b: Task) => {
@@ -69,34 +58,91 @@ const Index = () => {
     return new Date(a.due_date).getTime() - new Date(b.due_date).getTime();
   };
 
-  // Helper to check if task or any subtask is assigned to current user
-  const isAssignedToMe = (t: Task): boolean =>
-    t.assigned_to === user?.id || (t.subtasks?.some(isAssignedToMe) ?? false);
-
-  // Helper to check if task or any subtask is owed to current user
-  const isOwedToMe = (t: Task): boolean => t.owed_to === user?.id || (t.subtasks?.some(isOwedToMe) ?? false);
-
-  const assignedToMe = activeTasks.filter(isAssignedToMe).sort(sortByDueDate);
-  const owedToMe = activeTasks.filter(isOwedToMe).sort(sortByDueDate);
-  const iOweOthers = activeTasks
-    .filter((t) => t.assigned_to === user?.id && t.owed_to && t.owed_to !== user?.id)
+  // My Tasks: incomplete, assigned to or created by me
+  const myTasks = tasks
+    .filter((t) => !t.completed && isAssignedToMe(t) && searchFilter(t))
     .sort(sortByDueDate);
-  const starredTasks = activeTasks.filter((t) => t.starred).sort(sortByDueDate);
 
-  const sortedActive = [...activeTasks].sort(sortByDueDate);
+  // Starred: incomplete + starred
+  const starredTasks = tasks
+    .filter((t) => !t.completed && t.starred && searchFilter(t))
+    .sort(sortByDueDate);
 
-  const sortedByAssignee = [...activeTasks].sort((a, b) => {
-    const nameA = teamMembers?.find((m) => m.id === (a.assigned_to || a.created_by))?.display_name || "";
-    const nameB = teamMembers?.find((m) => m.id === (b.assigned_to || b.created_by))?.display_name || "";
-    const nameCmp = nameA.localeCompare(nameB);
-    if (nameCmp !== 0) return nameCmp;
-    // Same assignee: starred first, then by due date
-    if (a.starred !== b.starred) return a.starred ? -1 : 1;
-    return sortByDueDate(a, b);
-  });
+  // Completed
+  const completedTasks = tasks
+    .filter((t) => t.completed && searchFilter(t))
+    .sort((a, b) => new Date(b.completed_at!).getTime() - new Date(a.completed_at!).getTime());
 
   const isOverdue = (task: { due_date: string | null; completed: boolean }) =>
     !task.completed && !!task.due_date && new Date(task.due_date) < now;
+
+  const getMonthKey = (task: Task): string => {
+    if (!task.due_date) return "no-date";
+    try {
+      return format(parseISO(task.due_date.split("T")[0]), "yyyy-MM");
+    } catch {
+      return "no-date";
+    }
+  };
+
+  const getMonthLabel = (task: Task): string | null => {
+    if (!task.due_date) return null;
+    try {
+      return format(parseISO(task.due_date.split("T")[0]), "MMMM yyyy");
+    } catch {
+      return null;
+    }
+  };
+
+  const renderGroupedTaskList = (taskList: Task[], emptyIcon: React.ReactNode, emptyText: string) => {
+    if (isLoading) {
+      return (
+        <div className="flex justify-center py-12">
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        </div>
+      );
+    }
+    if (taskList.length === 0) {
+      return (
+        <div className="text-center py-12 text-muted-foreground">
+          <div className="mx-auto mb-3 opacity-40">{emptyIcon}</div>
+          <p className="text-sm">{emptyText}</p>
+        </div>
+      );
+    }
+
+    const elements: React.ReactNode[] = [];
+    let prevMonth = "";
+
+    taskList.forEach((task) => {
+      const monthKey = getMonthKey(task);
+      const monthLabel = getMonthLabel(task);
+      if (monthKey !== prevMonth && monthLabel) {
+        elements.push(
+          <div key={`month-${monthKey}`} className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider pt-3 pb-1">
+            {monthLabel}
+          </div>
+        );
+      }
+      prevMonth = monthKey;
+      elements.push(
+        <TaskCard
+          key={task.id}
+          task={task}
+          isOverdue={isOverdue(task)}
+          teamMembers={teamMembers || []}
+          meetingNames={meetingNames}
+          onToggleComplete={(d) => toggleComplete.mutate(d)}
+          onUpdate={(d) => updateTask.mutate(d)}
+          onDelete={(id) => deleteTask.mutate(id)}
+          onCreateSubtask={(d) => createTask.mutate(d)}
+          onToggleStar={(d) => toggleStar.mutate(d)}
+        />
+      );
+    });
+
+    return elements;
+  };
 
   const renderTaskList = (taskList: Task[], emptyIcon: React.ReactNode, emptyText: string) => {
     if (isLoading) {
@@ -130,156 +176,32 @@ const Index = () => {
     ));
   };
 
-  const getDueBucket = (task: Task): number => {
-    if (!task.due_date) return 3;
-    const days = Math.ceil((new Date(task.due_date).getTime() - now.getTime()) / 86400000);
-    if (days <= 7) return 0; // overdue and this week
-    if (days <= 30) return 1;
-    return 2;
-  };
-
-  const getMonthKey = (task: Task): string => {
-    if (!task.due_date) return "no-date";
-    try {
-      return format(parseISO(task.due_date.split("T")[0]), "yyyy-MM");
-    } catch {
-      return "no-date";
-    }
-  };
-
-  const getMonthLabel = (task: Task): string | null => {
-    if (!task.due_date) return null;
-    try {
-      const d = parseISO(task.due_date.split("T")[0]);
-      return format(d, "MMMM yyyy");
-    } catch {
-      return null;
-    }
-  };
-
-  const renderGroupedTaskList = (taskList: Task[], emptyIcon: React.ReactNode, emptyText: string) => {
-    if (isLoading) {
-      return (
-        <div className="flex justify-center py-12">
-          <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-        </div>
-      );
-    }
-    if (taskList.length === 0) {
-      return (
-        <div className="text-center py-12 text-muted-foreground">
-          <div className="mx-auto mb-3 opacity-40">{emptyIcon}</div>
-          <p className="text-sm">{emptyText}</p>
-        </div>
-      );
-    }
-
-    const elements: React.ReactNode[] = [];
-    let prevMonth = "";
-
-    taskList.forEach((task) => {
-      const monthKey = getMonthKey(task);
-      const monthLabel = getMonthLabel(task);
-      if (monthKey !== prevMonth && monthLabel) {
-        elements.push(
-          <div
-            key={`month-${monthKey}`}
-            className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider pt-3 pb-1"
-          >
-            {monthLabel}
-          </div>,
-        );
-      }
-      prevMonth = monthKey;
-      elements.push(
-        <TaskCard
-          key={task.id}
-          task={task}
-          isOverdue={isOverdue(task)}
-          teamMembers={teamMembers || []}
-          meetingNames={meetingNames}
-          onToggleComplete={(d) => toggleComplete.mutate(d)}
-          onUpdate={(d) => updateTask.mutate(d)}
-          onDelete={(id) => deleteTask.mutate(id)}
-          onCreateSubtask={(d) => createTask.mutate(d)}
-          onToggleStar={(d) => toggleStar.mutate(d)}
-        />,
-      );
-    });
-
-    return elements;
-  };
-
-  const renderByAssigneeList = (taskList: Task[], emptyIcon: React.ReactNode, emptyText: string) => {
-    if (isLoading) {
-      return (
-        <div className="flex justify-center py-12">
-          <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-        </div>
-      );
-    }
-    if (taskList.length === 0) {
-      return (
-        <div className="text-center py-12 text-muted-foreground">
-          <div className="mx-auto mb-3 opacity-40">{emptyIcon}</div>
-          <p className="text-sm">{emptyText}</p>
-        </div>
-      );
-    }
-
-    const elements: React.ReactNode[] = [];
-    let prevAssignee = "";
-
-    taskList.forEach((task) => {
-      const assigneeId = task.assigned_to || task.created_by;
-      const assigneeName = teamMembers?.find((m) => m.id === assigneeId)?.display_name || assigneeId || "";
-      if (assigneeName !== prevAssignee) {
-        elements.push(
-          <div
-            key={`assignee-${assigneeId}-${task.id}`}
-            className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider pt-3 pb-1"
-          >
-            {assigneeName}
-          </div>,
-        );
-      }
-      prevAssignee = assigneeName;
-      elements.push(
-        <TaskCard
-          key={task.id}
-          task={task}
-          isOverdue={isOverdue(task)}
-          teamMembers={teamMembers || []}
-          meetingNames={meetingNames}
-          onToggleComplete={(d) => toggleComplete.mutate(d)}
-          onUpdate={(d) => updateTask.mutate(d)}
-          onDelete={(id) => deleteTask.mutate(id)}
-          onCreateSubtask={(d) => createTask.mutate(d)}
-          onToggleStar={(d) => toggleStar.mutate(d)}
-        />,
-      );
-    });
-
-    return elements;
-  };
-
   return (
     <div className="min-h-screen bg-background pb-20">
       <header className="bg-[#415162] sticky top-0 z-40">
         <div className="container flex items-center h-14 px-4">
           <HeaderLogo isAdmin={isAdmin} onSignOut={signOut}>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="hover:bg-transparent text-white/50"
+            <button
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: 36,
+                height: 36,
+                background: "transparent",
+                border: "none",
+                borderRadius: 6,
+                cursor: "pointer",
+                color: "rgba(255,255,255,0.8)",
+              }}
               title="Search"
               onClick={() => {
                 setSearchOpen(!searchOpen);
                 if (searchOpen) setSearchQuery("");
               }}
             >
-              {searchOpen ? <X className="h-4 w-4" /> : <Search className="h-4 w-4" />}
-            </Button>
+              {searchOpen ? <X style={{ width: 17, height: 17 }} /> : <Search style={{ width: 17, height: 17 }} />}
+            </button>
             <NotificationBell />
           </HeaderLogo>
         </div>
@@ -297,63 +219,34 @@ const Index = () => {
       </header>
 
       <main className="container max-w-[1200px] px-4 py-6">
-        <Tabs defaultValue="active">
+        <Tabs defaultValue="myTasks">
           <div className="flex items-center justify-between mb-4">
             <TabsList className="gap-1 h-auto p-1 bg-transparent">
-              <TabsTrigger value="active" className="h-8 w-8 p-0" title="All Tasks">
+              <TabsTrigger value="myTasks" className="flex flex-col items-center gap-0.5 h-auto px-2 py-1" title="My Tasks">
                 <ListTodo className="h-4 w-4" />
+                <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase" }}>Tasks</span>
               </TabsTrigger>
-              <TabsTrigger value="byAssignee" className="h-8 w-8 p-0" title="By Assignee">
-                <Users className="h-4 w-4" />
-              </TabsTrigger>
-              <TabsTrigger value="assigned" className="h-8 w-8 p-0" title="Assigned to Me">
-                <UserCheck className="h-4 w-4" />
-              </TabsTrigger>
-              <TabsTrigger value="owedToMe" className="h-8 w-8 p-0" title="Owed to Me">
-                <HandCoins className="h-4 w-4" />
-              </TabsTrigger>
-              <TabsTrigger value="iOweOthers" className="h-8 w-8 p-0" title="I Owe Others">
-                <SendHorizonal className="h-4 w-4" />
-              </TabsTrigger>
-              <TabsTrigger value="starred" className="h-8 w-8 p-0" title="Starred">
+              <TabsTrigger value="starred" className="flex flex-col items-center gap-0.5 h-auto px-2 py-1" title="Starred">
                 <Star className="h-4 w-4" />
+                <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase" }}>Starred</span>
               </TabsTrigger>
-              <TabsTrigger value="completed" className="h-8 w-8 p-0" title="Done">
+              <TabsTrigger value="completed" className="flex flex-col items-center gap-0.5 h-auto px-2 py-1" title="Completed">
                 <CheckCircle2 className="h-4 w-4" />
+                <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase" }}>Done</span>
               </TabsTrigger>
             </TabsList>
-            <CreateTaskDialog onSubmit={(data) => createTask.mutate(data)} loading={createTask.isPending} inlineIcon />
+            <CreateTaskDialog
+              onSubmit={(data) => createTask.mutate(data)}
+              loading={createTask.isPending}
+              inlineIcon
+            />
           </div>
 
-          <TabsContent value="active" className="space-y-3 mt-0">
+          <TabsContent value="myTasks" className="space-y-3 mt-0">
             {renderGroupedTaskList(
-              sortedActive,
+              myTasks,
               <ListTodo className="h-10 w-10 mx-auto" />,
-              "No active tasks. Create one to get started!",
-            )}
-          </TabsContent>
-
-          <TabsContent value="byAssignee" className="space-y-3 mt-0">
-            {renderByAssigneeList(sortedByAssignee, <Users className="h-10 w-10 mx-auto" />, "No active tasks.")}
-          </TabsContent>
-
-          <TabsContent value="assigned" className="space-y-3 mt-0">
-            {renderGroupedTaskList(
-              assignedToMe,
-              <UserCheck className="h-10 w-10 mx-auto" />,
-              "No tasks assigned to you.",
-            )}
-          </TabsContent>
-
-          <TabsContent value="owedToMe" className="space-y-3 mt-0">
-            {renderGroupedTaskList(owedToMe, <HandCoins className="h-10 w-10 mx-auto" />, "No tasks owed to you.")}
-          </TabsContent>
-
-          <TabsContent value="iOweOthers" className="space-y-3 mt-0">
-            {renderGroupedTaskList(
-              iOweOthers,
-              <SendHorizonal className="h-10 w-10 mx-auto" />,
-              "No tasks you owe to others.",
+              "No active tasks. Create one to get started!"
             )}
           </TabsContent>
 
@@ -361,12 +254,16 @@ const Index = () => {
             {renderGroupedTaskList(
               starredTasks,
               <Star className="h-10 w-10 mx-auto" />,
-              "No starred tasks. Star a task to pin it here.",
+              "No starred tasks. Star a task to pin it here."
             )}
           </TabsContent>
 
           <TabsContent value="completed" className="space-y-3 mt-0">
-            {renderTaskList(completedTasks, <CheckCircle2 className="h-10 w-10 mx-auto" />, "No completed tasks yet.")}
+            {renderTaskList(
+              completedTasks,
+              <CheckCircle2 className="h-10 w-10 mx-auto" />,
+              "No completed tasks yet."
+            )}
           </TabsContent>
         </Tabs>
       </main>
