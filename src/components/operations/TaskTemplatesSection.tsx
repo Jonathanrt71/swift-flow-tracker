@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { Plus, ChevronDown, ChevronRight, Trash2, Play, X, Calendar } from "lucide-react";
-import { useTaskTemplates, TaskTemplate } from "@/hooks/useTaskTemplates";
+import { Plus, ChevronDown, ChevronRight, Trash2, Play, X, Calendar, Pencil, Save, Check } from "lucide-react";
+import { useTaskTemplates, TaskTemplate, TaskTemplateItem } from "@/hooks/useTaskTemplates";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { useAuth } from "@/contexts/AuthContext";
 import { EVENT_CATEGORY_LABELS, EVENT_CATEGORY_COLORS } from "@/hooks/useEvents";
 import type { EventCategory } from "@/hooks/useEvents";
+import OperationsLinkPill from "@/components/shared/OperationsLinkPill";
 
 const ROLE_LABELS: Record<string, string> = {
   admin: "Admin",
@@ -36,7 +37,7 @@ function SpawnDialog({ template, onClose, onSpawn, teamMembers, isPending }: {
 
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 100, background: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
-      <div style={{ background: "#fff", borderRadius: 14, padding: 24, maxWidth: 400, width: "100%", boxShadow: "0 8px 32px rgba(0,0,0,0.18)", maxHeight: "90vh", overflowY: "auto" }}>
+      <div style={{ background: "#fff", borderRadius: 14, padding: 24, maxWidth: 400, width: "100%", boxShadow: "0 8px 32px rgba(0,0,0,0.22)", maxHeight: "90vh", overflowY: "auto" }}>
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 4 }}>
           <h3 style={{ fontSize: 15, fontWeight: 600, color: "#333" }}>Spawn "{template.name}"</h3>
           <button onClick={onClose} style={{ background: "transparent", border: "none", cursor: "pointer", padding: 2, color: "#aaa" }}><X style={{ width: 16, height: 16 }} /></button>
@@ -70,7 +71,10 @@ function SpawnDialog({ template, onClose, onSpawn, teamMembers, isPending }: {
             {(template.items || []).map(item => (
               <div key={item.id} style={{ padding: "8px 10px", background: "#F5F3EE", borderRadius: 7 }}>
                 <div style={{ fontSize: 12, fontWeight: 500, color: "#333", marginBottom: 2 }}>{item.title}</div>
-                <div style={{ fontSize: 11, color: "#999" }}>Due {computedDate(item.day_offset)} · {ROLE_LABELS[item.assignee_role]}</div>
+                <div style={{ fontSize: 11, color: "#999" }}>Due {computedDate(item.day_offset)} · {item.assignee_role === "specific" && item.assignee_id
+                  ? (teamMembers.find((m: any) => m.id === item.assignee_id)?.display_name || "Specific user")
+                  : ROLE_LABELS[item.assignee_role]
+                }</div>
               </div>
             ))}
           </div>
@@ -88,17 +92,27 @@ function SpawnDialog({ template, onClose, onSpawn, teamMembers, isPending }: {
   );
 }
 
-function AddItemForm({ templateId, itemCount, onDone }: { templateId: string; itemCount: number; onDone: () => void }) {
-  const { addItem } = useTaskTemplates();
+function AddItemForm({ templateId, itemCount, onDone, addItem, teamMembers }: { templateId: string; itemCount: number; onDone: () => void; addItem: ReturnType<typeof useTaskTemplates>["addItem"]; teamMembers: any[] }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [role, setRole] = useState<"admin" | "faculty">("admin");
+  const [assigneeId, setAssigneeId] = useState("");
   const [offset, setOffset] = useState(0);
+  const [addedCount, setAddedCount] = useState(0);
+
+  const filteredMembers = teamMembers.filter((m: any) => m.role === role);
 
   const handleAdd = () => {
     if (!title.trim()) return;
-    addItem.mutate({ template_id: templateId, title: title.trim(), description: description.trim() || undefined, assignee_role: role, day_offset: offset, sort_order: (itemCount + 1) * 10 },
-      { onSuccess: () => onDone() });
+    addItem.mutate({
+      template_id: templateId,
+      title: title.trim(),
+      description: description.trim() || undefined,
+      assignee_role: assigneeId ? "specific" : role,
+      assignee_id: assigneeId || undefined,
+      day_offset: offset,
+      sort_order: (itemCount + addedCount + 1) * 10,
+    }, { onSuccess: () => { setTitle(""); setDescription(""); setOffset(0); setAssigneeId(""); setAddedCount(c => c + 1); } });
   };
 
   return (
@@ -109,21 +123,28 @@ function AddItemForm({ templateId, itemCount, onDone }: { templateId: string; it
         <input value={description} onChange={e => setDescription(e.target.value)} placeholder="Description (optional)"
           style={{ padding: "6px 10px", fontSize: 12, border: "1px solid #C9CED4", borderRadius: 6, outline: "none", background: "#fff" }} />
         <div style={{ display: "flex", gap: 6 }}>
-          <select value={role} onChange={e => setRole(e.target.value as any)}
+          <select value={role} onChange={e => { setRole(e.target.value as any); setAssigneeId(""); }}
             style={{ flex: 1, padding: "6px 8px", fontSize: 12, border: "1px solid #C9CED4", borderRadius: 6, outline: "none", background: "#fff" }}>
             <option value="admin">Admin</option>
             <option value="faculty">Faculty</option>
           </select>
-          <div style={{ display: "flex", alignItems: "center", gap: 4, flex: 1 }}>
-            <input type="number" value={offset} onChange={e => setOffset(parseInt(e.target.value) || 0)}
-              style={{ width: "60px", padding: "6px 8px", fontSize: 12, border: "1px solid #C9CED4", borderRadius: 6, outline: "none", background: "#fff", textAlign: "center" as const }} />
-            <span style={{ fontSize: 11, color: "#888", whiteSpace: "nowrap" as const }}>days offset</span>
-          </div>
+          <select value={assigneeId} onChange={e => setAssigneeId(e.target.value)}
+            style={{ flex: 2, padding: "6px 8px", fontSize: 12, border: "1px solid #C9CED4", borderRadius: 6, outline: "none", background: "#fff", color: assigneeId ? "#333" : "#aaa" }}>
+            <option value="">Any {role === "admin" ? "admin" : "faculty"}…</option>
+            {filteredMembers.map((m: any) => (
+              <option key={m.id} value={m.id}>{m.display_name || m.id}</option>
+            ))}
+          </select>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+          <input type="number" value={offset} onChange={e => setOffset(parseInt(e.target.value) || 0)}
+            style={{ width: 60, padding: "6px 8px", fontSize: 12, border: "1px solid #C9CED4", borderRadius: 6, outline: "none", background: "#fff", textAlign: "center" as const }} />
+          <span style={{ fontSize: 11, color: "#888", whiteSpace: "nowrap" as const }}>days offset from anchor date</span>
         </div>
         <div style={{ display: "flex", gap: 6, justifyContent: "flex-end" as const }}>
-          <button onClick={onDone} style={{ padding: "5px 12px", fontSize: 12, color: "#777", background: "transparent", border: "1px solid #C9CED4", borderRadius: 5, cursor: "pointer" }}>Cancel</button>
+          <button onClick={onDone} style={{ padding: "5px 12px", fontSize: 12, color: "#777", background: "transparent", border: "1px solid #C9CED4", borderRadius: 5, cursor: "pointer" }}>Done</button>
           <button onClick={handleAdd} disabled={!title.trim() || addItem.isPending}
-            style={{ padding: "5px 12px", fontSize: 12, color: "#fff", background: "#415162", border: "none", borderRadius: 5, cursor: "pointer" }}>Add task</button>
+            style={{ padding: "5px 12px", fontSize: 12, color: "#fff", background: "#415162", border: "none", borderRadius: 5, cursor: "pointer" }}>{addItem.isPending ? "Adding…" : "Add task"}</button>
         </div>
       </div>
     </div>
@@ -131,7 +152,7 @@ function AddItemForm({ templateId, itemCount, onDone }: { templateId: string; it
 }
 
 function TemplateCard({ template, canEdit }: { template: TaskTemplate; canEdit: boolean }) {
-  const { deleteTemplate, deleteItem, spawnTasks } = useTaskTemplates();
+  const { deleteTemplate, deleteItem, addItem, updateTemplate, updateItem, spawnTasks } = useTaskTemplates();
   const teamQuery = useTeamMembers();
   const teamMembers = teamQuery.data ?? [];
   const { user } = useAuth();
@@ -140,45 +161,175 @@ function TemplateCard({ template, canEdit }: { template: TaskTemplate; canEdit: 
   const [addingItem, setAddingItem] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
+  // Template editing state
+  const [editingTemplate, setEditingTemplate] = useState(false);
+  const [editName, setEditName] = useState("");
+  const [editDesc, setEditDesc] = useState("");
+  const [editCat, setEditCat] = useState("");
+
+  // Item editing state
+  const [editingItemId, setEditingItemId] = useState<string | null>(null);
+  const [editItemTitle, setEditItemTitle] = useState("");
+  const [editItemDesc, setEditItemDesc] = useState("");
+  const [editItemRole, setEditItemRole] = useState<string>("admin");
+  const [editItemAssigneeId, setEditItemAssigneeId] = useState("");
+  const [editItemOffset, setEditItemOffset] = useState(0);
+
   const catColor = template.category ? EVENT_CATEGORY_COLORS[template.category as EventCategory] || "#415162" : "#415162";
   const adminMember = teamMembers.find((m: any) => m.role === "admin");
   const adminId = adminMember?.id || user!.id;
 
+  const startEditTemplate = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setEditName(template.name);
+    setEditDesc(template.description || "");
+    setEditCat(template.category || "");
+    setEditingTemplate(true);
+  };
+
+  const saveTemplate = () => {
+    if (!editName.trim()) return;
+    updateTemplate.mutate({ id: template.id, name: editName.trim(), description: editDesc.trim() || undefined, category: editCat || undefined },
+      { onSuccess: () => setEditingTemplate(false) });
+  };
+
+  const startEditItem = (item: TaskTemplateItem) => {
+    setEditingItemId(item.id);
+    setEditItemTitle(item.title);
+    setEditItemDesc(item.description || "");
+    setEditItemRole(item.assignee_role === "specific" ? (teamMembers.find((m: any) => m.id === item.assignee_id)?.role || "admin") : item.assignee_role);
+    setEditItemAssigneeId(item.assignee_id || "");
+    setEditItemOffset(item.day_offset);
+  };
+
+  const saveItem = () => {
+    if (!editingItemId || !editItemTitle.trim()) return;
+    updateItem.mutate({
+      id: editingItemId,
+      title: editItemTitle.trim(),
+      description: editItemDesc.trim() || undefined,
+      assignee_role: editItemAssigneeId ? "specific" : editItemRole,
+      assignee_id: editItemAssigneeId || undefined,
+      day_offset: editItemOffset,
+    }, { onSuccess: () => setEditingItemId(null) });
+  };
+
   return (
     <>
       <div style={{ background: "#fff", border: "1px solid #E7EBEF", borderRadius: 10, overflow: "hidden", marginBottom: 10 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 14px", cursor: "pointer" }} onClick={() => setExpanded(!expanded)}>
-          {expanded ? <ChevronDown style={{ width: 14, height: 14, color: "#aaa", flexShrink: 0 }} /> : <ChevronRight style={{ width: 14, height: 14, color: "#aaa", flexShrink: 0 }} />}
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 13, fontWeight: 600, color: "#333" }}>{template.name}</div>
-            {template.description && <div style={{ fontSize: 11, color: "#999", marginTop: 1 }}>{template.description}</div>}
+        {/* Header */}
+        {editingTemplate ? (
+          <div style={{ padding: "12px 14px", display: "flex", flexDirection: "column" as const, gap: 8 }}>
+            <input autoFocus value={editName} onChange={e => setEditName(e.target.value)}
+              style={{ padding: "6px 10px", fontSize: 13, fontWeight: 600, border: "1px solid #C9CED4", borderRadius: 6, outline: "none", background: "#fff" }} />
+            <input value={editDesc} onChange={e => setEditDesc(e.target.value)} placeholder="Description (optional)"
+              style={{ padding: "6px 10px", fontSize: 12, border: "1px solid #C9CED4", borderRadius: 6, outline: "none", background: "#fff" }} />
+            <select value={editCat} onChange={e => setEditCat(e.target.value)}
+              style={{ padding: "6px 10px", fontSize: 12, border: "1px solid #C9CED4", borderRadius: 6, outline: "none", background: "#fff", color: editCat ? "#333" : "#aaa" }}>
+              <option value="">Category (optional)</option>
+              <option value="program">Program</option>
+              <option value="didactic">Didactic</option>
+              <option value="committee">Committee</option>
+              <option value="compliance">Compliance</option>
+              <option value="administrative">Administrative</option>
+              <option value="wellness">Wellness</option>
+              <option value="faculty">Faculty</option>
+            </select>
+            <div style={{ display: "flex", gap: 6, justifyContent: "flex-end" as const }}>
+              <button onClick={() => setEditingTemplate(false)} style={{ padding: "5px 12px", fontSize: 12, color: "#777", background: "transparent", border: "1px solid #C9CED4", borderRadius: 5, cursor: "pointer" }}>Cancel</button>
+              <button onClick={saveTemplate} disabled={!editName.trim() || updateTemplate.isPending}
+                style={{ display: "flex", alignItems: "center", gap: 4, padding: "5px 12px", fontSize: 12, color: "#fff", background: "#415162", border: "none", borderRadius: 5, cursor: "pointer" }}>
+                <Save style={{ width: 11, height: 11 }} /> {updateTemplate.isPending ? "Saving…" : "Save"}
+              </button>
+            </div>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
-            {template.category && (
-              <span style={{ fontSize: 10, padding: "2px 7px", borderRadius: 10, background: catColor + "18", color: catColor, fontWeight: 500 }}>
-                {EVENT_CATEGORY_LABELS[template.category as EventCategory] || template.category}
-              </span>
-            )}
-            <span style={{ fontSize: 11, color: "#aaa" }}>{template.items?.length || 0} tasks</span>
+        ) : (
+          <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 14px", cursor: "pointer" }} onClick={() => setExpanded(!expanded)}>
+            {expanded ? <ChevronDown style={{ width: 14, height: 14, color: "#aaa", flexShrink: 0 }} /> : <ChevronRight style={{ width: 14, height: 14, color: "#aaa", flexShrink: 0 }} />}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 13, fontWeight: 600, color: "#333" }}>{template.name}</div>
+              {template.description && <div style={{ fontSize: 11, color: "#999", marginTop: 1 }}>{template.description}</div>}
+              {template.operations_section_id && <div style={{ marginTop: 4 }}><OperationsLinkPill sectionId={template.operations_section_id} /></div>}
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
+              {canEdit && (
+                <button onClick={startEditTemplate} style={{ display: "flex", alignItems: "center", padding: 4, background: "transparent", border: "none", cursor: "pointer", color: "#bbb" }} title="Edit template">
+                  <Pencil style={{ width: 12, height: 12 }} />
+                </button>
+              )}
+              {template.category && (
+                <span style={{ fontSize: 10, padding: "2px 7px", borderRadius: 10, background: catColor + "18", color: catColor, fontWeight: 500 }}>
+                  {EVENT_CATEGORY_LABELS[template.category as EventCategory] || template.category}
+                </span>
+              )}
+              <span style={{ fontSize: 11, color: "#aaa" }}>{template.items?.length || 0} tasks</span>
+            </div>
           </div>
-        </div>
+        )}
 
-        {expanded && (
+        {expanded && !editingTemplate && (
           <div style={{ borderTop: "1px solid #E7EBEF", padding: "10px 14px" }}>
             {(template.items || []).length === 0 && (
               <p style={{ fontSize: 12, color: "#bbb", fontStyle: "italic", marginBottom: 8 }}>No tasks yet. Add one below.</p>
             )}
             {(template.items || []).map(item => (
-              <div key={item.id} style={{ display: "flex", alignItems: "flex-start", gap: 8, padding: "7px 0", borderBottom: "1px solid #F0F0EE" }}>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 12, fontWeight: 500, color: "#333" }}>{item.title}</div>
-                  {item.description && <div style={{ fontSize: 11, color: "#999", marginTop: 1 }}>{item.description}</div>}
-                  <div style={{ fontSize: 11, color: "#aaa", marginTop: 2 }}>{ROLE_LABELS[item.assignee_role]} · {offsetLabel(item.day_offset)}</div>
-                </div>
-                {canEdit && (
-                  <button onClick={() => deleteItem.mutate(item.id)} style={{ background: "transparent", border: "none", cursor: "pointer", padding: 2, color: "#ccc", flexShrink: 0 }}>
-                    <Trash2 style={{ width: 12, height: 12 }} />
-                  </button>
+              <div key={item.id} style={{ padding: "7px 0", borderBottom: "1px solid #F0F0EE" }}>
+                {editingItemId === item.id ? (
+                  <div style={{ display: "flex", flexDirection: "column" as const, gap: 6, padding: "4px 0" }}>
+                    <input autoFocus value={editItemTitle} onChange={e => setEditItemTitle(e.target.value)}
+                      style={{ padding: "5px 8px", fontSize: 12, fontWeight: 500, border: "1px solid #C9CED4", borderRadius: 5, outline: "none", background: "#fff" }} />
+                    <input value={editItemDesc} onChange={e => setEditItemDesc(e.target.value)} placeholder="Description (optional)"
+                      style={{ padding: "5px 8px", fontSize: 12, border: "1px solid #C9CED4", borderRadius: 5, outline: "none", background: "#fff" }} />
+                    <div style={{ display: "flex", gap: 6 }}>
+                      <select value={editItemRole} onChange={e => { setEditItemRole(e.target.value); setEditItemAssigneeId(""); }}
+                        style={{ flex: 1, padding: "5px 8px", fontSize: 12, border: "1px solid #C9CED4", borderRadius: 5, outline: "none", background: "#fff" }}>
+                        <option value="admin">Admin</option>
+                        <option value="faculty">Faculty</option>
+                      </select>
+                      <select value={editItemAssigneeId} onChange={e => setEditItemAssigneeId(e.target.value)}
+                        style={{ flex: 2, padding: "5px 8px", fontSize: 12, border: "1px solid #C9CED4", borderRadius: 5, outline: "none", background: "#fff", color: editItemAssigneeId ? "#333" : "#aaa" }}>
+                        <option value="">Any {editItemRole === "admin" ? "admin" : "faculty"}…</option>
+                        {teamMembers.filter((m: any) => m.role === editItemRole).map((m: any) => (
+                          <option key={m.id} value={m.id}>{m.display_name || m.id}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                      <input type="number" value={editItemOffset} onChange={e => setEditItemOffset(parseInt(e.target.value) || 0)}
+                        style={{ width: 60, padding: "5px 8px", fontSize: 12, border: "1px solid #C9CED4", borderRadius: 5, outline: "none", background: "#fff", textAlign: "center" as const }} />
+                      <span style={{ fontSize: 11, color: "#888", whiteSpace: "nowrap" as const }}>days offset from anchor date</span>
+                    </div>
+                    <div style={{ display: "flex", gap: 6, justifyContent: "flex-end" as const }}>
+                      <button onClick={() => setEditingItemId(null)} style={{ padding: "4px 10px", fontSize: 11, color: "#777", background: "transparent", border: "1px solid #C9CED4", borderRadius: 4, cursor: "pointer" }}>Cancel</button>
+                      <button onClick={saveItem} disabled={!editItemTitle.trim() || updateItem.isPending}
+                        style={{ display: "flex", alignItems: "center", gap: 3, padding: "4px 10px", fontSize: 11, color: "#fff", background: "#415162", border: "none", borderRadius: 4, cursor: "pointer" }}>
+                        <Check style={{ width: 10, height: 10 }} /> {updateItem.isPending ? "Saving…" : "Save"}
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 12, fontWeight: 500, color: "#333" }}>{item.title}</div>
+                      {item.description && <div style={{ fontSize: 11, color: "#999", marginTop: 1 }}>{item.description}</div>}
+                      <div style={{ fontSize: 11, color: "#aaa", marginTop: 2 }}>
+                        {item.assignee_role === "specific" && item.assignee_id
+                          ? (teamMembers.find((m: any) => m.id === item.assignee_id)?.display_name || "Specific user")
+                          : ROLE_LABELS[item.assignee_role]
+                        } · {offsetLabel(item.day_offset)}
+                      </div>
+                    </div>
+                    {canEdit && (
+                      <div style={{ display: "flex", gap: 2, flexShrink: 0 }}>
+                        <button onClick={() => startEditItem(item)} style={{ background: "transparent", border: "none", cursor: "pointer", padding: 2, color: "#ccc" }} title="Edit task">
+                          <Pencil style={{ width: 11, height: 11 }} />
+                        </button>
+                        <button onClick={() => deleteItem.mutate(item.id)} style={{ background: "transparent", border: "none", cursor: "pointer", padding: 2, color: "#ccc" }} title="Delete task">
+                          <Trash2 style={{ width: 11, height: 11 }} />
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 )}
               </div>
             ))}
@@ -189,7 +340,7 @@ function TemplateCard({ template, canEdit }: { template: TaskTemplate; canEdit: 
                 <Plus style={{ width: 11, height: 11 }} /> Add task
               </button>
             )}
-            {addingItem && <AddItemForm templateId={template.id} itemCount={template.items?.length || 0} onDone={() => setAddingItem(false)} />}
+            {addingItem && <AddItemForm templateId={template.id} itemCount={template.items?.length || 0} onDone={() => setAddingItem(false)} addItem={addItem} teamMembers={teamMembers} />}
 
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 12, paddingTop: 10, borderTop: "1px solid #F0F0EE" }}>
               {canEdit ? (

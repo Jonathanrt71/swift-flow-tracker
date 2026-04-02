@@ -75,6 +75,7 @@ export interface ProgramEvent {
   next_occurrence_date: string | null;
   recurrence_parent_id: string | null;
   archived: boolean;
+  operations_section_id: string | null;
 }
 
 export function useEvents() {
@@ -107,6 +108,7 @@ export function useEvents() {
       category: EventCategory;
       assigned_to?: string;
       recurrence_pattern?: RecurrencePattern;
+      operations_section_id?: string;
     }) => {
       const { error } = await supabase.from("events").insert({
         title: data.title,
@@ -121,6 +123,7 @@ export function useEvents() {
         recurrence_pattern: data.recurrence_pattern || "none",
         recurrence_confirmed: false,
         archived: false,
+        operations_section_id: data.operations_section_id || null,
       });
       if (error) throw error;
     },

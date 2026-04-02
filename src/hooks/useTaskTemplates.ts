@@ -21,6 +21,7 @@ export interface TaskTemplate {
   category: string | null;
   created_by: string | null;
   created_at: string;
+  operations_section_id: string | null;
   items?: TaskTemplateItem[];
 }
 
@@ -54,12 +55,13 @@ export function useTaskTemplates() {
   });
 
   const createTemplate = useMutation({
-    mutationFn: async (data: { name: string; description?: string; category?: string }) => {
+    mutationFn: async (data: { name: string; description?: string; category?: string; operations_section_id?: string }) => {
       const { error } = await supabase.from("task_templates").insert({
         name: data.name,
         description: data.description || null,
         category: data.category || null,
         created_by: user!.id,
+        operations_section_id: data.operations_section_id || null,
       });
       if (error) throw error;
     },
@@ -110,6 +112,34 @@ export function useTaskTemplates() {
     onError: (e: Error) => toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
 
+  const updateTemplate = useMutation({
+    mutationFn: async (data: { id: string; name: string; description?: string; category?: string }) => {
+      const { error } = await supabase.from("task_templates").update({
+        name: data.name,
+        description: data.description || null,
+        category: data.category || null,
+      }).eq("id", data.id);
+      if (error) throw error;
+    },
+    onSuccess: () => { invalidate(); toast({ title: "Template updated" }); },
+    onError: (e: Error) => toast({ title: "Error", description: e.message, variant: "destructive" }),
+  });
+
+  const updateItem = useMutation({
+    mutationFn: async (data: { id: string; title: string; description?: string; assignee_role: string; assignee_id?: string; day_offset: number }) => {
+      const { error } = await supabase.from("task_template_items").update({
+        title: data.title,
+        description: data.description || null,
+        assignee_role: data.assignee_role,
+        assignee_id: data.assignee_id || null,
+        day_offset: data.day_offset,
+      }).eq("id", data.id);
+      if (error) throw error;
+    },
+    onSuccess: () => { invalidate(); },
+    onError: (e: Error) => toast({ title: "Error", description: e.message, variant: "destructive" }),
+  });
+
   const spawnTasks = useMutation({
     mutationFn: async ({ template, anchorDate, adminId, facultyId }: {
       template: TaskTemplate;
@@ -148,5 +178,5 @@ export function useTaskTemplates() {
     onError: (e: Error) => toast({ title: "Error spawning tasks", description: e.message, variant: "destructive" }),
   });
 
-  return { templates, createTemplate, deleteTemplate, addItem, deleteItem, spawnTasks };
+  return { templates, createTemplate, deleteTemplate, updateTemplate, addItem, deleteItem, updateItem, spawnTasks };
 }

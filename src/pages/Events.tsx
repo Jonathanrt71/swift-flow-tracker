@@ -21,18 +21,17 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Calendar, BookOpen, Search, X, Trash2, List, ClipboardCheck } from "lucide-react";
+import { Calendar, Search, X, Trash2, List, ClipboardCheck } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { formatCardDate } from "@/lib/dateFormat";
-import { Button } from "@/components/ui/button";
 import CreateEventDialog from "@/components/events/CreateEventDialog";
 import EditEventDialog from "@/components/events/EditEventDialog";
 import EvaluationDialog from "@/components/events/EvaluationDialog";
-import EventsEvaluationsView from "@/components/events/EventsEvaluationsView";
 import EventsGantt from "@/components/events/EventsGantt";
 import EventsVerticalTimeline from "@/components/events/EventsVerticalTimeline";
 import NotificationBell from "@/components/NotificationBell";
 import HeaderLogo from "@/components/HeaderLogo";
+import OperationsLinkPill from "@/components/shared/OperationsLinkPill";
 
 const VerticalTimelineIcon = ({ className }: { className?: string }) => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className={className}>
@@ -205,7 +204,7 @@ const EventCard = ({
       {expanded && (
         <div className="pb-2 pl-3 pr-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-baseline gap-2 flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-1 min-w-0 flex-wrap">
               <span className="text-[11px] text-muted-foreground whitespace-nowrap shrink-0">
                 {formattedDate}{timeRange ? ` · ${timeRange}` : ""}
               </span>
@@ -214,6 +213,7 @@ const EventCard = ({
                   {event.description}
                 </span>
               )}
+              <OperationsLinkPill sectionId={(event as any).operations_section_id} />
             </div>
             <div className="flex items-center gap-0.5 shrink-0 ml-2">
               {isFacultyOrAdmin && event.category === "didactic" && (
@@ -462,7 +462,7 @@ const Events = () => {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState<EventCategory | "all">("all");
-  const [viewMode, setViewMode] = useState<"list" | "vertical" | "gantt" | "evaluations">("list");
+  const [viewMode, setViewMode] = useState<"list" | "vertical" | "gantt">("list");
 
   const ALL_CATEGORIES: EventCategory[] = ["program", "didactic"];
 
@@ -487,16 +487,8 @@ const Events = () => {
     );
   }, [events.data, activeCategory, searchQuery]);
 
-  const programEvents = useMemo(() => {
-    if (activeCategory === "all") return events.data || [];
-    return (events.data || []).filter((e) => e.category === activeCategory);
-  }, [events.data, activeCategory]);
-
   const handleCategoryChange = (cat: EventCategory | "all") => {
     if (cat === activeCategory) return;
-    if (cat === "didactic") {
-      setViewMode("list");
-    }
     setActiveCategory(cat);
   };
 
@@ -505,18 +497,27 @@ const Events = () => {
       <header className="bg-[#415162] sticky top-0 z-40">
         <div className="container flex items-center h-14 px-4">
           <HeaderLogo isAdmin={isAdmin} onSignOut={() => signOut()}>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="hover:bg-transparent text-white/50"
+            <button
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: 36,
+                height: 36,
+                background: "transparent",
+                border: "none",
+                borderRadius: 6,
+                cursor: "pointer",
+                color: "rgba(255,255,255,0.8)",
+              }}
               title="Search"
               onClick={() => {
                 setSearchOpen(!searchOpen);
                 if (searchOpen) setSearchQuery("");
               }}
             >
-              {searchOpen ? <X className="h-4 w-4" /> : <Search className="h-4 w-4" />}
-            </Button>
+              {searchOpen ? <X style={{ width: 17, height: 17 }} /> : <Search style={{ width: 17, height: 17 }} />}
+            </button>
             <NotificationBell />
           </HeaderLogo>
         </div>
@@ -533,37 +534,50 @@ const Events = () => {
         )}
       </header>
 
-      <main className="container max-w-[1200px] px-4 py-4">
+      <main className="container max-w-[1200px] px-4 pt-2 pb-4">
 
-        {/* Row 2: View toggle + Add button */}
+        {/* Row 1: Category tabs */}
+        <div className="flex items-center" style={{ borderBottom: "1px solid #D5DAE0", marginBottom: 10 }}>
+          {(["all", "program", "didactic"] as const).map((cat) => (
+            <button
+              key={cat}
+              onClick={() => handleCategoryChange(cat)}
+              style={{
+                padding: "6px 0",
+                marginRight: 20,
+                border: "none",
+                borderBottom: activeCategory === cat ? "2px solid #415162" : "2px solid transparent",
+                cursor: "pointer",
+                fontSize: 13,
+                fontWeight: activeCategory === cat ? 700 : 500,
+                background: "transparent",
+                color: activeCategory === cat ? "#415162" : "#8A9AAB",
+                transition: "all 0.15s",
+              }}
+            >
+              {cat === "all" ? "All" : cat === "program" ? "Program" : "Didactic"}
+            </button>
+          ))}
+        </div>
+
+        {/* Row 2: View toggles + Add button — always visible */}
         <div className="flex items-center justify-between pb-2.5">
-          <div className="flex items-center gap-2">
-            {/* View toggle pill — hidden when didactic-only selected */}
-            {activeCategory !== "didactic" && (
-              <div
-                className="flex items-center rounded-full p-0.5"
-                style={{ background: "#D5DAE0" }}
+          <div className="flex items-center gap-0.5">
+            {([
+              { mode: "list" as const, icon: <List className="h-4 w-4" />, label: "List" },
+              { mode: "vertical" as const, icon: <VerticalTimelineIcon />, label: "Timeline" },
+              { mode: "gantt" as const, icon: <GanttIcon />, label: "Gantt" },
+            ] as { mode: "list" | "vertical" | "gantt"; icon: React.ReactNode; label: string }[]).map(({ mode, icon, label }) => (
+              <button
+                key={mode}
+                onClick={() => setViewMode(mode)}
+                className="flex flex-col items-center gap-0.5 px-2 py-1 rounded-md transition-colors"
+                style={{ background: "transparent" }}
               >
-                {([
-                  { mode: "list" as const, icon: <List className="h-3.5 w-3.5" /> },
-                  { mode: "vertical" as const, icon: <VerticalTimelineIcon /> },
-                  { mode: "gantt" as const, icon: <GanttIcon /> },
-                  ...(canEvaluate ? [{ mode: "evaluations" as const, icon: <ClipboardCheck className="h-3.5 w-3.5" /> }] : []),
-                ]).map(({ mode, icon }) => (
-                  <button
-                    key={mode}
-                    onClick={() => setViewMode(mode)}
-                    className={cn(
-                      "flex items-center justify-center w-7 h-7 rounded-full transition-colors",
-                      viewMode === mode ? "bg-white shadow-sm" : ""
-                    )}
-                    style={{ color: viewMode === mode ? "#415162" : "#8A9AAB" }}
-                  >
-                    {icon}
-                  </button>
-                ))}
-              </div>
-            )}
+                <span style={{ color: viewMode === mode ? "#415162" : "#8A9AAB" }}>{icon}</span>
+                <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase", color: viewMode === mode ? "#415162" : "#8A9AAB" }}>{label}</span>
+              </button>
+            ))}
           </div>
 
           {canEditEvents && (
@@ -574,8 +588,8 @@ const Events = () => {
           )}
         </div>
 
-        {/* Row 3: Gantt label (only in gantt view) */}
-        {viewMode === "gantt" && activeCategory !== "didactic" && (
+        {/* Gantt label (only in gantt view) */}
+        {viewMode === "gantt" && (
           <div className="flex items-center justify-center pb-3">
             <span style={{ fontSize: 15, fontWeight: 500, color: "#2D3748" }}>
               {ganttRangeLabel}
@@ -588,14 +602,12 @@ const Events = () => {
           <div className="flex justify-center py-12">
             <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
           </div>
-        ) : viewMode === "evaluations" ? (
-          <EventsEvaluationsView events={events.data || []} />
-        ) : viewMode === "gantt" && activeCategory !== "didactic" ? (
+        ) : viewMode === "gantt" ? (
           <EventsGantt
-            events={programEvents}
+            events={filteredEvents}
           />
-        ) : viewMode === "vertical" && activeCategory !== "didactic" ? (
-          <EventsVerticalTimeline events={programEvents} />
+        ) : viewMode === "vertical" ? (
+          <EventsVerticalTimeline events={filteredEvents} />
         ) : (
           <GroupedEventList
             events={filteredEvents}
