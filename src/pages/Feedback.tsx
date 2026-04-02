@@ -464,7 +464,7 @@ const Feedback = () => {
               )}
               <TabsTrigger value="milestones" className="flex flex-col items-center gap-0.5 h-auto px-2 py-1" title="Milestones">
                 <BookOpen className="h-4 w-4" />
-                <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase" }}>CBME</span>
+                <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase" }}>Milestones</span>
               </TabsTrigger>
             </TabsList>
           </div>
