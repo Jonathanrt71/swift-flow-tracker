@@ -471,10 +471,10 @@ const Events = () => {
 
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeCategory, setActiveCategory] = useState<EventCategory | "all">("all");
+  const [activeCategory, setActiveCategory] = useState<string>("all");
   const [viewMode, setViewMode] = useState<"list" | "vertical" | "gantt">("list");
 
-  const ALL_CATEGORIES: EventCategory[] = ["program", "didactic"];
+  const { categories, categoryLabels } = useEventCategories();
 
   const ganttRangeLabel = useMemo(() => {
     const n = new Date();
