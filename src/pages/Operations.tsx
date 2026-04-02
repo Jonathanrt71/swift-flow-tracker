@@ -281,7 +281,7 @@ const Operations = () => {
             onClick={() => scrollTo(section.id)}
             style={{
               flex: 1, display: "flex", alignItems: "center", gap: 8, overflow: "hidden", minWidth: 0,
-              padding: depth === 0 ? "9px 12px 9px 8px" : "7px 12px 7px 28px",
+              padding: depth === 0 ? "9px 12px 9px 16px" : "7px 12px 7px 36px",
               fontSize: depth === 0 ? 13 : 12,
               color: isActive ? "#415162" : "#777",
               fontWeight: isActive ? 600 : 400,
