@@ -497,7 +497,7 @@ const Events = () => {
     );
   }, [events.data, activeCategory, searchQuery]);
 
-  const handleCategoryChange = (cat: EventCategory | "all") => {
+  const handleCategoryChange = (cat: string) => {
     if (cat === activeCategory) return;
     setActiveCategory(cat);
   };
