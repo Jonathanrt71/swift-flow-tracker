@@ -1,4 +1,4 @@
-//sync
+//synci
 // force rebuild v3 – test dot
 import { useState } from "react";
 import { Link } from "react-router-dom";
