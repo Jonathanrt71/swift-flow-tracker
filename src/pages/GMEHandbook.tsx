@@ -298,6 +298,13 @@ const GMEHandbook = () => {
         <div style={{ display: "flex", alignItems: "center", height: 56, padding: "0 16px" }}>
           <HeaderLogo isAdmin={isAdmin} onSignOut={signOut}>
             <button
+              onClick={() => setTocOpen(!tocOpen)}
+              style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 36, height: 36, background: "transparent", border: "none", borderRadius: 6, cursor: "pointer", color: "rgba(255,255,255,0.6)" }}
+              title="Table of Contents"
+            >
+              <Menu style={{ width: 18, height: 18 }} />
+            </button>
+            <button
               onClick={() => { setSearchOpen(!searchOpen); if (searchOpen) clearSearch(); }}
               style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 36, height: 36, background: "transparent", border: "none", borderRadius: 6, cursor: "pointer", color: "rgba(255,255,255,0.6)" }}
               title="Search"
@@ -365,14 +372,6 @@ const GMEHandbook = () => {
 
         <div ref={contentRef} style={{ flex: 1, overflowY: "auto", padding: "24px 20px 120px" }}>
           <div style={{ maxWidth: 700, margin: "0 auto" }}>
-          <div style={{ marginBottom: 24 }}>
-            <button onClick={() => setTocOpen(true)} style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "10px 14px", background: "#fff", border: "1px solid #C9CED4", borderRadius: 8, fontSize: 13, color: "#415162", fontWeight: 500, cursor: "pointer", textAlign: "left" }}>
-              <Menu style={{ width: 15, height: 15, flexShrink: 0 }} />
-              <span style={{ flex: 1 }}>Table of Contents</span>
-              <span style={{ fontSize: 11, color: "#aaa" }}>{topSections.length} sections</span>
-              <ChevronRight style={{ width: 14, height: 14, color: "#aaa" }} />
-            </button>
-          </div>
 
           {/* Reader view toggle — only shown for users with edit permission */}
           {hasEditPerm && (
