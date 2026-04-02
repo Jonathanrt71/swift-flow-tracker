@@ -280,7 +280,7 @@ const Operations = () => {
           <button
             onClick={() => scrollTo(section.id)}
             style={{
-              flex: 1, display: "flex", alignItems: "center", gap: 8,
+              flex: 1, display: "flex", alignItems: "center", gap: 8, overflow: "hidden", minWidth: 0,
               padding: depth === 0 ? "9px 12px 9px 8px" : "7px 12px 7px 28px",
               fontSize: depth === 0 ? 13 : 12,
               color: isActive ? "#415162" : "#777",
@@ -291,8 +291,7 @@ const Operations = () => {
               cursor: "pointer", textAlign: "left",
             }}
           >
-            {depth === 0 && <Icon style={{ flexShrink: 0, opacity: isActive ? 1 : 0.55, width: 15, height: 15 }} />}
-            <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{section.title}</span>
+            <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", minWidth: 0, flex: 1 }}>{section.title}</span>
           </button>
         </div>
         {!isCollapsed && subs.map(sub => <TocItem key={sub.id} section={sub} depth={1} />)}
@@ -551,6 +550,13 @@ const Operations = () => {
         <div style={{ display: "flex", alignItems: "center", height: 56, padding: "0 16px" }}>
           <HeaderLogo isAdmin={isAdmin} onSignOut={signOut}>
             <button
+              onClick={() => setTocOpen(!tocOpen)}
+              style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 36, height: 36, background: "transparent", border: "none", borderRadius: 6, cursor: "pointer", color: "rgba(255,255,255,0.6)" }}
+              title="Table of Contents"
+            >
+              <Menu style={{ width: 18, height: 18 }} />
+            </button>
+            <button
               onClick={() => { setSearchOpen(!searchOpen); if (searchOpen) clearSearch(); }}
               style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 36, height: 36, background: "transparent", border: "none", borderRadius: 6, cursor: "pointer", color: "rgba(255,255,255,0.6)" }}
               title="Search"
@@ -587,8 +593,8 @@ const Operations = () => {
         <aside
           style={{
             position: "absolute", top: 0, left: 0, zIndex: 40,
-            height: "100%", width: 256, minWidth: 256,
-            background: "#fff", borderRight: "1px solid #E7EBEF",
+            height: "100%", width: 300, minWidth: 300,
+            background: "#F5F3EE", borderRight: "1px solid #E7EBEF",
             overflowY: "auto",
             transform: tocOpen ? "translateX(0)" : "translateX(-100%)",
             transition: "transform 0.2s ease",
@@ -617,7 +623,6 @@ const Operations = () => {
                 cursor: "pointer", textAlign: "left",
               }}
             >
-              <CheckSquare style={{ width: 15, height: 15, flexShrink: 0, opacity: activeSectionId === "task-templates" ? 1 : 0.55 }} />
               <span>Task Templates</span>
             </button>
             )}
@@ -636,17 +641,6 @@ const Operations = () => {
           style={{ flex: 1, overflowY: "auto", padding: "24px 20px 120px" }}
         >
           <div style={{ maxWidth: 700, margin: "0 auto" }}>
-          <div style={{ marginBottom: 24 }}>
-            <button
-              onClick={() => setTocOpen(true)}
-              style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "10px 14px", background: "#fff", border: "1px solid #C9CED4", borderRadius: 8, fontSize: 13, color: "#415162", fontWeight: 500, cursor: "pointer", textAlign: "left" }}
-            >
-              <Menu style={{ width: 15, height: 15, flexShrink: 0 }} />
-              <span style={{ flex: 1 }}>Table of Contents</span>
-              <span style={{ fontSize: 11, color: "#aaa" }}>{topSections.length} sections</span>
-              <ChevronRight style={{ width: 14, height: 14, color: "#aaa" }} />
-            </button>
-          </div>
 
           {/* Toolbar row: pill toggle + Add section */}
           {hasEditPerm && (
