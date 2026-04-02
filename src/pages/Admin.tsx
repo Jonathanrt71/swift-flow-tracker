@@ -30,6 +30,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useMeetingTags } from "@/hooks/useMeetingTags";
 import { useMeetingTagLinks } from "@/hooks/useMeetingTags";
 import { useCompetencyCategories } from "@/hooks/useCompetencyCategories";
+import { useEventCategories } from "@/hooks/useEventCategories";
+import { Calendar } from "lucide-react";
 import type { UserRole, ManagedUser } from "@/hooks/useAdmin";
 import { useAllPermissions } from "@/hooks/usePermissions";
 import { formatPersonName } from "@/lib/dateFormat";
@@ -633,15 +635,26 @@ const Admin = () => {
   const { tags, createTag, updateTag, deleteTag } = useMeetingTags();
   const { links } = useMeetingTagLinks();
   const { categories, createCategory, updateCategory, deleteCategory } = useCompetencyCategories();
+  const {
+    categories: eventCategories,
+    addCategory: addEventCategory,
+    updateCategory: updateEventCategory,
+    deleteCategory: deleteEventCategory,
+  } = useEventCategories();
 
   const { settings, updateSetting } = useAppSettings();
 
   const [newTagName, setNewTagName] = useState("");
   const [newCategoryName, setNewCategoryName] = useState("");
+  const [newEventCatLabel, setNewEventCatLabel] = useState("");
+  const [newEventCatColor, setNewEventCatColor] = useState("#415162");
   const [editingTagId, setEditingTagId] = useState<string | null>(null);
   const [editingTagName, setEditingTagName] = useState("");
   const [editingCatId, setEditingCatId] = useState<string | null>(null);
   const [editingCatName, setEditingCatName] = useState("");
+  const [editingEventCatId, setEditingEventCatId] = useState<string | null>(null);
+  const [editingEventCatLabel, setEditingEventCatLabel] = useState("");
+  const [editingEventCatColor, setEditingEventCatColor] = useState("");
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [defaultReportEmail, setDefaultReportEmail] = useState("");
@@ -1065,6 +1078,126 @@ const Admin = () => {
         </div>
 
         {/* Milestone Status */}
+        <div
+          className="rounded-lg overflow-hidden cursor-pointer"
+          style={{ background: "#E7EBEF", border: "0.5px solid #C9CED4" }}
+        >
+          <div
+            className="flex items-center px-3.5 py-3"
+            onClick={() => toggleSection("eventCategories")}
+          >
+            <span className="text-sm font-medium" style={{ color: "#2D3748" }}>Event categories</span>
+          </div>
+          {expandedSection === "eventCategories" && (
+            <div className="px-3.5 pb-3 space-y-1.5">
+              {/* Add row */}
+              <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                <input
+                  type="color"
+                  value={newEventCatColor}
+                  onChange={(e) => setNewEventCatColor(e.target.value)}
+                  style={{ width: 28, height: 28, border: "none", padding: 0, cursor: "pointer", borderRadius: 4, background: "transparent" }}
+                />
+                <Input
+                  value={newEventCatLabel}
+                  onChange={(e) => setNewEventCatLabel(e.target.value)}
+                  placeholder="New event category..."
+                  className="bg-background rounded-lg flex-1"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && newEventCatLabel.trim()) {
+                      addEventCategory.mutate({ name: newEventCatLabel.trim(), label: newEventCatLabel.trim(), color: newEventCatColor });
+                      setNewEventCatLabel("");
+                      setNewEventCatColor("#415162");
+                    }
+                  }}
+                />
+                <button
+                  onClick={() => {
+                    if (newEventCatLabel.trim()) {
+                      addEventCategory.mutate({ name: newEventCatLabel.trim(), label: newEventCatLabel.trim(), color: newEventCatColor });
+                      setNewEventCatLabel("");
+                      setNewEventCatColor("#415162");
+                    }
+                  }}
+                  disabled={!newEventCatLabel.trim()}
+                  className="p-1 text-[#8A9AAB] disabled:opacity-30"
+                >
+                  <Plus className="h-5 w-5" />
+                </button>
+              </div>
+              {eventCategories.map((cat) => {
+                const isEditing = editingEventCatId === cat.id;
+                return (
+                  <div
+                    key={cat.id}
+                    className="flex items-center justify-between px-3 py-2 bg-background rounded-lg border border-border"
+                  >
+                    {isEditing ? (
+                      <div className="flex items-center gap-2 flex-1 mr-2" onClick={(e) => e.stopPropagation()}>
+                        <input
+                          type="color"
+                          value={editingEventCatColor}
+                          onChange={(e) => setEditingEventCatColor(e.target.value)}
+                          style={{ width: 28, height: 28, border: "none", padding: 0, cursor: "pointer", borderRadius: 4, background: "transparent" }}
+                        />
+                        <Input
+                          autoFocus
+                          value={editingEventCatLabel}
+                          onChange={(e) => setEditingEventCatLabel(e.target.value)}
+                          className="bg-background rounded-lg h-7 text-sm flex-1"
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" && editingEventCatLabel.trim()) {
+                              updateEventCategory.mutate({ id: cat.id, label: editingEventCatLabel.trim(), color: editingEventCatColor });
+                              setEditingEventCatId(null);
+                            }
+                            if (e.key === "Escape") setEditingEventCatId(null);
+                          }}
+                        />
+                        <button
+                          onClick={() => {
+                            if (editingEventCatLabel.trim()) {
+                              updateEventCategory.mutate({ id: cat.id, label: editingEventCatLabel.trim(), color: editingEventCatColor });
+                            }
+                            setEditingEventCatId(null);
+                          }}
+                          className="flex items-center justify-center w-7 h-7 bg-transparent border-none cursor-pointer text-primary"
+                        >
+                          <Check className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="flex items-center gap-2">
+                          <div className="w-3.5 h-3.5 rounded-full shrink-0" style={{ background: cat.color }} />
+                          <span className="text-sm text-foreground">{cat.label}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setEditingEventCatId(cat.id); setEditingEventCatLabel(cat.label); setEditingEventCatColor(cat.color); }}
+                            className="flex items-center justify-center w-7 h-7 bg-transparent border-none cursor-pointer text-muted-foreground hover:text-foreground rounded-md transition-colors"
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                          </button>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); deleteEventCategory.mutate(cat.id); }}
+                            className="flex items-center justify-center w-7 h-7 bg-transparent border-none cursor-pointer text-destructive hover:bg-destructive/10 rounded-md transition-colors"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                );
+              })}
+              {eventCategories.length === 0 && (
+                <p className="text-sm text-muted-foreground py-4 text-center">No event categories yet</p>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Milestone Status (original) */}
         <div
           className="rounded-lg overflow-hidden cursor-pointer"
           style={{ background: "#E7EBEF", border: "0.5px solid #C9CED4" }}
