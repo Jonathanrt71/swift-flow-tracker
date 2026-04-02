@@ -52,6 +52,7 @@ const CreateEventDialog = ({ onSubmit, defaultCategory }: CreateEventDialogProps
   const [assignedTo, setAssignedTo] = useState(user?.id || "unassigned");
   const [recurrencePattern, setRecurrencePattern] = useState<RecurrencePattern>("none");
   const { data: members } = useTeamMembers();
+  const { categories } = useEventCategories();
 
   const selectedDate = eventDate ? parseISO(eventDate) : undefined;
 
