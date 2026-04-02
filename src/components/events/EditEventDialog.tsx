@@ -51,6 +51,7 @@ const EditEventDialog = ({ event, onUpdate }: EditEventDialogProps) => {
   const [assignedTo, setAssignedTo] = useState(event.assigned_to || "unassigned");
   const [recurrencePattern, setRecurrencePattern] = useState<RecurrencePattern>(event.recurrence_pattern || "none");
   const { data: members } = useTeamMembers();
+  const { categories } = useEventCategories();
 
   const selectedDate = eventDate ? parseISO(eventDate) : undefined;
 
