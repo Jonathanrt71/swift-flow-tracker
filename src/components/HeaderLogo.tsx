@@ -132,7 +132,7 @@ const HeaderLogo = ({
       {menuOpen && (
         <>
           <div className="fixed inset-0 z-[60]" onClick={() => setMenuOpen(false)} />
-          <div className="absolute top-full left-0 mt-2 z-[70] rounded-lg overflow-hidden shadow-lg" style={{ background: "#415162", minWidth: 200 }}>
+          <div className="fixed top-14 left-4 z-[70] rounded-lg shadow-lg" style={{ background: "#415162", minWidth: 200, maxHeight: "calc(100vh - 70px)", overflowY: "auto" }}>
             <Link to="/" onClick={() => setMenuOpen(false)} className={cn("flex items-center gap-3 px-4 py-2.5 text-sm", location.pathname === "/" ? "text-white bg-white/10" : "text-white/70")}>
               <Home className="h-4 w-4" /> FM App
             </Link>
