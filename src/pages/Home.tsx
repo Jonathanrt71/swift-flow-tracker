@@ -3,115 +3,27 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
 import { usePermissions } from "@/hooks/usePermissions";
+import { useAnnouncements } from "@/hooks/useAnnouncements";
+import { useFeedback } from "@/hooks/useFeedback";
+import { useEvents, EVENT_CATEGORY_LABELS, EVENT_CATEGORY_COLORS, type EventCategory } from "@/hooks/useEvents";
+import { useTasks } from "@/hooks/useTasks";
 import { supabase } from "@/integrations/supabase/client";
 import NotificationBell from "@/components/NotificationBell";
 import HeaderLogo from "@/components/HeaderLogo";
+import {
+  Megaphone,
+  CalendarDays,
+  ClipboardCheck,
+  ThumbsUp,
+  ThumbsDown,
+  Minus,
+  ChevronRight,
+  Clock,
+  AlertTriangle,
+} from "lucide-react";
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 
-interface NavItem {
-  label: string;
-  description?: string;
-  path: string;
-  color: string;
-  icon: React.ReactNode;
-  permissionKey?: string;
-}
-
-const Icon = ({ path, color, size = 18 }: { path: string | React.ReactNode; color: string; size?: number }) => (
-  <div style={{ width: 36, height: 36, borderRadius: 8, background: color + "18", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-    {typeof path === "string" ? (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d={path} />
-      </svg>
-    ) : path}
-  </div>
-);
-
-const SVGIcon = ({ children, color, bg, size = 18 }: { children: React.ReactNode; color: string; bg?: string; size?: number }) => (
-  <div style={{ width: 36, height: 36, borderRadius: 8, background: bg || (color + "18"), display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      {children}
-    </svg>
-  </div>
-);
-
-const ChevronRight = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9CED4" strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
-);
-
-const ALL_SECTIONS: { label: string; items: NavItem[] }[] = [
-  {
-    label: "Clinical",
-    items: [
-      {
-        label: "CBME", path: "/cbme", color: "#52657A", permissionKey: "cbme.view",
-        icon: <SVGIcon color="#4A846C" bg="#e8f2ed"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></SVGIcon>,
-      },
-      {
-        label: "Events", path: "/events", color: "#D4A017", permissionKey: "events.view",
-        icon: <SVGIcon color="#4A846C" bg="#e8f2ed"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></SVGIcon>,
-      },
-      {
-        label: "Feedback", path: "/feedback", color: "#9F2929", permissionKey: "feedback.view",
-        icon: <SVGIcon color="#4A846C" bg="#e8f2ed"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></SVGIcon>,
-      },
-      {
-        label: "Topics", path: "/topics", color: "#4A846C", permissionKey: "topics.view",
-        icon: <SVGIcon color="#4A846C" bg="#e8f2ed"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></SVGIcon>,
-      },
-    ],
-  },
-  {
-    label: "Program",
-    items: [
-      {
-        label: "Compliance", description: "ACGME requirements", path: "/compliance", color: "#3D3D3D", permissionKey: "compliance.view",
-        icon: <SVGIcon color="#52657A" bg="#e4eaf0"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></SVGIcon>,
-      },
-      {
-        label: "Announcements", description: "Program updates", path: "/announcements", color: "#52657A", permissionKey: "announcements.view",
-        icon: <SVGIcon color="#52657A" bg="#e4eaf0"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></SVGIcon>,
-      },
-      {
-        label: "Meetings", description: "CCC, PEC, GMEC", path: "/meetings", color: "#4A846C", permissionKey: "meetings.view",
-        icon: <SVGIcon color="#52657A" bg="#e4eaf0"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></SVGIcon>,
-      },
-      {
-        label: "Operations", description: "Manual, task templates", path: "/operations", color: "#52657A", permissionKey: "operations.view",
-        icon: <SVGIcon color="#52657A" bg="#e4eaf0"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></SVGIcon>,
-      },
-      {
-        label: "Tasks", description: "Assignments & checklists", path: "/tasks", color: "#D4A017", permissionKey: "tasks.view",
-        icon: <SVGIcon color="#52657A" bg="#e4eaf0"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></SVGIcon>,
-      },
-    ],
-  },
-  {
-    label: "Reference",
-    items: [
-      {
-        label: "GME Handbook", description: "GME policies", path: "/gme-handbook", color: "#9F2929", permissionKey: "gme_handbook.view",
-        icon: <SVGIcon color="#9F2929" bg="#f2e6e6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></SVGIcon>,
-      },
-      {
-        label: "Handbook", path: "/handbook", color: "#52657A", permissionKey: "handbook.view",
-        icon: <SVGIcon color="#9F2929" bg="#f2e6e6"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></SVGIcon>,
-      },
-      {
-        label: "Rotations", path: "/rotations", color: "#4A846C", permissionKey: "rotations.view",
-        icon: <SVGIcon color="#9F2929" bg="#f2e6e6"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.36 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.11 1h3a2 2 0 0 1 2 1.72c.1.41.2.81.32 1.2A2 2 0 0 1 7.91 8.5l-.46.46A16 16 0 0 0 13 14.55l.46-.46a2 2 0 0 1 2.11-.45c.39.12.79.22 1.2.32A2 2 0 0 1 18.5 16h.42A2 2 0 0 1 22 16.92z"/></SVGIcon>,
-      },
-    ],
-  },
-  {
-    label: "Administration",
-    items: [
-      {
-        label: "Admin", description: "Users, settings", path: "/admin", color: "#3D3D3D", permissionKey: "admin.all",
-        icon: <SVGIcon color="#b8900e" bg="#f5efd8"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></SVGIcon>,
-      },
-    ],
-  },
-];
+// ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function getGreeting() {
   const h = new Date().getHours();
@@ -132,12 +44,66 @@ function getDayLabel() {
   return new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
 }
 
+function formatDate(d: string) {
+  const date = new Date(d + "T00:00:00");
+  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+
+function daysUntil(d: string) {
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+  const target = new Date(d + "T00:00:00");
+  const diff = Math.ceil((target.getTime() - now.getTime()) / 86400000);
+  if (diff < 0) return `${Math.abs(diff)}d overdue`;
+  if (diff === 0) return "Today";
+  if (diff === 1) return "Tomorrow";
+  return `In ${diff} days`;
+}
+
+// ─── Feedback Pie Colors ─────────────────────────────────────────────────────
+
+const SENTIMENT_CONFIG: Record<string, { label: string; color: string; bg: string; icon: typeof ThumbsUp }> = {
+  positive: { label: "Positive", color: "#4A846C", bg: "#E4F0EB", icon: ThumbsUp },
+  neutral:  { label: "Neutral",  color: "#52657A", bg: "#D6DEE6", icon: Minus },
+  negative: { label: "Needs Improvement", color: "#D4A017", bg: "#FBF3E0", icon: ThumbsDown },
+};
+
+// ─── Custom Tooltip ──────────────────────────────────────────────────────────
+
+const CustomTooltip = ({ active, payload, total }: any) => {
+  if (!active || !payload?.length) return null;
+  const d = payload[0].payload;
+  const pct = total > 0 ? ((d.value / total) * 100).toFixed(0) : 0;
+  return (
+    <div style={{ background: "#fff", padding: "8px 12px", borderRadius: 8, boxShadow: "0 2px 8px rgba(0,0,0,0.15)", fontSize: 13 }}>
+      <span style={{ fontWeight: 700, color: d.color }}>{d.name}</span>
+      <span style={{ marginLeft: 8, color: "#52657A" }}>{d.value} ({pct}%)</span>
+    </div>
+  );
+};
+
+// ─── Dashboard Component ─────────────────────────────────────────────────────
+
 const Home = () => {
   const { user, signOut } = useAuth();
   const { isAdmin } = useAdmin();
   const { has: hasPerm, isLoading: permsLoading } = usePermissions();
   const navigate = useNavigate();
   const [firstName, setFirstName] = useState<string>("");
+  const [width, setWidth] = useState(typeof window !== "undefined" ? window.innerWidth : 800);
+  const [hoveredSlice, setHoveredSlice] = useState<number | null>(null);
+
+  // Data hooks
+  const { announcements, isLoading: announcementsLoading } = useAnnouncements();
+  const { feedbackQuery } = useFeedback();
+  const { events } = useEvents();
+  const { tasks, isLoading: tasksLoading } = useTasks();
+
+  useEffect(() => {
+    const onResize = () => setWidth(window.innerWidth);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
 
   useEffect(() => {
     if (!user) return;
@@ -147,97 +113,328 @@ const Home = () => {
       .eq("id", user.id)
       .single()
       .then(({ data }) => {
-        if (data) {
-          setFirstName((data as any).first_name || (data as any).display_name?.split(" ")[0] || "");
-        }
+        if (data) setFirstName((data as any).first_name || "");
       });
   }, [user]);
 
-  const NavCard = ({ item, full = false }: { item: NavItem; full?: boolean }) => (
-    <div
-      onClick={() => navigate(item.path)}
-      style={{
-        background: "#E7EBEF",
-        border: "1px solid #D5DAE0",
-        borderRadius: 10,
-        padding: "12px 14px",
-        display: "flex",
-        alignItems: "center",
-        gap: 12,
-        cursor: "pointer",
-        transition: "background 0.12s",
-      }}
-      onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = "#DFE3E8"}
-      onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = "#E7EBEF"}
-    >
-      {item.icon}
-      {full ? (
-        <>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 13, fontWeight: 500, color: "#2D3748" }}>{item.label}</div>
-            {item.description && <div style={{ fontSize: 11, color: "#8A9AAB", marginTop: 1 }}>{item.description}</div>}
-          </div>
-          <ChevronRight />
-        </>
-      ) : (
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 13, fontWeight: 500, color: "#2D3748" }}>{item.label}</div>
+  const isCompact = width < 600;
+
+  // ─── Derived data ────────────────────────────────────────────────────────
+
+  // Announcements: top 3
+  const recentAnnouncements = announcements.slice(0, 3);
+
+  // Feedback distribution
+  const feedbackList = feedbackQuery.data || [];
+  const sentimentCounts = { positive: 0, neutral: 0, negative: 0 };
+  feedbackList.forEach((f) => {
+    if (f.sentiment in sentimentCounts) sentimentCounts[f.sentiment as keyof typeof sentimentCounts]++;
+  });
+  const feedbackChartData = Object.entries(SENTIMENT_CONFIG).map(([key, cfg]) => ({
+    name: cfg.label,
+    value: sentimentCounts[key as keyof typeof sentimentCounts],
+    color: cfg.color,
+    bg: cfg.bg,
+    icon: cfg.icon,
+  }));
+  const feedbackTotal = feedbackList.length;
+
+  // Events: upcoming (today or future), top 4
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const todayStr = today.toISOString().split("T")[0];
+  const upcomingEvents = (events.data || [])
+    .filter((e) => e.event_date >= todayStr)
+    .sort((a, b) => a.event_date.localeCompare(b.event_date))
+    .slice(0, 4);
+
+  // Tasks: incomplete, assigned to current user, sorted by due date
+  const flattenTasks = (taskList: any[]): any[] => {
+    const result: any[] = [];
+    for (const t of taskList) {
+      result.push(t);
+      if (t.subtasks?.length) result.push(...flattenTasks(t.subtasks));
+    }
+    return result;
+  };
+  const allTasks = flattenTasks(tasks);
+  const myTasks = allTasks
+    .filter((t) => !t.completed && (t.assigned_to === user?.id || t.created_by === user?.id))
+    .sort((a, b) => {
+      if (!a.due_date) return 1;
+      if (!b.due_date) return -1;
+      return a.due_date.localeCompare(b.due_date);
+    })
+    .slice(0, 4);
+
+  const overdueTasks = myTasks.filter((t) => t.due_date && t.due_date < todayStr);
+
+  // ─── Loading spinner ────────────────────────────────────────────────────
+
+  const Spinner = () => (
+    <div style={{ padding: 24, textAlign: "center" }}>
+      <div style={{ width: 18, height: 18, border: "2px solid #C9CED4", borderTopColor: "#415162", borderRadius: "50%", animation: "spin 0.7s linear infinite", margin: "0 auto" }} />
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+    </div>
+  );
+
+  // ─── Card wrapper ────────────────────────────────────────────────────────
+
+  const Card = ({ icon, title, action, actionLabel, badge, children }: {
+    icon: React.ReactNode;
+    title: string;
+    action?: () => void;
+    actionLabel?: string;
+    badge?: React.ReactNode;
+    children: React.ReactNode;
+  }) => (
+    <div style={{ background: "#E7EBEF", border: "1px solid #D5DAE0", borderRadius: 10, overflow: "hidden" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px 10px", borderBottom: "1px solid #D5DAE0" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          {icon}
+          <span style={{ fontSize: 14, fontWeight: 700, textTransform: "uppercase" as const, letterSpacing: "0.04em", color: "#415162" }}>{title}</span>
         </div>
-      )}
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          {badge}
+          {action && (
+            <button
+              onClick={action}
+              style={{ fontSize: 12, color: "#52657A", fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 2, background: "none", border: "none", padding: 0 }}
+            >
+              {actionLabel || "View All"} <ChevronRight size={14} />
+            </button>
+          )}
+        </div>
+      </div>
+      <div style={{ padding: 16 }}>{children}</div>
     </div>
   );
 
   return (
     <div style={{ minHeight: "100vh", background: "#F5F3EE" }}>
+      {/* Header */}
       <header style={{ position: "sticky", top: 0, zIndex: 40, background: "#415162" }}>
         <div style={{ display: "flex", alignItems: "center", height: 56, padding: "0 16px" }}>
-          <HeaderLogo isAdmin={isAdmin} onSignOut={signOut} >
+          <HeaderLogo isAdmin={isAdmin} onSignOut={signOut}>
             <NotificationBell />
           </HeaderLogo>
         </div>
       </header>
 
-      <main style={{ maxWidth: 700, margin: "0 auto", padding: "20px 16px 100px" }}>
+      <main style={{ maxWidth: 960, margin: "0 auto", padding: "20px 16px 100px" }}>
         {/* Greeting */}
-        <div style={{ marginBottom: 22 }}>
+        <div style={{ marginBottom: 20 }}>
           <div style={{ fontSize: 20, fontWeight: 600, color: "#2D3748", marginBottom: 2 }}>
             {getGreeting()}{firstName ? `, ${firstName}` : ""}
           </div>
           <div style={{ fontSize: 12, color: "#8A9AAB" }}>{getDayLabel()} · {getAcademicYear()}</div>
         </div>
 
-        {/* Sections — filtered by user permissions */}
-        {permsLoading ? (
-          <div style={{ padding: "20px 0", textAlign: "center" }}>
-            <div style={{ width: 20, height: 20, border: "2px solid #C9CED4", borderTopColor: "#415162", borderRadius: "50%", animation: "spin 0.7s linear infinite", margin: "0 auto" }} />
-            <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-          </div>
-        ) : (
-        ALL_SECTIONS.map(section => {
-          const visibleItems = section.items.filter(item =>
-            !item.permissionKey || hasPerm(item.permissionKey, "view")
-          );
-          if (visibleItems.length === 0) return null;
-          return (
-            <div key={section.label} style={{ marginBottom: 20 }}>
-              <div style={{ fontSize: 10, fontWeight: 500, color: "#8A9AAB", textTransform: "uppercase", letterSpacing: 0.7, marginBottom: 8 }}>
-                {section.label}
-              </div>
-              {section.label === "Clinical" ? (
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-                  {visibleItems.map(item => <NavCard key={item.path} item={item} full={false} />)}
-                </div>
-              ) : (
-                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  {visibleItems.map(item => <NavCard key={item.path} item={item} full={true} />)}
-                </div>
-              )}
-            </div>
-          );
-        })
-        )}
-      </main>
+        {/* Dashboard Grid */}
+        <div style={{ display: "grid", gridTemplateColumns: isCompact ? "1fr" : "1fr 1fr", gap: 16 }}>
 
+          {/* ── Announcements ── */}
+          <Card
+            icon={<Megaphone size={16} strokeWidth={2.2} color="#415162" />}
+            title="Announcements"
+            action={() => navigate("/announcements")}
+          >
+            {announcementsLoading ? <Spinner /> : recentAnnouncements.length === 0 ? (
+              <div style={{ fontSize: 13, color: "#8A9AAB", padding: "8px 0" }}>No announcements yet.</div>
+            ) : (
+              recentAnnouncements.map((a, i) => (
+                <div
+                  key={a.id}
+                  style={{
+                    padding: "10px 0",
+                    borderBottom: i < recentAnnouncements.length - 1 ? "1px solid #D5DAE0" : undefined,
+                    cursor: "pointer",
+                  }}
+                  onClick={() => navigate("/announcements")}
+                >
+                  <div style={{ fontSize: 11, color: "#52657A", fontWeight: 600, marginBottom: 3 }}>
+                    {formatDate(a.created_at.split("T")[0])}
+                  </div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: "#3D3D3A", marginBottom: 3 }}>{a.title}</div>
+                  <div style={{
+                    fontSize: 12, color: "#6B7280", lineHeight: 1.45,
+                    display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" as const, overflow: "hidden",
+                  }}>
+                    {a.body}
+                  </div>
+                </div>
+              ))
+            )}
+          </Card>
+
+          {/* ── Feedback Distribution ── */}
+          <Card
+            icon={<ThumbsUp size={16} strokeWidth={2.2} color="#415162" />}
+            title="Feedback Distribution"
+            action={() => navigate("/feedback")}
+            actionLabel="Details"
+          >
+            {feedbackQuery.isLoading ? <Spinner /> : feedbackTotal === 0 ? (
+              <div style={{ fontSize: 13, color: "#8A9AAB", padding: "8px 0" }}>No feedback recorded yet.</div>
+            ) : (
+              <div style={{ display: "flex", alignItems: "center", gap: 12, flexDirection: isCompact ? "column" : "row" }}>
+                {/* Donut */}
+                <div style={{ position: "relative", width: 150, height: 150, flexShrink: 0 }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={feedbackChartData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={42}
+                        outerRadius={68}
+                        dataKey="value"
+                        strokeWidth={2}
+                        stroke="#E7EBEF"
+                        onMouseEnter={(_, i) => setHoveredSlice(i)}
+                        onMouseLeave={() => setHoveredSlice(null)}
+                      >
+                        {feedbackChartData.map((d, i) => (
+                          <Cell
+                            key={d.name}
+                            fill={d.color}
+                            opacity={hoveredSlice === null || hoveredSlice === i ? 1 : 0.4}
+                            style={{ transition: "opacity 0.2s", cursor: "pointer" }}
+                          />
+                        ))}
+                      </Pie>
+                      <Tooltip content={<CustomTooltip total={feedbackTotal} />} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                  <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", textAlign: "center" }}>
+                    <div style={{ fontSize: 28, fontWeight: 700, color: "#415162", lineHeight: 1 }}>{feedbackTotal}</div>
+                    <div style={{ fontSize: 10, color: "#52657A", fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: "0.05em" }}>Total</div>
+                  </div>
+                </div>
+                {/* Legend */}
+                <div style={{ flex: 1, width: isCompact ? "100%" : undefined }}>
+                  {feedbackChartData.map((d) => {
+                    const pct = feedbackTotal > 0 ? ((d.value / feedbackTotal) * 100).toFixed(0) : "0";
+                    const Icon = d.icon;
+                    return (
+                      <div key={d.name} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 0" }}>
+                        <div style={{ width: 22, height: 22, borderRadius: 6, background: d.bg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                          <Icon size={12} strokeWidth={2.5} color={d.color} />
+                        </div>
+                        <span style={{ fontSize: 12, color: "#3D3D3A", fontWeight: 500, flex: 1 }}>{d.name}</span>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: "#3D3D3A" }}>{d.value}</span>
+                        <span style={{ fontSize: 11, color: "#52657A", width: 38, textAlign: "right" }}>{pct}%</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </Card>
+
+          {/* ── Upcoming Events ── */}
+          <Card
+            icon={<CalendarDays size={16} strokeWidth={2.2} color="#415162" />}
+            title="Upcoming Events"
+            action={() => navigate("/events")}
+          >
+            {events.isLoading ? <Spinner /> : upcomingEvents.length === 0 ? (
+              <div style={{ fontSize: 13, color: "#8A9AAB", padding: "8px 0" }}>No upcoming events.</div>
+            ) : (
+              upcomingEvents.map((ev, i) => {
+                const d = new Date(ev.event_date + "T00:00:00");
+                const mo = d.toLocaleDateString("en-US", { month: "short" }).toUpperCase();
+                const day = d.getDate();
+                const catColor = EVENT_CATEGORY_COLORS[ev.category as EventCategory] || "#52657A";
+                const catLabel = EVENT_CATEGORY_LABELS[ev.category as EventCategory] || ev.category;
+                return (
+                  <div
+                    key={ev.id}
+                    style={{
+                      display: "flex", alignItems: "center", gap: 12,
+                      padding: "10px 0",
+                      borderBottom: i < upcomingEvents.length - 1 ? "1px solid #D5DAE0" : undefined,
+                      cursor: "pointer",
+                    }}
+                    onClick={() => navigate("/events")}
+                  >
+                    <div style={{ minWidth: 44, textAlign: "center", background: "#415162", color: "#fff", borderRadius: 7, padding: "6px 6px 4px", lineHeight: 1.1 }}>
+                      <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase" as const, letterSpacing: "0.05em" }}>{mo}</div>
+                      <div style={{ fontSize: 18, fontWeight: 700 }}>{day}</div>
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: "#3D3D3A" }}>{ev.title}</div>
+                      <div style={{ fontSize: 11, color: "#52657A", marginTop: 2 }}>
+                        {ev.start_time || ""}
+                        <span style={{
+                          display: "inline-block", fontSize: 10, fontWeight: 700, padding: "2px 7px",
+                          borderRadius: 4, marginLeft: ev.start_time ? 6 : 0, background: catColor, color: "#fff",
+                          textTransform: "uppercase" as const, letterSpacing: "0.03em",
+                        }}>{catLabel}</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </Card>
+
+          {/* ── My Tasks ── */}
+          <Card
+            icon={<ClipboardCheck size={16} strokeWidth={2.2} color="#415162" />}
+            title="My Tasks"
+            action={() => navigate("/tasks")}
+            badge={overdueTasks.length > 0 ? (
+              <span style={{
+                fontSize: 11, fontWeight: 700, background: "#FBF3E0", color: "#D4A017",
+                padding: "2px 8px", borderRadius: 5,
+              }}>
+                {overdueTasks.length} overdue
+              </span>
+            ) : undefined}
+          >
+            {tasksLoading ? <Spinner /> : myTasks.length === 0 ? (
+              <div style={{ fontSize: 13, color: "#8A9AAB", padding: "8px 0" }}>No pending tasks.</div>
+            ) : (
+              myTasks.map((task, i) => {
+                const isOverdue = task.due_date && task.due_date < todayStr;
+                return (
+                  <div
+                    key={task.id}
+                    style={{
+                      display: "flex", alignItems: "flex-start", gap: 10,
+                      padding: "10px 0",
+                      borderBottom: i < myTasks.length - 1 ? "1px solid #D5DAE0" : undefined,
+                      cursor: "pointer",
+                    }}
+                    onClick={() => navigate("/tasks")}
+                  >
+                    <div style={{ marginTop: 2, flexShrink: 0, color: isOverdue ? "#D4A017" : "#4A846C" }}>
+                      {isOverdue ? <AlertTriangle size={16} strokeWidth={2.2} /> : <Clock size={16} strokeWidth={2.2} />}
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: "#3D3D3A" }}>{task.title}</div>
+                      <div style={{
+                        fontSize: 11, fontWeight: isOverdue ? 700 : 500,
+                        color: isOverdue ? "#D4A017" : "#52657A",
+                        marginTop: 2, display: "flex", alignItems: "center", gap: 4,
+                      }}>
+                        {task.due_date ? (isOverdue ? daysUntil(task.due_date) : `Due ${formatDate(task.due_date)}`) : "No due date"}
+                        {isOverdue && (
+                          <span style={{ fontSize: 10, fontWeight: 700, background: "#FBF3E0", color: "#D4A017", padding: "1px 6px", borderRadius: 4, marginLeft: 4 }}>
+                            OVERDUE
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </Card>
+
+        </div>
+      </main>
     </div>
   );
 };
