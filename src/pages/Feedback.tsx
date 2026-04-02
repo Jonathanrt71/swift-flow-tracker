@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { format, parseISO } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
 import { List, PieChart, FileText, BookOpen, Pencil, Trash2, X as XIcon, Search } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
 import { usePermissions } from "@/hooks/usePermissions";
@@ -383,6 +383,7 @@ const Feedback = () => {
       </header>
 
       <main className="container max-w-[1200px] px-4 py-6">
+        <Tabs defaultValue="list" onValueChange={(v) => setViewMode(v as any)}>
         {/* Toolbar */}
         <div className="flex items-center justify-between pb-2.5">
           <div className="flex gap-2 items-center">
@@ -446,60 +447,26 @@ const Feedback = () => {
               );
             })()}
 
-
-            {/* View toggle pill — rounded-full matching Events page */}
-            <div className="flex items-center rounded-full p-0.5" style={{ background: "#D5DAE0" }}>
-              <button
-                onClick={() => setViewMode("list")}
-                className={cn(
-                  "flex items-center justify-center w-7 h-7 rounded-full transition-colors",
-                  viewMode === "list" ? "bg-white shadow-sm" : ""
-                )}
-              >
-                <List
-                  className="h-3.5 w-3.5"
-                  style={{ color: viewMode === "list" ? "#415162" : "#8A9AAB" }}
-                />
-              </button>
-              <button
-                onClick={() => setViewMode("summary")}
-                className={cn(
-                  "flex items-center justify-center w-7 h-7 rounded-full transition-colors",
-                  viewMode === "summary" ? "bg-white shadow-sm" : ""
-                )}
-              >
-                <PieChart
-                  className="h-3.5 w-3.5"
-                  style={{ color: viewMode === "summary" ? "#415162" : "#8A9AAB" }}
-                />
-              </button>
+            <TabsList className="gap-1 h-auto p-1 bg-transparent">
+              <TabsTrigger value="list" className="flex flex-col items-center gap-0.5 h-auto px-2 py-1" title="List">
+                <List className="h-4 w-4" />
+                <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase" }}>List</span>
+              </TabsTrigger>
+              <TabsTrigger value="summary" className="flex flex-col items-center gap-0.5 h-auto px-2 py-1" title="Summary">
+                <PieChart className="h-4 w-4" />
+                <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase" }}>Summary</span>
+              </TabsTrigger>
               {canGenerateReport && (
-                <button
-                  onClick={() => setViewMode("report")}
-                  className={cn(
-                    "flex items-center justify-center w-7 h-7 rounded-full transition-colors",
-                    viewMode === "report" ? "bg-white shadow-sm" : ""
-                  )}
-                >
-                  <FileText
-                    className="h-3.5 w-3.5"
-                    style={{ color: viewMode === "report" ? "#415162" : "#8A9AAB" }}
-                  />
-                </button>
+                <TabsTrigger value="report" className="flex flex-col items-center gap-0.5 h-auto px-2 py-1" title="Report">
+                  <FileText className="h-4 w-4" />
+                  <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase" }}>Report</span>
+                </TabsTrigger>
               )}
-              <button
-                onClick={() => setViewMode("milestones")}
-                className={cn(
-                  "flex items-center justify-center w-7 h-7 rounded-full transition-colors",
-                  viewMode === "milestones" ? "bg-white shadow-sm" : ""
-                )}
-              >
-                <BookOpen
-                  className="h-3.5 w-3.5"
-                  style={{ color: viewMode === "milestones" ? "#415162" : "#8A9AAB" }}
-                />
-              </button>
-            </div>
+              <TabsTrigger value="milestones" className="flex flex-col items-center gap-0.5 h-auto px-2 py-1" title="Milestones">
+                <BookOpen className="h-4 w-4" />
+                <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase" }}>CBME</span>
+              </TabsTrigger>
+            </TabsList>
           </div>
           {/* Add button */}
           <CreateFeedbackDialog
@@ -508,15 +475,30 @@ const Feedback = () => {
           />
         </div>
 
-        {/* View title */}
-        <div style={{ fontSize: 13, fontWeight: 500, color: "#8A9AAB", margin: "10px 0 6px" }}>
-          {viewMode === "list" ? "Feedback list" : viewMode === "summary" ? "Resident summary" : viewMode === "report" ? "Milestone report" : "CBME milestones"}
-        </div>
-
         {/* Content */}
-        <div className="flex flex-col gap-2">
-          {viewMode === "list" || (!canGenerateReport && viewMode === "report") ? renderCards() : viewMode === "summary" ? renderSummary() : viewMode === "report" ? <MilestoneReport /> : <MilestonesBrowser />}
-        </div>
+        <TabsContent value="list" className="mt-0">
+          <div className="flex flex-col gap-2">
+            {renderCards()}
+          </div>
+        </TabsContent>
+        <TabsContent value="summary" className="mt-0">
+          <div className="flex flex-col gap-2">
+            {renderSummary()}
+          </div>
+        </TabsContent>
+        {canGenerateReport && (
+          <TabsContent value="report" className="mt-0">
+            <div className="flex flex-col gap-2">
+              <MilestoneReport />
+            </div>
+          </TabsContent>
+        )}
+        <TabsContent value="milestones" className="mt-0">
+          <div className="flex flex-col gap-2">
+            <MilestonesBrowser />
+          </div>
+        </TabsContent>
+        </Tabs>
       </main>
 
     </div>
