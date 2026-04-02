@@ -548,24 +548,41 @@ const Events = () => {
 
         {/* Row 1: Category tabs */}
         <div className="flex items-center" style={{ borderBottom: "1px solid #D5DAE0", marginBottom: 10 }}>
-          {(["all", "program", "didactic"] as const).map((cat) => (
+          <button
+            onClick={() => handleCategoryChange("all")}
+            style={{
+              padding: "6px 0",
+              marginRight: 20,
+              border: "none",
+              borderBottom: activeCategory === "all" ? "2px solid #415162" : "2px solid transparent",
+              cursor: "pointer",
+              fontSize: 13,
+              fontWeight: activeCategory === "all" ? 700 : 500,
+              background: "transparent",
+              color: activeCategory === "all" ? "#415162" : "#8A9AAB",
+              transition: "all 0.15s",
+            }}
+          >
+            All
+          </button>
+          {categories.map((cat) => (
             <button
-              key={cat}
-              onClick={() => handleCategoryChange(cat)}
+              key={cat.name}
+              onClick={() => handleCategoryChange(cat.name)}
               style={{
                 padding: "6px 0",
                 marginRight: 20,
                 border: "none",
-                borderBottom: activeCategory === cat ? "2px solid #415162" : "2px solid transparent",
+                borderBottom: activeCategory === cat.name ? "2px solid #415162" : "2px solid transparent",
                 cursor: "pointer",
                 fontSize: 13,
-                fontWeight: activeCategory === cat ? 700 : 500,
+                fontWeight: activeCategory === cat.name ? 700 : 500,
                 background: "transparent",
-                color: activeCategory === cat ? "#415162" : "#8A9AAB",
+                color: activeCategory === cat.name ? "#415162" : "#8A9AAB",
                 transition: "all 0.15s",
               }}
             >
-              {cat === "all" ? "All" : cat === "program" ? "Program" : "Didactic"}
+              {cat.label}
             </button>
           ))}
         </div>
