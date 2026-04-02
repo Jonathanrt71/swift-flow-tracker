@@ -344,19 +344,28 @@ const Feedback = () => {
       {/* Header */}
       <header className="sticky top-0 z-40" style={{ background: "#415162" }}>
         <div className="container flex items-center h-14 px-4">
-          <HeaderLogo isAdmin={isAdmin} onSignOut={signOut} >
-            <Button
-              variant="ghost"
-              size="icon"
-              className="hover:bg-transparent text-white/50"
+          <HeaderLogo isAdmin={isAdmin} onSignOut={signOut}>
+            <button
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: 36,
+                height: 36,
+                background: "transparent",
+                border: "none",
+                borderRadius: 6,
+                cursor: "pointer",
+                color: "rgba(255,255,255,0.8)",
+              }}
               title="Search"
               onClick={() => {
                 setSearchOpen(!searchOpen);
                 if (searchOpen) setSearchQuery("");
               }}
             >
-              {searchOpen ? <XIcon className="h-4 w-4" /> : <Search className="h-4 w-4" />}
-            </Button>
+              {searchOpen ? <XIcon style={{ width: 17, height: 17 }} /> : <Search style={{ width: 17, height: 17 }} />}
+            </button>
             <NotificationBell />
           </HeaderLogo>
         </div>

@@ -119,7 +119,7 @@ function CheckoffDialog({ topic, residents, currentUserId, onAdd, onClose }: {
 
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 100, background: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
-      <div style={{ background: "#fff", borderRadius: 14, padding: 24, maxWidth: 380, width: "100%", boxShadow: "0 8px 32px rgba(0,0,0,0.18)" }}>
+      <div style={{ background: "#fff", borderRadius: 14, padding: 24, maxWidth: 380, width: "100%", boxShadow: "0 8px 32px rgba(0,0,0,0.22)" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
           <h3 style={{ fontSize: 15, fontWeight: 600, color: "#333" }}>Record checkoff</h3>
           <button onClick={onClose} style={{ background: "transparent", border: "none", cursor: "pointer", color: "#aaa" }}><X style={{ width: 16, height: 16 }} /></button>

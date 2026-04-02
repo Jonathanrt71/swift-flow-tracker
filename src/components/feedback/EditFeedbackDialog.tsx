@@ -4,7 +4,7 @@ import {
   DialogContent,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Pencil, ThumbsUp, ThumbsDown, Minus } from "lucide-react";
+import { Pencil, ArrowUp, ArrowDown, ArrowRight } from "lucide-react";
 import { formatPersonName } from "@/lib/dateFormat";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -91,7 +91,7 @@ const EditFeedbackDialog = ({ feedback, residents, onSubmit }: EditFeedbackDialo
       </DialogTrigger>
       <DialogContent
         className="rounded-lg p-5 max-w-[calc(100vw-2rem)] w-full sm:max-w-md overflow-hidden"
-        style={{ background: "#F5F3EE", border: "1px solid #C9CED4", boxShadow: "0 4px 24px rgba(0,0,0,0.12)" }}
+        style={{ background: "#F5F3EE", border: "1px solid #C9CED4", boxShadow: "0 8px 32px rgba(0,0,0,0.22)" }}
         overlayClassName="bg-background/60 backdrop-blur-sm"
       >
         <div className="overflow-y-auto max-h-[80vh] overflow-x-hidden">
@@ -142,36 +142,36 @@ const EditFeedbackDialog = ({ feedback, residents, onSubmit }: EditFeedbackDialo
               onClick={() => setSentiment("negative")}
               className="flex-1 flex items-center justify-center py-2.5 rounded-lg transition-opacity"
               style={{
-                background: "#FBF3E0",
-                border: "2px solid #D4A017",
+                background: "#D4A017",
+                border: "2px solid #B0850F",
                 opacity: sentiment === "negative" ? 1 : 0.3,
               }}
             >
-              <ThumbsDown className="h-5 w-5" style={{ color: "#3D3D3A" }} />
+              <ArrowDown className="h-5 w-5" style={{ color: "#FFFFFF" }} />
             </button>
             <button
               type="button"
               onClick={() => setSentiment("neutral")}
               className="flex-1 flex items-center justify-center py-2.5 rounded-lg transition-opacity"
               style={{
-                background: "#E4F0EB",
-                border: "2px solid #4A846C",
+                background: "#4A846C",
+                border: "2px solid #3A6B56",
                 opacity: sentiment === "neutral" ? 1 : 0.3,
               }}
             >
-              <Minus className="h-5 w-5" style={{ color: "#3D3D3A" }} />
+              <ArrowRight className="h-5 w-5" style={{ color: "#FFFFFF" }} />
             </button>
             <button
               type="button"
               onClick={() => setSentiment("positive")}
               className="flex-1 flex items-center justify-center py-2.5 rounded-lg transition-opacity"
               style={{
-                background: "#D6DEE6",
-                border: "2px solid #52657A",
+                background: "#52657A",
+                border: "2px solid #415162",
                 opacity: sentiment === "positive" ? 1 : 0.3,
               }}
             >
-              <ThumbsUp className="h-5 w-5" style={{ color: "#3D3D3A" }} />
+              <ArrowUp className="h-5 w-5" style={{ color: "#FFFFFF" }} />
             </button>
           </div>
         </div>

@@ -503,13 +503,13 @@ const RoleAccessSection = () => {
     { name: "Admin", rows: [
       { action: "All actions", key: "admin.all" },
     ]},
-    { name: "CBME", rows: [
-      { action: "View page", key: "cbme.view" },
-      { action: "Assess / edit / all scores", key: "cbme.assess" },
-    ]},
     { name: "Announcements", rows: [
       { action: "View page", key: "announcements.view" },
       { action: "Create / edit / delete", key: "announcements.edit" },
+    ]},
+    { name: "CBME", rows: [
+      { action: "View page", key: "cbme.view" },
+      { action: "Assess / edit / all scores", key: "cbme.assess" },
     ]},
     { name: "Compliance", rows: [
       { action: "View page", key: "compliance.view" },
@@ -524,7 +524,7 @@ const RoleAccessSection = () => {
       { action: "Create / edit / delete", key: "feedback.edit" },
       { action: "Generate report", key: "feedback.report" },
     ]},
-    { name: "Handbook", rows: [
+    { name: "Resident Handbook", rows: [
       { action: "View page", key: "handbook.view" },
       { action: "Edit sections", key: "handbook.edit" },
     ]},

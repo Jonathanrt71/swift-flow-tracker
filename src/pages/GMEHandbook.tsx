@@ -5,7 +5,7 @@ import {
   BookOpen, CalendarOff, CheckSquare, Moon, RefreshCw, Shirt, Heart,
   ShieldCheck, Globe, Coffee, AlertTriangle, MessageSquare, Layers,
   Users, AlertCircle, Monitor, Pencil, X, Save,
-  Menu, ChevronDown, ChevronRight, Plus, Trash2, Eye, EyeOff,
+  Menu, ChevronDown, ChevronRight, Plus, Trash2, Eye, EyeOff, Search,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
@@ -34,7 +34,7 @@ const GMEHandbook = () => {
   const { isAdmin } = useAdmin();
   const { has: hasPerm } = usePermissions();
   const hasEditPerm = hasPerm("gme_handbook.edit");
-  const [viewAsReader, setViewAsReader] = useState(false);
+  const [viewAsReader, setViewAsReader] = useState(true);
   const canEdit = hasEditPerm && !viewAsReader;
   const { data: allSections, isLoading, error } = useGMEHandbook();
   const { updateSection, addSection, deleteSection } = useGMEHandbookMutations();
@@ -48,6 +48,7 @@ const GMEHandbook = () => {
   (allSections || []).forEach(s => { sectionTitles[s.id] = s.title; });
 
   const [tocOpen, setTocOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const [collapsedToc, setCollapsedToc] = useState<Record<string, boolean>>({});
   const [activeSectionId, setActiveSectionId] = useState<string>("");
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -296,12 +297,29 @@ const GMEHandbook = () => {
       <header style={{ position: "sticky", top: 0, zIndex: 40, background: "#415162" }}>
         <div style={{ display: "flex", alignItems: "center", height: 56, padding: "0 16px" }}>
           <HeaderLogo isAdmin={isAdmin} onSignOut={signOut}>
-            <button onClick={() => setTocOpen(!tocOpen)} style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 36, height: 36, background: "transparent", border: "none", borderRadius: 6, cursor: "pointer", color: "rgba(255,255,255,0.75)" }} aria-label="Toggle table of contents">
-              <Menu style={{ width: 18, height: 18 }} />
+            <button
+              onClick={() => { setSearchOpen(!searchOpen); if (searchOpen) clearSearch(); }}
+              style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 36, height: 36, background: "transparent", border: "none", borderRadius: 6, cursor: "pointer", color: "rgba(255,255,255,0.6)" }}
+              title="Search"
+            >
+              {searchOpen ? <X style={{ width: 18, height: 18 }} /> : <Search style={{ width: 18, height: 18 }} />}
             </button>
             <NotificationBell />
           </HeaderLogo>
         </div>
+        {searchOpen && (
+          <div style={{ padding: "0 16px 12px" }}>
+            <DocumentSearchBar
+              query={searchQuery}
+              isSearching={isSearching}
+              results={searchResults}
+              onSearch={(q) => doSearch(q, "gme_handbook")}
+              onClear={clearSearch}
+              onResultClick={(r) => { clearSearch(); setSearchOpen(false); scrollTo(r.id); }}
+              sectionTitles={sectionTitles}
+            />
+          </div>
+        )}
       </header>
 
       <div style={{ display: "flex", height: "calc(100vh - 56px)" }}>
@@ -346,6 +364,7 @@ const GMEHandbook = () => {
         </aside>
 
         <div ref={contentRef} style={{ flex: 1, overflowY: "auto", padding: "24px 20px 120px" }}>
+          <div style={{ maxWidth: 700, margin: "0 auto" }}>
           <div style={{ marginBottom: 24 }}>
             <button onClick={() => setTocOpen(true)} style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "10px 14px", background: "#fff", border: "1px solid #C9CED4", borderRadius: 8, fontSize: 13, color: "#415162", fontWeight: 500, cursor: "pointer", textAlign: "left" }}>
               <Menu style={{ width: 15, height: 15, flexShrink: 0 }} />
@@ -377,18 +396,6 @@ const GMEHandbook = () => {
             </div>
           )}
 
-          {/* Search bar */}
-          <DocumentSearchBar
-            query={searchQuery}
-            isSearching={isSearching}
-            results={searchResults}
-            onSearch={(q) => doSearch(q, "gme_handbook")}
-            onClear={clearSearch}
-            onResultClick={(r) => { clearSearch(); scrollTo(r.id); }}
-            sectionTitles={sectionTitles}
-          />
-
-          <div style={{ maxWidth: 700 }}>
             {isLoading && <div style={{ color: "#999", fontSize: 14, padding: "40px 0", textAlign: "center" }}>Loading GME handbook…</div>}
             {error && <div style={{ color: "#c44", fontSize: 14 }}>Failed to load. Please refresh.</div>}
             {topSections.map(s => <SectionBlock key={s.id} section={s} />)}
@@ -398,7 +405,7 @@ const GMEHandbook = () => {
 
       {confirmDeleteId && (
         <div style={{ position: "fixed", inset: 0, zIndex: 100, background: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
-          <div style={{ background: "#fff", borderRadius: 12, padding: 24, maxWidth: 340, width: "100%", boxShadow: "0 8px 32px rgba(0,0,0,0.2)" }}>
+          <div style={{ background: "#fff", borderRadius: 12, padding: 24, maxWidth: 340, width: "100%", boxShadow: "0 8px 32px rgba(0,0,0,0.22)" }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: "#333", margin: "0 0 8px" }}>Delete section?</h3>
             <p style={{ fontSize: 13, color: "#777", margin: "0 0 20px", lineHeight: 1.5 }}>This will permanently delete the section and all its subsections. This cannot be undone.</p>
             <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>

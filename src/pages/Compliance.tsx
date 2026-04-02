@@ -614,11 +614,12 @@ const Compliance = () => {
       <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
       {/* Header */}
       <div style={{
-        display: "flex", alignItems: "center", padding: "14px 16px", background: "#415162", color: "#fff",
+        display: "flex", alignItems: "center",
+        padding: "14px 16px", background: "#415162", color: "#fff",
       }}>
         <HeaderLogo isAdmin={isAdmin} onSignOut={signOut}>
-            <NotificationBell />
-          </HeaderLogo>
+          <NotificationBell />
+        </HeaderLogo>
       </div>
 
       {/* Title + Tabs */}

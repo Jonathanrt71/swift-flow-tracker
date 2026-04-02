@@ -12,7 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { X, ThumbsDown, Minus, ThumbsUp } from "lucide-react";
+import { X, ArrowDown, ArrowRight, ArrowUp } from "lucide-react";
 
 type Rating = "yellow" | "green" | "blue";
 
@@ -21,11 +21,11 @@ const RATING_OPTIONS: {
   color: string;
   bgLight: string;
   borderColor: string;
-  icon: typeof ThumbsDown;
+  icon: typeof ArrowDown;
 }[] = [
-  { value: "yellow", color: "#3D3D3A", borderColor: "#D4A017", bgLight: "#FBF3E0", icon: ThumbsDown },
-  { value: "green", color: "#3D3D3A", borderColor: "#4A846C", bgLight: "#E4F0EB", icon: Minus },
-  { value: "blue", color: "#3D3D3A", borderColor: "#52657A", bgLight: "#D6DEE6", icon: ThumbsUp },
+  { value: "yellow", color: "#FFFFFF", borderColor: "#B0850F", bgLight: "#D4A017", icon: ArrowDown },
+  { value: "green", color: "#FFFFFF", borderColor: "#3A6B56", bgLight: "#4A846C", icon: ArrowRight },
+  { value: "blue", color: "#FFFFFF", borderColor: "#415162", bgLight: "#52657A", icon: ArrowUp },
 ];
 
 const CRITERIA = [
