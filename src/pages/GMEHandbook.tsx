@@ -165,7 +165,6 @@ const GMEHandbook = () => {
               cursor: "pointer", textAlign: "left",
             }}
           >
-            {depth === 0 && <Icon style={{ flexShrink: 0, opacity: isActive ? 1 : 0.55, width: 15, height: 15 }} />}
             <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", minWidth: 0, flex: 1 }}>{section.title}</span>
           </button>
         </div>
