@@ -154,7 +154,7 @@ const GMEHandbook = () => {
           <button
             onClick={() => scrollTo(section.id)}
             style={{
-              flex: 1, display: "flex", alignItems: "center", gap: 8,
+              flex: 1, display: "flex", alignItems: "center", gap: 8, overflow: "hidden", minWidth: 0,
               padding: depth === 0 ? "9px 12px 9px 8px" : "7px 12px 7px 28px",
               fontSize: depth === 0 ? 13 : 12,
               color: isActive ? "#415162" : "#777",
@@ -166,7 +166,7 @@ const GMEHandbook = () => {
             }}
           >
             {depth === 0 && <Icon style={{ flexShrink: 0, opacity: isActive ? 1 : 0.55, width: 15, height: 15 }} />}
-            <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{section.title}</span>
+            <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", minWidth: 0, flex: 1 }}>{section.title}</span>
           </button>
         </div>
         {!isCollapsed && subs.map(sub => <TocItem key={sub.id} section={sub} depth={1} />)}
