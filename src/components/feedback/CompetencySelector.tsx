@@ -242,7 +242,7 @@ const CompetencySelector = ({ value, onChange, commentText, sentiment, pgyLevel,
   return (
     <div className="mb-4">
       {/* Pills row: Auto + Category pills */}
-      <div className="flex flex-wrap gap-1.5 justify-center" style={{ maxWidth: 280, margin: "0 auto" }}>
+      <div className="flex flex-wrap gap-1.5 justify-center">
         {/* Auto pill */}
         <button
           type="button"
@@ -250,8 +250,8 @@ const CompetencySelector = ({ value, onChange, commentText, sentiment, pgyLevel,
           disabled={loading}
           className="rounded-full transition-colors flex items-center gap-1"
           style={{
-            padding: "5px 12px",
-            fontSize: 12,
+            padding: "6px 16px",
+            fontSize: 13,
             fontWeight: 500,
             background: autoActive || loading ? "#415162" : "#E7EBEF",
             color: autoActive || loading ? "white" : "#5F7285",
@@ -275,8 +275,8 @@ const CompetencySelector = ({ value, onChange, commentText, sentiment, pgyLevel,
               onClick={() => handlePillTap(cat)}
               className="rounded-full transition-colors"
               style={{
-                padding: "5px 12px",
-                fontSize: 12,
+                padding: "6px 16px",
+                fontSize: 13,
                 fontWeight: 500,
                 background: isActive ? cat.color : "#E7EBEF",
                 color: isActive ? "white" : "#5F7285",
