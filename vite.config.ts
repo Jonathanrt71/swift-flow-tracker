@@ -23,6 +23,7 @@ export default defineConfig(({ mode }) => ({
         skipWaiting: true,
         navigateFallback: "index.html",
         globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
       },
       manifest: false,
     }),
