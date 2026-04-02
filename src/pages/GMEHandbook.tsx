@@ -334,7 +334,7 @@ const GMEHandbook = () => {
 
         <aside style={{
           position: "fixed", top: 56, left: 0, zIndex: 40, height: "calc(100vh - 56px)",
-          width: 300, minWidth: 300, background: "#fff", borderRight: "1px solid #E7EBEF",
+          width: 300, minWidth: 300, background: "#F5F3EE", borderRight: "1px solid #E7EBEF",
           overflowY: "auto", transform: tocOpen ? "translateX(0)" : "translateX(-100%)", transition: "transform 0.2s ease",
         }}>
           <div style={{ padding: "14px 16px 10px", borderBottom: "1px solid #E7EBEF" }}>
