@@ -3,14 +3,25 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEffect } from "react";
 
+export async function createNotification(params: { user_id: string; type: string; title: string; message: string; task_id?: string }) {
+  await supabase.from("notifications" as any).insert({
+    user_id: params.user_id,
+    type: params.type,
+    title: params.title,
+    body: params.message,
+    reference_id: params.task_id || null,
+  });
+}
+
 export interface Notification {
   id: string;
   user_id: string;
   type: string;
   title: string;
-  message: string | null;
-  task_id: string | null;
-  read: boolean;
+  body: string;
+  reference_id: string | null;
+  is_action_required: boolean;
+  is_read: boolean;
   created_at: string;
 }
 
@@ -61,7 +72,7 @@ export function useNotifications() {
     mutationFn: async (id: string) => {
       const { error } = await supabase
         .from("notifications" as any)
-        .update({ read: true })
+        .update({ is_read: true })
         .eq("id", id);
       if (error) throw error;
     },
@@ -72,15 +83,15 @@ export function useNotifications() {
     mutationFn: async () => {
       const { error } = await supabase
         .from("notifications" as any)
-        .update({ read: true })
+        .update({ is_read: true })
         .eq("user_id", user!.id)
-        .eq("read", false);
+        .eq("is_read", false);
       if (error) throw error;
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["notifications"] }),
   });
 
-  const unreadCount = (query.data || []).filter((n) => !n.read).length;
+  const unreadCount = (query.data || []).filter((n) => !n.is_read).length;
 
   return {
     notifications: query.data || [],
@@ -89,21 +100,4 @@ export function useNotifications() {
     markAsRead,
     markAllAsRead,
   };
-}
-
-// Helper to create a notification for another user
-export async function createNotification(data: {
-  user_id: string;
-  type: string;
-  title: string;
-  message?: string;
-  task_id?: string;
-}) {
-  await supabase.from("notifications" as any).insert({
-    user_id: data.user_id,
-    type: data.type,
-    title: data.title,
-    message: data.message || null,
-    task_id: data.task_id || null,
-  });
 }
