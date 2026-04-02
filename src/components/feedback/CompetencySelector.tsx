@@ -242,7 +242,7 @@ const CompetencySelector = ({ value, onChange, commentText, sentiment, pgyLevel,
   return (
     <div className="mb-4">
       {/* Pills row: Auto + Category pills */}
-      <div className="flex flex-wrap gap-1.5 justify-center">
+      <div className="flex flex-wrap gap-1.5 justify-center" style={{ maxWidth: 280, margin: "0 auto" }}>
         {/* Auto pill */}
         <button
           type="button"
