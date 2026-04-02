@@ -21,6 +21,7 @@ import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { formatPersonName } from "@/lib/dateFormat";
 import type { ProgramEvent, EventCategory, RecurrencePattern } from "@/hooks/useEvents";
 import { RECURRENCE_LABELS } from "@/hooks/useEvents";
+import { useEventCategories } from "@/hooks/useEventCategories";
 
 interface EditEventDialogProps {
   event: ProgramEvent;
