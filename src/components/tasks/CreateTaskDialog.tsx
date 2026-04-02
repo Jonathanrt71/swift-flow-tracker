@@ -1,13 +1,8 @@
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import RichTextEditor from "./RichTextEditor";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
@@ -23,11 +18,12 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { Plus, CalendarIcon, X, Check } from "lucide-react";
+import { Plus, CalendarIcon, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format, parseISO } from "date-fns";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { formatPersonName } from "@/lib/dateFormat";
+import { Button } from "@/components/ui/button";
 
 interface CreateTaskDialogProps {
   onSubmit: (data: { title: string; description?: string; due_date?: string; parent_id?: string; assigned_to?: string; owed_to?: string; meeting_id?: string }) => void;
@@ -47,7 +43,6 @@ const CreateTaskDialog = ({ onSubmit, parentId, meetingId, loading, iconOnly, in
   const [description, setDescription] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [assignedTo, setAssignedTo] = useState("unassigned");
-  const [owedTo, setOwedTo] = useState("none");
   const { data: members } = useTeamMembers();
 
   const selectedDate = dueDate ? parseISO(dueDate) : undefined;
@@ -60,14 +55,12 @@ const CreateTaskDialog = ({ onSubmit, parentId, meetingId, loading, iconOnly, in
       due_date: dueDate || undefined,
       parent_id: parentId,
       assigned_to: assignedTo === "unassigned" ? undefined : assignedTo,
-      owed_to: owedTo === "none" ? undefined : owedTo,
       meeting_id: meetingId,
     });
     setTitle("");
     setDescription("");
     setDueDate("");
     setAssignedTo("unassigned");
-    setOwedTo("none");
     setOpen(false);
   };
 
@@ -77,7 +70,6 @@ const CreateTaskDialog = ({ onSubmit, parentId, meetingId, loading, iconOnly, in
       setDescription("");
       setDueDate("");
       setAssignedTo("unassigned");
-      setOwedTo("none");
       onTriggerOpen?.();
     }
     setOpen(isOpen);
@@ -99,39 +91,50 @@ const CreateTaskDialog = ({ onSubmit, parentId, meetingId, loading, iconOnly, in
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="w-[calc(100%-2rem)] max-w-md overflow-y-auto bg-muted border-border rounded-xl p-0 max-h-[85vh]" overlayClassName="bg-background/60 backdrop-blur-sm" onCloseAutoFocus={(e) => e.preventDefault()}>
-        <div className="p-6 pb-0">
-          <DialogHeader>
-            <DialogTitle>{parentId ? "Add Subtask" : "Create Task"}</DialogTitle>
-          </DialogHeader>
-        </div>
-        <div className="space-y-5 px-6 pb-6">
-          <div className="space-y-1.5">
-            <Label htmlFor="task-title" className="text-xs text-muted-foreground">Title</Label>
+      <DialogContent
+        className="rounded-lg p-5 max-w-[calc(100vw-2rem)] w-full sm:max-w-md overflow-hidden"
+        style={{ background: "#F5F3EE", border: "1px solid #C9CED4", boxShadow: "0 8px 32px rgba(0,0,0,0.22)" }}
+        overlayClassName="bg-background/60 backdrop-blur-sm"
+        onCloseAutoFocus={(e) => e.preventDefault()}
+      >
+        <div className="overflow-y-auto max-h-[80vh] overflow-x-hidden">
+          <div className="flex items-center justify-between mb-5">
+            <span className="text-base font-semibold" style={{ color: "#2D3748" }}>
+              {parentId ? "Add subtask" : "Create task"}
+            </span>
+          </div>
+
+          {/* Title */}
+          <div className="mb-4">
+            <label className="text-xs block mb-1.5" style={{ color: "#5F7285" }}>Title</label>
             <Input
               id="task-title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="What needs to be done?"
-              className="bg-background rounded-lg"
+              className="rounded-lg focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none"
+              style={{ borderColor: "#C9CED4", background: "#fff", boxShadow: "none" }}
               required
             />
           </div>
-          <div className="space-y-1.5">
-            <Label className="text-xs text-muted-foreground">Due date</Label>
+
+          {/* Due date */}
+          <div className="mb-4">
+            <label className="text-xs block mb-1.5" style={{ color: "#5F7285" }}>Due date</label>
             <div className="flex items-center gap-2">
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
+                  <button
+                    type="button"
                     className={cn(
-                      "flex-1 justify-start text-left font-normal bg-background rounded-lg",
-                      !dueDate && "text-muted-foreground"
+                      "flex-1 flex items-center text-left text-sm rounded-lg px-3 py-2",
+                      !dueDate && "opacity-60"
                     )}
+                    style={{ border: "1px solid #C9CED4", background: "#fff", color: "#2D3748" }}
                   >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    <CalendarIcon className="mr-2 h-4 w-4" style={{ color: "#5F7285" }} />
                     {dueDate ? format(selectedDate!, "PPP") : "No due date"}
-                  </Button>
+                  </button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
@@ -149,7 +152,8 @@ const CreateTaskDialog = ({ onSubmit, parentId, meetingId, loading, iconOnly, in
                 <button
                   type="button"
                   onClick={() => setDueDate("")}
-                  className="flex items-center justify-center min-w-[44px] min-h-[44px] text-muted-foreground hover:text-foreground transition-colors"
+                  className="flex items-center justify-center w-9 h-9"
+                  style={{ color: "#5F7285" }}
                   aria-label="Clear due date"
                 >
                   <X className="h-4 w-4" />
@@ -157,10 +161,12 @@ const CreateTaskDialog = ({ onSubmit, parentId, meetingId, loading, iconOnly, in
               )}
             </div>
           </div>
-          <div className="space-y-1.5">
-            <Label className="text-xs text-muted-foreground">Assign to</Label>
+
+          {/* Assign to */}
+          <div className="mb-4">
+            <label className="text-xs block mb-1.5" style={{ color: "#5F7285" }}>Assign to</label>
             <Select value={assignedTo} onValueChange={setAssignedTo}>
-              <SelectTrigger className="bg-background rounded-lg">
+              <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0" style={{ borderColor: "#C9CED4", background: "#fff" }}>
                 <SelectValue placeholder="Unassigned" />
               </SelectTrigger>
               <SelectContent>
@@ -173,33 +179,16 @@ const CreateTaskDialog = ({ onSubmit, parentId, meetingId, loading, iconOnly, in
               </SelectContent>
             </Select>
           </div>
-          <div className="space-y-1.5">
-            <Label className="text-xs text-muted-foreground">Owed to</Label>
-            <Select value={owedTo} onValueChange={setOwedTo}>
-              <SelectTrigger className="bg-background rounded-lg">
-                <SelectValue placeholder="None" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">None</SelectItem>
-                {members?.map((m) => (
-                  <SelectItem key={m.id} value={m.id}>
-                    {formatPersonName(m)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
 
-          <div className="flex items-center justify-end pt-4 border-t border-border">
-            <button
-              onClick={handleSubmit}
-              disabled={loading || !title.trim()}
-              className="flex items-center justify-center min-w-[44px] min-h-[44px] rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:pointer-events-none"
-              aria-label="Create task"
-            >
-              <Check className="h-4 w-4" />
-            </button>
-          </div>
+          {/* Save */}
+          <button
+            onClick={handleSubmit}
+            disabled={loading || !title.trim()}
+            className="w-full rounded-lg py-3 text-sm font-medium text-white disabled:opacity-50"
+            style={{ background: "#415162" }}
+          >
+            {parentId ? "Add subtask" : "Save task"}
+          </button>
         </div>
       </DialogContent>
     </Dialog>
