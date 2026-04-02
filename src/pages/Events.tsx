@@ -1,7 +1,8 @@
 import { useState, useMemo } from "react";
 import { cn } from "@/lib/utils";
-import { useEvents, EVENT_CATEGORY_LABELS, EVENT_CATEGORY_COLORS, calcNextOccurrence, RECURRENCE_LABELS } from "@/hooks/useEvents";
+import { useEvents, calcNextOccurrence, RECURRENCE_LABELS } from "@/hooks/useEvents";
 import type { ProgramEvent, EventCategory, RecurrencePattern } from "@/hooks/useEvents";
+import { useEventCategories } from "@/hooks/useEventCategories";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
 import { useUserRole } from "@/hooks/useUserRole";
