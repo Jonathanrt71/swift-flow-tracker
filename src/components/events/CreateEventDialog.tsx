@@ -124,8 +124,9 @@ const CreateEventDialog = ({ onSubmit, defaultCategory }: CreateEventDialogProps
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="program">Program</SelectItem>
-                <SelectItem value="didactic">Didactic</SelectItem>
+                {categories.map((c) => (
+                  <SelectItem key={c.name} value={c.name}>{c.label}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>

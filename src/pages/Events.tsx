@@ -647,7 +647,7 @@ const Events = () => {
             onDelete={(id) => { if (canEditEvents) deleteEvent.mutate(id); }}
             onConfirmRecurrence={(event, nextDate) => { if (canEditEvents) confirmRecurrence.mutate({ event, nextDate }); }}
             onSkipRecurrence={(id) => { if (canEditEvents) skipRecurrence.mutate(id); }}
-            emptyMessage={activeCategory === "all" ? "No events" : `No ${EVENT_CATEGORY_LABELS[activeCategory as EventCategory]} events`}
+            emptyMessage={activeCategory === "all" ? "No events" : `No ${categoryLabels[activeCategory] || activeCategory} events`}
           />
         )}
       </main>
