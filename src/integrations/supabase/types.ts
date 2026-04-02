@@ -356,6 +356,33 @@ export type Database = {
           },
         ]
       }
+      event_categories: {
+        Row: {
+          color: string
+          created_at: string
+          display_order: number
+          id: string
+          label: string
+          name: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          display_order?: number
+          id?: string
+          label: string
+          name: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          display_order?: number
+          id?: string
+          label?: string
+          name?: string
+        }
+        Relationships: []
+      }
       event_evaluations: {
         Row: {
           created_at: string | null
@@ -419,6 +446,7 @@ export type Database = {
           event_date: string
           id: string
           next_occurrence_date: string | null
+          operations_section_id: string | null
           recurrence_confirmed: boolean
           recurrence_parent_id: string | null
           recurrence_pattern: string | null
@@ -438,6 +466,7 @@ export type Database = {
           event_date: string
           id?: string
           next_occurrence_date?: string | null
+          operations_section_id?: string | null
           recurrence_confirmed?: boolean
           recurrence_parent_id?: string | null
           recurrence_pattern?: string | null
@@ -457,6 +486,7 @@ export type Database = {
           event_date?: string
           id?: string
           next_occurrence_date?: string | null
+          operations_section_id?: string | null
           recurrence_confirmed?: boolean
           recurrence_parent_id?: string | null
           recurrence_pattern?: string | null
@@ -1116,6 +1146,7 @@ export type Database = {
           description: string | null
           id: string
           name: string
+          operations_section_id: string | null
           updated_at: string | null
         }
         Insert: {
@@ -1125,6 +1156,7 @@ export type Database = {
           description?: string | null
           id?: string
           name: string
+          operations_section_id?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -1134,6 +1166,7 @@ export type Database = {
           description?: string | null
           id?: string
           name?: string
+          operations_section_id?: string | null
           updated_at?: string | null
         }
         Relationships: []
