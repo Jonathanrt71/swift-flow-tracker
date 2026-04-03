@@ -181,6 +181,14 @@ const CreateTaskDialog = ({ onSubmit, parentId, meetingId, loading, iconOnly, in
             </Select>
           </div>
 
+          {/* Notes */}
+          <div className="mb-4">
+            <label className="text-xs block mb-1.5" style={{ color: "#5F7285" }}>Notes</label>
+            <div className="[&_.ProseMirror]:min-h-[80px] [&_.ProseMirror]:sm:min-h-[80px] [&_.ProseMirror]:md:min-h-[80px] [&_.tiptap-editor]:min-h-[100px] [&_.tiptap-editor]:sm:min-h-[100px] [&_.tiptap-editor]:md:min-h-[100px]" style={{ background: "#fff", borderRadius: 8 }}>
+              <RichTextEditor content={description} onChange={setDescription} />
+            </div>
+          </div>
+
           {/* Save */}
           <button
             onClick={handleSubmit}
