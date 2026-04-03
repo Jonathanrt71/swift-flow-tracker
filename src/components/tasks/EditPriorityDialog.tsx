@@ -76,7 +76,7 @@ const EditPriorityDialog = ({ priority, open, onOpenChange, onUpdate, onDelete }
 
           <div className="mb-4">
             <label className="text-xs block mb-1.5" style={{ color: "#5F7285" }}>Notes</label>
-            <div className="rounded-lg overflow-hidden" style={{ border: "1px solid #C9CED4", background: "#fff" }}>
+            <div className="[&_.ProseMirror]:min-h-[80px] [&_.ProseMirror]:sm:min-h-[80px] [&_.ProseMirror]:md:min-h-[80px] [&_.tiptap-editor]:min-h-[100px] [&_.tiptap-editor]:sm:min-h-[100px] [&_.tiptap-editor]:md:min-h-[100px] [&_.rounded-md]:bg-white [&_.ProseMirror]:bg-white" style={{ background: "#fff", borderRadius: 8 }}>
               <RichTextEditor content={notes} onChange={setNotes} />
             </div>
           </div>
