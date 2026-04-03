@@ -102,6 +102,7 @@ const Home = () => {
   const { feedbackQuery } = useFeedback();
   const { events } = useEvents();
   const { tasks, isLoading: tasksLoading } = useTasks();
+  const { priorities, isLoading: prioritiesLoading } = usePriorities();
 
   useEffect(() => {
     const onResize = () => setWidth(window.innerWidth);
