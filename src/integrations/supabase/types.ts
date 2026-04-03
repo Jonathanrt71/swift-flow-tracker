@@ -14,6 +14,177 @@ export type Database = {
   }
   public: {
     Tables: {
+      announcement_attachments: {
+        Row: {
+          announcement_id: string
+          created_at: string
+          file_name: string
+          file_url: string
+          id: string
+        }
+        Insert: {
+          announcement_id: string
+          created_at?: string
+          file_name: string
+          file_url: string
+          id?: string
+        }
+        Update: {
+          announcement_id?: string
+          created_at?: string
+          file_name?: string
+          file_url?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "announcement_attachments_announcement_id_fkey"
+            columns: ["announcement_id"]
+            isOneToOne: false
+            referencedRelation: "announcements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "announcement_attachments_announcement_id_fkey"
+            columns: ["announcement_id"]
+            isOneToOne: false
+            referencedRelation: "announcements_with_counts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      announcement_reads: {
+        Row: {
+          acknowledged_at: string | null
+          announcement_id: string
+          id: string
+          read_at: string
+          user_id: string
+        }
+        Insert: {
+          acknowledged_at?: string | null
+          announcement_id: string
+          id?: string
+          read_at?: string
+          user_id: string
+        }
+        Update: {
+          acknowledged_at?: string | null
+          announcement_id?: string
+          id?: string
+          read_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "announcement_reads_announcement_id_fkey"
+            columns: ["announcement_id"]
+            isOneToOne: false
+            referencedRelation: "announcements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "announcement_reads_announcement_id_fkey"
+            columns: ["announcement_id"]
+            isOneToOne: false
+            referencedRelation: "announcements_with_counts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      announcement_replies: {
+        Row: {
+          announcement_id: string
+          body: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          announcement_id: string
+          body: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          announcement_id?: string
+          body?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "announcement_replies_announcement_id_fkey"
+            columns: ["announcement_id"]
+            isOneToOne: false
+            referencedRelation: "announcements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "announcement_replies_announcement_id_fkey"
+            columns: ["announcement_id"]
+            isOneToOne: false
+            referencedRelation: "announcements_with_counts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      announcements: {
+        Row: {
+          audience: string
+          body: string
+          category: string
+          created_at: string
+          created_by: string | null
+          id: string
+          is_action_required: boolean
+          is_pinned: boolean
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          audience?: string
+          body: string
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_action_required?: boolean
+          is_pinned?: boolean
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          audience?: string
+          body?: string
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_action_required?: boolean
+          is_pinned?: boolean
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "announcements_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "announcements_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       app_settings: {
         Row: {
           key: string
@@ -818,31 +989,34 @@ export type Database = {
       }
       notifications: {
         Row: {
+          body: string | null
           created_at: string
           id: string
-          message: string | null
-          read: boolean
-          task_id: string | null
+          is_action_required: boolean
+          is_read: boolean
+          reference_id: string | null
           title: string
           type: string
           user_id: string
         }
         Insert: {
+          body?: string | null
           created_at?: string
           id?: string
-          message?: string | null
-          read?: boolean
-          task_id?: string | null
+          is_action_required?: boolean
+          is_read?: boolean
+          reference_id?: string | null
           title: string
           type: string
           user_id: string
         }
         Update: {
+          body?: string | null
           created_at?: string
           id?: string
-          message?: string | null
-          read?: boolean
-          task_id?: string | null
+          is_action_required?: boolean
+          is_read?: boolean
+          reference_id?: string | null
           title?: string
           type?: string
           user_id?: string
@@ -850,9 +1024,71 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "notifications_task_id_fkey"
-            columns: ["task_id"]
+            columns: ["reference_id"]
             isOneToOne: false
             referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      priorities: {
+        Row: {
+          assigned_to: string | null
+          created_at: string
+          created_by: string | null
+          display_order: number
+          id: string
+          notes: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          id?: string
+          notes?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          id?: string
+          notes?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "priorities_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priorities_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priorities_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priorities_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
             referencedColumns: ["id"]
           },
         ]
@@ -1280,14 +1516,17 @@ export type Database = {
       }
       topic_tag_links: {
         Row: {
+          id: string
           tag_id: string
           topic_id: string
         }
         Insert: {
+          id?: string
           tag_id: string
           topic_id: string
         }
         Update: {
+          id?: string
           tag_id?: string
           topic_id?: string
         }
@@ -1358,6 +1597,46 @@ export type Database = {
       }
     }
     Views: {
+      announcements_with_counts: {
+        Row: {
+          ack_count: number | null
+          audience: string | null
+          author_name: string | null
+          body: string | null
+          category: string | null
+          created_at: string | null
+          created_by: string | null
+          id: string | null
+          is_action_required: boolean | null
+          is_pinned: boolean | null
+          read_count: number | null
+          reply_count: number | null
+          title: string | null
+          updated_at: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "announcements_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "announcements_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      my_unread_notification_count: {
+        Row: {
+          unread_count: number | null
+        }
+        Relationships: []
+      }
       profiles_public: {
         Row: {
           avatar_url: string | null
