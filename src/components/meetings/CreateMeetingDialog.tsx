@@ -91,7 +91,7 @@ const CreateMeetingDialog = ({ onSubmit }: CreateMeetingDialogProps) => {
       </DialogTrigger>
       <DialogContent
         className="w-[calc(100%-2rem)] max-w-md bg-muted border-border rounded-xl p-0 [&>button[class*='absolute']]:hidden"
-        overlayClassName="bg-background/60 backdrop-blur-sm"
+        overlayClassName="bg-[rgba(65,81,98,0.45)] backdrop-blur-sm"
       >
         <div className="flex items-center justify-between px-5 pt-4 pb-2">
           <div className="text-base font-medium">New meeting</div>

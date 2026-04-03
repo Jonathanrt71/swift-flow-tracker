@@ -107,7 +107,7 @@ const ChecklistEditor = ({
       <DialogContent
         className="w-[calc(100%-2rem)] max-w-md overflow-y-auto border-none rounded-xl p-0 max-h-[85vh] [&>button[class*='absolute']]:hidden"
         style={{ background: "#F5F3EE" }}
-        overlayClassName="bg-background/60 backdrop-blur-sm"
+        overlayClassName="bg-[rgba(65,81,98,0.45)] backdrop-blur-sm"
       >
         <div className="flex items-center justify-between px-4 py-3 bg-[#415162] rounded-t-xl">
           <span className="text-sm font-medium text-white">Edit: {competencyTitle}</span>

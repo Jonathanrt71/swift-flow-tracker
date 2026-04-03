@@ -91,7 +91,7 @@ const AssessmentPopup = ({
       <DialogContent
         className="w-[calc(100%-2rem)] max-w-md overflow-y-auto overflow-x-hidden border-none rounded-xl p-0 max-h-[90vh] [&>button[class*='absolute']]:hidden"
         style={{ background: "#F5F3EE" }}
-        overlayClassName="bg-background/60 backdrop-blur-sm"
+        overlayClassName="bg-[rgba(65,81,98,0.45)] backdrop-blur-sm"
       >
         {!selectedResident ? (
           <>

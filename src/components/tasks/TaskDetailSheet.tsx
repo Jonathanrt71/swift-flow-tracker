@@ -118,7 +118,7 @@ const TaskDetailSheet = ({
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent
         className="w-[calc(100%-2rem)] max-w-md overflow-y-auto bg-muted border-border rounded-xl p-0 max-h-[85vh]"
-        overlayClassName="bg-background/60 backdrop-blur-sm"
+        overlayClassName="bg-[rgba(65,81,98,0.45)] backdrop-blur-sm"
         onCloseAutoFocus={(e) => e.preventDefault()}
       >
         <div className="p-5 pb-3">

@@ -24,6 +24,7 @@ import { format, parseISO } from "date-fns";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { formatPersonName } from "@/lib/dateFormat";
 import { Button } from "@/components/ui/button";
+import RichTextEditor from "./RichTextEditor";
 
 interface CreateTaskDialogProps {
   onSubmit: (data: { title: string; description?: string; due_date?: string; parent_id?: string; assigned_to?: string; owed_to?: string; meeting_id?: string }) => void;
@@ -94,7 +95,7 @@ const CreateTaskDialog = ({ onSubmit, parentId, meetingId, loading, iconOnly, in
       <DialogContent
         className="rounded-lg p-5 max-w-[calc(100vw-2rem)] w-full sm:max-w-md overflow-hidden"
         style={{ background: "#F5F3EE", border: "1px solid #C9CED4", boxShadow: "0 8px 32px rgba(0,0,0,0.22)" }}
-        overlayClassName="bg-background/60 backdrop-blur-sm"
+        overlayClassName="bg-[rgba(65,81,98,0.45)] backdrop-blur-sm"
         onCloseAutoFocus={(e) => e.preventDefault()}
       >
         <div className="overflow-y-auto max-h-[80vh] overflow-x-hidden">
@@ -178,6 +179,14 @@ const CreateTaskDialog = ({ onSubmit, parentId, meetingId, loading, iconOnly, in
                 ))}
               </SelectContent>
             </Select>
+          </div>
+
+          {/* Notes */}
+          <div className="mb-4">
+            <label className="text-xs block mb-1.5" style={{ color: "#5F7285" }}>Notes</label>
+            <div className="[&_.ProseMirror]:min-h-[80px] [&_.ProseMirror]:sm:min-h-[80px] [&_.ProseMirror]:md:min-h-[80px] [&_.tiptap-editor]:min-h-[100px] [&_.tiptap-editor]:sm:min-h-[100px] [&_.tiptap-editor]:md:min-h-[100px]" style={{ background: "#fff", borderRadius: 8 }}>
+              <RichTextEditor content={description} onChange={setDescription} />
+            </div>
           </div>
 
           {/* Save */}

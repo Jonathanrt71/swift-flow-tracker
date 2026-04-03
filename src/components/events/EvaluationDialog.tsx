@@ -170,7 +170,7 @@ export default function EvaluationDialog({
       <DialogContent
         className="border-border rounded-xl p-0 [&>button[class*='absolute']]:hidden max-w-sm"
         style={{ background: "#F5F3EE" }}
-        overlayClassName="bg-background/60 backdrop-blur-sm"
+        overlayClassName="bg-[rgba(65,81,98,0.45)] backdrop-blur-sm"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}

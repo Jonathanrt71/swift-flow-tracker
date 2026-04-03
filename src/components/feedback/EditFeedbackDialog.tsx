@@ -92,7 +92,7 @@ const EditFeedbackDialog = ({ feedback, residents, onSubmit }: EditFeedbackDialo
       <DialogContent
         className="rounded-lg p-5 max-w-[calc(100vw-2rem)] w-full sm:max-w-md overflow-hidden"
         style={{ background: "#F5F3EE", border: "1px solid #C9CED4", boxShadow: "0 8px 32px rgba(0,0,0,0.22)" }}
-        overlayClassName="bg-background/60 backdrop-blur-sm"
+        overlayClassName="bg-[rgba(65,81,98,0.45)] backdrop-blur-sm"
       >
         <div className="overflow-y-auto max-h-[80vh] overflow-x-hidden">
         <div className="flex items-center justify-between mb-5">

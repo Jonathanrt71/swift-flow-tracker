@@ -91,7 +91,7 @@ const MeetingNotesDialog = ({
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent
         className="w-[calc(100%-2rem)] max-w-md sm:max-w-lg md:max-w-2xl max-h-[85vh] overflow-y-auto bg-muted border-border rounded-xl p-0 [&>button[class*='absolute']]:hidden"
-        overlayClassName="bg-background/60 backdrop-blur-sm"
+        overlayClassName="bg-[rgba(65,81,98,0.45)] backdrop-blur-sm"
       >
         {/* Header: creator avatar + title + date + close */}
         <div className="flex items-start gap-3 px-5 pt-4 pb-2">
