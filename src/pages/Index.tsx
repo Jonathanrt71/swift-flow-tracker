@@ -131,12 +131,9 @@ const Index = () => {
           task={task}
           isOverdue={isOverdue(task)}
           teamMembers={teamMembers || []}
-          meetingNames={meetingNames}
           onToggleComplete={(d) => toggleComplete.mutate(d)}
-          onUpdate={(d) => updateTask.mutate(d)}
-          onDelete={(id) => deleteTask.mutate(id)}
-          onCreateSubtask={(d) => createTask.mutate(d)}
           onToggleStar={(d) => toggleStar.mutate(d)}
+          onCardClick={() => {}}
         />
       );
     });
