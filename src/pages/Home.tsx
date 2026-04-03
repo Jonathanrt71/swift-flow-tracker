@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
 import { usePermissions } from "@/hooks/usePermissions";
-import { useAnnouncements } from "@/hooks/useAnnouncements";
+import { useRecentAnnouncements } from "@/hooks/useRecentAnnouncements";
 import { useFeedback } from "@/hooks/useFeedback";
 import { useEvents, EVENT_CATEGORY_LABELS, EVENT_CATEGORY_COLORS, type EventCategory } from "@/hooks/useEvents";
 import { useTasks } from "@/hooks/useTasks";
@@ -96,7 +96,7 @@ const Home = () => {
   const [hoveredSlice, setHoveredSlice] = useState<number | null>(null);
 
   // Data hooks
-  const { announcements, isLoading: announcementsLoading } = useAnnouncements();
+  const { recentAnnouncements, isLoading: announcementsLoading } = useRecentAnnouncements();
   const { feedbackQuery } = useFeedback();
   const { events } = useEvents();
   const { tasks, isLoading: tasksLoading } = useTasks();
@@ -122,9 +122,6 @@ const Home = () => {
   const isCompact = width < 600;
 
   // ─── Derived data ────────────────────────────────────────────────────────
-
-  // Announcements: top 3
-  const recentAnnouncements = announcements.slice(0, 3);
 
   // Feedback distribution
   const feedbackList = feedbackQuery.data || [];
