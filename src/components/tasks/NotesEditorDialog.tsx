@@ -110,7 +110,7 @@ const NotesEditorDialog = ({
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent
         className="w-[calc(100%-2rem)] max-w-md sm:max-w-lg md:max-w-2xl bg-muted border-border rounded-xl p-0 [&>button[class*='absolute']]:hidden"
-        overlayClassName="bg-background/60 backdrop-blur-sm"
+        overlayClassName="bg-[rgba(65,81,98,0.45)] backdrop-blur-sm"
         onCloseAutoFocus={(e) => e.preventDefault()}
         onPointerDownOutside={(e) => e.preventDefault()}
         onInteractOutside={(e) => e.preventDefault()}
