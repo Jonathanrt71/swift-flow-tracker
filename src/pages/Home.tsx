@@ -171,6 +171,9 @@ const Home = () => {
 
   const overdueTasks = myTasks.filter((t) => t.due_date && t.due_date < todayStr);
 
+  const myPriorities = priorities.filter((p) => p.assigned_to === user?.id);
+  const allPriorities = priorities.slice(0, 4);
+
   // ─── Loading spinner ────────────────────────────────────────────────────
 
   const Spinner = () => (
