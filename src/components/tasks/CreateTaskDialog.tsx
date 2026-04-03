@@ -24,6 +24,7 @@ import { format, parseISO } from "date-fns";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { formatPersonName } from "@/lib/dateFormat";
 import { Button } from "@/components/ui/button";
+import RichTextEditor from "./RichTextEditor";
 
 interface CreateTaskDialogProps {
   onSubmit: (data: { title: string; description?: string; due_date?: string; parent_id?: string; assigned_to?: string; owed_to?: string; meeting_id?: string }) => void;
