@@ -1,11 +1,11 @@
-// force rebuild v4
-import { useState } from "react";
+// force rebuild v5
+import { useState, useEffect } from "react";
 import { format, parseISO } from "date-fns";
 import { useTasks } from "@/hooks/useTasks";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ListTodo, CheckCircle2, Star, Search, X } from "lucide-react";
+import { ListTodo, CheckCircle2, Star, Search, X, Hash } from "lucide-react";
 import TaskCard from "@/components/tasks/TaskCard";
 import CreateTaskDialog from "@/components/tasks/CreateTaskDialog";
 import NotificationBell from "@/components/NotificationBell";
@@ -13,6 +13,11 @@ import type { Task } from "@/hooks/useTasks";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { useMeetings } from "@/hooks/useMeetings";
 import HeaderLogo from "@/components/HeaderLogo";
+import { usePriorities } from "@/hooks/usePriorities";
+import PriorityCard from "@/components/tasks/PriorityCard";
+import CreatePriorityDialog from "@/components/tasks/CreatePriorityDialog";
+import EditTaskDialog from "@/components/tasks/EditTaskDialog";
+import { usePermissions } from "@/hooks/usePermissions";
 
 const Index = () => {
   const { user, signOut } = useAuth();
@@ -34,6 +39,20 @@ const Index = () => {
     deleteTask,
   } = useTasks();
 
+  const { priorities, isLoading: prioritiesLoading, createPriority, updatePriority, deletePriority, reorderPriorities } = usePriorities();
+  const { has: hasPerm } = usePermissions();
+  const canEditPriorities = hasPerm("priorities.edit");
+
+  const [dragIdx, setDragIdx] = useState<number | null>(null);
+  const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
+  const [localPriorities, setLocalPriorities] = useState(priorities);
+  const [activeTab, setActiveTab] = useState("priorities");
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+
+  useEffect(() => {
+    setLocalPriorities(priorities);
+  }, [priorities]);
+
   const now = new Date();
 
   const searchFilter = (t: Task): boolean => {
@@ -46,11 +65,9 @@ const Index = () => {
     );
   };
 
-  // Helper to check if task or any subtask is assigned to current user
   const isAssignedToMe = (t: Task): boolean =>
     t.assigned_to === user?.id || t.created_by === user?.id || (t.subtasks?.some(isAssignedToMe) ?? false);
 
-  // Default sort: due date (soonest first, no date last)
   const sortByDueDate = (a: Task, b: Task) => {
     if (!a.due_date && !b.due_date) return 0;
     if (!a.due_date) return 1;
@@ -58,17 +75,14 @@ const Index = () => {
     return new Date(a.due_date).getTime() - new Date(b.due_date).getTime();
   };
 
-  // My Tasks: incomplete, assigned to or created by me
   const myTasks = tasks
     .filter((t) => !t.completed && isAssignedToMe(t) && searchFilter(t))
     .sort(sortByDueDate);
 
-  // Starred: incomplete + starred
   const starredTasks = tasks
     .filter((t) => !t.completed && t.starred && searchFilter(t))
     .sort(sortByDueDate);
 
-  // Completed
   const completedTasks = tasks
     .filter((t) => t.completed && searchFilter(t))
     .sort((a, b) => new Date(b.completed_at!).getTime() - new Date(a.completed_at!).getTime());
@@ -133,7 +147,7 @@ const Index = () => {
           teamMembers={teamMembers || []}
           onToggleComplete={(d) => toggleComplete.mutate(d)}
           onToggleStar={(d) => toggleStar.mutate(d)}
-          onCardClick={() => {}}
+          onCardClick={(t) => setSelectedTask(t)}
         />
       );
     });
@@ -165,7 +179,7 @@ const Index = () => {
         teamMembers={teamMembers || []}
         onToggleComplete={(d) => toggleComplete.mutate(d)}
         onToggleStar={(d) => toggleStar.mutate(d)}
-        onCardClick={() => {}}
+        onCardClick={(t) => setSelectedTask(t)}
       />
     ));
   };
@@ -213,9 +227,13 @@ const Index = () => {
       </header>
 
       <main className="container max-w-[1200px] px-4 py-6">
-        <Tabs defaultValue="myTasks">
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
           <div className="flex items-center justify-between mb-4">
             <TabsList className="gap-1 h-auto p-1 bg-transparent">
+              <TabsTrigger value="priorities" className="flex flex-col items-center gap-0.5 h-auto px-2 py-1" title="Priorities">
+                <Hash className="h-4 w-4" />
+                <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase" }}>Priorities</span>
+              </TabsTrigger>
               <TabsTrigger value="myTasks" className="flex flex-col items-center gap-0.5 h-auto px-2 py-1" title="My Tasks">
                 <ListTodo className="h-4 w-4" />
                 <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase" }}>Tasks</span>
@@ -229,12 +247,66 @@ const Index = () => {
                 <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase" }}>Done</span>
               </TabsTrigger>
             </TabsList>
-            <CreateTaskDialog
-              onSubmit={(data) => createTask.mutate(data)}
-              loading={createTask.isPending}
-              inlineIcon
-            />
+            {activeTab === "priorities" && canEditPriorities ? (
+              <CreatePriorityDialog
+                onSubmit={(data) => createPriority.mutate(data)}
+                loading={createPriority.isPending}
+                inlineIcon
+              />
+            ) : activeTab !== "priorities" ? (
+              <CreateTaskDialog
+                onSubmit={(data) => createTask.mutate(data)}
+                loading={createTask.isPending}
+                inlineIcon
+              />
+            ) : null}
           </div>
+
+          <TabsContent value="priorities" className="space-y-3 mt-0">
+            {prioritiesLoading ? (
+              <div className="flex justify-center py-12">
+                <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+              </div>
+            ) : localPriorities.length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground">
+                <Hash className="h-10 w-10 mx-auto mb-3 opacity-40" />
+                <p className="text-sm">No priorities yet. Add one to get started!</p>
+              </div>
+            ) : (
+              localPriorities.map((p, idx) => (
+                <div
+                  key={p.id}
+                  draggable
+                  onDragStart={() => setDragIdx(idx)}
+                  onDragOver={(e) => { e.preventDefault(); setDragOverIdx(idx); }}
+                  onDragEnd={() => {
+                    if (dragIdx !== null && dragOverIdx !== null && dragIdx !== dragOverIdx) {
+                      const reordered = [...localPriorities];
+                      const [moved] = reordered.splice(dragIdx, 1);
+                      reordered.splice(dragOverIdx, 0, moved);
+                      setLocalPriorities(reordered);
+                      reorderPriorities.mutate(reordered.map((r) => r.id));
+                    }
+                    setDragIdx(null);
+                    setDragOverIdx(null);
+                  }}
+                  style={{
+                    opacity: dragIdx === idx ? 0.5 : 1,
+                    borderTop: dragOverIdx === idx && dragIdx !== null && dragIdx > idx ? "2px solid #415162" : undefined,
+                    borderBottom: dragOverIdx === idx && dragIdx !== null && dragIdx < idx ? "2px solid #415162" : undefined,
+                  }}
+                >
+                  <PriorityCard
+                    priority={p}
+                    rank={idx + 1}
+                    teamMembers={teamMembers || []}
+                    onUpdate={(data) => updatePriority.mutate(data)}
+                    onDelete={(id) => deletePriority.mutate(id)}
+                  />
+                </div>
+              ))
+            )}
+          </TabsContent>
 
           <TabsContent value="myTasks" className="space-y-3 mt-0">
             {renderGroupedTaskList(
@@ -261,6 +333,21 @@ const Index = () => {
           </TabsContent>
         </Tabs>
       </main>
+
+      {selectedTask && (
+        <EditTaskDialog
+          task={selectedTask}
+          open={!!selectedTask}
+          onOpenChange={(open) => { if (!open) setSelectedTask(null); }}
+          teamMembers={teamMembers || []}
+          meetingNames={meetingNames}
+          onUpdate={(d) => { updateTask.mutate(d); setSelectedTask(null); }}
+          onDelete={(id) => { deleteTask.mutate(id); setSelectedTask(null); }}
+          onToggleComplete={(d) => toggleComplete.mutate(d)}
+          onCreateSubtask={(d) => createTask.mutate(d)}
+          onToggleStar={(d) => toggleStar.mutate(d)}
+        />
+      )}
     </div>
   );
 };
