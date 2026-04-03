@@ -20,7 +20,9 @@ import {
   ChevronRight,
   Clock,
   AlertTriangle,
+  Hash,
 } from "lucide-react";
+import { usePriorities } from "@/hooks/usePriorities";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
