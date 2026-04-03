@@ -542,6 +542,10 @@ const RoleAccessSection = () => {
       { action: "View page", key: "operations.view" },
       { action: "Edit sections", key: "operations.edit" },
     ]},
+    { name: "Priorities", rows: [
+      { action: "View page", key: "priorities.view" },
+      { action: "Create / edit / delete", key: "priorities.edit" },
+    ]},
     { name: "Profile", rows: [
       { action: "View / edit own", key: "profile.own" },
     ]},
