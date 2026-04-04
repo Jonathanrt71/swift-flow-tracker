@@ -632,16 +632,16 @@ const Events = () => {
             )}
           </div>
 
-        </div>
+          {/* Gantt label (only in gantt view) */}
+          {viewMode === "gantt" && (
+            <div className="flex items-center justify-center pb-3">
+              <span style={{ fontSize: 15, fontWeight: 500, color: "#2D3748" }}>
+                {ganttRangeLabel}
+              </span>
+            </div>
+          )}
 
-        {/* Gantt label (only in gantt view) */}
-        {viewMode === "gantt" && (
-          <div className="flex items-center justify-center pb-3">
-            <span style={{ fontSize: 15, fontWeight: 500, color: "#2D3748" }}>
-              {ganttRangeLabel}
-            </span>
-          </div>
-        )}
+        </div>
 
         {/* Content */}
         {events.isLoading ? (
