@@ -82,7 +82,31 @@ const EventsGantt = ({ events }: EventsGanttProps) => {
       rows.push({ title, occurrences, isMultiDay, earliestStart });
     });
 
-    rows.sort((a, b) => a.earliestStart.getTime() - b.earliestStart.getTime());
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    rows.sort((a, b) => {
+      // Find next upcoming occurrence for each row
+      const nextA = a.occurrences
+        .filter(o => o.endDate >= today)
+        .sort((x, y) => x.startDate.getTime() - y.startDate.getTime())[0];
+      const nextB = b.occurrences
+        .filter(o => o.endDate >= today)
+        .sort((x, y) => x.startDate.getTime() - y.startDate.getTime())[0];
+
+      // Events with upcoming occurrences come first
+      if (nextA && !nextB) return -1;
+      if (!nextA && nextB) return 1;
+
+      // Both have upcoming: sort by soonest next occurrence
+      if (nextA && nextB) {
+        return nextA.startDate.getTime() - nextB.startDate.getTime();
+      }
+
+      // Both are past-only: sort by most recent last
+      return b.earliestStart.getTime() - a.earliestStart.getTime();
+    });
+
     return rows;
   }, [events]);
 
