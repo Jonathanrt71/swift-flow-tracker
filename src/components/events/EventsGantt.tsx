@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useMemo, useLayoutEffect } from "react";
+import { useState, useRef, useEffect, useMemo, useLayoutEffect, useCallback } from "react";
 import { format, parseISO, getDaysInMonth } from "date-fns";
 import type { ProgramEvent } from "@/hooks/useEvents";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -21,18 +21,20 @@ const EventsGantt = ({ events }: EventsGanttProps) => {
   const labelWidth = isMobile ? 70 : 130;
   const rowHeight = isMobile ? 34 : 40;
   const dotSize = isMobile ? 8 : 9;
-  const monthCount = 36; // 12 back + current + 23 forward
+  const monthCount = 36;
   const now = new Date();
-  const startMonth = (now.getMonth()) ; // 12 months ago same month
+  const startMonth = now.getMonth();
   const startYear = now.getFullYear() - 1;
-  const currentMonthOffset = 12; // current month is at index 12
+  const currentMonthOffset = 12;
 
   const [tooltip, setTooltip] = useState<{ title: string; dateStr: string; x: number; y: number } | null>(null);
+  const [floatingMonth, setFloatingMonth] = useState<string>("");
+  const [showFloating, setShowFloating] = useState(false);
   const tooltipTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const floatingTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll to current month on mount
   useLayoutEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
@@ -42,14 +44,26 @@ const EventsGantt = ({ events }: EventsGanttProps) => {
   }, []);
 
   const months = useMemo(() => {
-    const result: { month: number; year: number; days: number; label: string }[] = [];
+    const result: { month: number; year: number; days: number; label: string; isCurrent: boolean }[] = [];
     for (let i = 0; i < monthCount; i++) {
       const m = (startMonth + i) % 12;
       const y = startYear + Math.floor((startMonth + i) / 12);
-      result.push({ month: m, year: y, days: getDaysInMonth(new Date(y, m)), label: MONTH_ABBRS[m] });
+      const isCurrent = m === now.getMonth() && y === now.getFullYear();
+      result.push({ month: m, year: y, days: getDaysInMonth(new Date(y, m)), label: MONTH_ABBRS[m], isCurrent });
     }
     return result;
   }, [startMonth, startYear, monthCount]);
+
+  const todayPosition = useMemo(() => {
+    for (let i = 0; i < months.length; i++) {
+      const m = months[i];
+      if (now.getFullYear() === m.year && now.getMonth() === m.month) {
+        const dayFrac = (now.getDate() - 1) / m.days;
+        return (i + dayFrac) / months.length;
+      }
+    }
+    return null;
+  }, [months]);
 
   const rows = useMemo(() => {
     const map = new Map<string, { startDate: Date; endDate: Date }[]>();
@@ -69,12 +83,41 @@ const EventsGantt = ({ events }: EventsGanttProps) => {
     });
 
     rows.sort((a, b) => a.earliestStart.getTime() - b.earliestStart.getTime());
-
     return rows;
   }, [events]);
 
+  const handleScroll = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const scrollLeft = el.scrollLeft;
+    const scrollWidth = el.scrollWidth;
+    const centerOffset = scrollLeft + el.clientWidth / 2 - labelWidth;
+    const timelineWidth = scrollWidth - labelWidth;
+    const centerFrac = Math.max(0, centerOffset / timelineWidth);
+    const monthIdx = Math.min(Math.floor(centerFrac * monthCount), months.length - 1);
+
+    if (monthIdx >= 0 && monthIdx < months.length) {
+      const m = months[monthIdx];
+      setFloatingMonth(`${MONTH_ABBRS[m.month]} ${m.year}`);
+      setShowFloating(true);
+      if (floatingTimer.current) clearTimeout(floatingTimer.current);
+      floatingTimer.current = setTimeout(() => setShowFloating(false), 1500);
+    }
+  }, [months, labelWidth, monthCount]);
+
   useEffect(() => {
-    return () => { if (tooltipTimer.current) clearTimeout(tooltipTimer.current); };
+    const el = scrollRef.current;
+    if (!el) return;
+    el.addEventListener("scroll", handleScroll);
+    return () => el.removeEventListener("scroll", handleScroll);
+  }, [handleScroll]);
+
+  useEffect(() => {
+    return () => {
+      if (tooltipTimer.current) clearTimeout(tooltipTimer.current);
+      if (floatingTimer.current) clearTimeout(floatingTimer.current);
+    };
   }, []);
 
   const showTooltip = (title: string, dateStr: string, el: HTMLElement) => {
@@ -112,15 +155,37 @@ const EventsGantt = ({ events }: EventsGanttProps) => {
       return format(o.startDate, "MMM d");
     }
     if (o.startDate.getMonth() === o.endDate.getMonth()) {
-      return `${format(o.startDate, "MMM d")} – ${format(o.endDate, "d")}`;
+      return `${format(o.startDate, "MMM d")} \u2013 ${format(o.endDate, "d")}`;
     }
-    return `${format(o.startDate, "MMM d")} – ${format(o.endDate, "MMM d")}`;
+    return `${format(o.startDate, "MMM d")} \u2013 ${format(o.endDate, "MMM d")}`;
   };
 
-  const truncateLabel = (s: string) => s.length > 16 ? s.slice(0, 15) + "…" : s;
+  const truncateLabel = (s: string) => s.length > 16 ? s.slice(0, 15) + "\u2026" : s;
 
   return (
     <div ref={containerRef} className="relative select-none" onClick={dismissTooltip}>
+      {/* Floating month label */}
+      <div
+        style={{
+          position: "absolute",
+          top: 8,
+          right: 12,
+          background: "#415162",
+          color: "#fff",
+          padding: "4px 10px",
+          borderRadius: 6,
+          fontSize: 12,
+          fontWeight: 500,
+          zIndex: 20,
+          pointerEvents: "none",
+          opacity: showFloating ? 1 : 0,
+          transition: "opacity 0.2s",
+        }}
+      >
+        {floatingMonth}
+      </div>
+
+      {/* Tooltip */}
       {tooltip && (
         <div
           className="absolute z-50 px-3 py-2 rounded-lg text-white text-xs pointer-events-none"
@@ -138,7 +203,7 @@ const EventsGantt = ({ events }: EventsGanttProps) => {
       )}
 
       <div ref={scrollRef} className="overflow-x-auto">
-        <div style={{ minWidth: monthCount * 80 }}>
+        <div style={{ minWidth: monthCount * 80, position: "relative" }}>
           {/* Month headers */}
           <div className="flex" style={{ borderBottom: "1px solid #E7EBEF" }}>
             <div className="shrink-0" style={{ width: labelWidth }} />
@@ -149,9 +214,10 @@ const EventsGantt = ({ events }: EventsGanttProps) => {
                   className="flex-1 text-center py-2"
                   style={{
                     fontSize: isMobile ? 11 : 12,
-                    fontWeight: 500,
-                    color: "#8A9AAB",
+                    fontWeight: m.isCurrent ? 600 : 500,
+                    color: m.isCurrent ? "#378ADD" : "#8A9AAB",
                     borderLeft: i > 0 ? "1px solid #C9CED4" : undefined,
+                    background: m.isCurrent ? "rgba(55,138,221,0.06)" : undefined,
                   }}
                 >
                   {m.label}
@@ -159,6 +225,23 @@ const EventsGantt = ({ events }: EventsGanttProps) => {
               ))}
             </div>
           </div>
+
+          {/* Today line */}
+          {todayPosition !== null && (
+            <div
+              style={{
+                position: "absolute",
+                top: 0,
+                bottom: 0,
+                left: `calc(${labelWidth}px + ${todayPosition * 100}% * (1 - ${labelWidth} / ${monthCount * 80}))`,
+                width: 2,
+                background: "#E24B4A",
+                opacity: 0.5,
+                zIndex: 5,
+                pointerEvents: "none",
+              }}
+            />
+          )}
 
           {/* Event rows */}
           {rows.length === 0 && (
@@ -174,6 +257,8 @@ const EventsGantt = ({ events }: EventsGanttProps) => {
                 minHeight: rowHeight,
                 background: rowIdx % 2 === 1 ? "#F0EEE8" : "transparent",
                 borderBottom: "0.5px solid #E7EBEF",
+                position: "relative",
+                zIndex: 1,
               }}
             >
               <div
