@@ -135,6 +135,7 @@ const Evaluations = () => {
 
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [filterResident, setFilterResident] = useState<string>("all");
+  const [filterStatus, setFilterStatus] = useState<"all" | "unread" | "read">("all");
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [importPreview, setImportPreview] = useState<any[] | null>(null);
@@ -206,6 +207,11 @@ const Evaluations = () => {
     let evals = evaluationsQuery.data || [];
     if (filterResident !== "all") {
       evals = evals.filter(e => e.resident_name === filterResident);
+    }
+    if (filterStatus === "unread") {
+      evals = evals.filter(e => !viewedSet.has(e.id));
+    } else if (filterStatus === "read") {
+      evals = evals.filter(e => viewedSet.has(e.id));
     }
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
@@ -385,11 +391,30 @@ const Evaluations = () => {
             </SelectContent>
           </Select>
 
-          {unviewedCount > 0 && (
-            <span style={{ fontSize: 12, color: "#c44444", fontWeight: 500 }}>
-              {unviewedCount} unread
-            </span>
-          )}
+          {/* Read/Unread filter */}
+          <div style={{ display: "flex", gap: 0, borderRadius: 8, overflow: "hidden", border: "0.5px solid #C9CED4" }}>
+            {([
+              { value: "all" as const, label: "All" },
+              { value: "unread" as const, label: `Unread${unviewedCount > 0 ? ` (${unviewedCount})` : ""}` },
+              { value: "read" as const, label: "Read" },
+            ]).map(opt => (
+              <button
+                key={opt.value}
+                onClick={() => setFilterStatus(opt.value)}
+                style={{
+                  padding: "5px 10px",
+                  fontSize: 11,
+                  fontWeight: 500,
+                  border: "none",
+                  cursor: "pointer",
+                  background: filterStatus === opt.value ? "#415162" : "#fff",
+                  color: filterStatus === opt.value ? "#fff" : "#5F7285",
+                }}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
 
           <div style={{ flex: 1 }} />
 
