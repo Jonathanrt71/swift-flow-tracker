@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { formatPersonName } from "@/lib/dateFormat";
 import HeaderLogo from "@/components/HeaderLogo";
 import NotificationBell from "@/components/NotificationBell";
-import { Upload, Check, Eye, EyeOff, ChevronDown, ChevronUp, Search, X } from "lucide-react";
+import { Upload, Check, Eye, EyeOff, ChevronDown, ChevronUp, Search, X, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
   Select,
@@ -570,6 +570,24 @@ const Evaluations = () => {
                             Professionalism Comment
                           </div>
                           <div style={{ fontSize: 13, color: "#2D3748", lineHeight: 1.5 }}>{ev.professionalism_comment}</div>
+                        </div>
+                      )}
+
+                      {/* Admin delete */}
+                      {isAdmin && (
+                        <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 8 }}>
+                          <button
+                            onClick={async () => {
+                              if (!confirm("Delete this evaluation?")) return;
+                              await (supabase as any).from("evaluations").delete().eq("id", ev.id);
+                              queryClient.invalidateQueries({ queryKey: ["evaluations"] });
+                              setExpandedId(null);
+                              toast({ title: "Evaluation deleted" });
+                            }}
+                            style={{ display: "flex", alignItems: "center", gap: 4, background: "transparent", border: "none", cursor: "pointer", color: "#c44444", fontSize: 12 }}
+                          >
+                            <Trash2 style={{ width: 14, height: 14 }} /> Delete
+                          </button>
                         </div>
                       )}
                     </div>
