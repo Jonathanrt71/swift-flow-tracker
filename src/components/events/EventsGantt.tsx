@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useMemo, useLayoutEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { format, parseISO, getDaysInMonth } from "date-fns";
 import type { ProgramEvent } from "@/hooks/useEvents";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -21,11 +21,10 @@ const EventsGantt = ({ events }: EventsGanttProps) => {
   const labelWidth = isMobile ? 70 : 130;
   const rowHeight = isMobile ? 34 : 40;
   const dotSize = isMobile ? 8 : 9;
-  const monthCount = 36;
+  const monthCount = 13; // current month + 12 forward
   const now = new Date();
   const startMonth = now.getMonth();
-  const startYear = now.getFullYear() - 1;
-  const currentMonthOffset = 12;
+  const startYear = now.getFullYear();
 
   const [tooltip, setTooltip] = useState<{ title: string; dateStr: string; x: number; y: number } | null>(null);
   const [floatingMonth, setFloatingMonth] = useState<string>("");
@@ -34,14 +33,6 @@ const EventsGantt = ({ events }: EventsGanttProps) => {
   const floatingTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
-
-  useLayoutEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-    const totalWidth = el.scrollWidth;
-    const scrollTarget = (currentMonthOffset / monthCount) * totalWidth - el.clientWidth / 2;
-    el.scrollLeft = Math.max(0, scrollTarget);
-  }, []);
 
   const months = useMemo(() => {
     const result: { month: number; year: number; days: number; label: string; isCurrent: boolean }[] = [];
@@ -66,13 +57,21 @@ const EventsGantt = ({ events }: EventsGanttProps) => {
   }, [months]);
 
   const rows = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const oneYearOut = new Date(today);
+    oneYearOut.setFullYear(oneYearOut.getFullYear() + 1);
+
     const map = new Map<string, { startDate: Date; endDate: Date }[]>();
     events.forEach((ev) => {
       const start = parseISO(ev.event_date);
       const end = ev.end_date && ev.end_date !== ev.event_date ? parseISO(ev.end_date) : start;
-      const arr = map.get(ev.title) || [];
-      arr.push({ startDate: start, endDate: end });
-      map.set(ev.title, arr);
+      // Only include occurrences that overlap with today → +1 year
+      if (end >= today && start <= oneYearOut) {
+        const arr = map.get(ev.title) || [];
+        arr.push({ startDate: start, endDate: end });
+        map.set(ev.title, arr);
+      }
     });
 
     const rows: TimelineRow[] = [];
@@ -82,11 +81,7 @@ const EventsGantt = ({ events }: EventsGanttProps) => {
       rows.push({ title, occurrences, isMultiDay, earliestStart });
     });
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
     rows.sort((a, b) => {
-      // Find next upcoming occurrence for each row
       const nextA = a.occurrences
         .filter(o => o.endDate >= today)
         .sort((x, y) => x.startDate.getTime() - y.startDate.getTime())[0];
@@ -94,16 +89,11 @@ const EventsGantt = ({ events }: EventsGanttProps) => {
         .filter(o => o.endDate >= today)
         .sort((x, y) => x.startDate.getTime() - y.startDate.getTime())[0];
 
-      // Events with upcoming occurrences come first
       if (nextA && !nextB) return -1;
       if (!nextA && nextB) return 1;
-
-      // Both have upcoming: sort by soonest next occurrence
       if (nextA && nextB) {
         return nextA.startDate.getTime() - nextB.startDate.getTime();
       }
-
-      // Both are past-only: sort by most recent last
       return b.earliestStart.getTime() - a.earliestStart.getTime();
     });
 

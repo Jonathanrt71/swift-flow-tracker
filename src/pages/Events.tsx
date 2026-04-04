@@ -492,11 +492,9 @@ const Events = () => {
 
   const ganttRangeLabel = useMemo(() => {
     const n = new Date();
-    const startYear = n.getFullYear() - 1;
-    const endYear = n.getFullYear() + 2;
-    const startMonthIdx = n.getMonth();
-    const endMonthIdx = (n.getMonth() + 11) % 12;
-    return `${MONTH_ABBRS[startMonthIdx]} ${startYear} — ${MONTH_ABBRS[endMonthIdx]} ${endYear}`;
+    const endDate = new Date(n);
+    endDate.setFullYear(endDate.getFullYear() + 1);
+    return `${MONTH_ABBRS[n.getMonth()]} ${n.getFullYear()} — ${MONTH_ABBRS[endDate.getMonth()]} ${endDate.getFullYear()}`;
   }, []);
 
   const filteredEvents = useMemo(() => {
