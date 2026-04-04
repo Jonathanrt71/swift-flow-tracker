@@ -135,6 +135,7 @@ const Evaluations = () => {
 
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [filterResident, setFilterResident] = useState<string>("all");
+  const [filterEvaluator, setFilterEvaluator] = useState<string>("all");
   const [filterStatus, setFilterStatus] = useState<"all" | "unread" | "read">("all");
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -202,11 +203,22 @@ const Evaluations = () => {
       .sort((a, b) => a.name.localeCompare(b.name));
   }, [evaluationsQuery.data]);
 
+  // Build evaluator list from evaluations
+  const evaluators = useMemo(() => {
+    const evals = evaluationsQuery.data || [];
+    const set = new Set<string>();
+    evals.forEach(e => { if (e.evaluator_name) set.add(e.evaluator_name); });
+    return Array.from(set).sort();
+  }, [evaluationsQuery.data]);
+
   // Filter evaluations
   const filtered = useMemo(() => {
     let evals = evaluationsQuery.data || [];
     if (filterResident !== "all") {
       evals = evals.filter(e => e.resident_name === filterResident);
+    }
+    if (filterEvaluator !== "all") {
+      evals = evals.filter(e => e.evaluator_name === filterEvaluator);
     }
     if (filterStatus === "unread") {
       evals = evals.filter(e => !viewedSet.has(e.id));
@@ -224,7 +236,7 @@ const Evaluations = () => {
       );
     }
     return evals;
-  }, [evaluationsQuery.data, filterResident, filterStatus, viewedSet, searchQuery]);
+  }, [evaluationsQuery.data, filterResident, filterEvaluator, filterStatus, viewedSet, searchQuery]);
 
   // Unviewed count
   const unviewedCount = useMemo(() => {
@@ -387,6 +399,18 @@ const Evaluations = () => {
               <SelectItem value="all">All residents</SelectItem>
               {residents.map(r => (
                 <SelectItem key={r.name} value={r.name}>{r.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={filterEvaluator} onValueChange={setFilterEvaluator}>
+            <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0" style={{ borderColor: "#C9CED4", background: "#fff", maxWidth: 280 }}>
+              <SelectValue placeholder="All evaluators" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All evaluators</SelectItem>
+              {evaluators.map(name => (
+                <SelectItem key={name} value={name}>{name}</SelectItem>
               ))}
             </SelectContent>
           </Select>
