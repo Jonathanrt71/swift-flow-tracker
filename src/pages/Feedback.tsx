@@ -45,8 +45,82 @@ const Feedback = () => {
   const canEditFeedback = hasPerm("feedback.edit");
   const canGenerateReport = hasPerm("feedback.report");
   const { data: teamMembers } = useTeamMembers();
-  const { feedbackQuery, createFeedback, updateFeedback, deleteFeedback } = useFeedback();
+  const { feedbackQuery, createFeedback, updateFeedback, deleteFeedback, saveAISuggestions } = useFeedback();
   const { data: acgmeCategories } = useACGMECompetencies();
+
+  // Build subcategory code -> UUID lookup for AI suggestion saving
+  const subcategoryLookup = useMemo(() => {
+    const lookup: Record<string, string> = {};
+    if (acgmeCategories) {
+      acgmeCategories.forEach(cat => {
+        cat.subcategories.forEach(sub => {
+          lookup[sub.code] = sub.id;
+        });
+      });
+    }
+    return lookup;
+  }, [acgmeCategories]);
+
+  const handleCreateFeedback = async (data: {
+    resident_id: string;
+    comment: string;
+    sentiment: "positive" | "negative";
+  }) => {
+    try {
+      const feedbackId = await createFeedback.mutateAsync(data);
+
+      // Get plain text from HTML comment for AI
+      const tempDiv = document.createElement("div");
+      tempDiv.innerHTML = data.comment;
+      const plainText = tempDiv.textContent || tempDiv.innerText || "";
+
+      // Find resident's current milestone levels
+      const resident = residents.find(r => r.id === data.resident_id);
+      const pgyLevel = resident?.graduation_year
+        ? (() => {
+            const now = new Date();
+            const academicYear = now.getMonth() >= 6 ? now.getFullYear() + 1 : now.getFullYear();
+            return academicYear - (resident.graduation_year! - 3);
+          })()
+        : undefined;
+
+      // Build current levels from resident_milestone_status
+      let currentLevels: Record<string, number> | undefined;
+      try {
+        const { data: statusData } = await (supabase as any)
+          .from("resident_milestone_status")
+          .select("subcategory_id, current_level")
+          .eq("resident_id", data.resident_id);
+        if (statusData && acgmeCategories) {
+          currentLevels = {};
+          statusData.forEach((s: any) => {
+            acgmeCategories.forEach(cat => {
+              const sub = cat.subcategories.find(sc => sc.id === s.subcategory_id);
+              if (sub) currentLevels![sub.code] = s.current_level;
+            });
+          });
+        }
+      } catch { /* skip if not available */ }
+
+      // Trigger AI in background — don't block the UI
+      supabase.functions.invoke("suggest-competency", {
+        body: { comment: plainText, sentiment: data.sentiment, currentLevels },
+      }).then(({ data: aiData }) => {
+        if (aiData?.milestones || aiData?.evalDomains) {
+          saveAISuggestions(
+            feedbackId,
+            aiData.milestones || [],
+            aiData.evalDomains || [],
+            subcategoryLookup,
+          );
+        }
+      }).catch(err => {
+        console.error("AI suggestion failed:", err);
+      });
+    } catch {
+      // createFeedback error is handled by the mutation's onError
+    }
+  };
 
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -470,7 +544,7 @@ const Feedback = () => {
           </div>
           {/* Add button */}
           <CreateFeedbackDialog
-            onSubmit={(data) => createFeedback.mutate(data)}
+            onSubmit={handleCreateFeedback}
             residents={residents}
           />
         </div>

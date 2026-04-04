@@ -11,20 +11,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, ArrowUp, ArrowDown, ArrowRight } from "lucide-react";
+import { Plus, ArrowUp, ArrowDown } from "lucide-react";
 import { formatPersonName } from "@/lib/dateFormat";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import CompetencySelector, { type CompetencySelection } from "./CompetencySelector";
 
 interface CreateFeedbackDialogProps {
   onSubmit: (data: {
     resident_id: string;
     comment: string;
-    sentiment: "positive" | "negative" | "neutral";
-    competency_category_id?: string | null;
-    competency_subcategory_id?: string | null;
-    competency_milestone_id?: string | null;
+    sentiment: "positive" | "negative";
   }) => void;
   residents: { id: string; first_name: string | null; last_name: string | null; graduation_year?: number | null }[];
 }
@@ -32,8 +28,7 @@ interface CreateFeedbackDialogProps {
 const CreateFeedbackDialog = ({ onSubmit, residents }: CreateFeedbackDialogProps) => {
   const [open, setOpen] = useState(false);
   const [residentId, setResidentId] = useState("");
-  const [sentiment, setSentiment] = useState<"positive" | "negative" | "neutral" | null>(null);
-  const [competency, setCompetency] = useState<CompetencySelection | null>(null);
+  const [sentiment, setSentiment] = useState<"positive" | "negative" | null>(null);
 
   const editor = useEditor({
     extensions: [StarterKit],
@@ -50,7 +45,6 @@ const CreateFeedbackDialog = ({ onSubmit, residents }: CreateFeedbackDialogProps
     if (isOpen) {
       setResidentId("");
       setSentiment(null);
-      setCompetency(null);
       editor?.commands.clearContent();
     }
     setOpen(isOpen);
@@ -64,9 +58,6 @@ const CreateFeedbackDialog = ({ onSubmit, residents }: CreateFeedbackDialogProps
       resident_id: residentId,
       comment: html,
       sentiment,
-      competency_category_id: competency?.categoryId || null,
-      competency_subcategory_id: competency?.subcategoryId || null,
-      competency_milestone_id: competency?.milestoneId || null,
     });
     setOpen(false);
   };
@@ -126,7 +117,7 @@ const CreateFeedbackDialog = ({ onSubmit, residents }: CreateFeedbackDialogProps
           </div>
         </div>
 
-        {/* Sentiment buttons */}
+        {/* Sentiment buttons — positive and negative only */}
         <div className="mb-4">
           <div className="flex gap-3">
             <button
@@ -143,18 +134,6 @@ const CreateFeedbackDialog = ({ onSubmit, residents }: CreateFeedbackDialogProps
             </button>
             <button
               type="button"
-              onClick={() => setSentiment("neutral")}
-              className="flex-1 flex items-center justify-center py-2.5 rounded-lg transition-opacity"
-              style={{
-                background: "#4A846C",
-                border: "2px solid #3A6B56",
-                opacity: sentiment === null || sentiment === "neutral" ? 1 : 0.3,
-              }}
-            >
-              <ArrowRight className="h-5 w-5" style={{ color: "#FFFFFF" }} />
-            </button>
-            <button
-              type="button"
               onClick={() => setSentiment("positive")}
               className="flex-1 flex items-center justify-center py-2.5 rounded-lg transition-opacity"
               style={{
@@ -167,16 +146,6 @@ const CreateFeedbackDialog = ({ onSubmit, residents }: CreateFeedbackDialogProps
             </button>
           </div>
         </div>
-
-        {/* Competency selector */}
-        <CompetencySelector value={competency} onChange={setCompetency} commentText={editor?.getText() || ""} sentiment={sentiment ?? undefined} pgyLevel={(() => {
-          const r = residents.find((r) => r.id === residentId);
-          if (!r?.graduation_year) return undefined;
-          const now = new Date();
-          const academicYear = now.getMonth() >= 6 ? now.getFullYear() + 1 : now.getFullYear();
-          const pgy = academicYear - (r.graduation_year - 3);
-          return pgy >= 1 ? pgy : undefined;
-        })()} residentId={residentId} />
 
         {/* Save */}
         <button
