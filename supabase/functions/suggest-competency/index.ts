@@ -28,7 +28,7 @@ ${sentiment ? `Feedback sentiment: ${sentiment}` : ""}
 
 Return ONLY a JSON array with exactly 3 objects, no other text. Each object has:
 - "subcategoryCode": the code like "PC1", "MK2", "PROF3", etc.
-- "level": integer 1-5 for the milestone level
+- "level": integer 0-5 for the milestone level
 - "reason": brief 5-8 word explanation
 
 The subcompetency codes are:
@@ -39,7 +39,9 @@ PBLI1 (Evidence-based practice), PBLI2 (Reflective practice),
 PROF1 (Professional behavior), PROF2 (Accountability), PROF3 (Self-awareness),
 ICS1 (Patient/family communication), ICS2 (Team communication), ICS3 (Systems communication)
 
-Levels: 1=novice/recognizes, 2=developing/applies basics, 3=competent/manages independently, 4=advanced/complex cases, 5=expert/teaches/leads
+Levels: 0=critical deficiency/unacceptable behavior, 1=novice/recognizes, 2=developing/applies basics, 3=competent/manages independently, 4=advanced/complex cases, 5=expert/teaches/leads
+
+Use Level 0 when the feedback describes behavior that is clearly unacceptable, dangerous, or a critical deficiency (e.g., unprofessional conduct, patient safety violations, repeated tardiness, dishonesty, failure to respond to pages).
 
 Example response:
 [{"subcategoryCode":"PC2","level":3,"reason":"Managing multiple chronic conditions independently"},{"subcategoryCode":"MK2","level":3,"reason":"Integrating clinical data for decisions"},{"subcategoryCode":"ICS1","level":2,"reason":"Building rapport with patients"}]`;
