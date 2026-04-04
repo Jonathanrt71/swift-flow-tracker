@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { format, parseISO } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
-import { List, PieChart, FileText, BookOpen, Pencil, Trash2, X as XIcon, Search } from "lucide-react";
+import { List, PieChart, FileText, BookOpen, Pencil, Trash2, X as XIcon, Search, ExternalLink } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
@@ -26,6 +26,10 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Dialog,
+  DialogContent,
+} from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -126,6 +130,7 @@ const Feedback = () => {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"list" | "summary" | "report" | "milestones">("list");
+  const [viewSubcategoryId, setViewSubcategoryId] = useState<string | null>(null);
 
   // Fetch user IDs with the 'resident' role
   const { data: residentRoles } = useQuery({
@@ -346,6 +351,13 @@ const Feedback = () => {
                               </button>
                             ))}
                           </div>
+                          <button
+                            onClick={() => setViewSubcategoryId(fm.subcategory_id)}
+                            className="text-xs w-full py-1 rounded flex items-center justify-center gap-1"
+                            style={{ background: "#E7EBEF", color: "#415162", border: "none", marginBottom: 4 }}
+                          >
+                            <ExternalLink className="h-3 w-3" /> View levels
+                          </button>
                           <button
                             onClick={() => deleteMilestone(fm.id)}
                             className="text-xs w-full py-1 rounded"
@@ -719,6 +731,71 @@ const Feedback = () => {
         </TabsContent>
         </Tabs>
       </main>
+
+      {/* Milestone level detail dialog */}
+      <Dialog open={!!viewSubcategoryId} onOpenChange={(open) => { if (!open) setViewSubcategoryId(null); }}>
+        <DialogContent
+          className="rounded-lg p-5 max-w-[calc(100vw-2rem)] w-full sm:max-w-md overflow-hidden"
+          style={{ background: "#F5F3EE", border: "1px solid #C9CED4", boxShadow: "0 8px 32px rgba(0,0,0,0.22)" }}
+          overlayClassName="bg-[rgba(65,81,98,0.45)] backdrop-blur-sm"
+        >
+          <div className="overflow-y-auto max-h-[80vh]">
+            {(() => {
+              if (!viewSubcategoryId || !acgmeCategories) return null;
+              let subName = "";
+              let subCode = "";
+              let catColor = "#8A9AAB";
+              let milestones: { level: number; description: string; summary: string | null }[] = [];
+              for (const cat of acgmeCategories) {
+                const sub = cat.subcategories.find(s => s.id === viewSubcategoryId);
+                if (sub) {
+                  subName = sub.name;
+                  subCode = sub.code;
+                  catColor = cat.color;
+                  milestones = sub.milestones.sort((a, b) => a.level - b.level);
+                  break;
+                }
+              }
+              return (
+                <>
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="w-3 h-3 rounded-full" style={{ background: catColor }} />
+                    <span className="text-base font-semibold" style={{ color: "#2D3748" }}>
+                      {subCode}: {subName}
+                    </span>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    {milestones.map(m => (
+                      <div
+                        key={m.level}
+                        className="rounded-lg px-3 py-2.5"
+                        style={{ background: "#E7EBEF", border: "0.5px solid #D5DAE0" }}
+                      >
+                        <div className="flex items-center gap-2 mb-1">
+                          <span
+                            className="text-xs font-semibold px-1.5 py-0.5 rounded"
+                            style={{ background: "#415162", color: "#fff", minWidth: 20, textAlign: "center" }}
+                          >
+                            {m.level}
+                          </span>
+                          {m.summary && (
+                            <span className="text-xs font-medium" style={{ color: "#2D3748" }}>
+                              {m.summary}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs leading-relaxed" style={{ color: "#5F7285", margin: 0 }}>
+                          {m.description}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              );
+            })()}
+          </div>
+        </DialogContent>
+      </Dialog>
 
     </div>
   );
