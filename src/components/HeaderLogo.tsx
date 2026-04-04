@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { CheckSquare, Users, Calendar, BookOpen, MessageSquare, Shield, User, LogOut, BookMarked, Stethoscope, ClipboardList, BookOpenCheck, Home, ShieldCheck, FileText, Megaphone } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { usePermissions } from "@/hooks/usePermissions";
@@ -92,6 +92,7 @@ const HeaderLogo = ({
     };
   }, [menuOpen]);
   const location = useLocation();
+  const navigate = useNavigate();
   const { has: hasPerm } = usePermissions();
   const { settings } = useAppSettings();
   const navImageUrl = settings.nav_image_url || "/yosemite-header.png";
@@ -110,7 +111,7 @@ const HeaderLogo = ({
       setImageOpen(true);
     }, 500);
   }, []);
-  const endLongPress = useCallback(() => { if (longPressTimer.current) { clearTimeout(longPressTimer.current); longPressTimer.current = null; } }, []);
+  const endLongPress = useCallback(() => { if (longPressTimer.current) { clearTimeout(longPressTimer.current); longPressTimer.current = null; navigate("/"); } }, [navigate]);
   const cancelPress = useCallback(() => { if (longPressTimer.current) { clearTimeout(longPressTimer.current); longPressTimer.current = null; } }, []);
   const closeImage = useCallback(() => { if (Date.now() - imageOpenedAt.current < 600) return; setImageOpen(false); }, []);
 
