@@ -224,7 +224,7 @@ const Evaluations = () => {
       );
     }
     return evals;
-  }, [evaluationsQuery.data, filterResident, searchQuery]);
+  }, [evaluationsQuery.data, filterResident, filterStatus, viewedSet, searchQuery]);
 
   // Unviewed count
   const unviewedCount = useMemo(() => {
