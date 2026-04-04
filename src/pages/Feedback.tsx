@@ -785,7 +785,15 @@ const Feedback = () => {
                           )}
                         </div>
                         <p className="text-xs leading-relaxed" style={{ color: "#5F7285", margin: 0 }}>
-                          {m.description}
+                          {m.description.split(/(?<=\.)\s+/).filter(Boolean).length > 1 ? (
+                            <ul style={{ margin: 0, paddingLeft: 16, listStyleType: "disc" }}>
+                              {m.description.split(/(?<=\.)\s+/).filter(s => s.trim()).map((sentence, i) => (
+                                <li key={i} style={{ marginBottom: 2 }}>{sentence}</li>
+                              ))}
+                            </ul>
+                          ) : (
+                            m.description
+                          )}
                         </p>
                       </div>
                     ))}
