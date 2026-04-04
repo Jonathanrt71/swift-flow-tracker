@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, ArrowUp, ArrowDown } from "lucide-react";
+import { Plus, ThumbsUp, ThumbsDown } from "lucide-react";
 import { formatPersonName } from "@/lib/dateFormat";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -125,24 +125,24 @@ const CreateFeedbackDialog = ({ onSubmit, residents }: CreateFeedbackDialogProps
               onClick={() => setSentiment("negative")}
               className="flex-1 flex items-center justify-center py-2.5 rounded-lg transition-opacity"
               style={{
-                background: "#D4A017",
-                border: "2px solid #B0850F",
+                background: "#c44444",
+                border: "2px solid #a33333",
                 opacity: sentiment === null || sentiment === "negative" ? 1 : 0.3,
               }}
             >
-              <ArrowDown className="h-5 w-5" style={{ color: "#FFFFFF" }} />
+              <ThumbsDown className="h-5 w-5" style={{ color: "#FFFFFF" }} />
             </button>
             <button
               type="button"
               onClick={() => setSentiment("positive")}
               className="flex-1 flex items-center justify-center py-2.5 rounded-lg transition-opacity"
               style={{
-                background: "#52657A",
-                border: "2px solid #415162",
+                background: "#4A846C",
+                border: "2px solid #3A6B56",
                 opacity: sentiment === null || sentiment === "positive" ? 1 : 0.3,
               }}
             >
-              <ArrowUp className="h-5 w-5" style={{ color: "#FFFFFF" }} />
+              <ThumbsUp className="h-5 w-5" style={{ color: "#FFFFFF" }} />
             </button>
           </div>
         </div>
