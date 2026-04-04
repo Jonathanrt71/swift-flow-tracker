@@ -20,9 +20,7 @@ const UpdatePrompt = () => {
   if (!visible) return null;
 
   const handleRefresh = () => {
-    const updateSW = (window as any).__pwaUpdate;
-    if (updateSW) updateSW(true);
-    else window.location.reload();
+    window.location.reload();
   };
 
   return (
