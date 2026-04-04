@@ -16,11 +16,14 @@ import { formatPersonName } from "@/lib/dateFormat";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 
+export type GuidanceLevel = "substantial" | "some" | "minimal";
+
 interface CreateFeedbackDialogProps {
   onSubmit: (data: {
     resident_id: string;
     comment: string;
     sentiment: "positive" | "negative";
+    guidance_level: GuidanceLevel;
   }) => void;
   residents: { id: string; first_name: string | null; last_name: string | null; graduation_year?: number | null }[];
 }
@@ -29,6 +32,7 @@ const CreateFeedbackDialog = ({ onSubmit, residents }: CreateFeedbackDialogProps
   const [open, setOpen] = useState(false);
   const [residentId, setResidentId] = useState("");
   const [sentiment, setSentiment] = useState<"positive" | "negative" | null>(null);
+  const [guidanceLevel, setGuidanceLevel] = useState<GuidanceLevel | null>(null);
 
   const editor = useEditor({
     extensions: [StarterKit],
@@ -45,19 +49,21 @@ const CreateFeedbackDialog = ({ onSubmit, residents }: CreateFeedbackDialogProps
     if (isOpen) {
       setResidentId("");
       setSentiment(null);
+      setGuidanceLevel(null);
       editor?.commands.clearContent();
     }
     setOpen(isOpen);
   };
 
   const handleSubmit = () => {
-    if (!residentId || !sentiment || !editor) return;
+    if (!residentId || !sentiment || !guidanceLevel || !editor) return;
     const html = editor.getHTML();
     if (!html || html === "<p></p>" || html.trim() === "") return;
     onSubmit({
       resident_id: residentId,
       comment: html,
       sentiment,
+      guidance_level: guidanceLevel,
     });
     setOpen(false);
   };
@@ -65,6 +71,12 @@ const CreateFeedbackDialog = ({ onSubmit, residents }: CreateFeedbackDialogProps
   const sortedResidents = [...residents].sort((a, b) =>
     formatPersonName(a).localeCompare(formatPersonName(b))
   );
+
+  const guidanceOptions: { value: GuidanceLevel; label: string }[] = [
+    { value: "substantial", label: "Substantial assistance" },
+    { value: "some", label: "Some assistance" },
+    { value: "minimal", label: "Minimal assistance" },
+  ];
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -117,7 +129,7 @@ const CreateFeedbackDialog = ({ onSubmit, residents }: CreateFeedbackDialogProps
           </div>
         </div>
 
-        {/* Sentiment buttons — positive and negative only */}
+        {/* Sentiment buttons */}
         <div className="mb-4">
           <div className="flex gap-3">
             <button
@@ -147,10 +159,35 @@ const CreateFeedbackDialog = ({ onSubmit, residents }: CreateFeedbackDialogProps
           </div>
         </div>
 
+        {/* Guidance level */}
+        <div className="mb-4">
+          <label className="text-xs block mb-1.5" style={{ color: "#5F7285" }}>
+            Level of guidance needed
+          </label>
+          <div className="flex gap-2">
+            {guidanceOptions.map(opt => (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => setGuidanceLevel(opt.value)}
+                className="flex-1 py-2 rounded-lg text-xs font-medium transition-opacity"
+                style={{
+                  background: guidanceLevel === opt.value ? "#415162" : "#E7EBEF",
+                  color: guidanceLevel === opt.value ? "#fff" : "#2D3748",
+                  border: "none",
+                  opacity: guidanceLevel === null || guidanceLevel === opt.value ? 1 : 0.5,
+                }}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* Save */}
         <button
           onClick={handleSubmit}
-          disabled={!residentId || !sentiment}
+          disabled={!residentId || !sentiment || !guidanceLevel}
           className="w-full rounded-lg py-3 text-sm font-medium text-white disabled:opacity-50"
           style={{ background: "#415162" }}
         >

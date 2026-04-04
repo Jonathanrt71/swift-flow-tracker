@@ -28,6 +28,7 @@ export interface Feedback {
   faculty_id: string;
   comment: string;
   sentiment: "positive" | "negative" | "neutral";
+  guidance_level: "substantial" | "some" | "minimal" | null;
   created_at: string;
   competency_category_id: string | null;
   competency_subcategory_id: string | null;
@@ -59,6 +60,7 @@ export function useFeedback() {
       resident_id: string;
       comment: string;
       sentiment: "positive" | "negative";
+      guidance_level?: "substantial" | "some" | "minimal";
       competency_category_id?: string | null;
       competency_subcategory_id?: string | null;
       competency_milestone_id?: string | null;
@@ -68,6 +70,7 @@ export function useFeedback() {
         faculty_id: user!.id,
         comment: input.comment,
         sentiment: input.sentiment,
+        guidance_level: input.guidance_level || null,
         competency_category_id: input.competency_category_id || null,
         competency_subcategory_id: input.competency_subcategory_id || null,
         competency_milestone_id: input.competency_milestone_id || null,

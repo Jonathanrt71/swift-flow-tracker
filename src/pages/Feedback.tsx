@@ -69,6 +69,7 @@ const Feedback = () => {
     resident_id: string;
     comment: string;
     sentiment: "positive" | "negative";
+    guidance_level: "substantial" | "some" | "minimal";
   }) => {
     try {
       const feedbackId = await createFeedback.mutateAsync(data);
@@ -108,7 +109,7 @@ const Feedback = () => {
 
       // Trigger AI in background — don't block the UI
       supabase.functions.invoke("suggest-competency", {
-        body: { comment: plainText, sentiment: data.sentiment, currentLevels },
+        body: { comment: plainText, sentiment: data.sentiment, guidanceLevel: data.guidance_level, currentLevels },
       }).then(({ data: aiData }) => {
         if (aiData?.milestones || aiData?.evalDomains) {
           saveAISuggestions(

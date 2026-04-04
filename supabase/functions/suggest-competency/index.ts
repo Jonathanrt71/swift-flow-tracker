@@ -9,93 +9,110 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
 
   try {
-    const { comment, sentiment, currentLevels } = await req.json();
+    const { comment, sentiment, guidanceLevel, currentLevels } = await req.json();
     if (!comment || typeof comment !== "string" || comment.trim().length < 10) {
-      return new Response(JSON.stringify({ suggestions: [] }), {
+      return new Response(JSON.stringify({ milestones: [], evalDomains: [] }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
+    const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
+    if (!ANTHROPIC_API_KEY) throw new Error("ANTHROPIC_API_KEY is not configured");
 
-    const systemPrompt = `You are an ACGME Family Medicine milestone classifier. Given a faculty feedback comment about a resident, identify the top 3 most relevant subcompetencies and milestone levels.
+    const guidanceCap = guidanceLevel === "substantial"
+      ? "CRITICAL: The faculty reported the resident needed SUBSTANTIAL assistance. This means the milestone level MUST NOT exceed 2, regardless of how complex the task sounds. Substantial assistance = Level 0-2 only."
+      : guidanceLevel === "some"
+      ? "IMPORTANT: The faculty reported the resident needed SOME assistance. This means the milestone level should generally be capped at 3. Some assistance = Level 1-3 typically."
+      : guidanceLevel === "minimal"
+      ? "The faculty reported the resident needed MINIMAL assistance. The resident was largely independent. Levels 3-5 are appropriate based on task complexity."
+      : "No guidance level was provided. Use the comment content to infer the level.";
 
-The resident's current achieved milestone levels are provided below. Your suggested level should generally be at or above the current level unless the feedback describes a significant regression or failure related to that specific sub-competency. If the sentiment is negative and the feedback describes deficiencies in a sub-competency, you may suggest a level below the current achieved level.
+    const systemPrompt = `You are an ACGME Family Medicine milestone classifier and evaluation assistant. Given a faculty feedback comment about a resident and its sentiment (positive or negative), do TWO things:
 
-Current levels: ${currentLevels ? JSON.stringify(currentLevels) : "Not provided — use your best judgment based on the feedback alone."}
-${sentiment ? `Feedback sentiment: ${sentiment}` : ""}
+1. MILESTONE MAPPING: Identify the 1-2 most relevant subcompetencies and milestone levels. Only return 2 if the comment genuinely covers two distinct areas. Do not force a second if the comment only relates to one.
 
-Return ONLY a JSON array with exactly 3 objects, no other text. Each object has:
-- "subcategoryCode": the code like "PC1", "MK2", "PROF3", etc.
-- "level": integer 0-5 for the milestone level
-- "reason": brief 5-8 word explanation
+2. EVALUATION DOMAIN MAPPING: Map the comment to the relevant evaluation domains with a rating.
 
-The subcompetency codes are:
-PC1 (Acutely ill patient), PC2 (Chronic illness), PC3 (Health promotion), PC4 (Undifferentiated patient), PC5 (Procedural skills),
-MK1 (Medical knowledge), MK2 (Clinical reasoning),
-SBP1 (Patient safety & QI), SBP2 (System navigation), SBP3 (Physician role in systems), SBP4 (Advocacy),
-PBLI1 (Evidence-based practice), PBLI2 (Reflective practice),
-PROF1 (Professional behavior), PROF2 (Accountability), PROF3 (Self-awareness),
-ICS1 (Patient/family communication), ICS2 (Team communication), ICS3 (Systems communication)
+Current milestone levels: ${currentLevels ? JSON.stringify(currentLevels) : "Not provided."}
+Feedback sentiment: ${sentiment || "not specified"}
 
-Levels: 0=critical deficiency/unacceptable behavior, 1=novice/recognizes, 2=developing/applies basics, 3=competent/manages independently, 4=advanced/complex cases, 5=expert/teaches/leads
+${guidanceCap}
 
-Use Level 0 when the feedback describes behavior that is clearly unacceptable, dangerous, or a critical deficiency (e.g., unprofessional conduct, patient safety violations, repeated tardiness, dishonesty, failure to respond to pages).
+Return ONLY a JSON object with two arrays, no other text:
 
-Example response:
-[{"subcategoryCode":"PC2","level":3,"reason":"Managing multiple chronic conditions independently"},{"subcategoryCode":"MK2","level":3,"reason":"Integrating clinical data for decisions"},{"subcategoryCode":"ICS1","level":2,"reason":"Building rapport with patients"}]`;
+{
+  "milestones": [
+    {"subcategoryCode": "PC1", "level": 3, "reason": "brief 5-8 word explanation"}
+  ],
+  "evalDomains": [
+    {"domain": "medical_knowledge", "rating": "meets"}
+  ]
+}
 
-    const response = await fetch(
-      "https://ai.gateway.lovable.dev/v1/chat/completions",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${LOVABLE_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: "google/gemini-3-flash-preview",
-          messages: [
-            { role: "system", content: systemPrompt },
-            { role: "user", content: comment },
-          ],
-        }),
-      }
-    );
+MILESTONE RULES:
+- Return 1-2 milestone objects (never 0, never more than 2)
+- subcategoryCode must be one of: PC1, PC2, PC3, PC4, PC5, MK1, MK2, SBP1, SBP2, SBP3, SBP4, PBLI1, PBLI2, PROF1, PROF2, PROF3, ICS1, ICS2, ICS3
+- level is integer 0-5
+- Levels: 0=critical deficiency/unacceptable, 1=novice/recognizes, 2=developing/applies basics, 3=competent/manages independently, 4=advanced/complex cases, 5=expert/teaches/leads
+- Use Level 0 for clearly unacceptable behavior (unprofessional conduct, patient safety violations, repeated tardiness, dishonesty)
+- The guidance level (substantial/some/minimal assistance) is the PRIMARY factor for determining milestone level. Task complexity is secondary. A resident doing a complex task with substantial help is NOT at a high milestone level.
+- If sentiment is positive, level should generally be at or above current level (but still respect the guidance cap)
+- If sentiment is negative, level may be below current level
+
+EVAL DOMAIN RULES:
+- Return 1-3 eval domain objects
+- domain must be one of: direct_patient_care, medical_knowledge, clinical_reasoning, evidence_based, communication, care_transitions, professionalism_flag
+- For domains other than professionalism_flag, rating must be: needs_improvement, meets, exceeds, or na
+- For professionalism_flag, rating must be: none, minor, or significant
+- If the comment has ANY professionalism or patient safety relevance, always include a professionalism_flag entry
+- If sentiment is positive, rating is typically "meets" or "exceeds"
+- If sentiment is negative, rating is typically "needs_improvement"`;
+
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "x-api-key": ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 500,
+        messages: [
+          { role: "user", content: comment },
+        ],
+        system: systemPrompt,
+      }),
+    });
 
     if (!response.ok) {
       const errText = await response.text();
-      console.error("AI gateway error:", response.status, errText);
+      console.error("Anthropic API error:", response.status, errText);
       if (response.status === 429) {
         return new Response(
           JSON.stringify({ error: "Rate limited, try again shortly." }),
           { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
-      if (response.status === 402) {
-        return new Response(
-          JSON.stringify({ error: "AI credits exhausted." }),
-          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-      throw new Error(`AI gateway error [${response.status}]`);
+      throw new Error(`Anthropic API error [${response.status}]`);
     }
 
     const data = await response.json();
-    const text = data.choices?.[0]?.message?.content || "";
+    const text = data.content?.[0]?.text || "";
     const clean = text.replace(/```json|```/g, "").trim();
     const parsed = JSON.parse(clean);
-    const suggestions = Array.isArray(parsed) ? parsed.slice(0, 3) : [];
 
-    return new Response(JSON.stringify({ suggestions }), {
+    const milestones = Array.isArray(parsed.milestones) ? parsed.milestones.slice(0, 2) : [];
+    const evalDomains = Array.isArray(parsed.evalDomains) ? parsed.evalDomains.slice(0, 4) : [];
+
+    return new Response(JSON.stringify({ milestones, evalDomains }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
     const error = e as Error;
     console.error("suggest-competency error:", error);
     return new Response(
-      JSON.stringify({ suggestions: [], error: error.message || "Unknown error" }),
+      JSON.stringify({ milestones: [], evalDomains: [], error: error.message || "Unknown error" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
