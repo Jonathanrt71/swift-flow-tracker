@@ -150,41 +150,54 @@ const HeaderLogo = ({
 
       {/* Navigation dropdown — triggered by page title */}
       {menuOpen && (
-        <>
-          <div className="fixed inset-0 z-[60]" onClick={() => setMenuOpen(false)} onTouchEnd={() => setMenuOpen(false)} />
-          <div ref={menuRef} className="fixed z-[70] shadow-lg" style={{ top: 56, left: 0, background: "#415162", minWidth: 200, maxHeight: "calc(100vh - 56px)", overflowY: "scroll", WebkitOverflowScrolling: "touch", overscrollBehavior: "contain", borderRadius: "0 0 8px 0" }}>
-            <Link to="/" onClick={() => setMenuOpen(false)} className={cn("flex items-center gap-3 px-4 py-2.5 text-sm", location.pathname === "/" ? "text-white bg-white/10" : "text-white/70")}>
-              <Home className="h-4 w-4" /> FM App
-            </Link>
-            <div style={{ height: 0.5, background: "rgba(255,255,255,0.15)" }} />
-            {navSections.map((section, si) => {
-              const items = section.paths.map(p => allNavItems.find(n => n.path === p)).filter((item): item is NavEntry => !!item && (!item.permissionKey || hasPerm(item.permissionKey, "view")));
-              if (!items.length) return null;
-              return (<div key={section.label}>
-                {si > 0 && <div style={{ height: 0.5, background: "rgba(255,255,255,0.15)" }} />}
-                <div style={{ padding: "6px 16px 2px", fontSize: 10, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)" }}>{section.label}</div>
-                {items.map(item => { const I = item.icon; return (
-                  <Link key={item.path} to={item.path} onClick={() => setMenuOpen(false)} className={cn("flex items-center gap-3 px-4 py-2.5 text-sm", location.pathname === item.path ? "text-white bg-white/10" : "text-white/70")}><I className="h-4 w-4" /> {item.label}</Link>
-                ); })}
-              </div>);
-            })}
-            <div style={{ height: 0.5, background: "rgba(255,255,255,0.15)" }} />
-            {isAdmin && (<>
-              <div style={{ padding: "6px 16px 2px", fontSize: 10, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)" }}>Administration</div>
-              <Link to="/admin" onClick={() => setMenuOpen(false)} className={cn("flex items-center gap-3 px-4 py-2.5 text-sm", location.pathname === "/admin" ? "text-white bg-white/10" : "text-white/70")}><Shield className="h-4 w-4" /> Admin</Link>
-            </>)}
-            {onSignOut && (
-              <>
-              <Link to="/profile" onClick={() => setMenuOpen(false)} className={cn("flex items-center gap-3 px-4 py-2.5 text-sm", location.pathname === "/profile" ? "text-white bg-white/10" : "text-white/70")}>
-                <User className="h-4 w-4" /> Profile
+        <div className="fixed inset-0 z-[60]" style={{ top: 56 }} onClick={() => setMenuOpen(false)}>
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              bottom: 0,
+              width: 260,
+              background: "#415162",
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            <div style={{ flex: 1, overflowY: "scroll", WebkitOverflowScrolling: "touch" }}>
+              <Link to="/" onClick={() => setMenuOpen(false)} className={cn("flex items-center gap-3 px-4 py-2.5 text-sm", location.pathname === "/" ? "text-white bg-white/10" : "text-white/70")}>
+                <Home className="h-4 w-4" /> FM App
               </Link>
-              <button onClick={() => { onSignOut(); setMenuOpen(false); }} className="flex items-center gap-3 px-4 py-2.5 text-sm text-white/70 w-full border-none bg-transparent cursor-pointer text-left">
-                <LogOut className="h-4 w-4" /> Log out
-              </button>
-              </>
-            )}
+              <div style={{ height: 0.5, background: "rgba(255,255,255,0.15)" }} />
+              {navSections.map((section, si) => {
+                const items = section.paths.map(p => allNavItems.find(n => n.path === p)).filter((item): item is NavEntry => !!item && (!item.permissionKey || hasPerm(item.permissionKey, "view")));
+                if (!items.length) return null;
+                return (<div key={section.label}>
+                  {si > 0 && <div style={{ height: 0.5, background: "rgba(255,255,255,0.15)" }} />}
+                  <div style={{ padding: "6px 16px 2px", fontSize: 10, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)" }}>{section.label}</div>
+                  {items.map(item => { const I = item.icon; return (
+                    <Link key={item.path} to={item.path} onClick={() => setMenuOpen(false)} className={cn("flex items-center gap-3 px-4 py-2.5 text-sm", location.pathname === item.path ? "text-white bg-white/10" : "text-white/70")}><I className="h-4 w-4" /> {item.label}</Link>
+                  ); })}
+                </div>);
+              })}
+              <div style={{ height: 0.5, background: "rgba(255,255,255,0.15)" }} />
+              {isAdmin && (<>
+                <div style={{ padding: "6px 16px 2px", fontSize: 10, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)" }}>Administration</div>
+                <Link to="/admin" onClick={() => setMenuOpen(false)} className={cn("flex items-center gap-3 px-4 py-2.5 text-sm", location.pathname === "/admin" ? "text-white bg-white/10" : "text-white/70")}><Shield className="h-4 w-4" /> Admin</Link>
+              </>)}
+              {onSignOut && (
+                <>
+                <Link to="/profile" onClick={() => setMenuOpen(false)} className={cn("flex items-center gap-3 px-4 py-2.5 text-sm", location.pathname === "/profile" ? "text-white bg-white/10" : "text-white/70")}>
+                  <User className="h-4 w-4" /> Profile
+                </Link>
+                <button onClick={() => { onSignOut(); setMenuOpen(false); }} className="flex items-center gap-3 px-4 py-2.5 text-sm text-white/70 w-full border-none bg-transparent cursor-pointer text-left">
+                  <LogOut className="h-4 w-4" /> Log out
+                </button>
+                </>
+              )}
+            </div>
           </div>
-        </>
+        </div>
       )}
 
       {/* Long-press image viewer */}
