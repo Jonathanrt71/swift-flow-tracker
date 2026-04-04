@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useEvents, calcNextOccurrence, RECURRENCE_LABELS } from "@/hooks/useEvents";
 import type { ProgramEvent, EventCategory, RecurrencePattern } from "@/hooks/useEvents";
@@ -382,6 +382,20 @@ const GroupedEventList = ({
   onSkipRecurrence: (id: string) => void;
   emptyMessage: string;
 }) => {
+  const currentMonthRef = useRef<HTMLDivElement>(null);
+  const hasScrolled = useRef(false);
+
+  useEffect(() => {
+    if (currentMonthRef.current && !hasScrolled.current) {
+      hasScrolled.current = true;
+      setTimeout(() => {
+        currentMonthRef.current?.scrollIntoView({ behavior: "auto", block: "start" });
+        // Offset for sticky header
+        window.scrollBy(0, -60);
+      }, 100);
+    }
+  });
+
   if (events.length === 0) {
     return (
       <div className="text-center py-12 text-muted-foreground">
@@ -417,7 +431,7 @@ const GroupedEventList = ({
   return (
     <>
       {grouped.map((g) => (
-        <div key={g.month}>
+        <div key={g.month} ref={g.isCurrentMonth ? currentMonthRef : undefined}>
           <div className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider pt-3 pb-1">
             {g.month}
           </div>
