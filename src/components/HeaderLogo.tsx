@@ -132,7 +132,7 @@ const HeaderLogo = ({
       {menuOpen && (
         <>
           <div className="fixed inset-0 z-[60]" onClick={() => setMenuOpen(false)} onTouchEnd={() => setMenuOpen(false)} />
-          <div className="absolute z-[70] shadow-lg overscroll-contain" style={{ top: 46, left: -16, background: "#415162", minWidth: 200, maxHeight: "calc(100vh - 70px)", overflowY: "auto", WebkitOverflowScrolling: "touch", borderRadius: "0 0 8px 8px" }}>
+          <div className="fixed z-[70] shadow-lg overscroll-contain" style={{ top: 56, left: 0, background: "#415162", minWidth: 200, maxHeight: "calc(100vh - 56px)", overflowY: "auto", WebkitOverflowScrolling: "touch", borderRadius: "0 0 8px 0" }}>
             <Link to="/" onClick={() => setMenuOpen(false)} className={cn("flex items-center gap-3 px-4 py-2.5 text-sm", location.pathname === "/" ? "text-white bg-white/10" : "text-white/70")}>
               <Home className="h-4 w-4" /> FM App
             </Link>
