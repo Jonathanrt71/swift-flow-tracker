@@ -114,8 +114,18 @@ const HeaderLogo = ({
   const cancelPress = useCallback(() => { if (longPressTimer.current) { clearTimeout(longPressTimer.current); longPressTimer.current = null; } }, []);
   const closeImage = useCallback(() => { if (Date.now() - imageOpenedAt.current < 600) return; setImageOpen(false); }, []);
 
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [menuLeft, setMenuLeft] = useState(0);
+
+  useEffect(() => {
+    if (menuOpen && containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect();
+      setMenuLeft(rect.left);
+    }
+  }, [menuOpen]);
+
   return (
-    <div className="relative flex items-center gap-2.5" style={{ flex: 1 }}>
+    <div ref={containerRef} className="relative flex items-center gap-2.5" style={{ flex: 1 }}>
       {/* Logo */}
       <button
         onMouseDown={startPress} onMouseUp={endLongPress} onMouseLeave={cancelPress}
@@ -156,7 +166,7 @@ const HeaderLogo = ({
             style={{
               position: "absolute",
               top: 0,
-              left: 0,
+              left: menuLeft,
               bottom: 0,
               width: 260,
               background: "#415162",
