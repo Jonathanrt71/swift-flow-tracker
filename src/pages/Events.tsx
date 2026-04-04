@@ -558,75 +558,80 @@ const Events = () => {
         )}
       </header>
 
-      <main className="container max-w-[1200px] px-4 pt-2 pb-4">
+      <main className="container max-w-[1200px] px-4 pt-0 pb-4">
 
-        {/* Row 1: Category tabs */}
-        <div className="flex items-center" style={{ borderBottom: "1px solid #D5DAE0", marginBottom: 10 }}>
-          <button
-            onClick={() => handleCategoryChange("all")}
-            style={{
-              padding: "6px 0",
-              marginRight: 20,
-              border: "none",
-              borderBottom: activeCategory === "all" ? "2px solid #415162" : "2px solid transparent",
-              cursor: "pointer",
-              fontSize: 13,
-              fontWeight: activeCategory === "all" ? 700 : 500,
-              background: "transparent",
-              color: activeCategory === "all" ? "#415162" : "#8A9AAB",
-              transition: "all 0.15s",
-            }}
-          >
-            All
-          </button>
-          {categories.map((cat) => (
+        {/* Sticky filter bar below header */}
+        <div className="sticky z-30 bg-background" style={{ top: 56 }}>
+
+          {/* Row 1: Category tabs */}
+          <div className="flex items-center" style={{ borderBottom: "1px solid #D5DAE0" }}>
             <button
-              key={cat.name}
-              onClick={() => handleCategoryChange(cat.name)}
+              onClick={() => handleCategoryChange("all")}
               style={{
                 padding: "6px 0",
                 marginRight: 20,
                 border: "none",
-                borderBottom: activeCategory === cat.name ? "2px solid #415162" : "2px solid transparent",
+                borderBottom: activeCategory === "all" ? "2px solid #415162" : "2px solid transparent",
                 cursor: "pointer",
                 fontSize: 13,
-                fontWeight: activeCategory === cat.name ? 700 : 500,
+                fontWeight: activeCategory === "all" ? 700 : 500,
                 background: "transparent",
-                color: activeCategory === cat.name ? "#415162" : "#8A9AAB",
+                color: activeCategory === "all" ? "#415162" : "#8A9AAB",
                 transition: "all 0.15s",
               }}
             >
-              {cat.label}
+              All
             </button>
-          ))}
-        </div>
-
-        {/* Row 2: View toggles + Add button — always visible */}
-        <div className="flex items-center justify-between pb-2.5">
-          <div className="flex items-center gap-0.5">
-            {([
-              { mode: "list" as const, icon: <List className="h-4 w-4" />, label: "List" },
-              { mode: "vertical" as const, icon: <VerticalTimelineIcon />, label: "Timeline" },
-              { mode: "gantt" as const, icon: <GanttIcon />, label: "Gantt" },
-            ] as { mode: "list" | "vertical" | "gantt"; icon: React.ReactNode; label: string }[]).map(({ mode, icon, label }) => (
+            {categories.map((cat) => (
               <button
-                key={mode}
-                onClick={() => setViewMode(mode)}
-                className="flex flex-col items-center gap-0.5 px-2 py-1 rounded-md transition-colors"
-                style={{ background: "transparent" }}
+                key={cat.name}
+                onClick={() => handleCategoryChange(cat.name)}
+                style={{
+                  padding: "6px 0",
+                  marginRight: 20,
+                  border: "none",
+                  borderBottom: activeCategory === cat.name ? "2px solid #415162" : "2px solid transparent",
+                  cursor: "pointer",
+                  fontSize: 13,
+                  fontWeight: activeCategory === cat.name ? 700 : 500,
+                  background: "transparent",
+                  color: activeCategory === cat.name ? "#415162" : "#8A9AAB",
+                  transition: "all 0.15s",
+                }}
               >
-                <span style={{ color: viewMode === mode ? "#415162" : "#8A9AAB" }}>{icon}</span>
-                <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase", color: viewMode === mode ? "#415162" : "#8A9AAB" }}>{label}</span>
+                {cat.label}
               </button>
             ))}
           </div>
 
-          {canEditEvents && (
-            <CreateEventDialog
-              onSubmit={(data) => createEvent.mutate(data)}
-              defaultCategory={activeCategory === "all" ? "program" : activeCategory as EventCategory}
-            />
-          )}
+          {/* Row 2: View toggles + Add button — always visible */}
+          <div className="flex items-center justify-between py-2.5">
+            <div className="flex items-center gap-0.5">
+              {([
+                { mode: "list" as const, icon: <List className="h-4 w-4" />, label: "List" },
+                { mode: "vertical" as const, icon: <VerticalTimelineIcon />, label: "Timeline" },
+                { mode: "gantt" as const, icon: <GanttIcon />, label: "Gantt" },
+              ] as { mode: "list" | "vertical" | "gantt"; icon: React.ReactNode; label: string }[]).map(({ mode, icon, label }) => (
+                <button
+                  key={mode}
+                  onClick={() => setViewMode(mode)}
+                  className="flex flex-col items-center gap-0.5 px-2 py-1 rounded-md transition-colors"
+                  style={{ background: "transparent" }}
+                >
+                  <span style={{ color: viewMode === mode ? "#415162" : "#8A9AAB" }}>{icon}</span>
+                  <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase", color: viewMode === mode ? "#415162" : "#8A9AAB" }}>{label}</span>
+                </button>
+              ))}
+            </div>
+
+            {canEditEvents && (
+              <CreateEventDialog
+                onSubmit={(data) => createEvent.mutate(data)}
+                defaultCategory={activeCategory === "all" ? "program" : activeCategory as EventCategory}
+              />
+            )}
+          </div>
+
         </div>
 
         {/* Gantt label (only in gantt view) */}
