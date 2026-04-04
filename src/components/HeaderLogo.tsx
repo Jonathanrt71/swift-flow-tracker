@@ -120,7 +120,7 @@ const HeaderLogo = ({
   useEffect(() => {
     if (menuOpen && containerRef.current) {
       const rect = containerRef.current.getBoundingClientRect();
-      setMenuLeft(rect.left);
+      setMenuLeft(rect.left - 16);
     }
   }, [menuOpen]);
 
