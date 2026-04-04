@@ -290,8 +290,95 @@ const Feedback = () => {
                   <DetailReadOnly html={fb.comment} />
                 </div>
               )}
-              {/* Competency pill */}
-              {(() => {
+              {/* Milestone pills from junction table */}
+              {fb.feedback_milestones && fb.feedback_milestones.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mb-2">
+                  {fb.feedback_milestones.map((fm) => {
+                    // Find the subcategory info
+                    let code = "";
+                    let catColor = "#8A9AAB";
+                    if (acgmeCategories) {
+                      for (const cat of acgmeCategories) {
+                        const sub = cat.subcategories.find(s => s.id === fm.subcategory_id);
+                        if (sub) {
+                          code = sub.code;
+                          catColor = cat.color;
+                          break;
+                        }
+                      }
+                    }
+                    if (!code) return null;
+                    return (
+                      <div
+                        key={fm.id}
+                        className="inline-flex items-center gap-1.5 rounded-md px-2 py-1"
+                        style={{ background: "#F5F3EE", border: "0.5px solid #D5DAE0" }}
+                      >
+                        <div
+                          className="w-2 h-2 rounded-full shrink-0"
+                          style={{ background: catColor }}
+                        />
+                        <span className="text-xs" style={{ color: "#2D3748" }}>
+                          {code} &gt; L{fm.level}
+                        </span>
+                        {fm.source === "auto" && (
+                          <span className="text-[9px]" style={{ color: "#8A9AAB" }}>AI</span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+              {/* Eval domain pills */}
+              {fb.feedback_eval_domains && fb.feedback_eval_domains.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mb-2">
+                  {fb.feedback_eval_domains.map((ed) => {
+                    const domainLabels: Record<string, string> = {
+                      direct_patient_care: "Patient Care",
+                      medical_knowledge: "Med Knowledge",
+                      clinical_reasoning: "Clinical Reasoning",
+                      evidence_based: "Evidence-Based",
+                      communication: "Communication",
+                      care_transitions: "Care Transitions",
+                      professionalism_flag: "Professionalism",
+                    };
+                    const ratingLabels: Record<string, string> = {
+                      needs_improvement: "Needs Improvement",
+                      meets: "Meets",
+                      exceeds: "Exceeds",
+                      na: "N/A",
+                      none: "No Concerns",
+                      minor: "Minor Concern",
+                      significant: "Significant",
+                    };
+                    const ratingColors: Record<string, string> = {
+                      needs_improvement: "#D4A017",
+                      meets: "#4A846C",
+                      exceeds: "#52657A",
+                      na: "#8A9AAB",
+                      none: "#4A846C",
+                      minor: "#D4A017",
+                      significant: "#c44444",
+                    };
+                    return (
+                      <div
+                        key={ed.id}
+                        className="inline-flex items-center gap-1.5 rounded-md px-2 py-1"
+                        style={{ background: "#F5F3EE", border: "0.5px solid #D5DAE0" }}
+                      >
+                        <span className="text-[10px] font-medium" style={{ color: ratingColors[ed.rating] || "#8A9AAB" }}>
+                          {domainLabels[ed.domain] || ed.domain}: {ratingLabels[ed.rating] || ed.rating}
+                        </span>
+                        {ed.source === "auto" && (
+                          <span className="text-[9px]" style={{ color: "#8A9AAB" }}>AI</span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+              {/* Legacy competency pill (for old feedback entries) */}
+              {(!fb.feedback_milestones || fb.feedback_milestones.length === 0) && (() => {
                 const sel = buildSelectionFromFeedback(
                   acgmeCategories || [],
                   fb.competency_category_id,
