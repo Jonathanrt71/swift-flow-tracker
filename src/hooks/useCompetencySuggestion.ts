@@ -1,43 +1,58 @@
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
-export interface CompetencySuggestion {
+export interface MilestoneSuggestion {
   subcategoryCode: string;
   level: number;
   reason: string;
 }
 
+export interface EvalDomainSuggestion {
+  domain: string;
+  rating: string;
+}
+
+// Keep backward compat alias
+export type CompetencySuggestion = MilestoneSuggestion;
+
 export function useCompetencySuggestion() {
-  const [suggestions, setSuggestions] = useState<CompetencySuggestion[]>([]);
+  const [suggestions, setSuggestions] = useState<MilestoneSuggestion[]>([]);
+  const [evalDomains, setEvalDomains] = useState<EvalDomainSuggestion[]>([]);
   const [loading, setLoading] = useState(false);
 
   const suggest = async (
     comment: string,
-    sentiment?: "positive" | "negative" | "neutral",
+    sentiment?: "positive" | "negative",
     pgyLevel?: number,
     competencyData?: any[],
     currentLevels?: Record<string, number>,
   ) => {
     if (!comment || comment.trim().length < 10) {
       setSuggestions([]);
+      setEvalDomains([]);
       return;
     }
 
     setLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke("suggest-competency", {
-        body: { comment, sentiment, pgyLevel, competencies: competencyData, currentLevels },
+        body: { comment, sentiment, currentLevels },
       });
 
       if (error) throw error;
 
-      let results: CompetencySuggestion[] = [];
-      if (data?.suggestions && Array.isArray(data.suggestions)) {
-        results = data.suggestions.slice(0, 3);
+      let milestones: MilestoneSuggestion[] = [];
+      if (data?.milestones && Array.isArray(data.milestones)) {
+        milestones = data.milestones.slice(0, 2);
+      }
+
+      let domains: EvalDomainSuggestion[] = [];
+      if (data?.evalDomains && Array.isArray(data.evalDomains)) {
+        domains = data.evalDomains.slice(0, 4);
       }
 
       // Hard-clamp AI suggestions to PGY max level
-      if (pgyLevel && results.length > 0) {
+      if (pgyLevel && milestones.length > 0) {
         try {
           const { data: settingsData } = await (supabase as any)
             .from("app_settings")
@@ -48,7 +63,7 @@ export function useCompetencySuggestion() {
           if (settingsData?.value) {
             const maxLevel = parseInt(settingsData.value, 10);
             if (!isNaN(maxLevel)) {
-              results = results.map((s) => ({
+              milestones = milestones.map((s) => ({
                 ...s,
                 level: Math.min(s.level, maxLevel),
               }));
@@ -59,16 +74,21 @@ export function useCompetencySuggestion() {
         }
       }
 
-      setSuggestions(results);
+      setSuggestions(milestones);
+      setEvalDomains(domains);
     } catch (err) {
       console.error("Competency suggestion error:", err);
       setSuggestions([]);
+      setEvalDomains([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const clearSuggestions = () => setSuggestions([]);
+  const clearSuggestions = () => {
+    setSuggestions([]);
+    setEvalDomains([]);
+  };
 
-  return { suggestions, loading, suggest, clearSuggestions };
+  return { suggestions, evalDomains, loading, suggest, clearSuggestions };
 }
