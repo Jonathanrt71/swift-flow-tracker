@@ -177,7 +177,7 @@ const EventsGantt = ({ events }: EventsGanttProps) => {
               }}
             >
               <div
-                className="shrink-0 px-2 sticky left-0 z-10"
+                className="shrink-0 px-2 sticky left-0 z-10 cursor-pointer"
                 style={{
                   width: labelWidth,
                   fontSize: isMobile ? 11 : 13,
@@ -189,6 +189,20 @@ const EventsGantt = ({ events }: EventsGanttProps) => {
                   whiteSpace: "nowrap",
                 }}
                 title={row.title}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  const containerRect = containerRef.current?.getBoundingClientRect();
+                  if (!containerRect) return;
+                  setTooltip({
+                    title: row.title,
+                    dateStr: row.occurrences.map(o => formatOccurrenceDate(o)).join(", "),
+                    x: rect.left - containerRect.left + rect.width / 2,
+                    y: rect.top - containerRect.top - 8,
+                  });
+                  if (tooltipTimer.current) clearTimeout(tooltipTimer.current);
+                  tooltipTimer.current = setTimeout(() => setTooltip(null), 3000);
+                }}
               >
                 {truncateLabel(row.title)}
               </div>
