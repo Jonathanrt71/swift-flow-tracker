@@ -168,5 +168,53 @@ export function useFeedback() {
     },
   });
 
-  return { feedbackQuery, createFeedback, updateFeedback, deleteFeedback, saveAISuggestions };
+  const updateMilestone = async (milestoneId: string, updates: { level?: number; subcategory_id?: string }) => {
+    try {
+      await (supabase as any)
+        .from("feedback_milestones")
+        .update({ ...updates, source: "manual" })
+        .eq("id", milestoneId);
+      queryClient.invalidateQueries({ queryKey: ["feedback"] });
+    } catch (err) {
+      console.error("Failed to update milestone:", err);
+    }
+  };
+
+  const deleteMilestone = async (milestoneId: string) => {
+    try {
+      await (supabase as any)
+        .from("feedback_milestones")
+        .delete()
+        .eq("id", milestoneId);
+      queryClient.invalidateQueries({ queryKey: ["feedback"] });
+    } catch (err) {
+      console.error("Failed to delete milestone:", err);
+    }
+  };
+
+  const updateEvalDomain = async (evalDomainId: string, updates: { rating?: string }) => {
+    try {
+      await (supabase as any)
+        .from("feedback_eval_domains")
+        .update({ ...updates, source: "manual" })
+        .eq("id", evalDomainId);
+      queryClient.invalidateQueries({ queryKey: ["feedback"] });
+    } catch (err) {
+      console.error("Failed to update eval domain:", err);
+    }
+  };
+
+  const deleteEvalDomain = async (evalDomainId: string) => {
+    try {
+      await (supabase as any)
+        .from("feedback_eval_domains")
+        .delete()
+        .eq("id", evalDomainId);
+      queryClient.invalidateQueries({ queryKey: ["feedback"] });
+    } catch (err) {
+      console.error("Failed to delete eval domain:", err);
+    }
+  };
+
+  return { feedbackQuery, createFeedback, updateFeedback, deleteFeedback, saveAISuggestions, updateMilestone, deleteMilestone, updateEvalDomain, deleteEvalDomain };
 }

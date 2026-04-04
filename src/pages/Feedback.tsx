@@ -45,7 +45,7 @@ const Feedback = () => {
   const canEditFeedback = hasPerm("feedback.edit");
   const canGenerateReport = hasPerm("feedback.report");
   const { data: teamMembers } = useTeamMembers();
-  const { feedbackQuery, createFeedback, updateFeedback, deleteFeedback, saveAISuggestions } = useFeedback();
+  const { feedbackQuery, createFeedback, updateFeedback, deleteFeedback, saveAISuggestions, updateMilestone, deleteMilestone, updateEvalDomain, deleteEvalDomain } = useFeedback();
   const { data: acgmeCategories } = useACGMECompetencies();
 
   // Build subcategory code -> UUID lookup for AI suggestion saving
@@ -294,7 +294,6 @@ const Feedback = () => {
               {fb.feedback_milestones && fb.feedback_milestones.length > 0 && (
                 <div className="flex flex-wrap gap-1.5 mb-2">
                   {fb.feedback_milestones.map((fm) => {
-                    // Find the subcategory info
                     let code = "";
                     let catColor = "#8A9AAB";
                     if (acgmeCategories) {
@@ -309,22 +308,53 @@ const Feedback = () => {
                     }
                     if (!code) return null;
                     return (
-                      <div
-                        key={fm.id}
-                        className="inline-flex items-center gap-1.5 rounded-md px-2 py-1"
-                        style={{ background: "#F5F3EE", border: "0.5px solid #D5DAE0" }}
-                      >
-                        <div
-                          className="w-2 h-2 rounded-full shrink-0"
-                          style={{ background: catColor }}
-                        />
-                        <span className="text-xs" style={{ color: "#2D3748" }}>
-                          {code} &gt; L{fm.level}
-                        </span>
-                        {fm.source === "auto" && (
-                          <span className="text-[9px]" style={{ color: "#8A9AAB" }}>AI</span>
-                        )}
-                      </div>
+                      <Popover key={fm.id}>
+                        <PopoverTrigger asChild>
+                          <button
+                            className="inline-flex items-center gap-1.5 rounded-md px-2 py-1"
+                            style={{ background: "#F5F3EE", border: "0.5px solid #D5DAE0" }}
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <div className="w-2 h-2 rounded-full shrink-0" style={{ background: catColor }} />
+                            <span className="text-xs" style={{ color: "#2D3748" }}>
+                              {code} &gt; L{fm.level}
+                            </span>
+                            {fm.source === "auto" && (
+                              <span className="text-[9px]" style={{ color: "#8A9AAB" }}>AI</span>
+                            )}
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent
+                          className="w-auto p-2"
+                          style={{ background: "#F5F3EE", border: "1px solid #C9CED4", boxShadow: "0 8px 32px rgba(0,0,0,0.22)" }}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <div className="text-xs font-medium mb-2" style={{ color: "#2D3748" }}>{code} — Level</div>
+                          <div className="flex gap-1 mb-2">
+                            {[0, 1, 2, 3, 4, 5].map(lvl => (
+                              <button
+                                key={lvl}
+                                onClick={() => updateMilestone(fm.id, { level: lvl })}
+                                className="w-7 h-7 rounded text-xs font-medium"
+                                style={{
+                                  background: fm.level === lvl ? "#415162" : "#E7EBEF",
+                                  color: fm.level === lvl ? "#fff" : "#2D3748",
+                                  border: "none",
+                                }}
+                              >
+                                {lvl}
+                              </button>
+                            ))}
+                          </div>
+                          <button
+                            onClick={() => deleteMilestone(fm.id)}
+                            className="text-xs w-full py-1 rounded"
+                            style={{ background: "transparent", color: "#c44444", border: "none" }}
+                          >
+                            Remove
+                          </button>
+                        </PopoverContent>
+                      </Popover>
                     );
                   })}
                 </div>
@@ -342,37 +372,65 @@ const Feedback = () => {
                       care_transitions: "Care Transitions",
                       professionalism_flag: "Professionalism",
                     };
+                    const isProfFlag = ed.domain === "professionalism_flag";
+                    const ratingOptions = isProfFlag
+                      ? [{ value: "none", label: "No Concerns" }, { value: "minor", label: "Minor" }, { value: "significant", label: "Significant" }]
+                      : [{ value: "needs_improvement", label: "Needs Improvement" }, { value: "meets", label: "Meets" }, { value: "exceeds", label: "Exceeds" }, { value: "na", label: "N/A" }];
                     const ratingLabels: Record<string, string> = {
-                      needs_improvement: "Needs Improvement",
-                      meets: "Meets",
-                      exceeds: "Exceeds",
-                      na: "N/A",
-                      none: "No Concerns",
-                      minor: "Minor Concern",
-                      significant: "Significant",
+                      needs_improvement: "Needs Improvement", meets: "Meets", exceeds: "Exceeds", na: "N/A",
+                      none: "No Concerns", minor: "Minor", significant: "Significant",
                     };
                     const ratingColors: Record<string, string> = {
-                      needs_improvement: "#D4A017",
-                      meets: "#4A846C",
-                      exceeds: "#52657A",
-                      na: "#8A9AAB",
-                      none: "#4A846C",
-                      minor: "#D4A017",
-                      significant: "#c44444",
+                      needs_improvement: "#D4A017", meets: "#4A846C", exceeds: "#52657A", na: "#8A9AAB",
+                      none: "#4A846C", minor: "#D4A017", significant: "#c44444",
                     };
                     return (
-                      <div
-                        key={ed.id}
-                        className="inline-flex items-center gap-1.5 rounded-md px-2 py-1"
-                        style={{ background: "#F5F3EE", border: "0.5px solid #D5DAE0" }}
-                      >
-                        <span className="text-[10px] font-medium" style={{ color: ratingColors[ed.rating] || "#8A9AAB" }}>
-                          {domainLabels[ed.domain] || ed.domain}: {ratingLabels[ed.rating] || ed.rating}
-                        </span>
-                        {ed.source === "auto" && (
-                          <span className="text-[9px]" style={{ color: "#8A9AAB" }}>AI</span>
-                        )}
-                      </div>
+                      <Popover key={ed.id}>
+                        <PopoverTrigger asChild>
+                          <button
+                            className="inline-flex items-center gap-1.5 rounded-md px-2 py-1"
+                            style={{ background: "#F5F3EE", border: "0.5px solid #D5DAE0" }}
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <span className="text-[10px] font-medium" style={{ color: ratingColors[ed.rating] || "#8A9AAB" }}>
+                              {domainLabels[ed.domain] || ed.domain}: {ratingLabels[ed.rating] || ed.rating}
+                            </span>
+                            {ed.source === "auto" && (
+                              <span className="text-[9px]" style={{ color: "#8A9AAB" }}>AI</span>
+                            )}
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent
+                          className="w-auto p-2"
+                          style={{ background: "#F5F3EE", border: "1px solid #C9CED4", boxShadow: "0 8px 32px rgba(0,0,0,0.22)" }}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <div className="text-xs font-medium mb-2" style={{ color: "#2D3748" }}>{domainLabels[ed.domain] || ed.domain}</div>
+                          <div className="flex flex-col gap-1 mb-2">
+                            {ratingOptions.map(opt => (
+                              <button
+                                key={opt.value}
+                                onClick={() => updateEvalDomain(ed.id, { rating: opt.value })}
+                                className="text-xs px-2 py-1 rounded text-left"
+                                style={{
+                                  background: ed.rating === opt.value ? "#415162" : "#E7EBEF",
+                                  color: ed.rating === opt.value ? "#fff" : "#2D3748",
+                                  border: "none",
+                                }}
+                              >
+                                {opt.label}
+                              </button>
+                            ))}
+                          </div>
+                          <button
+                            onClick={() => deleteEvalDomain(ed.id)}
+                            className="text-xs w-full py-1 rounded"
+                            style={{ background: "transparent", color: "#c44444", border: "none" }}
+                          >
+                            Remove
+                          </button>
+                        </PopoverContent>
+                      </Popover>
                     );
                   })}
                 </div>
