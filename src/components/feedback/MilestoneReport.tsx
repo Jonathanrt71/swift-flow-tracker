@@ -417,8 +417,7 @@ const MilestoneReport = () => {
                 generating ||
                 !selectedResident ||
                 !startDate ||
-                !endDate ||
-                filteredFeedback.length === 0
+                !endDate
               }
               className="rounded-lg px-5 py-2 text-sm font-medium text-white flex items-center gap-2"
               style={{
@@ -426,16 +425,14 @@ const MilestoneReport = () => {
                   generating ||
                   !selectedResident ||
                   !startDate ||
-                  !endDate ||
-                  filteredFeedback.length === 0
+                  !endDate
                     ? "#A0AEC0"
                     : "#415162",
                 cursor:
                   generating ||
                   !selectedResident ||
                   !startDate ||
-                  !endDate ||
-                  filteredFeedback.length === 0
+                  !endDate
                     ? "default"
                     : "pointer",
               }}
