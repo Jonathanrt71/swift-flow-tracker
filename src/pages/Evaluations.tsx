@@ -309,35 +309,24 @@ const Evaluations = () => {
     setImporting(true);
 
     try {
-      // Try to match resident names to profiles
+      // Try to match resident names to profiles via ni_names
       const { data: profiles } = await (supabase as any)
         .from("profiles")
-        .select("id, first_name, last_name");
+        .select("id, first_name, last_name, ni_names");
 
-      const profileMap = new Map<string, string>();
-      (profiles || []).forEach((p: any) => {
-        const lastFirst = `${p.last_name}, ${p.first_name}`.toLowerCase().trim();
-        profileMap.set(lastFirst, p.id);
-        // Also try without extra spaces
-        const normalized = lastFirst.replace(/\s+/g, " ");
-        profileMap.set(normalized, p.id);
-      });
-
-      const matchResident = (name: string): string | null => {
+      const matchByNiNames = (name: string): string | null => {
         const n = name.toLowerCase().trim().replace(/\s+/g, " ");
-        for (const [key, id] of profileMap) {
-          if (n.startsWith(key) || key.startsWith(n)) return id;
+        for (const p of (profiles || [])) {
+          const niNames = (p.ni_names || "").split(";").map((s: string) => s.toLowerCase().trim()).filter(Boolean);
+          for (const ni of niNames) {
+            if (ni === n || n.startsWith(ni) || ni.startsWith(n)) return p.id;
+          }
         }
         return null;
       };
 
-      const matchEvaluator = (name: string): string | null => {
-        const n = name.toLowerCase().trim().replace(/\s+/g, " ");
-        for (const [key, id] of profileMap) {
-          if (n === key || n.startsWith(key) || key.startsWith(n)) return id;
-        }
-        return null;
-      };
+      const matchResident = (name: string): string | null => matchByNiNames(name);
+      const matchEvaluator = (name: string): string | null => matchByNiNames(name);
 
       const records = importPreview.map(row => ({
         ...row,
