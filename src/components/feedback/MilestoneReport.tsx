@@ -233,7 +233,7 @@ const MilestoneReport = () => {
             categoryName: cat.name,
             categoryColor: cat.color,
             milestones: sub.milestones,
-            selectedLevel: suggestion ? suggestion.suggested_level : 0,
+            selectedLevel: suggestion ? suggestion.suggested_level : -1,
             comment: suggestion?.suggested_comment || "",
             finalized: false,
             feedbackCount: fbForSub.length,
@@ -561,11 +561,16 @@ const SubCompetencyCard = ({
   onFinalize,
   onEdit,
 }: SubCompetencyCardProps) => {
-  const selectedMilestone = item.milestones.find(
-    (m) => m.level === Math.floor(item.selectedLevel)
-  );
+  const selectedMilestone = item.selectedLevel >= 1
+    ? item.milestones.find((m) => m.level === Math.floor(item.selectedLevel))
+    : null;
 
-  const levels = [1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0];
+  const levels = [-1, 0, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0];
+  const levelLabel = (l: number) => {
+    if (l === -1) return "NA";
+    if (l % 1 === 0) return l.toFixed(0);
+    return l.toFixed(1);
+  };
 
   return (
     <div
@@ -627,12 +632,12 @@ const SubCompetencyCard = ({
                   <div style={{ width: 6, height: 6 }} />
                 )}
                 <button
-                  title={`Level ${level}`}
+                  title={level === -1 ? "Unassessed" : `Level ${level}`}
                   disabled={item.finalized}
                   onClick={() => onLevelChange(level)}
                   className="rounded text-xs font-medium flex items-center justify-center transition-colors"
                   style={{
-                    width: 32,
+                    width: level === -1 ? 28 : 32,
                     height: 28,
                     background: isSelected ? "#415162" : "#F5F3EE",
                     color: isSelected ? "white" : "#5F7285",
@@ -641,9 +646,10 @@ const SubCompetencyCard = ({
                       : "1px solid #C9CED4",
                     opacity: item.finalized ? 0.7 : 1,
                     cursor: item.finalized ? "default" : "pointer",
+                    fontSize: level === -1 ? 10 : 12,
                   }}
                 >
-                  {level % 1 === 0 ? level.toFixed(0) : level.toFixed(1)}
+                  {levelLabel(level)}
                 </button>
               </div>
             );
