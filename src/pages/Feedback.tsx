@@ -159,6 +159,20 @@ const Feedback = () => {
     },
   });
 
+  // Official milestone levels for showing dots
+  const { data: officialLevels } = useQuery({
+    queryKey: ["official-milestone-levels"],
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from("milestone_levels")
+        .select("resident_id, subcategory_id, level");
+      if (error) throw error;
+      const map = new Map<string, number>();
+      (data || []).forEach((m: any) => map.set(`${m.resident_id}::${m.subcategory_id}`, m.level));
+      return map;
+    },
+  });
+
   const members = teamMembers || [];
   const residentIds = new Set(residentRoles || []);
   const residents = members
@@ -336,19 +350,31 @@ const Feedback = () => {
                         >
                           <div className="text-xs font-medium mb-2" style={{ color: "#2D3748" }}>{code} — Level</div>
                           <div className="flex gap-1 mb-2">
-                            {[0, 1, 2, 3, 4, 5].map(lvl => (
-                              <button
-                                key={lvl}
-                                onClick={() => updateMilestone(fm.id, { level: lvl })}
-                                className="w-7 h-7 rounded text-xs font-medium"
-                                style={{
-                                  background: fm.level === lvl ? "#415162" : "#E7EBEF",
-                                  color: fm.level === lvl ? "#fff" : "#2D3748",
-                                  border: "none",
-                                }}
-                              >
-                                {lvl}
-                              </button>
+                            {[0, 1, 2, 3, 4, 5].map(lvl => {
+                              const officialKey = `${fb.resident_id}::${fm.subcategory_id}`;
+                              const officialLvl = officialLevels?.get(officialKey);
+                              const isOfficial = officialLvl != null && Math.round(officialLvl) === lvl;
+                              return (
+                                <div key={lvl} className="flex flex-col items-center gap-0.5">
+                                  {isOfficial ? (
+                                    <div className="w-1.5 h-1.5 rounded-full" style={{ background: "#378ADD" }} />
+                                  ) : (
+                                    <div className="w-1.5 h-1.5" />
+                                  )}
+                                  <button
+                                    onClick={() => updateMilestone(fm.id, { level: lvl })}
+                                    className="w-7 h-7 rounded text-xs font-medium"
+                                    style={{
+                                      background: fm.level === lvl ? "#415162" : "#E7EBEF",
+                                      color: fm.level === lvl ? "#fff" : "#2D3748",
+                                      border: "none",
+                                    }}
+                                  >
+                                    {lvl}
+                                  </button>
+                                </div>
+                              );
+                            })}
                             ))}
                           </div>
                           <button

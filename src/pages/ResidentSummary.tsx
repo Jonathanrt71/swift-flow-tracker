@@ -395,7 +395,7 @@ const ResidentSummary = () => {
               <div style={secStyle}>
                 <div style={secTitle}>Procedure highlights</div>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 8 }}>
-                  {procCounts.slice(0, 6).map(([proc, count], i) => {
+                  {procCounts.map(([proc, count], i) => {
                     const c = pillColors[i % pillColors.length];
                     return (
                       <span key={proc} style={{ display: "inline-block", fontSize: 11, fontWeight: 500, borderRadius: 4, padding: "2px 8px", background: c.bg, color: c.fg }}>
@@ -403,11 +403,6 @@ const ResidentSummary = () => {
                       </span>
                     );
                   })}
-                  {procCounts.length > 6 && (
-                    <span style={{ display: "inline-block", fontSize: 11, fontWeight: 500, borderRadius: 4, padding: "2px 8px", background: "#E7EBEF", color: "#5F7285" }}>
-                      + {procCounts.length - 6} more
-                    </span>
-                  )}
                 </div>
                 <div style={{ fontSize: 12, color: "#8A9AAB" }}>
                   {procsList.length} total: {procPerform} performed, {procAssist} assisted, {procObserve} observed
