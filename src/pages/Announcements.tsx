@@ -16,7 +16,7 @@ import {
   type AnnouncementAudience,
 } from "@/hooks/useAnnouncements";
 import { formatDistanceToNow } from "date-fns";
-import { Plus, Pin, ThumbsUp, MessageSquare, X, ChevronDown, ChevronUp, Mail } from "lucide-react";
+import { Plus, Pin, ThumbsUp, MessageSquare, X, ChevronDown, ChevronUp, Mail, Bold, Italic, List, ListOrdered, Link2, Type } from "lucide-react";
 import NotificationBell from "@/components/NotificationBell";
 import HeaderLogo from "@/components/HeaderLogo";
 import { useEditor, EditorContent } from "@tiptap/react";
@@ -321,6 +321,7 @@ const ComposeDialog = ({ onClose, onSubmit, isPending }: {
   const [category, setCategory] = useState<AnnouncementCategory>("general");
   const [audience, setAudience] = useState<AnnouncementAudience>("all");
   const [pinned, setPinned] = useState(false);
+  const [showToolbar, setShowToolbar] = useState(false);
 
   const editor = useEditor({
     extensions: [
@@ -381,8 +382,56 @@ const ComposeDialog = ({ onClose, onSubmit, isPending }: {
             </div>
           </div>
           <div>
-            <label style={labelStyle}>Message</label>
-            <div style={{ ...inputStyle, padding: 0, minHeight: 120, overflow: "hidden" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
+              <label style={labelStyle}>Message</label>
+              <button
+                type="button"
+                onClick={() => setShowToolbar(!showToolbar)}
+                style={{
+                  background: "transparent", border: "none", cursor: "pointer", padding: 2,
+                  color: showToolbar ? "#415162" : "#8A9AAB",
+                }}
+              >
+                <Type style={{ width: 14, height: 14 }} />
+              </button>
+            </div>
+            <div style={{ ...inputStyle, padding: 0, overflow: "hidden" }}>
+              {showToolbar && editor && (
+                <div style={{
+                  display: "flex", gap: 2, padding: "4px 6px",
+                  borderBottom: "1px solid #C9CED4", background: "#F5F3EE",
+                }}>
+                  {([
+                    { icon: <Bold style={{ width: 14, height: 14 }} />, action: () => editor.chain().focus().toggleBold().run(), active: editor.isActive("bold") },
+                    { icon: <Italic style={{ width: 14, height: 14 }} />, action: () => editor.chain().focus().toggleItalic().run(), active: editor.isActive("italic") },
+                    { icon: <List style={{ width: 14, height: 14 }} />, action: () => editor.chain().focus().toggleBulletList().run(), active: editor.isActive("bulletList") },
+                    { icon: <ListOrdered style={{ width: 14, height: 14 }} />, action: () => editor.chain().focus().toggleOrderedList().run(), active: editor.isActive("orderedList") },
+                    { icon: <Link2 style={{ width: 14, height: 14 }} />, action: () => {
+                      if (editor.isActive("link")) {
+                        editor.chain().focus().unsetLink().run();
+                      } else {
+                        const url = prompt("URL:");
+                        if (url) editor.chain().focus().setLink({ href: url }).run();
+                      }
+                    }, active: editor.isActive("link") },
+                  ]).map((btn, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={btn.action}
+                      style={{
+                        width: 28, height: 28, display: "flex", alignItems: "center", justifyContent: "center",
+                        borderRadius: 4, border: "none", cursor: "pointer",
+                        background: btn.active ? "#415162" : "transparent",
+                        color: btn.active ? "#fff" : "#5F7285",
+                      }}
+                    >
+                      {btn.icon}
+                    </button>
+                  ))}
+                </div>
+              )}
               {editor && <EditorContent editor={editor} />}
             </div>
           </div>
