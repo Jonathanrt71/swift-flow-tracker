@@ -1,5 +1,5 @@
-const FeedbackPie = ({ positive, negative, neutral = 0 }: { positive: number; negative: number; neutral?: number }) => {
-  const total = positive + negative + neutral;
+const FeedbackPie = ({ positive, negative }: { positive: number; negative: number; neutral?: number }) => {
+  const total = positive + negative;
 
   if (total === 0) {
     return (
@@ -12,7 +12,7 @@ const FeedbackPie = ({ positive, negative, neutral = 0 }: { positive: number; ne
   if (total === positive) {
     return (
       <svg width="28" height="28" viewBox="0 0 28 28">
-        <circle cx="14" cy="14" r="14" fill="#52657A" />
+        <circle cx="14" cy="14" r="14" fill="#4A846C" />
       </svg>
     );
   }
@@ -20,15 +20,7 @@ const FeedbackPie = ({ positive, negative, neutral = 0 }: { positive: number; ne
   if (total === negative) {
     return (
       <svg width="28" height="28" viewBox="0 0 28 28">
-        <circle cx="14" cy="14" r="14" fill="#D4A017" />
-      </svg>
-    );
-  }
-
-  if (total === neutral) {
-    return (
-      <svg width="28" height="28" viewBox="0 0 28 28">
-        <circle cx="14" cy="14" r="14" fill="#4A846C" />
+        <circle cx="14" cy="14" r="14" fill="#c44444" />
       </svg>
     );
   }
@@ -41,13 +33,11 @@ const FeedbackPie = ({ positive, negative, neutral = 0 }: { positive: number; ne
   });
 
   const negAngle = (negative / total) * 360;
-  const neuAngle = (neutral / total) * 360;
   const posAngle = (positive / total) * 360;
 
   const slices = [
-    { color: "#D4A017", start: 0, sweep: negAngle },
-    { color: "#4A846C", start: negAngle, sweep: neuAngle },
-    { color: "#52657A", start: negAngle + neuAngle, sweep: posAngle },
+    { color: "#c44444", start: 0, sweep: negAngle },
+    { color: "#4A846C", start: negAngle, sweep: posAngle },
   ].filter(s => s.sweep > 0);
 
   const arc = (start: number, sweep: number) => {

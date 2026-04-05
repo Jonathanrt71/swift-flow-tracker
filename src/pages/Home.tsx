@@ -16,7 +16,6 @@ import {
   ClipboardCheck,
   ThumbsUp,
   ThumbsDown,
-  Minus,
   ChevronRight,
   Clock,
   AlertTriangle,
@@ -68,8 +67,7 @@ function daysUntil(d: string) {
 
 const SENTIMENT_CONFIG: Record<string, { label: string; color: string; bg: string; icon: typeof ThumbsUp }> = {
   positive: { label: "Positive", color: "#4A846C", bg: "#E4F0EB", icon: ThumbsUp },
-  neutral:  { label: "Neutral",  color: "#52657A", bg: "#D6DEE6", icon: Minus },
-  negative: { label: "Needs Improvement", color: "#D4A017", bg: "#FBF3E0", icon: ThumbsDown },
+  negative: { label: "Needs Improvement", color: "#c44444", bg: "#FCEBEB", icon: ThumbsDown },
 };
 
 // ─── Custom Tooltip ──────────────────────────────────────────────────────────
@@ -128,7 +126,7 @@ const Home = () => {
 
   // Feedback distribution
   const feedbackList = feedbackQuery.data || [];
-  const sentimentCounts = { positive: 0, neutral: 0, negative: 0 };
+  const sentimentCounts = { positive: 0, negative: 0 };
   feedbackList.forEach((f) => {
     if (f.sentiment in sentimentCounts) sentimentCounts[f.sentiment as keyof typeof sentimentCounts]++;
   });

@@ -194,12 +194,11 @@ const Feedback = () => {
 
   // Summary data
   const residentSummary = useMemo(() => {
-    const map = new Map<string, { positive: number; negative: number; neutral: number }>();
+    const map = new Map<string, { positive: number; negative: number }>();
     myFeedback.forEach((fb) => {
-      if (!map.has(fb.resident_id)) map.set(fb.resident_id, { positive: 0, negative: 0, neutral: 0 });
+      if (!map.has(fb.resident_id)) map.set(fb.resident_id, { positive: 0, negative: 0 });
       const entry = map.get(fb.resident_id)!;
       if (fb.sentiment === "positive") entry.positive++;
-      else if (fb.sentiment === "neutral") entry.neutral++;
       else entry.negative++;
     });
     return Array.from(map.entries())
@@ -261,7 +260,7 @@ const Feedback = () => {
       const dateInfo = formatCardDate(fb.created_at);
       const residentName = nameMap.get(fb.resident_id) || "?";
       const facultyName = nameMap.get(fb.faculty_id) || "?";
-      const dotColor = fb.sentiment === "positive" ? "#52657A" : fb.sentiment === "neutral" ? "#4A846C" : "#D4A017";
+      const dotColor = fb.sentiment === "positive" ? "#4A846C" : "#c44444";
 
       elements.push(
         <div
@@ -559,12 +558,10 @@ const Feedback = () => {
             {r.name}
           </span>
           <span className="text-[11px]" style={{ color: "#5F7285" }}>{r.positive}</span>
-          <div className="w-2 h-2 rounded-full shrink-0" style={{ background: "#52657A" }} />
-          <span className="text-[11px]" style={{ color: "#5F7285" }}>{r.neutral}</span>
           <div className="w-2 h-2 rounded-full shrink-0" style={{ background: "#4A846C" }} />
           <span className="text-[11px]" style={{ color: "#5F7285" }}>{r.negative}</span>
-          <div className="w-2 h-2 rounded-full shrink-0" style={{ background: "#D4A017" }} />
-          <FeedbackPie positive={r.positive} negative={r.negative} neutral={r.neutral} />
+          <div className="w-2 h-2 rounded-full shrink-0" style={{ background: "#c44444" }} />
+          <FeedbackPie positive={r.positive} negative={r.negative} />
         </div>
       </div>
     ));
@@ -624,10 +621,8 @@ const Feedback = () => {
               const total = myFeedback.length;
               const posCount = myFeedback.filter((fb) => fb.sentiment === "positive").length;
               const negCount = myFeedback.filter((fb) => fb.sentiment === "negative").length;
-              const neuCount = myFeedback.filter((fb) => fb.sentiment === "neutral").length;
               const posPct = total > 0 ? (posCount / total) * 100 : 0;
               const negPct = total > 0 ? (negCount / total) * 100 : 0;
-              const neuPct = total > 0 ? (neuCount / total) * 100 : 0;
 
               if (total === 0) return null;
 
@@ -644,7 +639,6 @@ const Feedback = () => {
                 return <path key={color} d={`M${cx} ${cy} L${s.x} ${s.y} A${r} ${r} 0 ${sweep > 180 ? 1 : 0} 1 ${e.x} ${e.y} Z`} fill={color} />;
               };
               const negAngle = (negCount / total) * 360;
-              const neuAngle = (neuCount / total) * 360;
               const posAngle = (posCount / total) * 360;
 
               return (
@@ -652,24 +646,19 @@ const Feedback = () => {
                   <PopoverTrigger asChild>
                     <button className="shrink-0 bg-transparent border-none cursor-pointer p-0">
                       <svg width="28" height="28" viewBox="0 0 28 28">
-                        {arc(0, negAngle, "#D4A017")}
-                        {arc(negAngle, neuAngle, "#4A846C")}
-                        {arc(negAngle + neuAngle, posAngle, "#52657A")}
+                        {arc(0, negAngle, "#c44444")}
+                        {arc(negAngle, posAngle, "#4A846C")}
                       </svg>
                     </button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-3" align="start">
                     <div className="flex flex-col gap-1.5 text-sm">
                       <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full" style={{ background: "#52657A" }} />
+                        <div className="w-3 h-3 rounded-full" style={{ background: "#4A846C" }} />
                         <span>Positive: {Math.round(posPct)}% ({posCount})</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full" style={{ background: "#4A846C" }} />
-                        <span>Neutral: {Math.round(neuPct)}% ({neuCount})</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full" style={{ background: "#D4A017" }} />
+                        <div className="w-3 h-3 rounded-full" style={{ background: "#c44444" }} />
                         <span>Negative: {Math.round(negPct)}% ({negCount})</span>
                       </div>
                       <div className="text-xs text-muted-foreground mt-1">Total: {total}</div>
