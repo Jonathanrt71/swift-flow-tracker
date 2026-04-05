@@ -119,7 +119,7 @@ const ProcedureLogs = () => {
       if (residentFilter && l.resident_name !== residentFilter) return;
       if (!map.has(l.resident_name)) map.set(l.resident_name, new Map());
       const procMap = map.get(l.resident_name)!;
-      if (!procMap.has(l.procedure_name)) procMap.set(l.procedure_name, { perform: 0, assist: 0, observe: 0, sim: 0, total: 0 });
+      if (!procMap.has(l.procedure_name)) procMap.set(l.procedure_name, { perform: 0, assist: 0, observe: 0, sim: 0, untagged: 0, total: 0 });
       const entry = procMap.get(l.procedure_name)!;
       entry.total++;
       const role = (l.role || "").toLowerCase();
@@ -127,6 +127,7 @@ const ProcedureLogs = () => {
       else if (role === "assist") entry.assist++;
       else if (role === "observe") entry.observe++;
       else if (role === "participant - sim") entry.sim++;
+      else entry.untagged++;
     });
 
     return Array.from(map.entries())
@@ -258,11 +259,12 @@ const ProcedureLogs = () => {
                   <span style={{ fontSize: 12, color: "#8A9AAB" }}>{resident.totalCount} total</span>
                 </div>
                 <div style={{ padding: "6px 14px 10px" }}>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr auto auto auto auto", gap: "2px 12px", fontSize: 11 }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr auto auto auto auto auto", gap: "2px 12px", fontSize: 11 }}>
                     <div style={{ fontWeight: 600, color: "#5F7285", padding: "4px 0", borderBottom: "0.5px solid #D5DAE0" }}>Procedure</div>
                     <div style={{ fontWeight: 600, color: "#4A846C", padding: "4px 0", textAlign: "center", borderBottom: "0.5px solid #D5DAE0" }}>Perf</div>
                     <div style={{ fontWeight: 600, color: "#378ADD", padding: "4px 0", textAlign: "center", borderBottom: "0.5px solid #D5DAE0" }}>Asst</div>
                     <div style={{ fontWeight: 600, color: "#8A9AAB", padding: "4px 0", textAlign: "center", borderBottom: "0.5px solid #D5DAE0" }}>Obs</div>
+                    <div style={{ fontWeight: 600, color: "#D4A017", padding: "4px 0", textAlign: "center", borderBottom: "0.5px solid #D5DAE0" }}>—</div>
                     <div style={{ fontWeight: 600, color: "#2D3748", padding: "4px 0", textAlign: "center", borderBottom: "0.5px solid #D5DAE0" }}>Total</div>
                     {resident.procedures.map(p => (
                       <>
@@ -270,6 +272,7 @@ const ProcedureLogs = () => {
                         <div key={p.proc + "-perf"} style={{ color: "#4A846C", textAlign: "center", padding: "3px 0" }}>{p.perform || "—"}</div>
                         <div key={p.proc + "-asst"} style={{ color: "#378ADD", textAlign: "center", padding: "3px 0" }}>{p.assist || "—"}</div>
                         <div key={p.proc + "-obs"} style={{ color: "#8A9AAB", textAlign: "center", padding: "3px 0" }}>{p.observe || "—"}</div>
+                        <div key={p.proc + "-untag"} style={{ color: "#D4A017", textAlign: "center", padding: "3px 0" }}>{p.untagged || "—"}</div>
                         <div key={p.proc + "-total"} style={{ color: "#2D3748", fontWeight: 500, textAlign: "center", padding: "3px 0" }}>{p.total}</div>
                       </>
                     ))}
