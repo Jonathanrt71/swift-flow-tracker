@@ -45,18 +45,29 @@ const videoPatterns = [
 
 function extractVideoEmbeds(html: string): { embedUrl: string; originalUrl: string }[] {
   const embeds: { embedUrl: string; originalUrl: string }[] = [];
-  const urlRegex = /https?:\/\/[^\s<"]+/g;
+  const seen = new Set<string>();
+  const urlRegex = /https?:\/\/[^\s<"']+/g;
   const urls = html.match(urlRegex) || [];
   urls.forEach(url => {
     for (const pattern of videoPatterns) {
       const match = url.match(pattern.regex);
       if (match) {
-        embeds.push({ embedUrl: pattern.embed(match[1]), originalUrl: url });
+        const embedUrl = pattern.embed(match[1]);
+        if (!seen.has(embedUrl)) {
+          seen.add(embedUrl);
+          embeds.push({ embedUrl, originalUrl: url });
+        }
         break;
       }
     }
   });
   return embeds;
+}
+
+function hasVideoUrl(html: string): boolean {
+  const urlRegex = /https?:\/\/[^\s<"']+/g;
+  const urls = html.match(urlRegex) || [];
+  return urls.some(url => videoPatterns.some(p => p.regex.test(url)));
 }
 
 const AnnouncementBody = ({ html, expanded }: { html: string; expanded: boolean }) => {
@@ -310,7 +321,6 @@ const ComposeDialog = ({ onClose, onSubmit, isPending }: {
   const [category, setCategory] = useState<AnnouncementCategory>("general");
   const [audience, setAudience] = useState<AnnouncementAudience>("all");
   const [pinned, setPinned] = useState(false);
-  const [actionRequired, setActionRequired] = useState(false);
 
   const editor = useEditor({
     extensions: [
@@ -381,10 +391,6 @@ const ComposeDialog = ({ onClose, onSubmit, isPending }: {
               <input type="checkbox" checked={pinned} onChange={(e) => setPinned(e.target.checked)} style={{ accentColor: "#415162" }} />
               Pin to top
             </label>
-            <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#4a4a4a", cursor: "pointer" }}>
-              <input type="checkbox" checked={actionRequired} onChange={(e) => setActionRequired(e.target.checked)} style={{ accentColor: "#A04040" }} />
-              Action Required
-            </label>
           </div>
         </div>
         <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, padding: "16px 22px", borderTop: "1px solid #C9CED4" }}>
@@ -394,7 +400,7 @@ const ComposeDialog = ({ onClose, onSubmit, isPending }: {
           }}>Cancel</button>
           <button
             disabled={!title.trim() || bodyEmpty || isPending}
-            onClick={() => onSubmit({ title: title.trim(), body: bodyHtml, category, audience, is_pinned: pinned, is_action_required: actionRequired })}
+            onClick={() => onSubmit({ title: title.trim(), body: bodyHtml, category, audience, is_pinned: pinned, is_action_required: false })}
             style={{
               padding: "9px 24px", borderRadius: 8, border: "none",
               backgroundColor: title.trim() && !bodyEmpty ? "#415162" : "#C9CED4",
@@ -415,7 +421,7 @@ const ComposeDialog = ({ onClose, onSubmit, isPending }: {
 const AnnouncementCard = ({ announcement, isAdmin, onOpenTracker }: {
   announcement: Announcement; isAdmin: boolean; onOpenTracker: (a: Announcement) => void;
 }) => {
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(() => hasVideoUrl(announcement.body));
   const { markAsRead } = useAnnouncements();
 
   const handleExpand = () => {
