@@ -648,6 +648,62 @@ const RoleAccessSection = () => {
   );
 };
 
+const UserCard = ({ u, isSelf, updateRole, updateProfile, updateUser, updatePermissions, deleteUser }: {
+  u: ManagedUser;
+  isSelf: boolean;
+  updateRole: any;
+  updateProfile: any;
+  updateUser: any;
+  updatePermissions: any;
+  deleteUser: any;
+}) => {
+  const [editOpen, setEditOpen] = useState(false);
+  return (
+    <div
+      className="flex items-center justify-between px-3 py-2 bg-background rounded-lg border border-border cursor-pointer"
+      onClick={() => setEditOpen(true)}
+    >
+      <div>
+        <span className="text-sm font-medium text-foreground">
+          {formatPersonName(u)}
+        </span>
+        {u.role === "resident" && (() => {
+          const pgy = getPgyLevel(u.graduation_year);
+          return pgy ? (
+            <span className="ml-1.5 text-[11px] text-muted-foreground">(PGY-{pgy})</span>
+          ) : null;
+        })()}
+        {isSelf && (
+          <span className="ml-1 text-[11px] text-muted-foreground">(you)</span>
+        )}
+        {u.email ? (
+          <p className="text-[11px] text-muted-foreground">{u.email}</p>
+        ) : (
+          <p className="text-[11px] text-muted-foreground italic">No email</p>
+        )}
+      </div>
+      <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+        <EditUserDialog
+          u={u}
+          isSelf={isSelf}
+          onUpdateRole={(data) => updateRole.mutate(data)}
+          onUpdateProfile={(data) => updateProfile.mutate(data)}
+          onUpdateUser={(data) => updateUser.mutate(data)}
+          onUpdatePermissions={(data) => updatePermissions.mutate(data)}
+          externalOpen={editOpen}
+          onExternalOpenChange={setEditOpen}
+        />
+        {!isSelf && (
+          <DeleteUserDialog
+            u={u}
+            onDelete={(id) => deleteUser.mutate(id)}
+          />
+        )}
+      </div>
+    </div>
+  );
+};
+
 /* ── Admin Page ── */
 const Admin = () => {
   const { user, signOut } = useAuth();
@@ -835,53 +891,15 @@ const Admin = () => {
                             {u.role}
                           </p>
                         )}
-                        {(() => {
-                          const [editOpen, setEditOpen] = React.useState(false);
-                          return (
-                            <div
-                              className="flex items-center justify-between px-3 py-2 bg-background rounded-lg border border-border cursor-pointer"
-                              onClick={() => setEditOpen(true)}
-                            >
-                              <div>
-                                <span className="text-sm font-medium text-foreground">
-                                  {formatPersonName(u)}
-                                </span>
-                                {u.role === "resident" && (() => {
-                                  const pgy = getPgyLevel(u.graduation_year);
-                                  return pgy ? (
-                                    <span className="ml-1.5 text-[11px] text-muted-foreground">(PGY-{pgy})</span>
-                                  ) : null;
-                                })()}
-                                {isSelf && (
-                                  <span className="ml-1 text-[11px] text-muted-foreground">(you)</span>
-                                )}
-                                {u.email ? (
-                                  <p className="text-[11px] text-muted-foreground">{u.email}</p>
-                                ) : (
-                                  <p className="text-[11px] text-muted-foreground italic">No email</p>
-                                )}
-                              </div>
-                              <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
-                                <EditUserDialog
-                                  u={u}
-                                  isSelf={isSelf}
-                                  onUpdateRole={(data) => updateRole.mutate(data)}
-                                  onUpdateProfile={(data) => updateProfile.mutate(data)}
-                                  onUpdateUser={(data) => updateUser.mutate(data)}
-                                  onUpdatePermissions={(data) => updatePermissions.mutate(data)}
-                                  externalOpen={editOpen}
-                                  onExternalOpenChange={setEditOpen}
-                                />
-                                {!isSelf && (
-                                  <DeleteUserDialog
-                                    u={u}
-                                    onDelete={(id) => deleteUser.mutate(id)}
-                                  />
-                                )}
-                              </div>
-                            </div>
-                          );
-                        })()}
+                        <UserCard
+                          u={u}
+                          isSelf={isSelf}
+                          updateRole={updateRole}
+                          updateProfile={updateProfile}
+                          updateUser={updateUser}
+                          updatePermissions={updatePermissions}
+                          deleteUser={deleteUser}
+                        />
                       </React.Fragment>
                     );
                   });
