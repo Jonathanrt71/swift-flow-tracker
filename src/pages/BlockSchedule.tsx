@@ -105,20 +105,25 @@ const BlockSchedule = () => {
 
   // Group by resident, then by block
   const grouped = useMemo(() => {
-    const map = new Map<string, { pgy: number | null; blocks: Map<number, string[]> }>();
+    const map = new Map<string, { name: string; pgy: number | null; blocks: Map<number, string[]> }>();
     filtered.forEach(e => {
-      if (!map.has(e.resident_name)) {
-        map.set(e.resident_name, { pgy: e.pgy_level, blocks: new Map() });
+      const key = `${e.resident_name}::${e.pgy_level}`;
+      if (!map.has(key)) {
+        map.set(key, { name: e.resident_name, pgy: e.pgy_level, blocks: new Map() });
       }
-      const entry = map.get(e.resident_name)!;
+      const entry = map.get(key)!;
       if (!entry.blocks.has(e.block_number)) {
         entry.blocks.set(e.block_number, []);
       }
       entry.blocks.get(e.block_number)!.push(e.rotation);
     });
-    return Array.from(map.entries())
-      .sort((a, b) => a[0].localeCompare(b[0]))
-      .map(([name, data]) => ({ name, pgy: data.pgy, blocks: data.blocks }));
+    return Array.from(map.values())
+      .sort((a, b) => {
+        const pgyA = a.pgy ?? 99;
+        const pgyB = b.pgy ?? 99;
+        if (pgyA !== pgyB) return pgyA - pgyB;
+        return a.name.localeCompare(b.name);
+      });
   }, [filtered]);
 
   // Determine current block
