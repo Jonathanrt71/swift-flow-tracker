@@ -39,7 +39,8 @@ const App = () => (
       <UpdatePrompt />
       <BrowserRouter>
         <AuthProvider>
-          <div className="mx-auto w-full max-w-[1024px] min-h-screen relative shadow-lg">
+          <div style={{ background: "#E5E2DB", minHeight: "100vh" }}>
+          <div className="mx-auto w-full max-w-[1024px] min-h-screen relative shadow-lg" style={{ background: "#F5F3EE" }}>
             <Routes>
               <Route path="/login" element={<Login />} />
               
@@ -66,6 +67,7 @@ const App = () => (
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
+          </div>
           </div>
         </AuthProvider>
       </BrowserRouter>
