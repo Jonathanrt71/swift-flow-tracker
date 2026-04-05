@@ -174,6 +174,8 @@ const Evaluations = () => {
     return s;
   }, [viewsQuery.data]);
 
+  const [flashId, setFlashId] = useState<string | null>(null);
+
   const toggleView = async (evalId: string) => {
     if (viewedSet.has(evalId)) {
       const view = (viewsQuery.data || []).find(v => v.evaluation_id === evalId);
@@ -185,6 +187,8 @@ const Evaluations = () => {
         evaluation_id: evalId,
         user_id: user!.id,
       });
+      setFlashId(evalId);
+      setTimeout(() => setFlashId(null), 600);
     }
     queryClient.invalidateQueries({ queryKey: ["evaluation_views"] });
   };
@@ -508,7 +512,11 @@ const Evaluations = () => {
                 <div
                   key={ev.id}
                   className="rounded-lg overflow-hidden"
-                  style={{ background: "#E7EBEF", border: isViewed ? "0.5px solid #C9CED4" : "2px solid #415162" }}
+                  style={{
+                    background: flashId === ev.id ? "rgba(74,132,108,0.15)" : "#E7EBEF",
+                    border: isViewed ? "0.5px solid #C9CED4" : "2px solid #415162",
+                    transition: "background 0.4s ease",
+                  }}
                 >
                   {/* Collapsed row */}
                   <div
