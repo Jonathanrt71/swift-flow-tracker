@@ -296,7 +296,7 @@ const BlockSchedule = () => {
             No schedule data
           </div>
         ) : viewMode === "table" ? (
-          // Table view — frozen headers and first column
+          // Table view — frozen headers and first column, solid color backgrounds
           <div
             style={{
               overflow: "auto",
@@ -305,7 +305,7 @@ const BlockSchedule = () => {
               maxHeight: "calc(100vh - 160px)",
             }}
           >
-            <table style={{ borderCollapse: "collapse", minWidth: blocks.length * 70 + 140 }}>
+            <table style={{ borderCollapse: "collapse" }}>
               <thead>
                 <tr>
                   <th style={{
@@ -325,7 +325,7 @@ const BlockSchedule = () => {
                         color: "#fff", fontSize: 10, fontWeight: 500,
                         padding: "4px 3px", textAlign: "center", whiteSpace: "nowrap",
                         borderLeft: "0.5px solid rgba(255,255,255,0.15)",
-                        minWidth: 60,
+                        minWidth: 72,
                       }}>
                         B{block.num}<br />{formatDate(block.start).replace(" ", "\u00A0")}
                       </th>
@@ -335,7 +335,6 @@ const BlockSchedule = () => {
               </thead>
               <tbody>
                 {(() => {
-                  // Group by PGY for section headers
                   const pgyGroups: { pgy: number | null; residents: typeof grouped }[] = [];
                   let currentPgy: number | null = null;
                   grouped.forEach(r => {
@@ -346,9 +345,20 @@ const BlockSchedule = () => {
                     pgyGroups[pgyGroups.length - 1].residents.push(r);
                   });
 
+                  const pillStyle = (bg: string): React.CSSProperties => ({
+                    display: "inline-block",
+                    borderRadius: 3,
+                    padding: "2px 0",
+                    fontSize: 9,
+                    fontWeight: 500,
+                    color: "#fff",
+                    width: 34,
+                    textAlign: "center" as const,
+                    letterSpacing: "0.01em",
+                  });
+
                   return pgyGroups.flatMap((group, gi) => {
                     const rows: React.ReactNode[] = [];
-                    // PGY header row
                     rows.push(
                       <tr key={`pgy-${gi}`}>
                         <td
@@ -367,12 +377,12 @@ const BlockSchedule = () => {
 
                     group.residents.forEach((resident, ri) => {
                       const isEven = ri % 2 === 0;
-                      const bgColor = isEven ? "#F5F3EE" : "#E7EBEF";
+                      const rowBg = isEven ? "#F5F3EE" : "#E7EBEF";
                       rows.push(
                         <tr key={resident.name}>
                           <td style={{
                             position: "sticky", left: 0, zIndex: 2,
-                            background: bgColor, fontSize: 11, fontWeight: 500,
+                            background: rowBg, fontSize: 11, fontWeight: 500,
                             color: "#2D3748", padding: "4px 8px", textAlign: "left",
                             minWidth: 140, maxWidth: 140, whiteSpace: "nowrap",
                             overflow: "hidden", textOverflow: "ellipsis",
@@ -384,31 +394,30 @@ const BlockSchedule = () => {
                           {blocks.map(block => {
                             const rotations = resident.blocks.get(block.num) || [];
                             const isCurrent = currentBlock?.num === block.num;
+                            const colors = rotations.map(r => getRotationColor(r));
+
+                            let bgStyle: string;
+                            if (rotations.length === 2) {
+                              bgStyle = `linear-gradient(to right, ${colors[0]} 50%, ${colors[1]} 50%)`;
+                            } else if (rotations.length === 1) {
+                              bgStyle = colors[0];
+                            } else {
+                              bgStyle = rowBg;
+                            }
+
                             return (
                               <td key={block.num} style={{
-                                background: isCurrent ? "rgba(55,138,221,0.08)" : bgColor,
-                                borderLeft: isCurrent ? "2px solid #378ADD" : "0.5px solid #D5DAE0",
-                                borderRight: isCurrent ? "2px solid #378ADD" : "0.5px solid #D5DAE0",
-                                borderBottom: "0.5px solid #D5DAE0",
-                                padding: "3px 2px",
+                                background: bgStyle,
+                                borderLeft: isCurrent ? "2px solid #fff" : "0.5px solid rgba(255,255,255,0.3)",
+                                borderRight: isCurrent ? "2px solid #fff" : "0.5px solid rgba(255,255,255,0.3)",
+                                borderBottom: "0.5px solid rgba(255,255,255,0.3)",
+                                padding: "3px 1px",
                                 textAlign: "center",
                                 verticalAlign: "middle",
                                 whiteSpace: "nowrap",
                               }}>
                                 {rotations.map((rot, i) => (
-                                  <span
-                                    key={i}
-                                    style={{
-                                      display: "inline-block",
-                                      borderRadius: 3,
-                                      padding: "1px 4px",
-                                      fontSize: 9,
-                                      fontWeight: 500,
-                                      color: "#fff",
-                                      background: getRotationColor(rot),
-                                      marginRight: rotations.length > 1 && i < rotations.length - 1 ? 2 : 0,
-                                    }}
-                                  >
+                                  <span key={i} style={{ ...pillStyle(colors[i]), marginRight: rotations.length > 1 && i === 0 ? 1 : 0 }}>
                                     {abbreviateRotation(rot)}
                                   </span>
                                 ))}
