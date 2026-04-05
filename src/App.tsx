@@ -23,6 +23,7 @@ import Compliance from "./pages/Compliance.tsx";
 import Topics from "./pages/Topics.tsx";
 import Announcements from "./pages/Announcements.tsx";
 import Evaluations from "./pages/Evaluations.tsx";
+import BlockSchedule from "./pages/BlockSchedule.tsx";
 import Home from "./pages/Home.tsx";
 import UpdatePrompt from "./components/UpdatePrompt";
 
@@ -57,6 +58,7 @@ const App = () => (
               <Route path="/topics" element={<RoleRoute permissionKey="topics.view"><Topics /></RoleRoute>} />
               <Route path="/announcements" element={<RoleRoute permissionKey="announcements.view"><Announcements /></RoleRoute>} />
               <Route path="/evaluations" element={<RoleRoute permissionKey="evaluations.view"><Evaluations /></RoleRoute>} />
+              <Route path="/schedule" element={<RoleRoute permissionKey="schedule.view"><BlockSchedule /></RoleRoute>} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
