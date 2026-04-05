@@ -136,7 +136,7 @@ const Evaluations = () => {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [filterResident, setFilterResident] = useState<string>("all");
   const [filterEvaluator, setFilterEvaluator] = useState<string>("all");
-  const [filterStatus, setFilterStatus] = useState<"all" | "unread" | "read">("all");
+  const [filterStatus, setFilterStatus] = useState<"all" | "unread" | "read">("unread");
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [importPreview, setImportPreview] = useState<any[] | null>(null);
@@ -175,6 +175,7 @@ const Evaluations = () => {
   }, [viewsQuery.data]);
 
   const [flashId, setFlashId] = useState<string | null>(null);
+  const [pendingViewId, setPendingViewId] = useState<string | null>(null);
 
   const toggleView = async (evalId: string) => {
     if (viewedSet.has(evalId)) {
@@ -182,15 +183,21 @@ const Evaluations = () => {
       if (view) {
         await (supabase as any).from("evaluation_views").delete().eq("id", view.id);
       }
+      queryClient.invalidateQueries({ queryKey: ["evaluation_views"] });
     } else {
+      // Show flash first, then save after animation
+      setFlashId(evalId);
+      setPendingViewId(evalId);
       await (supabase as any).from("evaluation_views").insert({
         evaluation_id: evalId,
         user_id: user!.id,
       });
-      setFlashId(evalId);
-      setTimeout(() => setFlashId(null), 600);
+      setTimeout(() => {
+        setFlashId(null);
+        setPendingViewId(null);
+        queryClient.invalidateQueries({ queryKey: ["evaluation_views"] });
+      }, 800);
     }
-    queryClient.invalidateQueries({ queryKey: ["evaluation_views"] });
   };
 
   // Build resident list from evaluations
@@ -225,7 +232,7 @@ const Evaluations = () => {
       evals = evals.filter(e => e.evaluator_name === filterEvaluator);
     }
     if (filterStatus === "unread") {
-      evals = evals.filter(e => !viewedSet.has(e.id));
+      evals = evals.filter(e => !viewedSet.has(e.id) || pendingViewId === e.id);
     } else if (filterStatus === "read") {
       evals = evals.filter(e => viewedSet.has(e.id));
     }
@@ -240,7 +247,7 @@ const Evaluations = () => {
       );
     }
     return evals;
-  }, [evaluationsQuery.data, filterResident, filterEvaluator, filterStatus, viewedSet, searchQuery]);
+  }, [evaluationsQuery.data, filterResident, filterEvaluator, filterStatus, viewedSet, pendingViewId, searchQuery]);
 
   // Unviewed count
   const unviewedCount = useMemo(() => {
@@ -506,7 +513,7 @@ const Evaluations = () => {
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {filtered.map(ev => {
               const isExpanded = expandedId === ev.id;
-              const isViewed = viewedSet.has(ev.id);
+              const isViewed = viewedSet.has(ev.id) || pendingViewId === ev.id;
 
               return (
                 <div
