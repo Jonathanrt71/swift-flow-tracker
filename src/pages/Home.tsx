@@ -67,7 +67,7 @@ function daysUntil(d: string) {
 
 const SENTIMENT_CONFIG: Record<string, { label: string; color: string; bg: string; icon: typeof ThumbsUp }> = {
   positive: { label: "Positive", color: "#4A846C", bg: "#E4F0EB", icon: ThumbsUp },
-  negative: { label: "Needs Improvement", color: "#c44444", bg: "#FCEBEB", icon: ThumbsDown },
+  negative: { label: "Needs Improvement", color: "#E24B4A", bg: "#FCEBEB", icon: ThumbsDown },
 };
 
 // ─── Custom Tooltip ──────────────────────────────────────────────────────────
