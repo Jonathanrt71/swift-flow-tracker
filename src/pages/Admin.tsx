@@ -677,7 +677,7 @@ const Admin = () => {
   const [editingEventCatId, setEditingEventCatId] = useState<string | null>(null);
   const [editingEventCatLabel, setEditingEventCatLabel] = useState("");
   const [editingEventCatColor, setEditingEventCatColor] = useState("");
-  const [expandedSection, setExpandedSection] = useState<string | null>(null);
+  const [expandedSection, setExpandedSection] = useState<string | null>("team");
   const [refreshing, setRefreshing] = useState(false);
   const [defaultReportEmail, setDefaultReportEmail] = useState("");
   const [navImageUploading, setNavImageUploading] = useState(false);
