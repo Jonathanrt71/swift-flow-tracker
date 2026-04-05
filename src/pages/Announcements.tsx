@@ -73,16 +73,32 @@ function hasVideoUrl(html: string): boolean {
 const AnnouncementBody = ({ html, expanded }: { html: string; expanded: boolean }) => {
   const embeds = expanded ? extractVideoEmbeds(html) : [];
 
+  // Strip video URLs from the displayed HTML when we're showing embeds
+  let displayHtml = html;
+  if (embeds.length > 0) {
+    embeds.forEach(embed => {
+      // Remove <a> tags containing the video URL
+      const escapedUrl = embed.originalUrl.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      displayHtml = displayHtml.replace(new RegExp(`<a[^>]*href=["']${escapedUrl}[^"']*["'][^>]*>.*?</a>`, "gi"), "");
+      // Remove plain text URL
+      displayHtml = displayHtml.replace(new RegExp(escapedUrl + "[^<\\s]*", "g"), "");
+    });
+    // Clean up empty paragraphs left behind
+    displayHtml = displayHtml.replace(/<p>\s*<\/p>/g, "");
+  }
+
   return (
     <>
       {expanded ? (
-        <div
-          style={{ fontSize: 13.5, color: "#4a4a4a", lineHeight: 1.55 }}
-          dangerouslySetInnerHTML={{ __html: html }}
-        />
+        displayHtml.replace(/<[^>]*>/g, "").trim() ? (
+          <div
+            style={{ fontSize: 13.5, color: "#4a4a4a", lineHeight: 1.55 }}
+            dangerouslySetInnerHTML={{ __html: displayHtml }}
+          />
+        ) : null
       ) : (
         <div style={{ fontSize: 13.5, color: "#4a4a4a", lineHeight: 1.55, overflow: "hidden", maxHeight: "2.9em", position: "relative" }}>
-          <div dangerouslySetInnerHTML={{ __html: html }} />
+          <div dangerouslySetInnerHTML={{ __html: displayHtml }} />
           <span style={{
             position: "absolute", right: 0, bottom: 0, paddingLeft: 24,
             background: "linear-gradient(to right, transparent, #E7EBEF 40%)",
