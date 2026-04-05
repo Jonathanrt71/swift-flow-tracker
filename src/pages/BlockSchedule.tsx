@@ -5,7 +5,7 @@ import { useAdmin } from "@/hooks/useAdmin";
 import { supabase } from "@/integrations/supabase/client";
 import HeaderLogo from "@/components/HeaderLogo";
 import NotificationBell from "@/components/NotificationBell";
-import { Search, X, List, LayoutGrid } from "lucide-react";
+import { Search, X } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -37,8 +37,8 @@ const BlockSchedule = () => {
 
   const [filterResident, setFilterResident] = useState<string>("all");
   const [filterPgy, setFilterPgy] = useState<string>("all");
-  const [viewMode, setViewMode] = useState<"cards" | "table">("table");
-  const [showEvalCoverage, setShowEvalCoverage] = useState(false);
+  const [viewMode, setViewMode] = useState<"table" | "cards" | "evals">("table");
+  const showEvalCoverage = viewMode === "evals";
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -69,7 +69,7 @@ const BlockSchedule = () => {
     },
   });
 
-  // Build a set of "resident::blockNum" keys that have evaluations
+  // Build a set of "resident::pgy::blockNum::rotation" keys that have evaluations
   const evalCoverageSet = useMemo(() => {
     const set = new Set<string>();
     if (!showEvalCoverage || !evaluationsQuery.data) return set;
@@ -78,16 +78,14 @@ const BlockSchedule = () => {
 
     evals.forEach(ev => {
       if (!ev.eval_start_date || !ev.resident_name) return;
-      // Find which block(s) this evaluation overlaps with for this resident
       scheduleEntries.forEach(se => {
         if (se.resident_name !== ev.resident_name) return;
         const blockStart = new Date(se.block_start + "T00:00:00");
         const blockEnd = new Date(se.block_end + "T23:59:59");
         const evalStart = new Date(ev.eval_start_date + "T00:00:00");
         const evalEnd = ev.eval_end_date ? new Date(ev.eval_end_date + "T23:59:59") : evalStart;
-        // Check overlap
         if (evalStart <= blockEnd && evalEnd >= blockStart) {
-          set.add(`${se.resident_name}::${se.pgy_level}::${se.block_number}`);
+          set.add(`${se.resident_name}::${se.pgy_level}::${se.block_number}::${se.rotation}`);
         }
       });
     });
@@ -352,43 +350,25 @@ const BlockSchedule = () => {
 
           <div style={{ flex: 1 }} />
 
-          {/* Eval coverage toggle */}
-          {viewMode === "table" && (
-            <button
-              onClick={() => setShowEvalCoverage(!showEvalCoverage)}
-              style={{
-                padding: "5px 10px", fontSize: 11, fontWeight: 500, borderRadius: 8, cursor: "pointer",
-                background: showEvalCoverage ? "#415162" : "#fff",
-                color: showEvalCoverage ? "#fff" : "#5F7285",
-                border: "0.5px solid #C9CED4",
-              }}
-            >
-              Evals
-            </button>
-          )}
-
-          {/* View toggle */}
+          {/* View toggle — 3 modes */}
           <div style={{ display: "flex", gap: 0, borderRadius: 8, overflow: "hidden", border: "0.5px solid #C9CED4" }}>
-            <button
-              onClick={() => setViewMode("table")}
-              style={{
-                padding: "5px 8px", border: "none", cursor: "pointer", display: "flex", alignItems: "center",
-                background: viewMode === "table" ? "#415162" : "#fff",
-                color: viewMode === "table" ? "#fff" : "#5F7285",
-              }}
-            >
-              <List style={{ width: 14, height: 14 }} />
-            </button>
-            <button
-              onClick={() => setViewMode("cards")}
-              style={{
-                padding: "5px 8px", border: "none", cursor: "pointer", display: "flex", alignItems: "center",
-                background: viewMode === "cards" ? "#415162" : "#fff",
-                color: viewMode === "cards" ? "#fff" : "#5F7285",
-              }}
-            >
-              <LayoutGrid style={{ width: 14, height: 14 }} />
-            </button>
+            {([
+              { mode: "table" as const, label: "Table" },
+              { mode: "cards" as const, label: "List" },
+              { mode: "evals" as const, label: "Evals" },
+            ]).map(opt => (
+              <button
+                key={opt.mode}
+                onClick={() => setViewMode(opt.mode)}
+                style={{
+                  padding: "5px 10px", fontSize: 11, fontWeight: 500, border: "none", cursor: "pointer",
+                  background: viewMode === opt.mode ? "#415162" : "#fff",
+                  color: viewMode === opt.mode ? "#fff" : "#5F7285",
+                }}
+              >
+                {opt.label}
+              </button>
+            ))}
           </div>
         </div>
 
@@ -401,7 +381,7 @@ const BlockSchedule = () => {
           <div style={{ textAlign: "center", padding: 48, color: "#8A9AAB", fontSize: 14 }}>
             No schedule data
           </div>
-        ) : viewMode === "table" ? (
+        ) : (viewMode === "table" || viewMode === "evals") ? (
           // Table view — frozen headers and first column, solid color backgrounds
           <div
             style={{
@@ -502,14 +482,29 @@ const BlockSchedule = () => {
                           {blocks.map(block => {
                             const rotations = resident.blocks.get(block.num) || [];
                             const isCurrent = currentBlock?.num === block.num;
-                            const coverageKey = `${resident.name}::${resident.pgy}::${block.num}`;
-                            const hasEval = evalCoverageSet.has(coverageKey);
 
                             if (showEvalCoverage) {
-                              // Eval coverage mode — plain text, green background if evaluated
+                              // Per-rotation eval check
+                              const evalStatuses = rotations.map(rot =>
+                                evalCoverageSet.has(`${resident.name}::${resident.pgy}::${block.num}::${rot}`)
+                              );
+                              const greenBg = "#97C459";
+                              const whiteBg = "#fff";
+
+                              let bgStyle: string;
+                              if (rotations.length === 2) {
+                                const leftColor = evalStatuses[0] ? greenBg : whiteBg;
+                                const rightColor = evalStatuses[1] ? greenBg : whiteBg;
+                                bgStyle = `linear-gradient(to right, ${leftColor} 50%, ${rightColor} 50%)`;
+                              } else if (rotations.length === 1) {
+                                bgStyle = evalStatuses[0] ? greenBg : whiteBg;
+                              } else {
+                                bgStyle = whiteBg;
+                              }
+
                               return (
                                 <td key={block.num} style={{
-                                  background: hasEval ? "#C0DD97" : "#fff",
+                                  background: bgStyle,
                                   borderLeft: isCurrent ? "2px solid #FF6B35" : "1px solid #D5DAE0",
                                   borderRight: isCurrent ? "2px solid #FF6B35" : "1px solid #D5DAE0",
                                   borderBottom: "1px solid #D5DAE0",
@@ -522,7 +517,7 @@ const BlockSchedule = () => {
                                     <span key={i} style={{
                                       fontSize: 9,
                                       fontWeight: 500,
-                                      color: hasEval ? "#27500A" : "#8A9AAB",
+                                      color: evalStatuses[i] ? "#27500A" : "#8A9AAB",
                                       marginRight: rotations.length > 1 && i === 0 ? 3 : 0,
                                     }}>
                                       {abbreviateRotation(rot)}
