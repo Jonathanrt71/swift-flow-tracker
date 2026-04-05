@@ -59,7 +59,7 @@ const EditUserDialog = ({
   u: ManagedUser;
   isSelf: boolean;
   onUpdateRole: (data: { user_id: string; role: UserRole }) => void;
-  onUpdateProfile: (data: { id: string; display_name?: string; first_name?: string; last_name?: string; graduation_year?: number | null }) => void;
+  onUpdateProfile: (data: { id: string; display_name?: string; first_name?: string; last_name?: string; graduation_year?: number | null; ni_names?: string }) => void;
   onUpdateUser: (data: { user_id: string; email?: string; password?: string }) => void;
   onUpdatePermissions: (data: { user_id: string; can_edit_handbook: boolean; can_edit_operations: boolean }) => void;
 }) => {
@@ -70,6 +70,7 @@ const EditUserDialog = ({
   const [lastName, setLastName] = useState(u.last_name || "");
   const [role, setRole] = useState<UserRole>(u.role);
   const [graduationYear, setGraduationYear] = useState(u.graduation_year?.toString() || "");
+  const [niNames, setNiNames] = useState(u.ni_names || "");
   const [canEditHandbook, setCanEditHandbook] = useState(u.can_edit_handbook);
   const [canEditOperations, setCanEditOperations] = useState(u.can_edit_operations);
 
@@ -81,6 +82,7 @@ const EditUserDialog = ({
       setLastName(u.last_name || "");
       setRole(u.role);
       setGraduationYear(u.graduation_year?.toString() || "");
+      setNiNames(u.ni_names || "");
       setCanEditHandbook(u.can_edit_handbook);
       setCanEditOperations(u.can_edit_operations);
     }
@@ -110,6 +112,7 @@ const EditUserDialog = ({
       firstName !== (u.first_name || "") ||
       lastName !== (u.last_name || "") ||
       parsedYear !== (u.graduation_year ?? null) ||
+      niNames !== (u.ni_names || "") ||
       emailChanged;
     if (profileChanged) {
       onUpdateProfile({
@@ -118,6 +121,7 @@ const EditUserDialog = ({
         first_name: firstName,
         last_name: lastName,
         graduation_year: parsedYear,
+        ni_names: niNames || undefined,
         ...(emailChanged ? { email } : {}),
       });
     }
@@ -219,6 +223,16 @@ const EditUserDialog = ({
               />
             </div>
           )}
+
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground">NI names (semicolon separated)</Label>
+            <Input
+              value={niNames}
+              onChange={(e) => setNiNames(e.target.value)}
+              placeholder="Last, First Middle; Last, First"
+              className="bg-background rounded-lg"
+            />
+          </div>
 
           {/* Edit permissions — not shown for admins (they always have full access) */}
           {role !== "admin" && (

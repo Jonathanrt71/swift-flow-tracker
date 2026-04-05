@@ -11,6 +11,7 @@ export interface ManagedUser {
   first_name: string | null;
   last_name: string | null;
   graduation_year: number | null;
+  ni_names: string | null;
   role: UserRole;
   can_edit_handbook: boolean;
   can_edit_operations: boolean;
@@ -40,7 +41,7 @@ export function useAdmin() {
     queryFn: async () => {
       const { data: profiles, error: pErr } = await supabase
         .from("profiles")
-        .select("id, display_name, first_name, last_name, email, created_at, graduation_year");
+        .select("id, display_name, first_name, last_name, email, created_at, graduation_year, ni_names");
       if (pErr) throw pErr;
 
       const { data: roles, error: rErr } = await supabase
@@ -59,6 +60,7 @@ export function useAdmin() {
           first_name: p.first_name,
           last_name: p.last_name,
           graduation_year: p.graduation_year ?? null,
+          ni_names: (p as any).ni_names || null,
           role: (r?.role || "resident") as UserRole,
           can_edit_handbook: r?.can_edit_handbook ?? false,
           can_edit_operations: r?.can_edit_operations ?? false,
@@ -190,7 +192,7 @@ export function useAdmin() {
   });
 
   const updateProfile = useMutation({
-    mutationFn: async (data: { id: string; display_name?: string; first_name?: string; last_name?: string; graduation_year?: number | null; email?: string }) => {
+    mutationFn: async (data: { id: string; display_name?: string; first_name?: string; last_name?: string; graduation_year?: number | null; email?: string; ni_names?: string }) => {
       const { id, ...fields } = data;
       const { error } = await supabase.from("profiles").update(fields).eq("id", id);
       if (error) throw error;
