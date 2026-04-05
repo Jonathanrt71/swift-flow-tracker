@@ -19,6 +19,9 @@ import { formatDistanceToNow } from "date-fns";
 import { Plus, Pin, ThumbsUp, MessageSquare, X, ChevronDown, ChevronUp, Mail } from "lucide-react";
 import NotificationBell from "@/components/NotificationBell";
 import HeaderLogo from "@/components/HeaderLogo";
+import { useEditor, EditorContent } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import Link from "@tiptap/extension-link";
 
 /* helpers */
 
@@ -32,6 +35,63 @@ function formatDate(dateStr: string) {
   if (diffDays < 7) return `${diffDays} days ago`;
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
+
+const videoPatterns = [
+  { regex: /https?:\/\/(?:www\.)?loom\.com\/share\/([a-zA-Z0-9]+)/, embed: (id: string) => `https://www.loom.com/embed/${id}` },
+  { regex: /https?:\/\/(?:www\.)?youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)/, embed: (id: string) => `https://www.youtube.com/embed/${id}` },
+  { regex: /https?:\/\/youtu\.be\/([a-zA-Z0-9_-]+)/, embed: (id: string) => `https://www.youtube.com/embed/${id}` },
+  { regex: /https?:\/\/(?:www\.)?vimeo\.com\/(\d+)/, embed: (id: string) => `https://player.vimeo.com/video/${id}` },
+];
+
+function extractVideoEmbeds(html: string): { embedUrl: string; originalUrl: string }[] {
+  const embeds: { embedUrl: string; originalUrl: string }[] = [];
+  const urlRegex = /https?:\/\/[^\s<"]+/g;
+  const urls = html.match(urlRegex) || [];
+  urls.forEach(url => {
+    for (const pattern of videoPatterns) {
+      const match = url.match(pattern.regex);
+      if (match) {
+        embeds.push({ embedUrl: pattern.embed(match[1]), originalUrl: url });
+        break;
+      }
+    }
+  });
+  return embeds;
+}
+
+const AnnouncementBody = ({ html, expanded }: { html: string; expanded: boolean }) => {
+  const embeds = expanded ? extractVideoEmbeds(html) : [];
+
+  return (
+    <>
+      {expanded ? (
+        <div
+          style={{ fontSize: 13.5, color: "#4a4a4a", lineHeight: 1.55 }}
+          dangerouslySetInnerHTML={{ __html: html }}
+        />
+      ) : (
+        <div style={{ fontSize: 13.5, color: "#4a4a4a", lineHeight: 1.55, overflow: "hidden", maxHeight: "2.9em", position: "relative" }}>
+          <div dangerouslySetInnerHTML={{ __html: html }} />
+          <span style={{
+            position: "absolute", right: 0, bottom: 0, paddingLeft: 24,
+            background: "linear-gradient(to right, transparent, #E7EBEF 40%)",
+            fontSize: 12, color: "#52657A", fontWeight: 600,
+          }}>more</span>
+        </div>
+      )}
+      {embeds.map((embed, i) => (
+        <div key={i} style={{ margin: "10px 0", borderRadius: 8, overflow: "hidden" }}>
+          <iframe
+            src={embed.embedUrl}
+            style={{ width: "100%", aspectRatio: "16/9", border: "none", borderRadius: 8 }}
+            allowFullScreen
+            allow="autoplay; encrypted-media"
+          />
+        </div>
+      ))}
+    </>
+  );
+};
 
 const CategoryPill = ({ category }: { category: AnnouncementCategory }) => {
   const colors = CATEGORY_COLORS[category] || CATEGORY_COLORS.general;
@@ -247,11 +307,27 @@ const ComposeDialog = ({ onClose, onSubmit, isPending }: {
   isPending: boolean;
 }) => {
   const [title, setTitle] = useState("");
-  const [body, setBody] = useState("");
   const [category, setCategory] = useState<AnnouncementCategory>("general");
   const [audience, setAudience] = useState<AnnouncementAudience>("all");
   const [pinned, setPinned] = useState(false);
   const [actionRequired, setActionRequired] = useState(false);
+
+  const editor = useEditor({
+    extensions: [
+      StarterKit,
+      Link.configure({ openOnClick: false, HTMLAttributes: { style: "color: #378ADD; text-decoration: underline;" } }),
+    ],
+    content: "",
+    editorProps: {
+      attributes: {
+        class: "outline-none min-h-[120px] text-sm px-3 py-2",
+        style: "color: #1a1a1a;",
+      },
+    },
+  });
+
+  const bodyHtml = editor?.getHTML() || "";
+  const bodyEmpty = !bodyHtml || bodyHtml === "<p></p>" || bodyHtml.trim() === "";
 
   const inputStyle: React.CSSProperties = {
     width: "100%", padding: "10px 12px", border: "1px solid #C9CED4", borderRadius: 8,
@@ -296,7 +372,9 @@ const ComposeDialog = ({ onClose, onSubmit, isPending }: {
           </div>
           <div>
             <label style={labelStyle}>Message</label>
-            <textarea style={{ ...inputStyle, minHeight: 120, resize: "vertical" } as React.CSSProperties} placeholder="Write your announcement..." value={body} onChange={(e) => setBody(e.target.value)} />
+            <div style={{ ...inputStyle, padding: 0, minHeight: 120, overflow: "hidden" }}>
+              {editor && <EditorContent editor={editor} />}
+            </div>
           </div>
           <div style={{ display: "flex", gap: 20 }}>
             <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#4a4a4a", cursor: "pointer" }}>
@@ -315,13 +393,13 @@ const ComposeDialog = ({ onClose, onSubmit, isPending }: {
             backgroundColor: "transparent", color: "#52657A", fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit",
           }}>Cancel</button>
           <button
-            disabled={!title.trim() || !body.trim() || isPending}
-            onClick={() => onSubmit({ title: title.trim(), body: body.trim(), category, audience, is_pinned: pinned, is_action_required: actionRequired })}
+            disabled={!title.trim() || bodyEmpty || isPending}
+            onClick={() => onSubmit({ title: title.trim(), body: bodyHtml, category, audience, is_pinned: pinned, is_action_required: actionRequired })}
             style={{
               padding: "9px 24px", borderRadius: 8, border: "none",
-              backgroundColor: title.trim() && body.trim() ? "#415162" : "#C9CED4",
+              backgroundColor: title.trim() && !bodyEmpty ? "#415162" : "#C9CED4",
               color: "#fff", fontSize: 14, fontWeight: 600,
-              cursor: title.trim() && body.trim() ? "pointer" : "default", fontFamily: "inherit",
+              cursor: title.trim() && !bodyEmpty ? "pointer" : "default", fontFamily: "inherit",
             }}
           >
             {isPending ? "Posting..." : "Post Announcement"}
@@ -375,18 +453,7 @@ const AnnouncementCard = ({ announcement, isAdmin, onOpenTracker }: {
         {announcement.title}
       </div>
 
-      {expanded ? (
-        <div style={{ fontSize: 13.5, color: "#4a4a4a", lineHeight: 1.55 }}>{announcement.body}</div>
-      ) : (
-        <div style={{ fontSize: 13.5, color: "#4a4a4a", lineHeight: 1.55, overflow: "hidden", maxHeight: "2.9em", position: "relative" }}>
-          {announcement.body}
-          <span style={{
-            position: "absolute", right: 0, bottom: 0, paddingLeft: 24,
-            background: "linear-gradient(to right, transparent, #E7EBEF 40%)",
-            fontSize: 12, color: "#52657A", fontWeight: 600,
-          }}>more</span>
-        </div>
-      )}
+      <AnnouncementBody html={announcement.body} expanded={expanded} />
 
       {expanded && <ReplyThread announcementId={announcement.id} />}
 
