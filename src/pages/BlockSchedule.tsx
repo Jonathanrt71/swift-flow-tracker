@@ -506,10 +506,10 @@ const BlockSchedule = () => {
                             const hasEval = evalCoverageSet.has(coverageKey);
 
                             if (showEvalCoverage) {
-                              // Eval coverage mode — plain text, background only if evaluated
+                              // Eval coverage mode — plain text, green background if evaluated
                               return (
                                 <td key={block.num} style={{
-                                  background: hasEval ? "#C5D3E0" : rowBg,
+                                  background: hasEval ? "#C0DD97" : "#fff",
                                   borderLeft: isCurrent ? "2px solid #FF6B35" : "1px solid #D5DAE0",
                                   borderRight: isCurrent ? "2px solid #FF6B35" : "1px solid #D5DAE0",
                                   borderBottom: "1px solid #D5DAE0",
@@ -522,7 +522,7 @@ const BlockSchedule = () => {
                                     <span key={i} style={{
                                       fontSize: 9,
                                       fontWeight: 500,
-                                      color: "#2D3748",
+                                      color: hasEval ? "#27500A" : "#8A9AAB",
                                       marginRight: rotations.length > 1 && i === 0 ? 3 : 0,
                                     }}>
                                       {abbreviateRotation(rot)}
