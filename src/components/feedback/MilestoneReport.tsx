@@ -53,6 +53,22 @@ const MilestoneReport = () => {
   const [generating, setGenerating] = useState(false);
   const [generated, setGenerated] = useState(false);
 
+  // Official milestone levels
+  const { data: officialLevels } = useQuery({
+    queryKey: ["official-milestone-levels-report", selectedResident],
+    enabled: !!selectedResident,
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from("milestone_levels")
+        .select("subcategory_id, level")
+        .eq("resident_id", selectedResident);
+      if (error) throw error;
+      const map = new Map<string, number>();
+      (data || []).forEach((m: any) => map.set(m.subcategory_id, m.level));
+      return map;
+    },
+  });
+
   // Fetch resident IDs
   const { data: residentRoles } = useQuery({
     queryKey: ["resident-role-ids"],
@@ -173,29 +189,34 @@ const MilestoneReport = () => {
         }
       }
 
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+      let suggestions: Suggestion[] = [];
+      if (relevantSubcategories.length > 0 && filteredFeedback.length > 0) {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
 
-      const res = await supabase.functions.invoke("generate-milestone-suggestions", {
-        body: {
-          resident_id: selectedResident,
-          date_start: startDate,
-          date_end: endDate,
-          feedback_entries: filteredFeedback.map((fb) => ({
-            comment: fb.comment,
-            sentiment: fb.sentiment,
-            competency_subcategory_id: fb.competency_subcategory_id,
-            created_at: fb.created_at,
-          })),
-          subcategories: relevantSubcategories,
-        },
-        headers: { Authorization: `Bearer ${session?.access_token}` },
-      });
+        const res = await supabase.functions.invoke("generate-milestone-suggestions", {
+          body: {
+            resident_id: selectedResident,
+            date_start: startDate,
+            date_end: endDate,
+            feedback_entries: filteredFeedback.map((fb) => ({
+              comment: fb.comment,
+              sentiment: fb.sentiment,
+              competency_subcategory_id: fb.competency_subcategory_id,
+              created_at: fb.created_at,
+            })),
+            subcategories: relevantSubcategories,
+          },
+          headers: { Authorization: `Bearer ${session?.access_token}` },
+        });
 
-      if (res.error) throw res.error;
-      const suggestions: Suggestion[] = res.data?.suggestions || [];
+        if (!res.error) {
+          suggestions = res.data?.suggestions || [];
+        }
+      }
 
+      // Always show ALL 19 subcategories
       const items: ReportItem[] = [];
       for (const cat of categories) {
         for (const sub of cat.subcategories) {
@@ -203,24 +224,22 @@ const MilestoneReport = () => {
           const fbForSub = filteredFeedback.filter(
             (fb) => fb.competency_subcategory_id === sub.id
           );
-          if (suggestion || fbForSub.length > 0) {
-            items.push({
-              subcategoryId: sub.id,
-              subcategoryCode: sub.code,
-              subcategoryName: sub.name,
-              categoryId: cat.id,
-              categoryCode: cat.code,
-              categoryName: cat.name,
-              categoryColor: cat.color,
-              milestones: sub.milestones,
-              selectedLevel: suggestion?.suggested_level || 1,
-              comment: suggestion?.suggested_comment || "",
-              finalized: false,
-              feedbackCount: fbForSub.length,
-              positiveCount: fbForSub.filter((f) => f.sentiment === "positive").length,
-              negativeCount: fbForSub.filter((f) => f.sentiment === "negative").length,
-            });
-          }
+          items.push({
+            subcategoryId: sub.id,
+            subcategoryCode: sub.code,
+            subcategoryName: sub.name,
+            categoryId: cat.id,
+            categoryCode: cat.code,
+            categoryName: cat.name,
+            categoryColor: cat.color,
+            milestones: sub.milestones,
+            selectedLevel: suggestion ? suggestion.suggested_level : 0,
+            comment: suggestion?.suggested_comment || "",
+            finalized: false,
+            feedbackCount: fbForSub.length,
+            positiveCount: fbForSub.filter((f) => f.sentiment === "positive").length,
+            negativeCount: fbForSub.filter((f) => f.sentiment === "negative").length,
+          });
         }
       }
 
@@ -502,6 +521,7 @@ const MilestoneReport = () => {
                   <SubCompetencyCard
                     key={item.subcategoryId}
                     item={item}
+                    officialLevel={officialLevels?.get(item.subcategoryId) ?? null}
                     onLevelChange={(level) => updateItem(idx, { selectedLevel: level })}
                     onCommentChange={(comment) => updateItem(idx, { comment })}
                     onFinalize={() => handleFinalize(idx)}
@@ -517,7 +537,7 @@ const MilestoneReport = () => {
       {generated && !generating && reportItems.length === 0 && (
         <div className="text-center py-12">
           <p className="text-sm" style={{ color: "#8A9AAB" }}>
-            No sub-competency data found for the selected feedback.
+            Loading competency data...
           </p>
         </div>
       )}
@@ -529,6 +549,7 @@ const MilestoneReport = () => {
 // Sub-competency card component
 interface SubCompetencyCardProps {
   item: ReportItem;
+  officialLevel: number | null;
   onLevelChange: (level: number) => void;
   onCommentChange: (comment: string) => void;
   onFinalize: () => void;
@@ -537,14 +558,17 @@ interface SubCompetencyCardProps {
 
 const SubCompetencyCard = ({
   item,
+  officialLevel,
   onLevelChange,
   onCommentChange,
   onFinalize,
   onEdit,
 }: SubCompetencyCardProps) => {
   const selectedMilestone = item.milestones.find(
-    (m) => m.level === item.selectedLevel
+    (m) => m.level === Math.floor(item.selectedLevel)
   );
+
+  const levels = [1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0];
 
   return (
     <div
@@ -589,34 +613,42 @@ const SubCompetencyCard = ({
         {item.positiveCount} positive · {item.negativeCount} negative
       </div>
 
-      {/* Milestone level selector */}
+      {/* Milestone level selector — 0.5 increments with official level dot */}
       <div className="mb-3">
         <label className="text-[11px] block mb-1.5" style={{ color: "#8A9AAB" }}>
-          Milestone level
+          Milestone level {officialLevel != null && <span style={{ color: "#378ADD" }}>(current: {officialLevel.toFixed(1)})</span>}
         </label>
-        <div className="flex gap-2 mb-1.5">
-          {[0, 1, 2, 3, 4, 5].map((level) => {
-            const milestone = item.milestones.find((m) => m.level === level);
+        <div className="flex gap-1 mb-1.5" style={{ flexWrap: "wrap" }}>
+          {levels.map((level) => {
             const isSelected = item.selectedLevel === level;
+            const isOfficial = officialLevel != null && officialLevel === level;
             return (
-              <button
-                key={level}
-                title={milestone?.summary || milestone?.description || `Level ${level}`}
-                disabled={item.finalized}
-                onClick={() => onLevelChange(level)}
-                className="w-8 h-8 rounded-full text-sm font-medium flex items-center justify-center transition-colors"
-                style={{
-                  background: isSelected ? "#415162" : "#F5F3EE",
-                  color: isSelected ? "white" : "#5F7285",
-                  border: isSelected
-                    ? "2px solid #415162"
-                    : "1px solid #C9CED4",
-                  opacity: item.finalized ? 0.7 : 1,
-                  cursor: item.finalized ? "default" : "pointer",
-                }}
-              >
-                {level}
-              </button>
+              <div key={level} className="flex flex-col items-center" style={{ gap: 2 }}>
+                {isOfficial ? (
+                  <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#378ADD" }} />
+                ) : (
+                  <div style={{ width: 6, height: 6 }} />
+                )}
+                <button
+                  title={`Level ${level}`}
+                  disabled={item.finalized}
+                  onClick={() => onLevelChange(level)}
+                  className="rounded text-xs font-medium flex items-center justify-center transition-colors"
+                  style={{
+                    width: 32,
+                    height: 28,
+                    background: isSelected ? "#415162" : "#F5F3EE",
+                    color: isSelected ? "white" : "#5F7285",
+                    border: isSelected
+                      ? "2px solid #415162"
+                      : "1px solid #C9CED4",
+                    opacity: item.finalized ? 0.7 : 1,
+                    cursor: item.finalized ? "default" : "pointer",
+                  }}
+                >
+                  {level % 1 === 0 ? level.toFixed(0) : level.toFixed(1)}
+                </button>
+              </div>
             );
           })}
         </div>
