@@ -23,12 +23,13 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { LogOut, Shield, User, Plus, Pencil, Trash2, CheckSquare, Search, X, BarChart2, ListTodo, ClipboardList } from "lucide-react";
+import { LogOut, Shield, User, Plus, Pencil, Trash2, CheckSquare, Search, X, BarChart2, ListTodo, ClipboardList, Target } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import NotificationBell from "@/components/NotificationBell";
 import ChecklistEditor from "@/components/cbme/ChecklistEditor";
 import AssessmentPopup from "@/components/cbme/AssessmentPopup";
 import CBMEDashboard from "@/components/cbme/CBMEDashboard";
+import MilestoneLevelsGrid from "@/components/cbme/MilestoneLevelsGrid";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import HeaderLogo from "@/components/HeaderLogo";
 import { format, parseISO } from "date-fns";
@@ -271,6 +272,9 @@ const CBME = () => {
               )}
               <TabsTrigger value="history" className="h-8 w-8 p-0" title="Assessment History">
                 <ClipboardList className="h-4 w-4" />
+              </TabsTrigger>
+              <TabsTrigger value="milestones" className="h-8 w-8 p-0" title="Milestone Levels">
+                <Target className="h-4 w-4" />
               </TabsTrigger>
             </TabsList>
             {activeTab === "list" && canCreate && (
@@ -545,6 +549,10 @@ const CBME = () => {
 
               return <div className="space-y-2">{elements}</div>;
             })()}
+          </TabsContent>
+
+          <TabsContent value="milestones" className="mt-0">
+            <MilestoneLevelsGrid />
           </TabsContent>
         </Tabs>
       </main>
