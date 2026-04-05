@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
@@ -49,7 +49,7 @@ const Login = () => {
         position: "relative", display: "flex", alignItems: "center", justifyContent: "center",
         minHeight: "100vh", padding: 24,
       }}>
-        <div className="w-full max-w-md flex flex-col items-center">
+        <div className="w-full flex flex-col items-center" style={{ maxWidth: 340 }}>
           <Card className="w-full border-0" style={{
             background: "rgba(255,255,255,0.88)",
             backdropFilter: "blur(16px)",
@@ -57,11 +57,8 @@ const Login = () => {
             borderRadius: 16,
             boxShadow: "0 12px 40px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.2)",
           }}>
-            <CardHeader className="text-center pt-12 pb-2 items-center justify-center">
-              <CardTitle className="text-xl">Sign in</CardTitle>
-            </CardHeader>
             <form onSubmit={handleLogin}>
-              <CardContent className="space-y-4 pt-0">
+              <CardContent className="space-y-4" style={{ padding: "24px 24px 8px" }}>
                 <div className="space-y-1.5">
                   <Label htmlFor="email" className="font-normal text-sm text-muted-foreground">Email</Label>
                   <Input
@@ -82,7 +79,7 @@ const Login = () => {
                     required />
                 </div>
               </CardContent>
-              <CardFooter className="flex flex-col gap-3 pt-2">
+              <CardFooter className="flex flex-col" style={{ padding: "8px 24px 24px" }}>
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading ? "Please wait…" : "Sign in"}
                 </Button>
