@@ -348,6 +348,7 @@ const BlockSchedule = () => {
               border: "0.5px solid #C9CED4",
               borderRadius: 8,
               maxHeight: "calc(100vh - 160px)",
+              overscrollBehaviorX: "contain",
             }}
           >
             <table style={{ borderCollapse: "collapse" }}>
