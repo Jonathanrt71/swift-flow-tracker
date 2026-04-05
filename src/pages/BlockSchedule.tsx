@@ -371,6 +371,7 @@ const BlockSchedule = () => {
                         color: "#fff", fontSize: 10, fontWeight: 500,
                         padding: "4px 3px", textAlign: "center", whiteSpace: "nowrap",
                         borderLeft: "0.5px solid rgba(255,255,255,0.15)",
+                        borderBottom: isCurrent ? "3px solid #FF6B35" : "none",
                         minWidth: 72,
                       }}>
                         B{block.num}<br />{formatDate(block.start).replace(" ", "\u00A0")}
@@ -454,16 +455,16 @@ const BlockSchedule = () => {
                             return (
                               <td key={block.num} style={{
                                 background: bgStyle,
-                                borderLeft: isCurrent ? "2px solid #fff" : "0.5px solid rgba(255,255,255,0.3)",
-                                borderRight: isCurrent ? "2px solid #fff" : "0.5px solid rgba(255,255,255,0.3)",
-                                borderBottom: "0.5px solid rgba(255,255,255,0.3)",
-                                padding: "3px 1px",
+                                borderLeft: isCurrent ? "2px solid #FF6B35" : "1px solid rgba(255,255,255,0.4)",
+                                borderRight: isCurrent ? "2px solid #FF6B35" : "1px solid rgba(255,255,255,0.4)",
+                                borderBottom: "1px solid rgba(255,255,255,0.4)",
+                                padding: "4px 3px",
                                 textAlign: "center",
                                 verticalAlign: "middle",
                                 whiteSpace: "nowrap",
                               }}>
                                 {rotations.map((rot, i) => (
-                                  <span key={i} style={{ ...pillStyle(colors[i]), marginRight: rotations.length > 1 && i === 0 ? 1 : 0 }}>
+                                  <span key={i} style={{ ...pillStyle(colors[i]), marginRight: rotations.length > 1 && i === 0 ? 3 : 0 }}>
                                     {abbreviateRotation(rot)}
                                   </span>
                                 ))}
