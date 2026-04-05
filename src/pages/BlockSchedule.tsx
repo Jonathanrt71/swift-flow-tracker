@@ -143,11 +143,32 @@ const BlockSchedule = () => {
     "FM:PEDS-WHITE'S": "#D4A017",
     "FM:NICU/NEWBORN CARE-HMC": "#D4A017",
     "FM:DEV PEDS": "#D4A017",
+    "FM: PEDS- WHITE'S Urgent Care": "#D4A017",
+    "FM:PEDS ED": "#D4A017",
+    "FM: PODIATRY": "#5F5E5A",
+    "FM: POCUS": "#52657A",
+    "FM: Sleep Med": "#52657A",
+    "FM: Business Office": "#5F5E5A",
+    "FM:DERM": "#D85A30",
+    "FM:ENT": "#534AB7",
+    "FM:GERIATRICS": "#72243E",
+    "FM:GYN": "#993556",
+    "FM:OPTHAMOLOGY": "#534AB7",
+    "FM:PSYCH": "#7F77DD",
+    "FM:PUB HLTH": "#0F6E56",
+    "FM:PULM-HMC": "#854F0B",
     "IM:ER-HMC": "#c44444",
     "IM:CARD-HMC": "#854F0B",
     "IM:ENDO-HMC": "#854F0B",
     "IM:PALLIATIVE CARE": "#72243E",
-    "FM: PODIATRY": "#5F5E5A",
+    "IM:CROSS COVER-HMC": "#5F5E5A",
+    "IM:GI-HMC": "#854F0B",
+    "IM:HOSPITALIST": "#378ADD",
+    "IM:ICU-HMC": "#c44444",
+    "IM:ID-HMC": "#854F0B",
+    "IM:NEURO OP": "#534AB7",
+    "IM:RHEUM-HMC": "#854F0B",
+    "IM:WOUND CARE-HMC": "#5F5E5A",
   };
 
   const getRotationColor = (rot: string): string => {
@@ -177,21 +198,45 @@ const BlockSchedule = () => {
       "FM:PEDS-ERLANGER": "PEDS-E",
       "FM:PEDS-WHITE'S": "PEDS-W",
       "FM:NICU/NEWBORN CARE-HMC": "NICU",
-      "FM:DEV PEDS": "DEV PEDS",
-      "FM: PODIATRY": "PODIATRY",
+      "FM:DEV PEDS": "DEVPED",
+      "FM:PEDS ED": "PED-ED",
+      "FM: PODIATRY": "POD",
+      "FM: POCUS": "POCUS",
+      "FM: Sleep Med": "SLEEP",
+      "FM: Business Office": "BUSOF",
+      "FM: PEDS- WHITE'S Urgent Care": "PED-UC",
+      "FM:DERM": "DERM",
+      "FM:ENT": "ENT",
+      "FM:GERIATRICS": "GERI",
+      "FM:GYN": "GYN",
+      "FM:OPTHAMOLOGY": "OPHTH",
+      "FM:PSYCH": "PSYCH",
+      "FM:PUB HLTH": "PUBHLT",
+      "FM:PULM-HMC": "PULM",
       "IM:ER-HMC": "ER",
       "IM:PALLIATIVE CARE": "PALL",
+      "IM:CROSS COVER-HMC": "XCOVER",
+      "IM:GI-HMC": "GI",
+      "IM:HOSPITALIST": "HOSP",
+      "IM:ICU-HMC": "ICU",
+      "IM:ID-HMC": "ID",
+      "IM:NEURO OP": "NEURO",
+      "IM:RHEUM-HMC": "RHEUM",
+      "IM:WOUND CARE-HMC": "WOUND",
+      "Family Medicine (Unspecified)": "FM-UNS",
     };
     if (abbrevs[base]) return abbrevs[base];
     if (base.startsWith("IM:CARD-HMC")) return "CARDS";
     if (base.startsWith("IM:ENDO-HMC")) return "ENDO";
     if (rot.startsWith("*VAC")) return "VAC";
     if (rot.startsWith("*LOA")) return "LOA";
-    return base.replace("FM:", "").replace("IM:", "").trim();
+    // Fallback: strip prefix, truncate to 6
+    const fallback = base.replace("FM:", "").replace("IM:", "").trim();
+    return fallback.length > 6 ? fallback.slice(0, 6) : fallback;
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "#F5F3EE" }}>
+    <div style={{ minHeight: "100vh", background: "#F5F3EE", width: "100vw", marginLeft: "calc(-50vw + 50%)", position: "relative" }}>
       <header style={{ position: "sticky", top: 0, zIndex: 40, background: "#415162" }}>
         <div style={{ display: "flex", alignItems: "center", height: 56, padding: "0 16px" }}>
           <HeaderLogo isAdmin={isAdmin} onSignOut={signOut}>
