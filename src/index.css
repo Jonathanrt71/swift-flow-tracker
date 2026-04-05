@@ -7,6 +7,9 @@ All colors MUST be HSL.
 */
 
 @layer base {
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
   :root {
     --background: 37 30% 95%;
     --foreground: 0 0% 20%;
