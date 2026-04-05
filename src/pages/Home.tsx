@@ -265,7 +265,7 @@ const Home = () => {
                     fontSize: 12, color: "#6B7280", lineHeight: 1.45,
                     display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" as const, overflow: "hidden",
                   }}>
-                    {a.body}
+                    {a.body.replace(/<[^>]*>/g, "").replace(/https?:\/\/(?:www\.)?(?:loom\.com|youtube\.com|youtu\.be|vimeo\.com)\S*/gi, "").trim() || a.title}
                   </div>
                 </div>
               ))
