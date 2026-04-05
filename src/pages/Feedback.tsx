@@ -375,7 +375,6 @@ const Feedback = () => {
                                 </div>
                               );
                             })}
-                            ))}
                           </div>
                           <button
                             onClick={() => setViewSubcategoryId(fm.subcategory_id)}
