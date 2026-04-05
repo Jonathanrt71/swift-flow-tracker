@@ -38,6 +38,7 @@ const BlockSchedule = () => {
   const [filterResident, setFilterResident] = useState<string>("all");
   const [filterPgy, setFilterPgy] = useState<string>("all");
   const [viewMode, setViewMode] = useState<"cards" | "table">("table");
+  const [showEvalCoverage, setShowEvalCoverage] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -54,6 +55,44 @@ const BlockSchedule = () => {
       return (data || []) as BlockEntry[];
     },
   });
+
+  // Fetch evaluations for coverage overlay
+  const evaluationsQuery = useQuery({
+    queryKey: ["evaluations_for_schedule"],
+    enabled: !!user && showEvalCoverage,
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from("evaluations")
+        .select("resident_name, rotation, eval_start_date, eval_end_date");
+      if (error) throw error;
+      return (data || []) as { resident_name: string; rotation: string | null; eval_start_date: string | null; eval_end_date: string | null }[];
+    },
+  });
+
+  // Build a set of "resident::blockNum" keys that have evaluations
+  const evalCoverageSet = useMemo(() => {
+    const set = new Set<string>();
+    if (!showEvalCoverage || !evaluationsQuery.data) return set;
+    const evals = evaluationsQuery.data;
+    const scheduleEntries = scheduleQuery.data || [];
+
+    evals.forEach(ev => {
+      if (!ev.eval_start_date || !ev.resident_name) return;
+      // Find which block(s) this evaluation overlaps with for this resident
+      scheduleEntries.forEach(se => {
+        if (se.resident_name !== ev.resident_name) return;
+        const blockStart = new Date(se.block_start + "T00:00:00");
+        const blockEnd = new Date(se.block_end + "T23:59:59");
+        const evalStart = new Date(ev.eval_start_date + "T00:00:00");
+        const evalEnd = ev.eval_end_date ? new Date(ev.eval_end_date + "T23:59:59") : evalStart;
+        // Check overlap
+        if (evalStart <= blockEnd && evalEnd >= blockStart) {
+          set.add(`${se.resident_name}::${se.pgy_level}::${se.block_number}`);
+        }
+      });
+    });
+    return set;
+  }, [showEvalCoverage, evaluationsQuery.data, scheduleQuery.data]);
 
   const entries = scheduleQuery.data || [];
 
@@ -313,6 +352,21 @@ const BlockSchedule = () => {
 
           <div style={{ flex: 1 }} />
 
+          {/* Eval coverage toggle */}
+          {viewMode === "table" && (
+            <button
+              onClick={() => setShowEvalCoverage(!showEvalCoverage)}
+              style={{
+                padding: "5px 10px", fontSize: 11, fontWeight: 500, borderRadius: 8, cursor: "pointer",
+                background: showEvalCoverage ? "#415162" : "#fff",
+                color: showEvalCoverage ? "#fff" : "#5F7285",
+                border: "0.5px solid #C9CED4",
+              }}
+            >
+              Evals
+            </button>
+          )}
+
           {/* View toggle */}
           <div style={{ display: "flex", gap: 0, borderRadius: 8, overflow: "hidden", border: "0.5px solid #C9CED4" }}>
             <button
@@ -448,8 +502,38 @@ const BlockSchedule = () => {
                           {blocks.map(block => {
                             const rotations = resident.blocks.get(block.num) || [];
                             const isCurrent = currentBlock?.num === block.num;
-                            const colors = rotations.map(r => getRotationColor(r));
+                            const coverageKey = `${resident.name}::${resident.pgy}::${block.num}`;
+                            const hasEval = evalCoverageSet.has(coverageKey);
 
+                            if (showEvalCoverage) {
+                              // Eval coverage mode — plain text, background only if evaluated
+                              return (
+                                <td key={block.num} style={{
+                                  background: hasEval ? "#C5D3E0" : rowBg,
+                                  borderLeft: isCurrent ? "2px solid #FF6B35" : "1px solid #D5DAE0",
+                                  borderRight: isCurrent ? "2px solid #FF6B35" : "1px solid #D5DAE0",
+                                  borderBottom: "1px solid #D5DAE0",
+                                  padding: "4px 3px",
+                                  textAlign: "center",
+                                  verticalAlign: "middle",
+                                  whiteSpace: "nowrap",
+                                }}>
+                                  {rotations.map((rot, i) => (
+                                    <span key={i} style={{
+                                      fontSize: 9,
+                                      fontWeight: 500,
+                                      color: "#2D3748",
+                                      marginRight: rotations.length > 1 && i === 0 ? 3 : 0,
+                                    }}>
+                                      {abbreviateRotation(rot)}
+                                    </span>
+                                  ))}
+                                </td>
+                              );
+                            }
+
+                            // Normal color mode
+                            const colors = rotations.map(r => getRotationColor(r));
                             let bgStyle: string;
                             if (rotations.length === 2) {
                               bgStyle = `linear-gradient(to right, ${colors[0]} 50%, ${colors[1]} 50%)`;
