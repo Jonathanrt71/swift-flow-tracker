@@ -55,6 +55,8 @@ const EditUserDialog = ({
   onUpdateProfile,
   onUpdateUser,
   onUpdatePermissions,
+  externalOpen,
+  onExternalOpenChange,
 }: {
   u: ManagedUser;
   isSelf: boolean;
@@ -62,8 +64,15 @@ const EditUserDialog = ({
   onUpdateProfile: (data: { id: string; display_name?: string; first_name?: string; last_name?: string; graduation_year?: number | null; ni_names?: string }) => void;
   onUpdateUser: (data: { user_id: string; email?: string; password?: string }) => void;
   onUpdatePermissions: (data: { user_id: string; can_edit_handbook: boolean; can_edit_operations: boolean }) => void;
+  externalOpen?: boolean;
+  onExternalOpenChange?: (open: boolean) => void;
 }) => {
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = externalOpen !== undefined ? externalOpen : internalOpen;
+  const setOpen = (v: boolean) => {
+    if (onExternalOpenChange) onExternalOpenChange(v);
+    else setInternalOpen(v);
+  };
   const [email, setEmail] = useState(u.email || "");
   const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState(u.first_name || "");
@@ -139,11 +148,6 @@ const EditUserDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={handleOpen}>
-      <DialogTrigger asChild>
-        <button className="flex items-center justify-center w-9 h-9 bg-transparent border-none cursor-pointer text-muted-foreground hover:text-foreground transition-colors">
-          <Pencil className="h-3.5 w-3.5" />
-        </button>
-      </DialogTrigger>
       <DialogContent className="w-[calc(100%-2rem)] max-w-sm bg-muted border-border rounded-xl p-0 [&>button[class*='absolute']]:hidden">
         <div className="flex items-center justify-between px-5 pt-4 pb-2">
           <DialogTitle className="text-base font-medium">Edit user</DialogTitle>
@@ -831,45 +835,53 @@ const Admin = () => {
                             {u.role}
                           </p>
                         )}
-                        <div
-                          className="flex items-center justify-between px-3 py-2 bg-background rounded-lg border border-border"
-                        >
-                          <div>
-                            <span className="text-sm font-medium text-foreground">
-                              {formatPersonName(u)}
-                            </span>
-                            {u.role === "resident" && (() => {
-                              const pgy = getPgyLevel(u.graduation_year);
-                              return pgy ? (
-                                <span className="ml-1.5 text-[11px] text-muted-foreground">(PGY-{pgy})</span>
-                              ) : null;
-                            })()}
-                            {isSelf && (
-                              <span className="ml-1 text-[11px] text-muted-foreground">(you)</span>
-                            )}
-                            {u.email ? (
-                              <p className="text-[11px] text-muted-foreground">{u.email}</p>
-                            ) : (
-                              <p className="text-[11px] text-muted-foreground italic">No email</p>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <EditUserDialog
-                              u={u}
-                              isSelf={isSelf}
-                              onUpdateRole={(data) => updateRole.mutate(data)}
-                              onUpdateProfile={(data) => updateProfile.mutate(data)}
-                              onUpdateUser={(data) => updateUser.mutate(data)}
-                              onUpdatePermissions={(data) => updatePermissions.mutate(data)}
-                            />
-                            {!isSelf && (
-                              <DeleteUserDialog
-                                u={u}
-                                onDelete={(id) => deleteUser.mutate(id)}
-                              />
-                            )}
-                          </div>
-                        </div>
+                        {(() => {
+                          const [editOpen, setEditOpen] = React.useState(false);
+                          return (
+                            <div
+                              className="flex items-center justify-between px-3 py-2 bg-background rounded-lg border border-border cursor-pointer"
+                              onClick={() => setEditOpen(true)}
+                            >
+                              <div>
+                                <span className="text-sm font-medium text-foreground">
+                                  {formatPersonName(u)}
+                                </span>
+                                {u.role === "resident" && (() => {
+                                  const pgy = getPgyLevel(u.graduation_year);
+                                  return pgy ? (
+                                    <span className="ml-1.5 text-[11px] text-muted-foreground">(PGY-{pgy})</span>
+                                  ) : null;
+                                })()}
+                                {isSelf && (
+                                  <span className="ml-1 text-[11px] text-muted-foreground">(you)</span>
+                                )}
+                                {u.email ? (
+                                  <p className="text-[11px] text-muted-foreground">{u.email}</p>
+                                ) : (
+                                  <p className="text-[11px] text-muted-foreground italic">No email</p>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                                <EditUserDialog
+                                  u={u}
+                                  isSelf={isSelf}
+                                  onUpdateRole={(data) => updateRole.mutate(data)}
+                                  onUpdateProfile={(data) => updateProfile.mutate(data)}
+                                  onUpdateUser={(data) => updateUser.mutate(data)}
+                                  onUpdatePermissions={(data) => updatePermissions.mutate(data)}
+                                  externalOpen={editOpen}
+                                  onExternalOpenChange={setEditOpen}
+                                />
+                                {!isSelf && (
+                                  <DeleteUserDialog
+                                    u={u}
+                                    onDelete={(id) => deleteUser.mutate(id)}
+                                  />
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })()}
                       </React.Fragment>
                     );
                   });
