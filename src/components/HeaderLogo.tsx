@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { CheckSquare, Users, Calendar, BookOpen, MessageSquare, Shield, User, LogOut, BookMarked, Stethoscope, ClipboardList, BookOpenCheck, Home, ShieldCheck, FileText, Megaphone, FileCheck, CalendarDays, Activity } from "lucide-react";
+import { CheckSquare, Users, Calendar, BookOpen, MessageSquare, Shield, User, LogOut, BookMarked, Stethoscope, ClipboardList, BookOpenCheck, Home, ShieldCheck, FileText, Megaphone, FileCheck, CalendarDays, Activity, UserCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { usePermissions } from "@/hooks/usePermissions";
 import { useAppSettings } from "@/hooks/useAppSettings";
@@ -21,6 +21,7 @@ const allNavItems: NavEntry[] = [
   { path: "/feedback",    label: "Feedback",     icon: MessageSquare, permissionKey: "feedback.view" },
   { path: "/evaluations", label: "Evaluations",  icon: FileCheck,     permissionKey: "evaluations.view" },
   { path: "/procedure-logs", label: "Procedures", icon: Activity,     permissionKey: "procedures.view" },
+  { path: "/resident-summary", label: "Resident Summary", icon: UserCheck, permissionKey: "resident_summary.view" },
   { path: "/topics",      label: "Topics",       icon: BookOpenCheck, permissionKey: "topics.view" },
   { path: "/compliance",  label: "Compliance",   icon: ShieldCheck,   permissionKey: "compliance.view" },
   { path: "/schedule",    label: "Schedule",     icon: CalendarDays,  permissionKey: "schedule.view" },
@@ -35,7 +36,7 @@ const allNavItems: NavEntry[] = [
 
 interface NavSection { label: string; paths: string[]; }
 const navSections: NavSection[] = [
-  { label: "Clinical",  paths: ["/cbme", "/events", "/feedback", "/evaluations", "/procedure-logs", "/topics"] },
+  { label: "Clinical",  paths: ["/cbme", "/events", "/feedback", "/evaluations", "/procedure-logs", "/resident-summary", "/topics"] },
   { label: "Program",   paths: ["/compliance", "/schedule", "/announcements", "/meetings", "/operations", "/tasks"] },
   { label: "Reference", paths: ["/gme-handbook", "/handbook", "/rotations"] },
 ];
