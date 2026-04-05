@@ -224,6 +224,21 @@ const MilestoneReport = () => {
           const fbForSub = filteredFeedback.filter(
             (fb) => fb.competency_subcategory_id === sub.id
           );
+          const official = officialLevels?.get(sub.id) ?? null;
+
+          // Default level logic:
+          // 1. AI suggestion if available from feedback
+          // 2. Current official level if exists
+          // 3. NA (-1) if no prior milestone reporting
+          let defaultLevel: number;
+          if (suggestion) {
+            defaultLevel = suggestion.suggested_level;
+          } else if (official != null) {
+            defaultLevel = official;
+          } else {
+            defaultLevel = -1;
+          }
+
           items.push({
             subcategoryId: sub.id,
             subcategoryCode: sub.code,
@@ -233,7 +248,7 @@ const MilestoneReport = () => {
             categoryName: cat.name,
             categoryColor: cat.color,
             milestones: sub.milestones,
-            selectedLevel: suggestion ? suggestion.suggested_level : -1,
+            selectedLevel: defaultLevel,
             comment: suggestion?.suggested_comment || "",
             finalized: false,
             feedbackCount: fbForSub.length,
