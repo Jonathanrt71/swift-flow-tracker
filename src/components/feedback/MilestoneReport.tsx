@@ -504,6 +504,12 @@ const MilestoneReport = () => {
             </button>
           )}
 
+          {/* Legend */}
+          <div className="flex items-center gap-1.5 pb-2" style={{ fontSize: 11, color: "#8A9AAB" }}>
+            <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#378ADD", flexShrink: 0 }} />
+            <span>Current approved milestone level</span>
+          </div>
+
           {/* Grouped by category */}
           {groupedItems.map(({ cat, items }) => (
             <div key={cat.id}>
@@ -618,7 +624,7 @@ const SubCompetencyCard = ({
       {/* Milestone level selector — 0.5 increments with official level dot */}
       <div className="mb-3">
         <label className="text-[11px] block mb-1.5" style={{ color: "#8A9AAB" }}>
-          Milestone level {officialLevel != null && <span style={{ color: "#378ADD" }}>(current: {officialLevel.toFixed(1)})</span>}
+          Milestone level
         </label>
         <div className="flex gap-1 mb-1.5" style={{ flexWrap: "wrap" }}>
           {levels.map((level) => {
