@@ -348,8 +348,6 @@ const BlockSchedule = () => {
             ))}
           </div>
 
-          <div style={{ flex: 1 }} />
-
           {/* View toggle — 3 modes */}
           <div style={{ display: "flex", gap: 0, borderRadius: 8, overflow: "hidden", border: "0.5px solid #C9CED4" }}>
             {([
