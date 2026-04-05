@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { formatPersonName } from "@/lib/dateFormat";
 import HeaderLogo from "@/components/HeaderLogo";
 import NotificationBell from "@/components/NotificationBell";
-import { Upload, Check, Eye, EyeOff, ChevronDown, ChevronUp, Search, X, Trash2 } from "lucide-react";
+import { Upload, Check, ChevronDown, ChevronUp, Search, X, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
   Select,
@@ -529,17 +529,24 @@ const Evaluations = () => {
                       </div>
                     </div>
 
-                    {/* Viewed indicator */}
-                    <button
+                    {/* Viewed checkbox */}
+                    <div
                       onClick={(e) => { e.stopPropagation(); toggleView(ev.id); }}
-                      style={{ background: "transparent", border: "none", cursor: "pointer", padding: 4 }}
+                      style={{
+                        width: 18,
+                        height: 18,
+                        borderRadius: 4,
+                        border: isViewed ? "none" : "2px solid #C9CED4",
+                        background: isViewed ? "#4A846C" : "transparent",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        cursor: "pointer",
+                        flexShrink: 0,
+                      }}
                     >
-                      {isViewed ? (
-                        <Eye style={{ width: 16, height: 16, color: "#4A846C" }} />
-                      ) : (
-                        <EyeOff style={{ width: 16, height: 16, color: "#C9CED4" }} />
-                      )}
-                    </button>
+                      {isViewed && <Check style={{ width: 12, height: 12, color: "#fff" }} />}
+                    </div>
 
                     {isExpanded ? (
                       <ChevronUp style={{ width: 16, height: 16, color: "#8A9AAB" }} />
