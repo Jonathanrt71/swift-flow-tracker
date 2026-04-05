@@ -134,110 +134,112 @@ const BlockSchedule = () => {
     return today >= start && today <= end;
   });
 
-  // Rotation color mapping
+  // Rotation color mapping — all unique colors
   const rotationColors: Record<string, string> = {
-    "FM:CLINIC": "#4A846C",
-    "FM:WARDS-HMC": "#378ADD",
-    "FM:NIGHTS-HMC": "#415162",
-    "FM:OB": "#D85A30",
-    "FM:SPORTS MED": "#1D9E75",
-    "FM:ORTHO": "#534AB7",
-    "FM:SURG-HMC": "#993556",
-    "FM:PEDS-PRIME": "#D4A017",
-    "FM:PEDS-ERLANGER": "#D4A017",
-    "FM:PEDS-WHITE'S": "#D4A017",
-    "FM:NICU/NEWBORN CARE-HMC": "#D4A017",
-    "FM:DEV PEDS": "#D4A017",
-    "FM: PEDS- WHITE'S Urgent Care": "#D4A017",
-    "FM:PEDS ED": "#D4A017",
-    "FM: PODIATRY": "#5F5E5A",
-    "FM: POCUS": "#52657A",
-    "FM: Sleep Med": "#52657A",
+    "*LOA": "#8A9AAB",
+    "*VAC": "#B4B2A9",
     "FM: Business Office": "#5F5E5A",
+    "FM: PEDS- WHITE'S Urgent Care": "#BA7517",
+    "FM: POCUS": "#0F6E56",
+    "FM: PODIATRY": "#444441",
+    "FM: Sleep Med": "#3C3489",
+    "FM:CLINIC": "#4A846C",
     "FM:DERM": "#D85A30",
-    "FM:ENT": "#534AB7",
+    "FM:DEV PEDS": "#EF9F27",
+    "FM:ENT": "#993C1D",
     "FM:GERIATRICS": "#72243E",
-    "FM:GYN": "#993556",
-    "FM:OPTHAMOLOGY": "#534AB7",
-    "FM:PSYCH": "#7F77DD",
-    "FM:PUB HLTH": "#0F6E56",
-    "FM:PULM-HMC": "#854F0B",
+    "FM:GYN": "#D4537E",
+    "FM:NICU/NEWBORN CARE-HMC": "#639922",
+    "FM:NIGHTS-HMC": "#2C2C2A",
+    "FM:OB": "#E24B4A",
+    "FM:OPTHAMOLOGY": "#7F77DD",
+    "FM:ORTHO": "#534AB7",
+    "FM:PEDS ED": "#D4A017",
+    "FM:PEDS-ERLANGER": "#854F0B",
+    "FM:PEDS-PRIME": "#A32D2D",
+    "FM:PEDS-WHITE'S": "#C87533",
+    "FM:PSYCH": "#26215C",
+    "FM:PUB HLTH": "#085041",
+    "FM:PULM-HMC": "#712B13",
+    "FM:SPORTS MED": "#1D9E75",
+    "FM:SURG-HMC": "#993556",
+    "FM:WARDS-HMC": "#378ADD",
+    "Family Medicine (Unspecified)": "#888780",
+    "IM:CARD-HMC": "#185FA5",
+    "IM:CROSS COVER-HMC": "#5F7285",
+    "IM:ENDO-HMC": "#633806",
     "IM:ER-HMC": "#c44444",
-    "IM:CARD-HMC": "#854F0B",
-    "IM:ENDO-HMC": "#854F0B",
-    "IM:PALLIATIVE CARE": "#72243E",
-    "IM:CROSS COVER-HMC": "#5F5E5A",
-    "IM:GI-HMC": "#854F0B",
-    "IM:HOSPITALIST": "#378ADD",
-    "IM:ICU-HMC": "#c44444",
-    "IM:ID-HMC": "#854F0B",
-    "IM:NEURO OP": "#534AB7",
-    "IM:RHEUM-HMC": "#854F0B",
-    "IM:WOUND CARE-HMC": "#5F5E5A",
+    "IM:GI-HMC": "#3B6D11",
+    "IM:HOSPITALIST": "#0C447C",
+    "IM:ICU-HMC": "#791F1F",
+    "IM:ID-HMC": "#4B1528",
+    "IM:NEURO OP": "#1D6B8A",
+    "IM:PALLIATIVE CARE": "#6B3A5D",
+    "IM:RHEUM-HMC": "#7B5B3A",
+    "IM:WOUND CARE-HMC": "#4A6741",
   };
 
   const getRotationColor = (rot: string): string => {
-    // Try exact match first, then prefix match
     if (rotationColors[rot]) return rotationColors[rot];
-    const base = rot.split("(")[0].split(" ")[0].trim();
+    const base = rot.split("(")[0].trim();
+    if (rotationColors[base]) return rotationColors[base];
     for (const [key, color] of Object.entries(rotationColors)) {
-      if (rot.startsWith(key) || base === key) return color;
+      if (rot.startsWith(key)) return color;
     }
-    if (rot.startsWith("*VAC") || rot.startsWith("*LOA")) return "#8A9AAB";
-    if (rot.startsWith("FM:")) return "#52657A";
-    if (rot.startsWith("IM:")) return "#854F0B";
     return "#5F7285";
   };
 
   const abbreviateRotation = (rot: string): string => {
     const base = rot.split("(")[0].trim();
     const abbrevs: Record<string, string> = {
-      "FM:CLINIC": "CLINIC",
-      "FM:WARDS-HMC": "WARDS",
-      "FM:NIGHTS-HMC": "NIGHTS",
-      "FM:OB": "OB",
-      "FM:SPORTS MED": "SPORTS",
-      "FM:ORTHO": "ORTHO",
-      "FM:SURG-HMC": "SURG",
-      "FM:PEDS-PRIME": "PEDS-P",
-      "FM:PEDS-ERLANGER": "PEDS-E",
-      "FM:PEDS-WHITE'S": "PEDS-W",
-      "FM:NICU/NEWBORN CARE-HMC": "NICU",
-      "FM:DEV PEDS": "DEVPED",
-      "FM:PEDS ED": "PED-ED",
-      "FM: PODIATRY": "POD",
-      "FM: POCUS": "POCUS",
-      "FM: Sleep Med": "SLEEP",
+      "*LOA": "LOA",
+      "*VAC": "VAC",
       "FM: Business Office": "BUSOF",
-      "FM: PEDS- WHITE'S Urgent Care": "PED-UC",
+      "FM: PEDS- WHITE'S Urgent Care": "PEDUC",
+      "FM: POCUS": "POCUS",
+      "FM: PODIATRY": "POD",
+      "FM: Sleep Med": "SLEEP",
+      "FM:CLINIC": "CLNC",
       "FM:DERM": "DERM",
+      "FM:DEV PEDS": "DEVPD",
       "FM:ENT": "ENT",
       "FM:GERIATRICS": "GERI",
       "FM:GYN": "GYN",
+      "FM:NICU/NEWBORN CARE-HMC": "NICU",
+      "FM:NIGHTS-HMC": "NIGHT",
+      "FM:OB": "OB",
       "FM:OPTHAMOLOGY": "OPHTH",
+      "FM:ORTHO": "ORTHO",
+      "FM:PEDS ED": "PEDED",
+      "FM:PEDS-ERLANGER": "PED-E",
+      "FM:PEDS-PRIME": "PED-P",
+      "FM:PEDS-WHITE'S": "PED-W",
       "FM:PSYCH": "PSYCH",
-      "FM:PUB HLTH": "PUBHLT",
+      "FM:PUB HLTH": "PUBHL",
       "FM:PULM-HMC": "PULM",
+      "FM:SPORTS MED": "SPORT",
+      "FM:SURG-HMC": "SURG",
+      "FM:WARDS-HMC": "WARDS",
+      "Family Medicine (Unspecified)": "FM",
+      "IM:CROSS COVER-HMC": "XCOVR",
       "IM:ER-HMC": "ER",
-      "IM:PALLIATIVE CARE": "PALL",
-      "IM:CROSS COVER-HMC": "XCOVER",
       "IM:GI-HMC": "GI",
       "IM:HOSPITALIST": "HOSP",
       "IM:ICU-HMC": "ICU",
       "IM:ID-HMC": "ID",
       "IM:NEURO OP": "NEURO",
+      "IM:PALLIATIVE CARE": "PALL",
       "IM:RHEUM-HMC": "RHEUM",
       "IM:WOUND CARE-HMC": "WOUND",
-      "Family Medicine (Unspecified)": "FM-UNS",
     };
+    if (abbrevs[rot]) return abbrevs[rot];
     if (abbrevs[base]) return abbrevs[base];
     if (base.startsWith("IM:CARD-HMC")) return "CARDS";
     if (base.startsWith("IM:ENDO-HMC")) return "ENDO";
     if (rot.startsWith("*VAC")) return "VAC";
     if (rot.startsWith("*LOA")) return "LOA";
-    // Fallback: strip prefix, truncate to 6
     const fallback = base.replace("FM:", "").replace("IM:", "").trim();
-    return fallback.length > 6 ? fallback.slice(0, 6) : fallback;
+    return fallback.length > 5 ? fallback.slice(0, 5) : fallback;
   };
 
   return (
