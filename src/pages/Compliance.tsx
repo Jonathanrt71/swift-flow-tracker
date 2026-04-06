@@ -108,7 +108,7 @@ function RequirementPill({ number, onClick }: { number: string; onClick?: () => 
 
 // ── Requirement Row ──────────────────────────────────────────────────────
 function RequirementRow({
-  req, users, userId, expanded, onToggle, mutations, onHighlight,
+  req, users, userId, expanded, onToggle, mutations, onHighlight, onGoToNarrative,
 }: {
   req: ProgramRequirement;
   users: { id: string; name: string }[];
@@ -117,6 +117,7 @@ function RequirementRow({
   onToggle: () => void;
   mutations: ReturnType<typeof useRequirementsMutations>;
   onHighlight?: string;
+  onGoToNarrative?: (sectionNumber: number) => void;
 }) {
   const [editingComment, setEditingComment] = useState(false);
   const [commentDraft, setCommentDraft] = useState(req.compliance_narrative || "");
@@ -175,6 +176,18 @@ function RequirementRow({
             <span style={{ fontFamily: "monospace", fontSize: 12, fontWeight: 700, color: "#415162" }}>
               {req.requirement_number}
             </span>
+            {onGoToNarrative && (
+              <button
+                onClick={(e) => { e.stopPropagation(); onGoToNarrative(req.section_number); }}
+                title="View in narrative"
+                style={{
+                  display: "inline-flex", alignItems: "center", padding: 2,
+                  background: "transparent", border: "none", cursor: "pointer", color: "#8A9AAB",
+                }}
+              >
+                <BookOpen style={{ width: 12, height: 12 }} />
+              </button>
+            )}
             <span style={{
               fontSize: 10, fontWeight: 500, padding: "1px 5px",
               borderRadius: 3, color: typeCfg.color, background: `${typeCfg.color}15`,
@@ -568,6 +581,22 @@ const Compliance = () => {
     }, 100);
   }, [requirements]);
 
+  // Navigate from table requirement to narrative section
+  const handleGoToNarrative = useCallback((sectionNumber: number) => {
+    setActiveTab("narrative");
+    // Find the narrative section whose title contains this section number
+    const narSection = (narrativeSections || []).find(s => {
+      const match = s.title.match(/Section\s*(\d+)/i);
+      return match && Number(match[1]) === sectionNumber;
+    });
+    if (narSection) {
+      setTimeout(() => {
+        const el = document.getElementById(`narrative-${narSection.id}`);
+        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
+    }
+  }, [narrativeSections]);
+
   // ── Narrative Handlers ─────────────────────────────────────────────────
   const startNarEdit = (s: ComplianceNarrativeSection) => {
     setNarEditTitle(s.title);
@@ -804,6 +833,7 @@ const Compliance = () => {
                           onToggle={() => setExpandedId(expandedId === req.id ? null : req.id)}
                           mutations={mutations}
                           onHighlight={highlightedReq || undefined}
+                          onGoToNarrative={handleGoToNarrative}
                         />
                       ))}
                     </div>
@@ -852,7 +882,7 @@ const Compliance = () => {
             const isEditing = editingNarId === section.id;
 
             return (
-              <div key={section.id} style={{
+              <div key={section.id} id={`narrative-${section.id}`} style={{
                 background: "#fff", border: "1px solid #E7EBEF",
                 borderRadius: 10, padding: "18px 18px 14px", marginBottom: 16,
               }}>
