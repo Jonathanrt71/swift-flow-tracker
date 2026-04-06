@@ -483,8 +483,8 @@ const ComposeDialog = ({ onClose, onSubmit, isPending }: {
 
 /* Announcement Card */
 
-const AnnouncementCard = ({ announcement, isAdmin, onOpenTracker }: {
-  announcement: Announcement; isAdmin: boolean; onOpenTracker: (a: Announcement) => void;
+const AnnouncementCard = ({ announcement, isAdmin, onOpenTracker, onDelete }: {
+  announcement: Announcement; isAdmin: boolean; onOpenTracker: (a: Announcement) => void; onDelete?: (id: string) => void;
 }) => {
   const [expanded, setExpanded] = useState(() => hasVideoUrl(announcement.body));
   const { markAsRead } = useAnnouncements();
@@ -540,15 +540,29 @@ const AnnouncementCard = ({ announcement, isAdmin, onOpenTracker }: {
           )}
         </div>
         {isAdmin && (
-          <button
-            onClick={(e) => { e.stopPropagation(); onOpenTracker(announcement); }}
-            style={{
-              backgroundColor: "#F5F3EE", padding: "2px 8px", borderRadius: 8,
-              fontSize: 11, border: "none", cursor: "pointer", color: "#6B7280", fontFamily: "inherit",
-            }}
-          >
-            Seen {announcement.read_count || 0}
-          </button>
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <button
+              onClick={(e) => { e.stopPropagation(); onOpenTracker(announcement); }}
+              style={{
+                backgroundColor: "#F5F3EE", padding: "2px 8px", borderRadius: 8,
+                fontSize: 11, border: "none", cursor: "pointer", color: "#6B7280", fontFamily: "inherit",
+              }}
+            >
+              Seen {announcement.read_count || 0}
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                if (confirm("Delete this announcement?")) onDelete?.(announcement.id);
+              }}
+              style={{
+                backgroundColor: "transparent", padding: "2px 6px", borderRadius: 8,
+                fontSize: 11, border: "none", cursor: "pointer", color: "#c44444", fontFamily: "inherit",
+              }}
+            >
+              <X style={{ width: 14, height: 14 }} />
+            </button>
+          </div>
         )}
       </div>
     </div>
@@ -563,7 +577,7 @@ const Announcements = () => {
   const { signOut } = useAuth();
   const { isAdmin } = useAdmin();
   const { has: hasPerm } = usePermissions();
-  const { announcements, isLoading, createAnnouncement } = useAnnouncements();
+  const { announcements, isLoading, createAnnouncement, deleteAnnouncement } = useAnnouncements();
 
   const [activeFilter, setActiveFilter] = useState("all");
   const [showCompose, setShowCompose] = useState(false);
@@ -637,7 +651,7 @@ const Announcements = () => {
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             {filtered.map((a) => (
-              <AnnouncementCard key={a.id} announcement={a} isAdmin={isAdmin} onOpenTracker={setTrackerAnnouncement} />
+              <AnnouncementCard key={a.id} announcement={a} isAdmin={isAdmin} onOpenTracker={setTrackerAnnouncement} onDelete={(id) => deleteAnnouncement.mutate(id)} />
             ))}
           </div>
         )}
