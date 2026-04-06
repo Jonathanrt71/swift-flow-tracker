@@ -173,7 +173,7 @@ const ProcedureLogs = () => {
         {/* Filters */}
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12, flexWrap: "wrap" }}>
           <Select value={filterResident} onValueChange={setFilterResident}>
-            <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0" style={{ borderColor: "#C9CED4", background: "#fff", maxWidth: 240, fontSize: 12 }}>
+            <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0" style={{ borderColor: "#C9CED4", background: "#fff", flex: 1, minWidth: 0, maxWidth: 160, fontSize: 12 }}>
               <SelectValue placeholder="All residents" />
             </SelectTrigger>
             <SelectContent>
@@ -185,7 +185,7 @@ const ProcedureLogs = () => {
           </Select>
 
           <Select value={filterProcedure} onValueChange={setFilterProcedure}>
-            <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0" style={{ borderColor: "#C9CED4", background: "#fff", maxWidth: 220, fontSize: 12 }}>
+            <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0" style={{ borderColor: "#C9CED4", background: "#fff", flex: 1, minWidth: 0, maxWidth: 160, fontSize: 12 }}>
               <SelectValue placeholder="All procedures" />
             </SelectTrigger>
             <SelectContent>
