@@ -199,11 +199,20 @@ const ResidentSummary = () => {
   const procAssist = procsList.filter(p => (p.role || "").toLowerCase() === "assist").length;
   const procObserve = procsList.filter(p => (p.role || "").toLowerCase() === "observe").length;
 
-  // Top procedures
+  // Procedure counts with role breakdown
   const procCounts = useMemo(() => {
-    const map = new Map<string, number>();
-    procsList.forEach(p => map.set(p.procedure_name, (map.get(p.procedure_name) || 0) + 1));
-    return Array.from(map.entries()).sort((a, b) => b[1] - a[1]);
+    const map = new Map<string, { perf: number; asst: number; obs: number; none: number; total: number }>();
+    procsList.forEach(p => {
+      const entry = map.get(p.procedure_name) || { perf: 0, asst: 0, obs: 0, none: 0, total: 0 };
+      const role = (p.role || "").toLowerCase();
+      if (role === "perform") entry.perf++;
+      else if (role === "assist") entry.asst++;
+      else if (role === "observe") entry.obs++;
+      else entry.none++;
+      entry.total++;
+      map.set(p.procedure_name, entry);
+    });
+    return Array.from(map.entries()).sort((a, b) => b[1].total - a[1].total);
   }, [procsList]);
 
   // Current + next blocks
@@ -390,22 +399,51 @@ const ResidentSummary = () => {
               </div>
             )}
 
-            {/* Procedure highlights */}
+            {/* Procedures */}
             {procsList.length > 0 && (
               <div style={secStyle}>
-                <div style={secTitle}>Procedure highlights</div>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 8 }}>
-                  {procCounts.map(([proc, count], i) => {
-                    const c = pillColors[i % pillColors.length];
-                    return (
-                      <span key={proc} style={{ display: "inline-block", fontSize: 11, fontWeight: 500, borderRadius: 4, padding: "2px 8px", background: c.bg, color: c.fg }}>
-                        {proc.replace("*", "")} x{count}
-                      </span>
-                    );
-                  })}
-                </div>
-                <div style={{ fontSize: 12, color: "#8A9AAB" }}>
-                  {procsList.length} total: {procPerform} performed, {procAssist} assisted, {procObserve} observed
+                <div style={secTitle}>Procedures</div>
+                <div style={{ overflowX: "auto" }}>
+                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
+                    <thead>
+                      <tr>
+                        <th style={{ textAlign: "left", padding: "4px 6px", fontSize: 11, color: "#8A9AAB", fontWeight: 500, borderBottom: "1px solid #D5DAE0" }}>Procedure</th>
+                        <th style={{ textAlign: "center", padding: "4px 6px", fontSize: 11, color: "#8A9AAB", fontWeight: 500, borderBottom: "1px solid #D5DAE0", width: 40 }}>Perf</th>
+                        <th style={{ textAlign: "center", padding: "4px 6px", fontSize: 11, color: "#8A9AAB", fontWeight: 500, borderBottom: "1px solid #D5DAE0", width: 40 }}>Asst</th>
+                        <th style={{ textAlign: "center", padding: "4px 6px", fontSize: 11, color: "#8A9AAB", fontWeight: 500, borderBottom: "1px solid #D5DAE0", width: 40 }}>Obs</th>
+                        {procCounts.some(([, c]) => c.none > 0) && (
+                          <th style={{ textAlign: "center", padding: "4px 6px", fontSize: 11, color: "#D4A017", fontWeight: 500, borderBottom: "1px solid #D5DAE0", width: 30 }}>—</th>
+                        )}
+                        <th style={{ textAlign: "center", padding: "4px 6px", fontSize: 11, color: "#8A9AAB", fontWeight: 500, borderBottom: "1px solid #D5DAE0", width: 40 }}>Total</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {procCounts.map(([proc, counts]) => (
+                        <tr key={proc}>
+                          <td style={{ padding: "4px 6px", color: "#2D3748", fontWeight: 500 }}>{proc.replace("*", "")}</td>
+                          <td style={{ textAlign: "center", padding: "4px 6px", color: counts.perf > 0 ? "#4A846C" : "#D5DAE0" }}>{counts.perf || "—"}</td>
+                          <td style={{ textAlign: "center", padding: "4px 6px", color: counts.asst > 0 ? "#378ADD" : "#D5DAE0" }}>{counts.asst || "—"}</td>
+                          <td style={{ textAlign: "center", padding: "4px 6px", color: counts.obs > 0 ? "#8A9AAB" : "#D5DAE0" }}>{counts.obs || "—"}</td>
+                          {procCounts.some(([, c]) => c.none > 0) && (
+                            <td style={{ textAlign: "center", padding: "4px 6px", color: counts.none > 0 ? "#D4A017" : "#D5DAE0" }}>{counts.none || "—"}</td>
+                          )}
+                          <td style={{ textAlign: "center", padding: "4px 6px", color: "#2D3748", fontWeight: 500 }}>{counts.total}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                    <tfoot>
+                      <tr>
+                        <td style={{ padding: "6px 6px 4px", color: "#5F7285", fontWeight: 500, borderTop: "1px solid #D5DAE0" }}>Total</td>
+                        <td style={{ textAlign: "center", padding: "6px 6px 4px", color: "#4A846C", fontWeight: 500, borderTop: "1px solid #D5DAE0" }}>{procPerform}</td>
+                        <td style={{ textAlign: "center", padding: "6px 6px 4px", color: "#378ADD", fontWeight: 500, borderTop: "1px solid #D5DAE0" }}>{procAssist}</td>
+                        <td style={{ textAlign: "center", padding: "6px 6px 4px", color: "#8A9AAB", fontWeight: 500, borderTop: "1px solid #D5DAE0" }}>{procObserve}</td>
+                        {procCounts.some(([, c]) => c.none > 0) && (
+                          <td style={{ textAlign: "center", padding: "6px 6px 4px", color: "#D4A017", fontWeight: 500, borderTop: "1px solid #D5DAE0" }}>{procsList.filter(p => !p.role || (p.role || "").toLowerCase() === "").length}</td>
+                        )}
+                        <td style={{ textAlign: "center", padding: "6px 6px 4px", color: "#2D3748", fontWeight: 500, borderTop: "1px solid #D5DAE0" }}>{procsList.length}</td>
+                      </tr>
+                    </tfoot>
+                  </table>
                 </div>
               </div>
             )}
