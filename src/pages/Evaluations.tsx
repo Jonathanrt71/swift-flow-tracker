@@ -643,22 +643,22 @@ const Evaluations = () => {
                       )}
 
                       {/* Comments */}
-                      {ev.patient_care_comment && ev.patient_care_comment !== "." && ev.patient_care_comment.trim() !== "" && (
-                        <div style={{ marginBottom: 10 }}>
-                          <div style={{ fontSize: 10, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", color: "#8A9AAB", marginBottom: 4 }}>
-                            Patient Care Comment
-                          </div>
-                          <div style={{ fontSize: 13, color: "#2D3748", lineHeight: 1.5 }}>{ev.patient_care_comment}</div>
+                      <div style={{ marginBottom: 10 }}>
+                        <div style={{ fontSize: 10, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", color: "#8A9AAB", marginBottom: 4 }}>
+                          Patient Care Comment
                         </div>
-                      )}
-                      {ev.professionalism_comment && ev.professionalism_comment !== "." && ev.professionalism_comment.trim() !== "" && (
-                        <div style={{ marginBottom: 10 }}>
-                          <div style={{ fontSize: 10, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", color: "#8A9AAB", marginBottom: 4 }}>
-                            Professionalism Comment
-                          </div>
-                          <div style={{ fontSize: 13, color: "#2D3748", lineHeight: 1.5 }}>{ev.professionalism_comment}</div>
+                        <div style={{ fontSize: 13, color: ev.patient_care_comment && ev.patient_care_comment !== "." && ev.patient_care_comment.trim() ? "#2D3748" : "#C9CED4", lineHeight: 1.5 }}>
+                          {ev.patient_care_comment && ev.patient_care_comment !== "." && ev.patient_care_comment.trim() ? ev.patient_care_comment : "None"}
                         </div>
-                      )}
+                      </div>
+                      <div style={{ marginBottom: 10 }}>
+                        <div style={{ fontSize: 10, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", color: "#8A9AAB", marginBottom: 4 }}>
+                          Professionalism Comment
+                        </div>
+                        <div style={{ fontSize: 13, color: ev.professionalism_comment && ev.professionalism_comment !== "." && ev.professionalism_comment.trim() ? "#2D3748" : "#C9CED4", lineHeight: 1.5 }}>
+                          {ev.professionalism_comment && ev.professionalism_comment !== "." && ev.professionalism_comment.trim() ? ev.professionalism_comment : "None"}
+                        </div>
+                      </div>
 
                       {/* Admin delete */}
                       {isAdmin && (
