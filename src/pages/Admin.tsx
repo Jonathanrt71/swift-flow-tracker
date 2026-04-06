@@ -543,6 +543,7 @@ const RoleAccessSection = () => {
       { action: "View page", key: "feedback.view" },
       { action: "Create / edit / delete", key: "feedback.edit" },
       { action: "Generate report", key: "feedback.report" },
+      { action: "View milestones", key: "feedback.milestones" },
     ]},
     { name: "Resident Handbook", rows: [
       { action: "View page", key: "handbook.view" },
@@ -733,7 +734,7 @@ const Admin = () => {
   const [editingEventCatId, setEditingEventCatId] = useState<string | null>(null);
   const [editingEventCatLabel, setEditingEventCatLabel] = useState("");
   const [editingEventCatColor, setEditingEventCatColor] = useState("");
-  const [expandedSection, setExpandedSection] = useState<string | null>("team");
+  const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [defaultReportEmail, setDefaultReportEmail] = useState("");
   const [navImageUploading, setNavImageUploading] = useState(false);

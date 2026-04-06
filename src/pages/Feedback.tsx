@@ -48,6 +48,7 @@ const Feedback = () => {
   const { has: hasPerm } = usePermissions();
   const canEditFeedback = hasPerm("feedback.edit");
   const canGenerateReport = hasPerm("feedback.report");
+  const canViewMilestones = hasPerm("feedback.milestones");
   const { data: teamMembers } = useTeamMembers();
   const { feedbackQuery, createFeedback, updateFeedback, deleteFeedback, saveAISuggestions, updateMilestone, deleteMilestone, updateEvalDomain, deleteEvalDomain } = useFeedback();
   const { data: acgmeCategories } = useACGMECompetencies();
@@ -708,10 +709,12 @@ const Feedback = () => {
                   <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase" }}>Report</span>
                 </TabsTrigger>
               )}
-              <TabsTrigger value="milestones" className="flex flex-col items-center gap-0.5 h-auto px-2 py-1" title="Milestones">
-                <BookOpen className="h-4 w-4" />
-                <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase" }}>Milestones</span>
-              </TabsTrigger>
+              {canViewMilestones && (
+                <TabsTrigger value="milestones" className="flex flex-col items-center gap-0.5 h-auto px-2 py-1" title="Milestones">
+                  <BookOpen className="h-4 w-4" />
+                  <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase" }}>Milestones</span>
+                </TabsTrigger>
+              )}
             </TabsList>
           </div>
           {/* Add button */}
@@ -739,11 +742,13 @@ const Feedback = () => {
             </div>
           </TabsContent>
         )}
-        <TabsContent value="milestones" className="mt-0">
-          <div className="flex flex-col gap-2">
-            <MilestonesBrowser />
-          </div>
-        </TabsContent>
+        {canViewMilestones && (
+          <TabsContent value="milestones" className="mt-0">
+            <div className="flex flex-col gap-2">
+              <MilestonesBrowser />
+            </div>
+          </TabsContent>
+        )}
         </Tabs>
       </main>
 
