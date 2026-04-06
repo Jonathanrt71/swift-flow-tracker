@@ -390,9 +390,9 @@ const Evaluations = () => {
       <main style={{ maxWidth: 960, margin: "0 auto", padding: "12px 16px 100px" }}>
 
         {/* Filter bar */}
-        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
           <Select value={filterResident} onValueChange={setFilterResident}>
-            <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0" style={{ borderColor: "#C9CED4", background: "#fff", maxWidth: 280 }}>
+            <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0" style={{ borderColor: "#C9CED4", background: "#fff", maxWidth: 200, fontSize: 12 }}>
               <SelectValue placeholder="All residents" />
             </SelectTrigger>
             <SelectContent>
@@ -404,7 +404,7 @@ const Evaluations = () => {
           </Select>
 
           <Select value={filterEvaluator} onValueChange={setFilterEvaluator}>
-            <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0" style={{ borderColor: "#C9CED4", background: "#fff", maxWidth: 280 }}>
+            <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0" style={{ borderColor: "#C9CED4", background: "#fff", maxWidth: 200, fontSize: 12 }}>
               <SelectValue placeholder="All evaluators" />
             </SelectTrigger>
             <SelectContent>
@@ -433,6 +433,7 @@ const Evaluations = () => {
                   cursor: "pointer",
                   background: filterStatus === opt.value ? "#415162" : "#fff",
                   color: filterStatus === opt.value ? "#fff" : "#5F7285",
+                  whiteSpace: "nowrap",
                 }}
               >
                 {opt.label}
@@ -440,12 +441,11 @@ const Evaluations = () => {
             ))}
           </div>
 
-          <div style={{ flex: 1 }} />
-
-          {/* Admin upload */}
+          {/* Admin upload — hidden on mobile */}
           {isAdmin && (
             <label
-              style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 12px", background: "#415162", color: "#fff", borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: "pointer" }}
+              className="hidden sm:flex"
+              style={{ alignItems: "center", gap: 6, padding: "6px 12px", background: "#415162", color: "#fff", borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: "pointer", marginLeft: "auto" }}
             >
               <Upload style={{ width: 14, height: 14 }} /> Import
               <input type="file" accept=".tab,.tsv,.txt" onChange={handleFileUpload} style={{ display: "none" }} />
