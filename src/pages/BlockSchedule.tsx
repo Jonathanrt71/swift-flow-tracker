@@ -37,6 +37,7 @@ const BlockSchedule = () => {
 
   const [filterResident, setFilterResident] = useState<string>("all");
   const [filterPgy, setFilterPgy] = useState<string>("all");
+  const [filterYear, setFilterYear] = useState<string>("latest");
   const [viewMode, setViewMode] = useState<"table" | "cards" | "evals">("table");
   const showEvalCoverage = viewMode === "evals";
   const [searchOpen, setSearchOpen] = useState(false);
@@ -94,24 +95,42 @@ const BlockSchedule = () => {
 
   const entries = scheduleQuery.data || [];
 
-  // Unique residents
+  // Unique academic years
+  const academicYears = useMemo(() => {
+    const set = new Set<string>();
+    entries.forEach(e => { if (e.academic_year) set.add(e.academic_year); });
+    return Array.from(set).sort();
+  }, [entries]);
+
+  // Default to latest academic year
+  const activeYear = filterYear === "latest"
+    ? (academicYears.length > 0 ? academicYears[academicYears.length - 1] : "")
+    : filterYear;
+
+  // Year-filtered entries (base for all other filters/computations)
+  const yearEntries = useMemo(() => {
+    if (!activeYear) return entries;
+    return entries.filter(e => e.academic_year === activeYear);
+  }, [entries, activeYear]);
+
+  // Unique residents (from year-filtered)
   const residents = useMemo(() => {
     const set = new Set<string>();
-    entries.forEach(e => set.add(e.resident_name));
+    yearEntries.forEach(e => set.add(e.resident_name));
     return Array.from(set).sort();
-  }, [entries]);
+  }, [yearEntries]);
 
-  // Unique PGY levels
+  // Unique PGY levels (from year-filtered)
   const pgyLevels = useMemo(() => {
     const set = new Set<number>();
-    entries.forEach(e => { if (e.pgy_level) set.add(e.pgy_level); });
+    yearEntries.forEach(e => { if (e.pgy_level) set.add(e.pgy_level); });
     return Array.from(set).sort();
-  }, [entries]);
+  }, [yearEntries]);
 
-  // Unique blocks (ordered)
+  // Unique blocks (from year-filtered, ordered)
   const blocks = useMemo(() => {
     const map = new Map<number, { start: string; end: string }>();
-    entries.forEach(e => {
+    yearEntries.forEach(e => {
       if (!map.has(e.block_number)) {
         map.set(e.block_number, { start: e.block_start, end: e.block_end });
       }
@@ -119,11 +138,11 @@ const BlockSchedule = () => {
     return Array.from(map.entries())
       .sort((a, b) => a[0] - b[0])
       .map(([num, dates]) => ({ num, ...dates }));
-  }, [entries]);
+  }, [yearEntries]);
 
-  // Filter
+  // Filter (resident, PGY, search — all on top of year filter)
   const filtered = useMemo(() => {
-    let data = entries;
+    let data = yearEntries;
     if (filterResident !== "all") {
       data = data.filter(e => e.resident_name === filterResident);
     }
@@ -138,7 +157,7 @@ const BlockSchedule = () => {
       );
     }
     return data;
-  }, [entries, filterResident, filterPgy, searchQuery]);
+  }, [yearEntries, filterResident, filterPgy, searchQuery]);
 
   // Group by resident, then by block
   const grouped = useMemo(() => {
@@ -310,6 +329,18 @@ const BlockSchedule = () => {
 
         {/* Filters */}
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12, flexWrap: "wrap" }}>
+          {academicYears.length > 1 && (
+            <Select value={filterYear === "latest" ? activeYear : filterYear} onValueChange={(v) => { setFilterYear(v); setFilterResident("all"); setFilterPgy("all"); }}>
+              <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0" style={{ borderColor: "#C9CED4", background: "#fff", maxWidth: 160 }}>
+                <SelectValue placeholder="Academic Year" />
+              </SelectTrigger>
+              <SelectContent>
+                {academicYears.map(year => (
+                  <SelectItem key={year} value={year}>{year}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
           <Select value={filterResident} onValueChange={setFilterResident}>
             <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0" style={{ borderColor: "#C9CED4", background: "#fff", maxWidth: 280 }}>
               <SelectValue placeholder="All residents" />
