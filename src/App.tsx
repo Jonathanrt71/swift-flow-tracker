@@ -39,8 +39,8 @@ const App = () => (
       <UpdatePrompt />
       <BrowserRouter>
         <AuthProvider>
-          <div className="dark:bg-[#1a1f2b]" style={{ background: "#E5E2DB", minHeight: "100vh" }}>
-          <div className="mx-auto w-full max-w-[1024px] min-h-screen relative shadow-lg bg-background">
+          <div style={{ background: "#E5E2DB", minHeight: "100vh" }}>
+          <div className="mx-auto w-full max-w-[1024px] min-h-screen relative shadow-lg" style={{ background: "#F5F3EE" }}>
             <Routes>
               <Route path="/login" element={<Login />} />
               
