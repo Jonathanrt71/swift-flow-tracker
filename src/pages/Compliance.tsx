@@ -678,12 +678,8 @@ const Compliance = () => {
         </div>
       )}
 
-      {/* Title + Tabs */}
-      <div style={{ padding: "16px 16px 0", background: "#F5F3EE" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
-          <Shield style={{ width: 20, height: 20, color: "#415162" }} />
-          <h1 style={{ fontSize: 20, fontWeight: 700, color: "#333", margin: 0 }}>ACGME Compliance</h1>
-        </div>
+      {/* Tabs */}
+      <div style={{ padding: "12px 16px 0", background: "#F5F3EE" }}>
 
         {/* Stats bar */}
         <div style={{
