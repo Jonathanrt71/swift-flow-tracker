@@ -80,8 +80,9 @@ const BlockSchedule = () => {
 
     evals.forEach(ev => {
       if (!ev.eval_start_date || !ev.resident_name) return;
+      const evName = ev.resident_name.trim();
       scheduleEntries.forEach(se => {
-        if (se.resident_name !== ev.resident_name) return;
+        if (se.resident_name.trim() !== evName) return;
         const blockStart = new Date(se.block_start + "T00:00:00");
         const blockEnd = new Date(se.block_end + "T23:59:59");
         const evalStart = new Date(ev.eval_start_date + "T00:00:00");
