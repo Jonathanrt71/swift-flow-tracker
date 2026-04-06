@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Plus, ExternalLink, Trash2, X, Check, ChevronDown, ChevronUp, Pencil, Tag } from "lucide-react";
+import { Plus, ExternalLink, Trash2, X, Check, ChevronDown, ChevronUp, Pencil, Tag, Search } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
 import { useUserRole } from "@/hooks/useUserRole";
@@ -406,6 +406,7 @@ const Topics = () => {
   const { topics, allTags, createTopic, updateTopic, deleteTopic, createTag, addCheckoff, deleteCheckoff } = useClinicalTopics();
 
   const [search, setSearch] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
   const [filterTagId, setFilterTagId] = useState<string | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
 
@@ -428,17 +429,35 @@ const Topics = () => {
       <header style={{ position: "sticky", top: 0, zIndex: 40, background: "#415162" }}>
         <div style={{ display: "flex", alignItems: "center", height: 56, padding: "0 16px" }}>
           <HeaderLogo isAdmin={isAdmin} onSignOut={signOut}>
+            <button
+              style={{
+                display: "flex", alignItems: "center", justifyContent: "center",
+                width: 36, height: 36, background: "transparent", border: "none",
+                borderRadius: 6, cursor: "pointer", color: "rgba(255,255,255,0.8)",
+              }}
+              onClick={() => { setSearchOpen(!searchOpen); if (searchOpen) setSearch(""); }}
+            >
+              {searchOpen ? <X style={{ width: 17, height: 17 }} /> : <Search style={{ width: 17, height: 17 }} />}
+            </button>
             <NotificationBell />
           </HeaderLogo>
         </div>
+        {searchOpen && (
+          <div style={{ padding: "0 16px 12px" }}>
+            <input
+              autoFocus
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Search topics…"
+              style={{ width: "100%", padding: "9px 12px", fontSize: 13, border: "1px solid #C9CED4", borderRadius: 8, outline: "none", background: "#fff", boxSizing: "border-box" as const }}
+            />
+          </div>
+        )}
       </header>
 
       <main style={{ maxWidth: 700, margin: "0 auto", padding: "20px 16px 120px" }}>
-        {/* Search + filter */}
+        {/* Domain filter pills */}
         <div style={{ marginBottom: 14 }}>
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search topics…"
-            style={{ width: "100%", padding: "9px 12px", fontSize: 13, border: "1px solid #C9CED4", borderRadius: 8, outline: "none", background: "#fff", marginBottom: 10, boxSizing: "border-box" as const }} />
-          {/* Domain filter pills */}
           <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" as any }}>
             <div style={{ display: "flex", gap: 6, minWidth: "max-content", paddingBottom: 2 }}>
               <button onClick={() => setFilterTagId(null)}
