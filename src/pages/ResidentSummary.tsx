@@ -418,8 +418,8 @@ const ResidentSummary = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {procCounts.map(([proc, counts]) => (
-                        <tr key={proc}>
+                      {procCounts.map(([proc, counts], i) => (
+                        <tr key={proc} style={{ background: i % 2 === 0 ? "transparent" : "rgba(0,0,0,0.03)" }}>
                           <td style={{ padding: "4px 6px", color: "#2D3748", fontWeight: 500 }}>{proc.replace("*", "")}</td>
                           <td style={{ textAlign: "center", padding: "4px 6px", color: counts.perf > 0 ? "#4A846C" : "#D5DAE0" }}>{counts.perf || "—"}</td>
                           <td style={{ textAlign: "center", padding: "4px 6px", color: counts.asst > 0 ? "#378ADD" : "#D5DAE0" }}>{counts.asst || "—"}</td>
