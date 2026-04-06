@@ -42,8 +42,7 @@ const Login = () => {
         position: "absolute", inset: 0,
         backgroundImage: "url(/login-bg.jpg)",
         backgroundSize: "cover", backgroundPosition: "center",
-        filter: "blur(3px) brightness(0.8)",
-        transform: "scale(1.05)",
+        filter: "brightness(0.8)",
       }} />
       <div style={{
         position: "relative", display: "flex", alignItems: "center", justifyContent: "center",
