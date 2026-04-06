@@ -383,19 +383,11 @@ const ComposeDialog = ({ onClose, onSubmit, isPending }: {
             <label style={labelStyle}>Title</label>
             <input style={inputStyle} placeholder="Announcement title..." value={title} onChange={(e) => setTitle(e.target.value)} />
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-            <div>
-              <label style={labelStyle}>Category</label>
-              <select style={selectStyle} value={category} onChange={(e) => setCategory(e.target.value as AnnouncementCategory)}>
-                {CATEGORY_OPTIONS.map((c) => <option key={c.key} value={c.key}>{c.label}</option>)}
-              </select>
-            </div>
-            <div>
-              <label style={labelStyle}>Audience</label>
-              <select style={selectStyle} value={audience} onChange={(e) => setAudience(e.target.value as AnnouncementAudience)}>
-                {AUDIENCE_OPTIONS.map((a) => <option key={a.key} value={a.key}>{a.label}</option>)}
-              </select>
-            </div>
+          <div>
+            <label style={labelStyle}>Audience</label>
+            <select style={selectStyle} value={audience} onChange={(e) => setAudience(e.target.value as AnnouncementAudience)}>
+              {AUDIENCE_OPTIONS.map((a) => <option key={a.key} value={a.key}>{a.label}</option>)}
+            </select>
           </div>
           <div>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
@@ -571,7 +563,6 @@ const AnnouncementCard = ({ announcement, isAdmin, onOpenTracker, onDelete }: {
 
 /* Main Page */
 
-const FILTER_OPTIONS = [{ key: "all", label: "All" }, ...CATEGORY_OPTIONS];
 
 const Announcements = () => {
   const { signOut } = useAuth();
@@ -579,15 +570,10 @@ const Announcements = () => {
   const { has: hasPerm } = usePermissions();
   const { announcements, isLoading, createAnnouncement, deleteAnnouncement } = useAnnouncements();
 
-  const [activeFilter, setActiveFilter] = useState("all");
   const [showCompose, setShowCompose] = useState(false);
   const [trackerAnnouncement, setTrackerAnnouncement] = useState<Announcement | null>(null);
 
   const canEdit = isAdmin || hasPerm("announcements.edit", "full");
-
-  const filtered = activeFilter === "all"
-    ? announcements
-    : announcements.filter((a) => a.category === activeFilter);
 
   const handleCreate = (data: Parameters<typeof createAnnouncement.mutate>[0]) => {
     createAnnouncement.mutate(data, { onSuccess: () => setShowCompose(false) });
@@ -602,38 +588,18 @@ const Announcements = () => {
               <button
                 onClick={() => setShowCompose(true)}
                 style={{
-                  display: "flex", alignItems: "center", gap: 6,
-                  backgroundColor: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.25)",
-                  borderRadius: 8, padding: "6px 14px", color: "#fff", fontSize: 13, fontWeight: 600,
-                  cursor: "pointer", fontFamily: "inherit",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  width: 36, height: 36, background: "transparent", border: "none",
+                  borderRadius: 6, cursor: "pointer", color: "rgba(255,255,255,0.8)",
                 }}
               >
-                <Plus style={{ width: 15, height: 15 }} />
-                New
+                <Plus style={{ width: 17, height: 17 }} />
               </button>
             )}
             <NotificationBell />
           </HeaderLogo>
         </div>
       </header>
-
-      <div style={{ padding: "14px 16px", display: "flex", gap: 8, overflowX: "auto", borderBottom: "1px solid #C9CED4" }}>
-        {FILTER_OPTIONS.map((cat) => (
-          <button
-            key={cat.key}
-            onClick={() => setActiveFilter(cat.key)}
-            style={{
-              padding: "6px 14px", borderRadius: 20,
-              border: activeFilter === cat.key ? "none" : "1px solid #C9CED4",
-              backgroundColor: activeFilter === cat.key ? "#415162" : "transparent",
-              color: activeFilter === cat.key ? "#fff" : "#52657A",
-              fontSize: 13, fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap", fontFamily: "inherit",
-            }}
-          >
-            {cat.label}
-          </button>
-        ))}
-      </div>
 
       <main style={{ maxWidth: 700, margin: "0 auto", padding: "16px 16px 100px" }}>
         {isLoading ? (
@@ -644,13 +610,13 @@ const Announcements = () => {
             }} />
             <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
           </div>
-        ) : filtered.length === 0 ? (
+        ) : announcements.length === 0 ? (
           <div style={{ textAlign: "center", padding: "48px 20px", color: "#6B7280", fontSize: 14 }}>
-            {activeFilter === "all" ? "No announcements yet." : "No announcements in this category."}
+            "No announcements yet."
           </div>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            {filtered.map((a) => (
+            {announcements.map((a) => (
               <AnnouncementCard key={a.id} announcement={a} isAdmin={isAdmin} onOpenTracker={setTrackerAnnouncement} onDelete={(id) => deleteAnnouncement.mutate(id)} />
             ))}
           </div>
