@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { CheckSquare, Users, Calendar, BookOpen, MessageSquare, Shield, User, LogOut, BookMarked, Stethoscope, ClipboardList, BookOpenCheck, Home, ShieldCheck, FileText, Megaphone, FileCheck, CalendarDays, Activity, UserCheck } from "lucide-react";
+import { CheckSquare, Users, Calendar, BookOpen, MessageSquare, Shield, User, LogOut, BookMarked, Stethoscope, ClipboardList, BookOpenCheck, Home, ShieldCheck, FileText, Megaphone, FileCheck, CalendarDays, Activity, UserCheck, Moon, Sun } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { usePermissions } from "@/hooks/usePermissions";
 import { useAppSettings } from "@/hooks/useAppSettings";
@@ -207,6 +207,20 @@ const HeaderLogo = ({
                 </Link>
                 <button onClick={() => { onSignOut(); setMenuOpen(false); }} className="flex items-center gap-3 px-4 py-2.5 text-sm text-white/70 w-full border-none bg-transparent cursor-pointer text-left">
                   <LogOut className="h-4 w-4" /> Log out
+                </button>
+                <button
+                  onClick={() => {
+                    const html = document.documentElement;
+                    const isDark = html.classList.contains("dark");
+                    html.classList.toggle("dark");
+                    localStorage.setItem("fm-dark-mode", isDark ? "light" : "dark");
+                  }}
+                  className="flex items-center gap-3 px-4 py-2.5 text-sm text-white/70 w-full border-none bg-transparent cursor-pointer text-left"
+                >
+                  {document.documentElement.classList.contains("dark")
+                    ? <><Sun className="h-4 w-4" /> Light mode</>
+                    : <><Moon className="h-4 w-4" /> Dark mode</>
+                  }
                 </button>
                 </>
               )}
