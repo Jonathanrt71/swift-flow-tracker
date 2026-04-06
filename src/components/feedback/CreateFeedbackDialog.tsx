@@ -73,9 +73,9 @@ const CreateFeedbackDialog = ({ onSubmit, residents }: CreateFeedbackDialogProps
   );
 
   const guidanceOptions: { value: GuidanceLevel; label: string }[] = [
-    { value: "substantial", label: "Substantial assistance" },
-    { value: "some", label: "Some assistance" },
-    { value: "minimal", label: "Minimal assistance" },
+    { value: "substantial", label: "Substantial" },
+    { value: "some", label: "Moderate" },
+    { value: "minimal", label: "Minimal" },
   ];
 
   return (
@@ -162,7 +162,7 @@ const CreateFeedbackDialog = ({ onSubmit, residents }: CreateFeedbackDialogProps
         {/* Guidance level */}
         <div className="mb-4">
           <label className="text-xs block mb-1.5" style={{ color: "#5F7285" }}>
-            Level of guidance needed
+            Level of assistance needed
           </label>
           <div className="flex gap-2">
             {guidanceOptions.map(opt => (
