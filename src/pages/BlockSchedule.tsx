@@ -65,9 +65,9 @@ const BlockSchedule = () => {
     queryFn: async () => {
       const { data, error } = await (supabase as any)
         .from("evaluations")
-        .select("resident_name, rotation, eval_start_date, eval_end_date");
+        .select("resident_name, rotation, session_date, eval_start_date, eval_end_date");
       if (error) throw error;
-      return (data || []) as { resident_name: string; rotation: string | null; eval_start_date: string | null; eval_end_date: string | null }[];
+      return (data || []) as { resident_name: string; rotation: string | null; session_date: string | null; eval_start_date: string | null; eval_end_date: string | null }[];
     },
   });
 
@@ -78,20 +78,26 @@ const BlockSchedule = () => {
     const evals = evaluationsQuery.data;
     const scheduleEntries = scheduleQuery.data || [];
 
+    let matchCount = 0;
     evals.forEach(ev => {
-      if (!ev.eval_start_date || !ev.resident_name) return;
+      if (!ev.resident_name) return;
       const evName = ev.resident_name.trim();
+      // Use session_date (rotation start) as primary, fall back to eval_start_date
+      const dateStr = ev.session_date || ev.eval_start_date;
+      if (!dateStr) return;
+      const evDate = new Date(dateStr + "T00:00:00");
+
       scheduleEntries.forEach(se => {
         if (se.resident_name.trim() !== evName) return;
         const blockStart = new Date(se.block_start + "T00:00:00");
         const blockEnd = new Date(se.block_end + "T23:59:59");
-        const evalStart = new Date(ev.eval_start_date + "T00:00:00");
-        const evalEnd = ev.eval_end_date ? new Date(ev.eval_end_date + "T23:59:59") : evalStart;
-        if (evalStart <= blockEnd && evalEnd >= blockStart) {
+        if (evDate >= blockStart && evDate <= blockEnd) {
           set.add(`${se.resident_name}::${se.pgy_level}::${se.block_number}::${se.rotation}`);
+          matchCount++;
         }
       });
     });
+    console.log(`Eval coverage: ${evals.length} evaluations, ${matchCount} matches, ${set.size} unique cells`);
     return set;
   }, [showEvalCoverage, evaluationsQuery.data, scheduleQuery.data]);
 
