@@ -389,14 +389,14 @@ const Evaluations = () => {
 
       <main style={{ maxWidth: 960, margin: "0 auto", padding: "12px 16px 100px" }}>
 
-        {/* Filter bar */}
-        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
+        {/* Filter bar — row 1: dropdowns */}
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
           <Select value={filterResident} onValueChange={setFilterResident}>
             <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0" style={{ borderColor: "#C9CED4", background: "#fff", flex: 1, minWidth: 0, maxWidth: 160, fontSize: 12 }}>
-              <SelectValue placeholder="All residents" />
+              <SelectValue placeholder="Residents" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All residents</SelectItem>
+              <SelectItem value="all">Residents</SelectItem>
               {residents.map(r => (
                 <SelectItem key={r.name} value={r.name}>{r.name}</SelectItem>
               ))}
@@ -405,17 +405,30 @@ const Evaluations = () => {
 
           <Select value={filterEvaluator} onValueChange={setFilterEvaluator}>
             <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0" style={{ borderColor: "#C9CED4", background: "#fff", flex: 1, minWidth: 0, maxWidth: 160, fontSize: 12 }}>
-              <SelectValue placeholder="All evaluators" />
+              <SelectValue placeholder="Evaluators" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All evaluators</SelectItem>
+              <SelectItem value="all">Evaluators</SelectItem>
               {evaluators.map(name => (
                 <SelectItem key={name} value={name}>{name}</SelectItem>
               ))}
             </SelectContent>
           </Select>
 
-          {/* Read/Unread filter */}
+          {/* Admin upload — hidden on mobile */}
+          {isAdmin && (
+            <label
+              className="hidden sm:flex"
+              style={{ alignItems: "center", gap: 6, padding: "6px 12px", background: "#415162", color: "#fff", borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: "pointer", marginLeft: "auto" }}
+            >
+              <Upload style={{ width: 14, height: 14 }} /> Import
+              <input type="file" accept=".tab,.tsv,.txt" onChange={handleFileUpload} style={{ display: "none" }} />
+            </label>
+          )}
+        </div>
+
+        {/* Filter bar — row 2: toggles */}
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
           <div style={{ display: "flex", gap: 0, borderRadius: 8, overflow: "hidden", border: "0.5px solid #C9CED4" }}>
             {([
               { value: "all" as const, label: "All" },
@@ -440,17 +453,6 @@ const Evaluations = () => {
               </button>
             ))}
           </div>
-
-          {/* Admin upload — hidden on mobile */}
-          {isAdmin && (
-            <label
-              className="hidden sm:flex"
-              style={{ alignItems: "center", gap: 6, padding: "6px 12px", background: "#415162", color: "#fff", borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: "pointer", marginLeft: "auto" }}
-            >
-              <Upload style={{ width: 14, height: 14 }} /> Import
-              <input type="file" accept=".tab,.tsv,.txt" onChange={handleFileUpload} style={{ display: "none" }} />
-            </label>
-          )}
         </div>
 
         {/* Import preview */}

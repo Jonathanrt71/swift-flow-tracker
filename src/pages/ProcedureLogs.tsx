@@ -170,14 +170,14 @@ const ProcedureLogs = () => {
 
       <main style={{ maxWidth: 960, margin: "0 auto", padding: "12px 16px 100px" }}>
 
-        {/* Filters */}
-        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12, flexWrap: "wrap" }}>
+        {/* Filters — row 1: dropdowns */}
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
           <Select value={filterResident} onValueChange={setFilterResident}>
             <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0" style={{ borderColor: "#C9CED4", background: "#fff", flex: 1, minWidth: 0, maxWidth: 160, fontSize: 12 }}>
-              <SelectValue placeholder="All residents" />
+              <SelectValue placeholder="Residents" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All residents</SelectItem>
+              <SelectItem value="all">Residents</SelectItem>
               {residents.map(name => (
                 <SelectItem key={name} value={name}>{name}</SelectItem>
               ))}
@@ -186,16 +186,19 @@ const ProcedureLogs = () => {
 
           <Select value={filterProcedure} onValueChange={setFilterProcedure}>
             <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0" style={{ borderColor: "#C9CED4", background: "#fff", flex: 1, minWidth: 0, maxWidth: 160, fontSize: 12 }}>
-              <SelectValue placeholder="All procedures" />
+              <SelectValue placeholder="Procedures" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All procedures</SelectItem>
+              <SelectItem value="all">Procedures</SelectItem>
               {procedures.map(name => (
                 <SelectItem key={name} value={name}>{name}</SelectItem>
               ))}
             </SelectContent>
           </Select>
+        </div>
 
+        {/* Filters — row 2: toggles */}
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
           <div style={{ display: "flex", gap: 0, borderRadius: 8, overflow: "hidden", border: "0.5px solid #C9CED4" }}>
             {([
               { value: "all", label: "All" },
