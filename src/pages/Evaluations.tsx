@@ -9,6 +9,7 @@ import { formatPersonName } from "@/lib/dateFormat";
 import HeaderLogo from "@/components/HeaderLogo";
 import NotificationBell from "@/components/NotificationBell";
 import { Upload, Check, ChevronDown, ChevronUp, Search, X, Trash2 } from "lucide-react";
+import { format, parseISO } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import {
   Select,
@@ -502,7 +503,30 @@ const Evaluations = () => {
           </div>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            {filtered.map(ev => {
+            {(() => {
+              // Group by month from date_completed (already sorted descending)
+              const groups: { month: string; items: Evaluation[] }[] = [];
+              filtered.forEach(ev => {
+                let monthLabel = "Unknown";
+                try {
+                  if (ev.date_completed) {
+                    monthLabel = format(parseISO(ev.date_completed), "MMMM yyyy");
+                  }
+                } catch {}
+                const last = groups[groups.length - 1];
+                if (last && last.month === monthLabel) {
+                  last.items.push(ev);
+                } else {
+                  groups.push({ month: monthLabel, items: [ev] });
+                }
+              });
+
+              return groups.map(g => (
+                <div key={g.month}>
+                  <div style={{ fontSize: 11, fontWeight: 500, color: "#8A9AAB", textTransform: "uppercase", letterSpacing: "0.05em", padding: "12px 0 4px" }}>
+                    {g.month}
+                  </div>
+                  {g.items.map(ev => {
               const isExpanded = expandedId === ev.id;
               const isViewed = viewedSet.has(ev.id) || pendingViewId === ev.id;
 
@@ -514,6 +538,7 @@ const Evaluations = () => {
                     background: flashId === ev.id ? "rgba(74,132,108,0.15)" : "#E7EBEF",
                     border: isViewed ? "0.5px solid #C9CED4" : "2px solid #415162",
                     transition: "background 0.4s ease",
+                    marginBottom: 8,
                   }}
                 >
                   {/* Collapsed row */}
@@ -657,6 +682,9 @@ const Evaluations = () => {
                 </div>
               );
             })}
+                </div>
+              ));
+            })()}
           </div>
         )}
       </main>
