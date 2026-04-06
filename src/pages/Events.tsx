@@ -556,7 +556,10 @@ const Events = () => {
         )}
       </header>
 
-      <main className={viewMode === "gantt" ? "px-6 pt-0 pb-4" : "container max-w-[1200px] px-4 pt-0 pb-4"}>
+      <main
+        className={viewMode === "gantt" ? "pt-0 pb-4" : "container max-w-[1200px] px-4 pt-0 pb-4"}
+        style={viewMode === "gantt" ? { width: "100vw", marginLeft: "calc(-50vw + 50%)", padding: "0 24px 16px", position: "relative" } : undefined}
+      >
 
         {/* Sticky filter bar below header */}
         <div className="sticky z-30 bg-background" style={{ top: 56 }}>
