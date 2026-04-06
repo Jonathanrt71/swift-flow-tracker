@@ -392,7 +392,7 @@ const Evaluations = () => {
         {/* Filter bar */}
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
           <Select value={filterResident} onValueChange={setFilterResident}>
-            <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0" style={{ borderColor: "#C9CED4", background: "#fff", maxWidth: 200, fontSize: 12 }}>
+            <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0" style={{ borderColor: "#C9CED4", background: "#fff", flex: 1, minWidth: 0, maxWidth: 160, fontSize: 12 }}>
               <SelectValue placeholder="All residents" />
             </SelectTrigger>
             <SelectContent>
@@ -404,7 +404,7 @@ const Evaluations = () => {
           </Select>
 
           <Select value={filterEvaluator} onValueChange={setFilterEvaluator}>
-            <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0" style={{ borderColor: "#C9CED4", background: "#fff", maxWidth: 200, fontSize: 12 }}>
+            <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0" style={{ borderColor: "#C9CED4", background: "#fff", flex: 1, minWidth: 0, maxWidth: 160, fontSize: 12 }}>
               <SelectValue placeholder="All evaluators" />
             </SelectTrigger>
             <SelectContent>
