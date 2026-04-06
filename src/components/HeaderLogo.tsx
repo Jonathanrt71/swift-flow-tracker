@@ -124,8 +124,13 @@ const HeaderLogo = ({
 
   useEffect(() => {
     if (menuOpen && containerRef.current) {
-      const rect = containerRef.current.getBoundingClientRect();
-      setMenuLeft(rect.left - 16);
+      const appWrapper = containerRef.current.closest('.mx-auto');
+      if (appWrapper) {
+        const rect = appWrapper.getBoundingClientRect();
+        setMenuLeft(rect.left);
+      } else {
+        setMenuLeft(0);
+      }
     }
   }, [menuOpen]);
 
