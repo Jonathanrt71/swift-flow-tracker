@@ -42,6 +42,7 @@ const BlockSchedule = () => {
   const showEvalCoverage = viewMode === "evals";
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [rotationTooltip, setRotationTooltip] = useState<{ text: string; x: number; y: number } | null>(null);
 
   const scheduleQuery = useQuery({
     queryKey: ["block_schedule"],
@@ -433,15 +434,13 @@ const BlockSchedule = () => {
                     Resident
                   </th>
                   {blocks.map(block => {
-                    const isCurrent = currentBlock?.num === block.num;
                     return (
                       <th key={block.num} style={{
                         position: "sticky", top: 0, zIndex: 3,
-                        background: isCurrent ? "#185FA5" : "#415162",
+                        background: "#415162",
                         color: "#fff", fontSize: 10, fontWeight: 500,
                         padding: "4px 3px", textAlign: "center", whiteSpace: "nowrap",
                         borderLeft: "0.5px solid rgba(255,255,255,0.15)",
-                        borderBottom: isCurrent ? "3px solid #FF6B35" : "none",
                         minWidth: 72,
                       }}>
                         B{block.num}<br />{formatDate(block.start).replace(" ", "\u00A0")}
@@ -510,7 +509,23 @@ const BlockSchedule = () => {
                           </td>
                           {blocks.map(block => {
                             const rotations = resident.blocks.get(block.num) || [];
-                            const isCurrent = currentBlock?.num === block.num;
+                            const isSplit = rotations.length > 1;
+
+                            const showRotationTooltip = (rot: string, e: React.MouseEvent) => {
+                              e.stopPropagation();
+                              const rect = (e.target as HTMLElement).getBoundingClientRect();
+                              setRotationTooltip({
+                                text: rot,
+                                x: rect.left + rect.width / 2,
+                                y: rect.top - 8,
+                              });
+                              setTimeout(() => setRotationTooltip(null), 2500);
+                            };
+
+                            const abbrev = (rot: string) => {
+                              const full = abbreviateRotation(rot);
+                              return isSplit ? full.slice(0, 3) : full;
+                            };
 
                             if (showEvalCoverage) {
                               // Per-rotation eval check
@@ -534,8 +549,8 @@ const BlockSchedule = () => {
                               return (
                                 <td key={block.num} style={{
                                   background: bgStyle,
-                                  borderLeft: isCurrent ? "2px solid #FF6B35" : "1px solid #D5DAE0",
-                                  borderRight: isCurrent ? "2px solid #FF6B35" : "1px solid #D5DAE0",
+                                  borderLeft: "1px solid #D5DAE0",
+                                  borderRight: "1px solid #D5DAE0",
                                   borderBottom: "1px solid #D5DAE0",
                                   padding: "4px 3px",
                                   textAlign: "center",
@@ -543,13 +558,14 @@ const BlockSchedule = () => {
                                   whiteSpace: "nowrap",
                                 }}>
                                   {rotations.map((rot, i) => (
-                                    <span key={i} style={{
+                                    <span key={i} onClick={(e) => showRotationTooltip(rot, e)} style={{
                                       fontSize: 9,
                                       fontWeight: 500,
                                       color: evalStatuses[i] ? "#27500A" : "#8A9AAB",
-                                      marginRight: rotations.length > 1 && i === 0 ? 3 : 0,
+                                      marginRight: isSplit && i === 0 ? 3 : 0,
+                                      cursor: "pointer",
                                     }}>
-                                      {abbreviateRotation(rot)}
+                                      {abbrev(rot)}
                                     </span>
                                   ))}
                                 </td>
@@ -570,8 +586,8 @@ const BlockSchedule = () => {
                             return (
                               <td key={block.num} style={{
                                 background: bgStyle,
-                                borderLeft: isCurrent ? "2px solid #FF6B35" : "1px solid rgba(255,255,255,0.4)",
-                                borderRight: isCurrent ? "2px solid #FF6B35" : "1px solid rgba(255,255,255,0.4)",
+                                borderLeft: "1px solid rgba(255,255,255,0.4)",
+                                borderRight: "1px solid rgba(255,255,255,0.4)",
                                 borderBottom: "1px solid rgba(255,255,255,0.4)",
                                 padding: "4px 3px",
                                 textAlign: "center",
@@ -579,8 +595,8 @@ const BlockSchedule = () => {
                                 whiteSpace: "nowrap",
                               }}>
                                 {rotations.map((rot, i) => (
-                                  <span key={i} style={{ ...pillStyle(colors[i]), marginRight: rotations.length > 1 && i === 0 ? 3 : 0 }}>
-                                    {abbreviateRotation(rot)}
+                                  <span key={i} onClick={(e) => showRotationTooltip(rot, e)} style={{ ...pillStyle(colors[i]), marginRight: isSplit && i === 0 ? 3 : 0, cursor: "pointer" }}>
+                                    {abbrev(rot)}
                                   </span>
                                 ))}
                               </td>
@@ -714,6 +730,32 @@ const BlockSchedule = () => {
           </div>
         )}
       </main>
+
+      {/* Rotation name tooltip */}
+      {rotationTooltip && (
+        <div
+          onClick={() => setRotationTooltip(null)}
+          style={{
+            position: "fixed",
+            left: rotationTooltip.x,
+            top: rotationTooltip.y,
+            transform: "translate(-50%, -100%)",
+            background: "#415162",
+            color: "#fff",
+            padding: "6px 12px",
+            borderRadius: 6,
+            fontSize: 12,
+            fontWeight: 500,
+            whiteSpace: "nowrap",
+            zIndex: 100,
+            pointerEvents: "auto",
+            cursor: "pointer",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
+          }}
+        >
+          {rotationTooltip.text}
+        </div>
+      )}
     </div>
   );
 };
