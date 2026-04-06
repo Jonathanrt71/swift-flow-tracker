@@ -48,18 +48,18 @@ const Login = () => {
         position: "relative", display: "flex", alignItems: "center", justifyContent: "center",
         minHeight: "100vh", padding: 24,
       }}>
-        <div className="w-full flex flex-col items-center" style={{ maxWidth: 340 }}>
+        <div className="w-full flex flex-col items-center" style={{ maxWidth: 280 }}>
           <Card className="w-full border-0" style={{
             background: "rgba(255,255,255,0.88)",
             backdropFilter: "blur(16px)",
             WebkitBackdropFilter: "blur(16px)",
-            borderRadius: 16,
+            borderRadius: 12,
             boxShadow: "0 12px 40px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.2)",
           }}>
             <form onSubmit={handleLogin}>
-              <CardContent className="space-y-4" style={{ padding: "24px 24px 8px" }}>
-                <div className="space-y-1.5">
-                  <Label htmlFor="email" className="font-normal text-sm text-muted-foreground">Email</Label>
+              <CardContent className="space-y-3" style={{ padding: "20px 20px 8px" }}>
+                <div className="space-y-1">
+                  <Label htmlFor="email" style={{ fontSize: 12 }} className="font-normal text-muted-foreground">Email</Label>
                   <Input
                     id="email"
                     type="email"
@@ -68,8 +68,8 @@ const Login = () => {
                     onChange={(e) => setEmail(e.target.value)}
                     required />
                 </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="password" className="font-normal text-sm text-muted-foreground">Password</Label>
+                <div className="space-y-1">
+                  <Label htmlFor="password" style={{ fontSize: 12 }} className="font-normal text-muted-foreground">Password</Label>
                   <Input
                     id="password"
                     type="password"
@@ -78,7 +78,7 @@ const Login = () => {
                     required />
                 </div>
               </CardContent>
-              <CardFooter className="flex flex-col" style={{ padding: "8px 24px 24px" }}>
+              <CardFooter className="flex flex-col" style={{ padding: "8px 20px 20px" }}>
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading ? "Please wait…" : "Sign in"}
                 </Button>
