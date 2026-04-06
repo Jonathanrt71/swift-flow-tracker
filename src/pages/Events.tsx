@@ -556,7 +556,7 @@ const Events = () => {
         )}
       </header>
 
-      <main className="container max-w-[1200px] px-4 pt-0 pb-4">
+      <main className={viewMode === "gantt" ? "px-6 pt-0 pb-4" : "container max-w-[1200px] px-4 pt-0 pb-4"}>
 
         {/* Sticky filter bar below header */}
         <div className="sticky z-30 bg-background" style={{ top: 56 }}>
