@@ -143,7 +143,7 @@ const HeaderLogo = ({
 
       {/* Page title — opens nav dropdown */}
       <button onClick={() => setMenuOpen(!menuOpen)} className="border-none cursor-pointer p-0 bg-transparent">
-        <span className="text-base font-medium text-white">{currentItem?.label || "FM App"}</span>
+        <span className="text-base font-medium text-white whitespace-nowrap">{currentItem?.label || "FM App"}</span>
       </button>
 
       <div style={{ flex: 1 }} />
@@ -180,7 +180,7 @@ const HeaderLogo = ({
             }}
           >
             <div style={{ flex: 1, overflowY: "scroll", WebkitOverflowScrolling: "touch" }}>
-              <Link to="/" onClick={() => setMenuOpen(false)} className={cn("flex items-center gap-3 px-4 py-2.5 text-sm", location.pathname === "/" ? "text-white bg-white/10" : "text-white/70")}>
+              <Link to="/" onClick={() => setMenuOpen(false)} className={cn("flex items-center gap-3 px-4 py-2.5 text-sm whitespace-nowrap", location.pathname === "/" ? "text-white bg-white/10" : "text-white/70")}>
                 <Home className="h-4 w-4" /> FM App
               </Link>
               <div style={{ height: 0.5, background: "rgba(255,255,255,0.15)" }} />
@@ -191,21 +191,21 @@ const HeaderLogo = ({
                   {si > 0 && <div style={{ height: 0.5, background: "rgba(255,255,255,0.15)" }} />}
                   <div style={{ padding: "6px 16px 2px", fontSize: 10, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)" }}>{section.label}</div>
                   {items.map(item => { const I = item.icon; return (
-                    <Link key={item.path} to={item.path} onClick={() => setMenuOpen(false)} className={cn("flex items-center gap-3 px-4 py-2.5 text-sm", location.pathname === item.path ? "text-white bg-white/10" : "text-white/70")}><I className="h-4 w-4" /> {item.label}</Link>
+                    <Link key={item.path} to={item.path} onClick={() => setMenuOpen(false)} className={cn("flex items-center gap-3 px-4 py-2.5 text-sm whitespace-nowrap", location.pathname === item.path ? "text-white bg-white/10" : "text-white/70")}><I className="h-4 w-4" /> {item.label}</Link>
                   ); })}
                 </div>);
               })}
               <div style={{ height: 0.5, background: "rgba(255,255,255,0.15)" }} />
               {isAdmin && (<>
                 <div style={{ padding: "6px 16px 2px", fontSize: 10, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)" }}>Administration</div>
-                <Link to="/admin" onClick={() => setMenuOpen(false)} className={cn("flex items-center gap-3 px-4 py-2.5 text-sm", location.pathname === "/admin" ? "text-white bg-white/10" : "text-white/70")}><Shield className="h-4 w-4" /> Admin</Link>
+                <Link to="/admin" onClick={() => setMenuOpen(false)} className={cn("flex items-center gap-3 px-4 py-2.5 text-sm whitespace-nowrap", location.pathname === "/admin" ? "text-white bg-white/10" : "text-white/70")}><Shield className="h-4 w-4" /> Admin</Link>
               </>)}
               {onSignOut && (
                 <>
-                <Link to="/profile" onClick={() => setMenuOpen(false)} className={cn("flex items-center gap-3 px-4 py-2.5 text-sm", location.pathname === "/profile" ? "text-white bg-white/10" : "text-white/70")}>
+                <Link to="/profile" onClick={() => setMenuOpen(false)} className={cn("flex items-center gap-3 px-4 py-2.5 text-sm whitespace-nowrap", location.pathname === "/profile" ? "text-white bg-white/10" : "text-white/70")}>
                   <User className="h-4 w-4" /> Profile
                 </Link>
-                <button onClick={() => { onSignOut(); setMenuOpen(false); }} className="flex items-center gap-3 px-4 py-2.5 text-sm text-white/70 w-full border-none bg-transparent cursor-pointer text-left">
+                <button onClick={() => { onSignOut(); setMenuOpen(false); }} className="flex items-center gap-3 px-4 py-2.5 text-sm whitespace-nowrap text-white/70 w-full border-none bg-transparent cursor-pointer text-left">
                   <LogOut className="h-4 w-4" /> Log out
                 </button>
                 <button
@@ -215,7 +215,7 @@ const HeaderLogo = ({
                     html.classList.toggle("dark");
                     localStorage.setItem("fm-dark-mode", isDark ? "light" : "dark");
                   }}
-                  className="flex items-center gap-3 px-4 py-2.5 text-sm text-white/70 w-full border-none bg-transparent cursor-pointer text-left"
+                  className="flex items-center gap-3 px-4 py-2.5 text-sm whitespace-nowrap text-white/70 w-full border-none bg-transparent cursor-pointer text-left"
                 >
                   {document.documentElement.classList.contains("dark")
                     ? <><Sun className="h-4 w-4" /> Light mode</>
