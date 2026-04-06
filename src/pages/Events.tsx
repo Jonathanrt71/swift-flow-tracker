@@ -1,4 +1,5 @@
 import { useState, useMemo, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useEvents, calcNextOccurrence, RECURRENCE_LABELS } from "@/hooks/useEvents";
 import type { ProgramEvent, EventCategory, RecurrencePattern } from "@/hooks/useEvents";
@@ -28,7 +29,6 @@ import { formatCardDate } from "@/lib/dateFormat";
 import CreateEventDialog from "@/components/events/CreateEventDialog";
 import EditEventDialog from "@/components/events/EditEventDialog";
 import EvaluationDialog from "@/components/events/EvaluationDialog";
-import EventsGantt from "@/components/events/EventsGantt";
 import EventsVerticalTimeline from "@/components/events/EventsVerticalTimeline";
 import NotificationBell from "@/components/NotificationBell";
 import HeaderLogo from "@/components/HeaderLogo";
@@ -50,8 +50,6 @@ const GanttIcon = ({ className }: { className?: string }) => (
     <line x1="5" y1="18" x2="17" y2="18" />
   </svg>
 );
-
-const MONTH_ABBRS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 const getInitials = (name: string | null): string => {
   if (!name) return "?";
@@ -486,16 +484,10 @@ const Events = () => {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState<string>("all");
-  const [viewMode, setViewMode] = useState<"list" | "vertical" | "gantt">("list");
+  const [viewMode, setViewMode] = useState<"list" | "vertical">("list");
+  const navigate = useNavigate();
 
   const { categories, categoryLabels } = useEventCategories();
-
-  const ganttRangeLabel = useMemo(() => {
-    const n = new Date();
-    const endDate = new Date(n);
-    endDate.setFullYear(endDate.getFullYear() + 1);
-    return `${MONTH_ABBRS[n.getMonth()]} ${n.getFullYear()} — ${MONTH_ABBRS[endDate.getMonth()]} ${endDate.getFullYear()}`;
-  }, []);
 
   const filteredEvents = useMemo(() => {
     const all = events.data || [];
@@ -556,10 +548,7 @@ const Events = () => {
         )}
       </header>
 
-      <main
-        className={viewMode === "gantt" ? "pt-0 pb-4" : "container max-w-[1200px] px-4 pt-0 pb-4"}
-        style={viewMode === "gantt" ? { width: "100vw", marginLeft: "calc(-50vw + 50%)", padding: "0 24px 16px", position: "relative" } : undefined}
-      >
+      <main className="container max-w-[1200px] px-4 pt-0 pb-4">
 
         {/* Sticky filter bar below header */}
         <div className="sticky z-30 bg-background" style={{ top: 56 }}>
@@ -611,8 +600,7 @@ const Events = () => {
               {([
                 { mode: "list" as const, icon: <List className="h-4 w-4" />, label: "List" },
                 { mode: "vertical" as const, icon: <VerticalTimelineIcon />, label: "Timeline" },
-                { mode: "gantt" as const, icon: <GanttIcon />, label: "Gantt" },
-              ] as { mode: "list" | "vertical" | "gantt"; icon: React.ReactNode; label: string }[]).map(({ mode, icon, label }) => (
+              ] as { mode: "list" | "vertical"; icon: React.ReactNode; label: string }[]).map(({ mode, icon, label }) => (
                 <button
                   key={mode}
                   onClick={() => setViewMode(mode)}
@@ -623,6 +611,14 @@ const Events = () => {
                   <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase", color: viewMode === mode ? "#415162" : "#8A9AAB" }}>{label}</span>
                 </button>
               ))}
+              <button
+                onClick={() => navigate("/events/gantt")}
+                className="flex flex-col items-center gap-0.5 px-2 py-1 rounded-md transition-colors"
+                style={{ background: "transparent" }}
+              >
+                <span style={{ color: "#8A9AAB" }}><GanttIcon /></span>
+                <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase", color: "#8A9AAB" }}>Gantt</span>
+              </button>
             </div>
 
             {canEditEvents && (
@@ -633,14 +629,6 @@ const Events = () => {
             )}
           </div>
 
-          {/* Gantt label (only in gantt view) */}
-          {viewMode === "gantt" && (
-            <div className="flex items-center justify-center pb-3">
-              <span style={{ fontSize: 15, fontWeight: 500, color: "#2D3748" }}>
-                {ganttRangeLabel}
-              </span>
-            </div>
-          )}
 
         </div>
 
@@ -649,10 +637,6 @@ const Events = () => {
           <div className="flex justify-center py-12">
             <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
           </div>
-        ) : viewMode === "gantt" ? (
-          <EventsGantt
-            events={filteredEvents}
-          />
         ) : viewMode === "vertical" ? (
           <EventsVerticalTimeline events={filteredEvents} />
         ) : (

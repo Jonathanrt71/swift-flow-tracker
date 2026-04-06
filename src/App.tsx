@@ -13,6 +13,7 @@ import Admin from "./pages/Admin.tsx";
 import Profile from "./pages/Profile.tsx";
 import Meetings from "./pages/Meetings.tsx";
 import Events from "./pages/Events.tsx";
+import EventsGanttPage from "./pages/EventsGanttPage.tsx";
 import CBME from "./pages/CBME.tsx";
 import Feedback from "./pages/Feedback.tsx";
 import Handbook from "./pages/Handbook.tsx";
@@ -50,6 +51,7 @@ const App = () => (
               <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
               <Route path="/meetings" element={<RoleRoute permissionKey="meetings.view"><Meetings /></RoleRoute>} />
               <Route path="/events" element={<RoleRoute permissionKey="events.view"><Events /></RoleRoute>} />
+              <Route path="/events/gantt" element={<RoleRoute permissionKey="events.view"><EventsGanttPage /></RoleRoute>} />
               <Route path="/feedback" element={<RoleRoute permissionKey="feedback.view"><Feedback /></RoleRoute>} />
               <Route path="/tasks" element={<RoleRoute permissionKey="tasks.view"><Index /></RoleRoute>} />
               <Route path="/cbme" element={<RoleRoute permissionKey="cbme.view"><CBME /></RoleRoute>} />
