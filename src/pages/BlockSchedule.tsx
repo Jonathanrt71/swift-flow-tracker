@@ -78,11 +78,9 @@ const BlockSchedule = () => {
     const evals = evaluationsQuery.data;
     const scheduleEntries = scheduleQuery.data || [];
 
-    let matchCount = 0;
     evals.forEach(ev => {
       if (!ev.resident_name) return;
       const evName = ev.resident_name.trim();
-      // Use session_date (rotation start) as primary, fall back to eval_start_date
       const dateStr = ev.session_date || ev.eval_start_date;
       if (!dateStr) return;
       const evDate = new Date(dateStr + "T00:00:00");
@@ -93,11 +91,9 @@ const BlockSchedule = () => {
         const blockEnd = new Date(se.block_end + "T23:59:59");
         if (evDate >= blockStart && evDate <= blockEnd) {
           set.add(`${se.resident_name}::${se.pgy_level}::${se.block_number}::${se.rotation}`);
-          matchCount++;
         }
       });
     });
-    console.log(`Eval coverage: ${evals.length} evaluations, ${matchCount} matches, ${set.size} unique cells`);
     return set;
   }, [showEvalCoverage, evaluationsQuery.data, scheduleQuery.data]);
 
