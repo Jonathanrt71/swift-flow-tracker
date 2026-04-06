@@ -29,6 +29,7 @@ import ProcedureLogs from "./pages/ProcedureLogs.tsx";
 import ResidentSummary from "./pages/ResidentSummary.tsx";
 import Home from "./pages/Home.tsx";
 import UpdatePrompt from "./components/UpdatePrompt";
+import ScrollToTop from "./components/ScrollToTop";
 
 const queryClient = new QueryClient();
 
@@ -39,6 +40,7 @@ const App = () => (
       <Sonner />
       <UpdatePrompt />
       <BrowserRouter>
+        <ScrollToTop />
         <AuthProvider>
           <div style={{ background: "#E5E2DB", minHeight: "100vh" }}>
           <div className="mx-auto w-full max-w-[1024px] min-h-screen relative shadow-lg" style={{ background: "#F5F3EE" }}>

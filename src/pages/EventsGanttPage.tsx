@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useEvents } from "@/hooks/useEvents";
 import { useEventCategories } from "@/hooks/useEventCategories";
@@ -19,8 +19,6 @@ const EventsGanttPage = () => {
   const [activeCategory, setActiveCategory] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
-
-  useEffect(() => { window.scrollTo(0, 0); }, []);
 
   const filteredEvents = useMemo(() => {
     const all = events.data || [];
