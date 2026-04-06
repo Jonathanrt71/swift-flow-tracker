@@ -29,6 +29,7 @@ import { formatCardDate } from "@/lib/dateFormat";
 import CreateEventDialog from "@/components/events/CreateEventDialog";
 import EditEventDialog from "@/components/events/EditEventDialog";
 import EvaluationDialog from "@/components/events/EvaluationDialog";
+import EventsGantt from "@/components/events/EventsGantt";
 import EventsVerticalTimeline from "@/components/events/EventsVerticalTimeline";
 import NotificationBell from "@/components/NotificationBell";
 import HeaderLogo from "@/components/HeaderLogo";
@@ -484,7 +485,7 @@ const Events = () => {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState<string>("all");
-  const [viewMode, setViewMode] = useState<"list" | "vertical">("list");
+  const [viewMode, setViewMode] = useState<"list" | "vertical" | "gantt">("list");
   const navigate = useNavigate();
 
   const { categories, categoryLabels } = useEventCategories();
@@ -600,7 +601,8 @@ const Events = () => {
               {([
                 { mode: "list" as const, icon: <List className="h-4 w-4" />, label: "List" },
                 { mode: "vertical" as const, icon: <VerticalTimelineIcon />, label: "Timeline" },
-              ] as { mode: "list" | "vertical"; icon: React.ReactNode; label: string }[]).map(({ mode, icon, label }) => (
+                { mode: "gantt" as const, icon: <GanttIcon />, label: "Gantt" },
+              ] as { mode: "list" | "vertical" | "gantt"; icon: React.ReactNode; label: string }[]).map(({ mode, icon, label }) => (
                 <button
                   key={mode}
                   onClick={() => setViewMode(mode)}
@@ -611,22 +613,33 @@ const Events = () => {
                   <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase", color: viewMode === mode ? "#415162" : "#8A9AAB" }}>{label}</span>
                 </button>
               ))}
-              <button
-                onClick={() => navigate("/events/gantt")}
-                className="flex flex-col items-center gap-0.5 px-2 py-1 rounded-md transition-colors"
-                style={{ background: "transparent" }}
-              >
-                <span style={{ color: "#8A9AAB" }}><GanttIcon /></span>
-                <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase", color: "#8A9AAB" }}>Gantt</span>
-              </button>
             </div>
 
-            {canEditEvents && (
-              <CreateEventDialog
-                onSubmit={(data) => createEvent.mutate(data)}
-                defaultCategory={activeCategory === "all" ? "program" : activeCategory as EventCategory}
-              />
-            )}
+            <div className="flex items-center gap-2">
+              {viewMode === "gantt" && (
+                <button
+                  onClick={() => navigate("/events/gantt")}
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 500,
+                    color: "#415162",
+                    background: "transparent",
+                    border: "1px solid #C9CED4",
+                    borderRadius: 6,
+                    padding: "4px 10px",
+                    cursor: "pointer",
+                  }}
+                >
+                  Full Gantt
+                </button>
+              )}
+              {canEditEvents && (
+                <CreateEventDialog
+                  onSubmit={(data) => createEvent.mutate(data)}
+                  defaultCategory={activeCategory === "all" ? "program" : activeCategory as EventCategory}
+                />
+              )}
+            </div>
           </div>
 
 
@@ -637,6 +650,8 @@ const Events = () => {
           <div className="flex justify-center py-12">
             <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
           </div>
+        ) : viewMode === "gantt" ? (
+          <EventsGantt events={filteredEvents} />
         ) : viewMode === "vertical" ? (
           <EventsVerticalTimeline events={filteredEvents} />
         ) : (
