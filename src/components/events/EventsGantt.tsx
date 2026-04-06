@@ -21,10 +21,7 @@ const EventsGantt = ({ events }: EventsGanttProps) => {
   const labelWidth = isMobile ? 70 : 130;
   const rowHeight = isMobile ? 34 : 40;
   const dotSize = isMobile ? 8 : 9;
-  const monthCount = 13; // current month + 12 forward
   const now = new Date();
-  const startMonth = now.getMonth();
-  const startYear = now.getFullYear();
 
   const [tooltip, setTooltip] = useState<{ title: string; dateStr: string; x: number; y: number } | null>(null);
   const [floatingMonth, setFloatingMonth] = useState<string>("");
@@ -33,45 +30,17 @@ const EventsGantt = ({ events }: EventsGanttProps) => {
   const floatingTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const hasScrolledRef = useRef(false);
 
-  const months = useMemo(() => {
-    const result: { month: number; year: number; days: number; label: string; isCurrent: boolean }[] = [];
-    for (let i = 0; i < monthCount; i++) {
-      const m = (startMonth + i) % 12;
-      const y = startYear + Math.floor((startMonth + i) / 12);
-      const isCurrent = m === now.getMonth() && y === now.getFullYear();
-      result.push({ month: m, year: y, days: getDaysInMonth(new Date(y, m)), label: MONTH_ABBRS[m], isCurrent });
-    }
-    return result;
-  }, [startMonth, startYear, monthCount]);
-
-  const todayPosition = useMemo(() => {
-    for (let i = 0; i < months.length; i++) {
-      const m = months[i];
-      if (now.getFullYear() === m.year && now.getMonth() === m.month) {
-        const dayFrac = (now.getDate() - 1) / m.days;
-        return (i + dayFrac) / months.length;
-      }
-    }
-    return null;
-  }, [months]);
-
+  // Build rows from ALL events (no date filter)
   const rows = useMemo(() => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const oneYearOut = new Date(today);
-    oneYearOut.setFullYear(oneYearOut.getFullYear() + 1);
-
     const map = new Map<string, { startDate: Date; endDate: Date }[]>();
     events.forEach((ev) => {
       const start = parseISO(ev.event_date);
       const end = ev.end_date && ev.end_date !== ev.event_date ? parseISO(ev.end_date) : start;
-      // Only include occurrences that overlap with today → +1 year
-      if (end >= today && start <= oneYearOut) {
-        const arr = map.get(ev.title) || [];
-        arr.push({ startDate: start, endDate: end });
-        map.set(ev.title, arr);
-      }
+      const arr = map.get(ev.title) || [];
+      arr.push({ startDate: start, endDate: end });
+      map.set(ev.title, arr);
     });
 
     const rows: TimelineRow[] = [];
@@ -81,6 +50,9 @@ const EventsGantt = ({ events }: EventsGanttProps) => {
       rows.push({ title, occurrences, isMultiDay, earliestStart });
     });
 
+    // Sort by earliest upcoming occurrence, then by earliest start
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
     rows.sort((a, b) => {
       const nextA = a.occurrences
         .filter(o => o.endDate >= today)
@@ -94,11 +66,75 @@ const EventsGantt = ({ events }: EventsGanttProps) => {
       if (nextA && nextB) {
         return nextA.startDate.getTime() - nextB.startDate.getTime();
       }
-      return b.earliestStart.getTime() - a.earliestStart.getTime();
+      return a.earliestStart.getTime() - b.earliestStart.getTime();
     });
 
     return rows;
   }, [events]);
+
+  // Compute month range from earliest event to latest event
+  const months = useMemo(() => {
+    if (rows.length === 0) {
+      // Fallback: current month + 12 forward
+      const result: { month: number; year: number; days: number; label: string; isCurrent: boolean }[] = [];
+      for (let i = 0; i < 13; i++) {
+        const m = (now.getMonth() + i) % 12;
+        const y = now.getFullYear() + Math.floor((now.getMonth() + i) / 12);
+        const isCurrent = m === now.getMonth() && y === now.getFullYear();
+        result.push({ month: m, year: y, days: getDaysInMonth(new Date(y, m)), label: MONTH_ABBRS[m], isCurrent });
+      }
+      return result;
+    }
+
+    // Find earliest start and latest end across all occurrences
+    let earliest = new Date(9999, 0);
+    let latest = new Date(0);
+    rows.forEach(row => {
+      row.occurrences.forEach(o => {
+        if (o.startDate < earliest) earliest = o.startDate;
+        if (o.endDate > latest) latest = o.endDate;
+      });
+    });
+
+    // Start one month before earliest, end one month after latest
+    let startM = earliest.getMonth() - 1;
+    let startY = earliest.getFullYear();
+    if (startM < 0) { startM = 11; startY--; }
+
+    let endM = latest.getMonth() + 1;
+    let endY = latest.getFullYear();
+    if (endM > 11) { endM = 0; endY++; }
+
+    const result: { month: number; year: number; days: number; label: string; isCurrent: boolean }[] = [];
+    let cm = startM;
+    let cy = startY;
+    while (cy < endY || (cy === endY && cm <= endM)) {
+      const isCurrent = cm === now.getMonth() && cy === now.getFullYear();
+      result.push({ month: cm, year: cy, days: getDaysInMonth(new Date(cy, cm)), label: MONTH_ABBRS[cm], isCurrent });
+      cm++;
+      if (cm > 11) { cm = 0; cy++; }
+    }
+
+    return result;
+  }, [rows]);
+
+  const monthCount = months.length;
+
+  // Find current month index for auto-scroll
+  const currentMonthIdx = useMemo(() => {
+    return months.findIndex(m => m.month === now.getMonth() && m.year === now.getFullYear());
+  }, [months]);
+
+  const todayPosition = useMemo(() => {
+    for (let i = 0; i < months.length; i++) {
+      const m = months[i];
+      if (now.getFullYear() === m.year && now.getMonth() === m.month) {
+        const dayFrac = (now.getDate() - 1) / m.days;
+        return (i + dayFrac) / months.length;
+      }
+    }
+    return null;
+  }, [months]);
 
   const handleScroll = useCallback(() => {
     const el = scrollRef.current;
@@ -126,6 +162,22 @@ const EventsGantt = ({ events }: EventsGanttProps) => {
     el.addEventListener("scroll", handleScroll);
     return () => el.removeEventListener("scroll", handleScroll);
   }, [handleScroll]);
+
+  // Auto-scroll to current month on mount
+  useEffect(() => {
+    if (hasScrolledRef.current || currentMonthIdx < 0) return;
+    const el = scrollRef.current;
+    if (!el) return;
+
+    // Wait a frame for layout
+    requestAnimationFrame(() => {
+      const timelineWidth = el.scrollWidth - labelWidth;
+      const monthFrac = currentMonthIdx / monthCount;
+      const targetScroll = monthFrac * timelineWidth - el.clientWidth / 3;
+      el.scrollLeft = Math.max(0, targetScroll);
+      hasScrolledRef.current = true;
+    });
+  }, [currentMonthIdx, monthCount, labelWidth]);
 
   useEffect(() => {
     return () => {
@@ -166,12 +218,12 @@ const EventsGantt = ({ events }: EventsGanttProps) => {
 
   const formatOccurrenceDate = (o: { startDate: Date; endDate: Date }) => {
     if (o.startDate.getTime() === o.endDate.getTime()) {
-      return format(o.startDate, "MMM d");
+      return format(o.startDate, "MMM d, yyyy");
     }
-    if (o.startDate.getMonth() === o.endDate.getMonth()) {
-      return `${format(o.startDate, "MMM d")} \u2013 ${format(o.endDate, "d")}`;
+    if (o.startDate.getFullYear() === o.endDate.getFullYear() && o.startDate.getMonth() === o.endDate.getMonth()) {
+      return `${format(o.startDate, "MMM d")} – ${format(o.endDate, "d, yyyy")}`;
     }
-    return `${format(o.startDate, "MMM d")} \u2013 ${format(o.endDate, "MMM d")}`;
+    return `${format(o.startDate, "MMM d, yyyy")} – ${format(o.endDate, "MMM d, yyyy")}`;
   };
 
   const truncateLabel = (s: string) => s.length > 16 ? s.slice(0, 15) + "\u2026" : s;
@@ -260,7 +312,7 @@ const EventsGantt = ({ events }: EventsGanttProps) => {
           {/* Event rows */}
           {rows.length === 0 && (
             <div className="text-center py-8 text-sm" style={{ color: "#8A9AAB" }}>
-              No program events in this period
+              No events found
             </div>
           )}
           {rows.map((row, rowIdx) => (
