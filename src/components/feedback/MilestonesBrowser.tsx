@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ChevronDown, Plus, Pencil, Trash2, X, Check } from "lucide-react";
 import { useACGMECompetencies } from "@/hooks/useACGMECompetencies";
 import { useAdmin } from "@/hooks/useAdmin";
+import { usePermissions } from "@/hooks/usePermissions";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { Textarea } from "@/components/ui/textarea";
@@ -9,6 +10,8 @@ import { Textarea } from "@/components/ui/textarea";
 const MilestonesBrowser = () => {
   const { data: categories } = useACGMECompetencies();
   const { isAdmin } = useAdmin();
+  const { has: hasPerm } = usePermissions();
+  const canEditMilestones = isAdmin || hasPerm("feedback.milestones", "full");
   const queryClient = useQueryClient();
   const [expandedCatId, setExpandedCatId] = useState<string | null>(null);
   const [expandedSubId, setExpandedSubId] = useState<string | null>(null);
@@ -211,7 +214,7 @@ const MilestonesBrowser = () => {
                                         <span style={{ fontSize: 10, fontWeight: 600, color: "#8A9AAB", letterSpacing: 0.5, textTransform: "uppercase" as const }}>
                                           Program Examples
                                         </span>
-                                        {isAdmin && (
+                                        {canEditMilestones && (
                                           <button
                                             onClick={() => { setAddingFor(mile.id); setAddText(""); }}
                                             className="flex items-center gap-1 hover:opacity-70 transition-opacity"
@@ -225,7 +228,7 @@ const MilestonesBrowser = () => {
                                       {/* Examples list */}
                                       {mile.examples.length === 0 ? (
                                         <p style={{ fontSize: 12, color: "#8A9AAB", fontStyle: "italic" }}>
-                                          {isAdmin ? "No examples yet — click Add to create one" : "No program examples yet"}
+                                          {canEditMilestones ? "No examples yet — click Add to create one" : "No program examples yet"}
                                         </p>
                                       ) : (
                                         mile.examples.map((ex, idx) => (
@@ -252,7 +255,7 @@ const MilestonesBrowser = () => {
                                               <div className="flex items-start group" style={{ padding: "6px 0", gap: 6 }}>
                                                 <span className="shrink-0" style={{ color: "#5E9E82" }}>•</span>
                                                 <span className="flex-1" style={{ fontSize: 12, color: "#2D3748" }}>{ex}</span>
-                                                {isAdmin && (
+                                                {canEditMilestones && (
                                                   <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
                                                     <button onClick={() => { setEditingIdx({ mileId: mile.id, idx }); setEditText(ex); }} className="flex items-center justify-center hover:opacity-70" style={{ width: 24, height: 24 }}>
                                                       <Pencil className="h-3 w-3" style={{ color: "#8A9AAB" }} />
