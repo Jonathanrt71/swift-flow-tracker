@@ -56,14 +56,15 @@ const CreateFeedbackDialog = ({ onSubmit, residents }: CreateFeedbackDialogProps
   };
 
   const handleSubmit = () => {
-    if (!residentId || !sentiment || !guidanceLevel || !editor) return;
+    if (!residentId || !sentiment || !editor) return;
+    if (sentiment === "positive" && !guidanceLevel) return;
     const html = editor.getHTML();
     if (!html || html === "<p></p>" || html.trim() === "") return;
     onSubmit({
       resident_id: residentId,
       comment: html,
       sentiment,
-      guidance_level: guidanceLevel,
+      guidance_level: sentiment === "positive" ? guidanceLevel! : "substantial",
     });
     setOpen(false);
   };
@@ -134,7 +135,7 @@ const CreateFeedbackDialog = ({ onSubmit, residents }: CreateFeedbackDialogProps
           <div className="flex gap-3">
             <button
               type="button"
-              onClick={() => setSentiment("negative")}
+              onClick={() => { setSentiment("negative"); setGuidanceLevel(null); }}
               className="flex-1 flex items-center justify-center py-2.5 rounded-lg transition-opacity"
               style={{
                 background: "#c44444",
@@ -146,7 +147,7 @@ const CreateFeedbackDialog = ({ onSubmit, residents }: CreateFeedbackDialogProps
             </button>
             <button
               type="button"
-              onClick={() => setSentiment("positive")}
+              onClick={() => { setSentiment("positive"); setGuidanceLevel(null); }}}
               className="flex-1 flex items-center justify-center py-2.5 rounded-lg transition-opacity"
               style={{
                 background: "#4A846C",
@@ -159,35 +160,37 @@ const CreateFeedbackDialog = ({ onSubmit, residents }: CreateFeedbackDialogProps
           </div>
         </div>
 
-        {/* Guidance level */}
-        <div className="mb-4">
-          <label className="text-xs block mb-1.5" style={{ color: "#5F7285" }}>
-            Level of assistance needed
-          </label>
-          <div className="flex gap-2">
-            {guidanceOptions.map(opt => (
-              <button
-                key={opt.value}
-                type="button"
-                onClick={() => setGuidanceLevel(opt.value)}
-                className="flex-1 py-2 rounded-lg text-xs font-medium transition-opacity"
-                style={{
-                  background: guidanceLevel === opt.value ? "#415162" : "#E7EBEF",
-                  color: guidanceLevel === opt.value ? "#fff" : "#2D3748",
-                  border: "none",
-                  opacity: guidanceLevel === null || guidanceLevel === opt.value ? 1 : 0.5,
-                }}
-              >
-                {opt.label}
-              </button>
-            ))}
+        {/* Guidance level — only for positive sentiment */}
+        {sentiment === "positive" && (
+          <div className="mb-4">
+            <label className="text-xs block mb-1.5" style={{ color: "#5F7285" }}>
+              Level of assistance needed
+            </label>
+            <div className="flex gap-2">
+              {guidanceOptions.map(opt => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => setGuidanceLevel(opt.value)}
+                  className="flex-1 py-2 rounded-lg text-xs font-medium transition-opacity"
+                  style={{
+                    background: guidanceLevel === opt.value ? "#415162" : "#E7EBEF",
+                    color: guidanceLevel === opt.value ? "#fff" : "#2D3748",
+                    border: "none",
+                    opacity: guidanceLevel === null || guidanceLevel === opt.value ? 1 : 0.5,
+                  }}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Save */}
         <button
           onClick={handleSubmit}
-          disabled={!residentId || !sentiment || !guidanceLevel}
+          disabled={!residentId || !sentiment || (sentiment === "positive" && !guidanceLevel)}
           className="w-full rounded-lg py-3 text-sm font-medium text-white disabled:opacity-50"
           style={{ background: "#415162" }}
         >

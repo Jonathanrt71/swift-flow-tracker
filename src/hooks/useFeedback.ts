@@ -134,6 +134,7 @@ export function useFeedback() {
       resident_id?: string;
       comment?: string;
       sentiment?: "positive" | "negative" | "neutral";
+      guidance_level?: "substantial" | "some" | "minimal" | null;
       competency_category_id?: string | null;
       competency_subcategory_id?: string | null;
       competency_milestone_id?: string | null;

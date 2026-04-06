@@ -4,16 +4,19 @@ import {
   DialogContent,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Pencil, ArrowUp, ArrowDown, ArrowRight } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Pencil, ThumbsUp, ThumbsDown } from "lucide-react";
 import { formatPersonName } from "@/lib/dateFormat";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import type { Feedback } from "@/hooks/useFeedback";
-import CompetencySelector, {
-  type CompetencySelection,
-  buildSelectionFromFeedback,
-} from "./CompetencySelector";
-import { useACGMECompetencies } from "@/hooks/useACGMECompetencies";
+import type { GuidanceLevel } from "./CreateFeedbackDialog";
 
 interface EditFeedbackDialogProps {
   feedback: Feedback;
@@ -21,19 +24,20 @@ interface EditFeedbackDialogProps {
   onSubmit: (data: {
     resident_id: string;
     comment: string;
-    sentiment: "positive" | "negative" | "neutral";
-    competency_category_id?: string | null;
-    competency_subcategory_id?: string | null;
-    competency_milestone_id?: string | null;
+    sentiment: "positive" | "negative";
+    guidance_level?: GuidanceLevel | null;
   }) => void;
 }
 
 const EditFeedbackDialog = ({ feedback, residents, onSubmit }: EditFeedbackDialogProps) => {
-  const { data: categories } = useACGMECompetencies();
   const [open, setOpen] = useState(false);
   const [residentId, setResidentId] = useState(feedback.resident_id);
-  const [sentiment, setSentiment] = useState<"positive" | "negative" | "neutral">(feedback.sentiment);
-  const [competency, setCompetency] = useState<CompetencySelection | null>(null);
+  const [sentiment, setSentiment] = useState<"positive" | "negative">(
+    feedback.sentiment === "negative" ? "negative" : "positive"
+  );
+  const [guidanceLevel, setGuidanceLevel] = useState<GuidanceLevel | null>(
+    (feedback.guidance_level as GuidanceLevel) || null
+  );
 
   const editor = useEditor({
     extensions: [StarterKit],
@@ -49,31 +53,23 @@ const EditFeedbackDialog = ({ feedback, residents, onSubmit }: EditFeedbackDialo
   const handleOpenChange = (isOpen: boolean) => {
     if (isOpen) {
       setResidentId(feedback.resident_id);
-      setSentiment(feedback.sentiment);
+      setSentiment(feedback.sentiment === "negative" ? "negative" : "positive");
+      setGuidanceLevel((feedback.guidance_level as GuidanceLevel) || null);
       editor?.commands.setContent(feedback.comment);
-      // Build initial competency selection
-      const sel = buildSelectionFromFeedback(
-        categories || [],
-        feedback.competency_category_id,
-        feedback.competency_subcategory_id,
-        feedback.competency_milestone_id,
-      );
-      setCompetency(sel);
     }
     setOpen(isOpen);
   };
 
   const handleSubmit = () => {
     if (!residentId || !editor) return;
+    if (sentiment === "positive" && !guidanceLevel) return;
     const html = editor.getHTML();
     if (!html || html === "<p></p>" || html.trim() === "") return;
     onSubmit({
       resident_id: residentId,
       comment: html,
       sentiment,
-      competency_category_id: competency?.categoryId || null,
-      competency_subcategory_id: competency?.subcategoryId || null,
-      competency_milestone_id: competency?.milestoneId || null,
+      guidance_level: sentiment === "positive" ? guidanceLevel : null,
     });
     setOpen(false);
   };
@@ -81,6 +77,12 @@ const EditFeedbackDialog = ({ feedback, residents, onSubmit }: EditFeedbackDialo
   const sortedResidents = [...residents].sort((a, b) =>
     formatPersonName(a).localeCompare(formatPersonName(b))
   );
+
+  const guidanceOptions: { value: GuidanceLevel; label: string }[] = [
+    { value: "substantial", label: "Substantial" },
+    { value: "some", label: "Moderate" },
+    { value: "minimal", label: "Minimal" },
+  ];
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -106,19 +108,18 @@ const EditFeedbackDialog = ({ feedback, residents, onSubmit }: EditFeedbackDialo
           <label className="text-xs block mb-1.5" style={{ color: "#5F7285" }}>
             Resident
           </label>
-          <select
-            value={residentId}
-            onChange={(e) => setResidentId(e.target.value)}
-            className="w-full rounded-lg border px-3 py-2.5 text-sm bg-white"
-            style={{ borderColor: "#C9CED4", color: "#2D3748" }}
-          >
-            <option value="">Select resident...</option>
-            {sortedResidents.map((r) => (
-              <option key={r.id} value={r.id}>
-                {formatPersonName(r)}
-              </option>
-            ))}
-          </select>
+          <Select value={residentId || "unselected"} onValueChange={(v) => setResidentId(v === "unselected" ? "" : v)}>
+            <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0" style={{ borderColor: "#C9CED4", background: "#fff" }}>
+              <SelectValue placeholder="Select resident..." />
+            </SelectTrigger>
+            <SelectContent>
+              {sortedResidents.map((r) => (
+                <SelectItem key={r.id} value={r.id}>
+                  {formatPersonName(r)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Comment (TipTap, no toolbar) */}
@@ -139,57 +140,62 @@ const EditFeedbackDialog = ({ feedback, residents, onSubmit }: EditFeedbackDialo
           <div className="flex gap-3">
             <button
               type="button"
-              onClick={() => setSentiment("negative")}
+              onClick={() => { setSentiment("negative"); setGuidanceLevel(null); }}
               className="flex-1 flex items-center justify-center py-2.5 rounded-lg transition-opacity"
               style={{
-                background: "#D4A017",
-                border: "2px solid #B0850F",
+                background: "#c44444",
+                border: "2px solid #a33333",
                 opacity: sentiment === "negative" ? 1 : 0.3,
               }}
             >
-              <ArrowDown className="h-5 w-5" style={{ color: "#FFFFFF" }} />
+              <ThumbsDown className="h-5 w-5" style={{ color: "#FFFFFF" }} />
             </button>
             <button
               type="button"
-              onClick={() => setSentiment("neutral")}
+              onClick={() => { setSentiment("positive"); setGuidanceLevel(null); }}
               className="flex-1 flex items-center justify-center py-2.5 rounded-lg transition-opacity"
               style={{
                 background: "#4A846C",
                 border: "2px solid #3A6B56",
-                opacity: sentiment === "neutral" ? 1 : 0.3,
-              }}
-            >
-              <ArrowRight className="h-5 w-5" style={{ color: "#FFFFFF" }} />
-            </button>
-            <button
-              type="button"
-              onClick={() => setSentiment("positive")}
-              className="flex-1 flex items-center justify-center py-2.5 rounded-lg transition-opacity"
-              style={{
-                background: "#52657A",
-                border: "2px solid #415162",
                 opacity: sentiment === "positive" ? 1 : 0.3,
               }}
             >
-              <ArrowUp className="h-5 w-5" style={{ color: "#FFFFFF" }} />
+              <ThumbsUp className="h-5 w-5" style={{ color: "#FFFFFF" }} />
             </button>
           </div>
         </div>
 
-        {/* Competency selector */}
-        <CompetencySelector value={competency} onChange={setCompetency} commentText={editor?.getText() || ""} sentiment={sentiment} pgyLevel={(() => {
-          const r = residents.find((r) => r.id === residentId);
-          if (!r?.graduation_year) return undefined;
-          const now = new Date();
-          const academicYear = now.getMonth() >= 6 ? now.getFullYear() + 1 : now.getFullYear();
-          const pgy = academicYear - (r.graduation_year - 3);
-          return pgy >= 1 ? pgy : undefined;
-        })()} residentId={residentId} />
+        {/* Guidance level — only for positive sentiment */}
+        {sentiment === "positive" && (
+          <div className="mb-4">
+            <label className="text-xs block mb-1.5" style={{ color: "#5F7285" }}>
+              Level of assistance needed
+            </label>
+            <div className="flex gap-2">
+              {guidanceOptions.map(opt => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => setGuidanceLevel(opt.value)}
+                  className="flex-1 py-2 rounded-lg text-xs font-medium transition-opacity"
+                  style={{
+                    background: guidanceLevel === opt.value ? "#415162" : "#E7EBEF",
+                    color: guidanceLevel === opt.value ? "#fff" : "#2D3748",
+                    border: "none",
+                    opacity: guidanceLevel === null || guidanceLevel === opt.value ? 1 : 0.5,
+                  }}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Save */}
         <button
           onClick={handleSubmit}
-          disabled={!residentId}
+          disabled={!residentId || (sentiment === "positive" && !guidanceLevel)}
           className="w-full rounded-lg py-3 text-sm font-medium text-white disabled:opacity-50"
           style={{ background: "#415162" }}
         >
