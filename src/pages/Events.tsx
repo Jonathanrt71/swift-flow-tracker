@@ -23,7 +23,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Calendar, Search, X, Trash2, List, ClipboardCheck } from "lucide-react";
+import { Calendar, Search, X, Trash2, List, ClipboardCheck, Maximize2 } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { formatCardDate } from "@/lib/dateFormat";
 import CreateEventDialog from "@/components/events/CreateEventDialog";
@@ -613,33 +613,22 @@ const Events = () => {
                   <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase", color: viewMode === mode ? "#415162" : "#8A9AAB" }}>{label}</span>
                 </button>
               ))}
+              <button
+                onClick={() => navigate("/events/gantt")}
+                className="flex flex-col items-center gap-0.5 px-2 py-1 rounded-md transition-colors"
+                style={{ background: "transparent" }}
+              >
+                <span style={{ color: "#8A9AAB" }}><Maximize2 className="h-4 w-4" /></span>
+                <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase", color: "#8A9AAB" }}>Full Gantt</span>
+              </button>
             </div>
 
-            <div className="flex items-center gap-2">
-              {viewMode === "gantt" && (
-                <button
-                  onClick={() => navigate("/events/gantt")}
-                  style={{
-                    fontSize: 12,
-                    fontWeight: 500,
-                    color: "#415162",
-                    background: "transparent",
-                    border: "1px solid #C9CED4",
-                    borderRadius: 6,
-                    padding: "4px 10px",
-                    cursor: "pointer",
-                  }}
-                >
-                  Full Gantt
-                </button>
-              )}
-              {canEditEvents && (
-                <CreateEventDialog
-                  onSubmit={(data) => createEvent.mutate(data)}
-                  defaultCategory={activeCategory === "all" ? "program" : activeCategory as EventCategory}
-                />
-              )}
-            </div>
+            {canEditEvents && (
+              <CreateEventDialog
+                onSubmit={(data) => createEvent.mutate(data)}
+                defaultCategory={activeCategory === "all" ? "program" : activeCategory as EventCategory}
+              />
+            )}
           </div>
 
 

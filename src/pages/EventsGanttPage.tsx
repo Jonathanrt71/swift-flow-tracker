@@ -33,7 +33,7 @@ const EventsGanttPage = () => {
   }, [events.data, activeCategory, searchQuery]);
 
   return (
-    <div style={{ minHeight: "100vh", background: "#F5F3EE", width: "100vw", marginLeft: "calc(-50vw + 50%)", position: "relative" }}>
+    <div style={{ minHeight: "100vh", background: "#F5F3EE", width: "100vw", marginLeft: "calc(-50vw + 50%)", position: "relative", overflowX: "hidden" }}>
       <header style={{ position: "sticky", top: 0, zIndex: 40, background: "#415162" }}>
         <div style={{ display: "flex", alignItems: "center", height: 56, padding: "0 16px" }}>
           <HeaderLogo isAdmin={isAdmin} onSignOut={signOut}>
