@@ -8,6 +8,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -17,6 +18,7 @@ const Login = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { session } = useAuth();
+  const isMobile = useIsMobile();
 
   if (session) {
     return <Navigate to="/" replace />;
@@ -40,7 +42,7 @@ const Login = () => {
     <div style={{ position: "relative", minHeight: "100vh", overflow: "hidden" }}>
       <div style={{
         position: "absolute", inset: 0,
-        backgroundImage: "url(/login-bg.jpg)",
+        backgroundImage: isMobile ? "url(/login-bg.jpg)" : "url(/login-bg-desktop.jpg)",
         backgroundSize: "cover", backgroundPosition: "center",
         filter: "brightness(0.8)",
       }} />
