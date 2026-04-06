@@ -420,6 +420,7 @@ const Compliance = () => {
   // ── UI State ───────────────────────────────────────────────────────────
   const [activeTab, setActiveTab] = useState<"table" | "narrative">("table");
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
   const [filterSection, setFilterSection] = useState<number | null>(null);
   const [filterStatus, setFilterStatus] = useState<ComplianceStatus | null>(null);
   const [filterType, setFilterType] = useState<string | null>(null);
@@ -618,9 +619,35 @@ const Compliance = () => {
         padding: "14px 16px", background: "#415162", color: "#fff",
       }}>
         <HeaderLogo isAdmin={isAdmin} onSignOut={signOut}>
+          <button
+            style={{
+              display: "flex", alignItems: "center", justifyContent: "center",
+              width: 36, height: 36, background: "transparent", border: "none",
+              borderRadius: 6, cursor: "pointer", color: "rgba(255,255,255,0.8)",
+            }}
+            onClick={() => { setSearchOpen(!searchOpen); if (searchOpen) setSearchQuery(""); }}
+          >
+            {searchOpen ? <X style={{ width: 17, height: 17 }} /> : <Search style={{ width: 17, height: 17 }} />}
+          </button>
           <NotificationBell />
         </HeaderLogo>
       </div>
+      {searchOpen && (
+        <div style={{ padding: "0 16px 12px", background: "#415162" }}>
+          <input
+            autoFocus
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            placeholder="Search requirements…"
+            style={{
+              width: "100%", fontSize: 13, padding: "9px 12px",
+              border: "1px solid rgba(255,255,255,0.3)", borderRadius: 8,
+              background: "rgba(255,255,255,0.95)", color: "#333", outline: "none",
+              boxSizing: "border-box" as const,
+            }}
+          />
+        </div>
+      )}
 
       {/* Title + Tabs */}
       <div style={{ padding: "16px 16px 0", background: "#F5F3EE" }}>
@@ -685,20 +712,8 @@ const Compliance = () => {
       {/* ── TAB: Requirements Table ─────────────────────────────────────── */}
       {activeTab === "table" && (
         <div style={{ flex: 1, padding: "12px 16px 100px" }}>
-          {/* Search + Filters */}
+          {/* Filters */}
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
-            <div style={{ flex: 1, minWidth: 180, position: "relative" }}>
-              <Search style={{ position: "absolute", left: 10, top: 9, width: 15, height: 15, color: "#999" }} />
-              <input
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-                placeholder="Search requirements…"
-                style={{
-                  width: "100%", fontSize: 13, padding: "8px 10px 8px 32px",
-                  border: "1px solid #C9CED4", borderRadius: 6, background: "#fff", color: "#333",
-                }}
-              />
-            </div>
             <select
               value={filterSection ?? ""}
               onChange={e => setFilterSection(e.target.value ? Number(e.target.value) : null)}
