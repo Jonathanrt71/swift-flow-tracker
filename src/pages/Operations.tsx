@@ -6,7 +6,7 @@ import {
   ShieldCheck, Globe, Coffee, AlertTriangle, MessageSquare, Layers,
   Users, AlertCircle, Monitor, Pencil, X, Save,
   Plus, ChevronDown, ChevronUp, ChevronRight, Trash2, Menu,
-  CalendarPlus, ClipboardList, Eye, Search,
+  CalendarPlus, ClipboardList, Search,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
@@ -550,13 +550,6 @@ const Operations = () => {
         <div style={{ display: "flex", alignItems: "center", height: 56, padding: "0 16px" }}>
           <HeaderLogo isAdmin={isAdmin} onSignOut={signOut}>
             <button
-              onClick={() => setTocOpen(!tocOpen)}
-              style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 36, height: 36, background: "transparent", border: "none", borderRadius: 6, cursor: "pointer", color: "rgba(255,255,255,0.6)" }}
-              title="Table of Contents"
-            >
-              <Menu style={{ width: 18, height: 18 }} />
-            </button>
-            <button
               onClick={() => { setSearchOpen(!searchOpen); if (searchOpen) clearSearch(); }}
               style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 36, height: 36, background: "transparent", border: "none", borderRadius: 6, cursor: "pointer", color: "rgba(255,255,255,0.6)" }}
               title="Search"
@@ -642,34 +635,33 @@ const Operations = () => {
         >
           <div style={{ maxWidth: 700, margin: "0 auto" }}>
 
-          {/* Toolbar row: pill toggle + Add section */}
-          {hasEditPerm && (
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
-              <div
-                onClick={() => setViewAsReader(!viewAsReader)}
-                style={{
-                  display: "inline-flex", position: "relative",
-                  background: "#E7EBEF", borderRadius: 17,
-                  padding: 3, width: 62, height: 34,
-                  cursor: "pointer", flexShrink: 0,
-                }}
-              >
-                <div style={{
-                  position: "absolute", top: 3,
-                  width: 28, height: 28,
-                  background: "#415162", borderRadius: "50%",
-                  transition: "left 0.2s ease",
-                  left: viewAsReader ? 3 : 31,
-                }} />
-                <div style={{ position: "relative", zIndex: 1, display: "flex", width: "100%" }}>
-                  <div style={{ width: 28, height: 28, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <Eye style={{ width: 14, height: 14, color: viewAsReader ? "#fff" : "#888", transition: "color 0.2s" }} />
-                  </div>
-                  <div style={{ width: 28, height: 28, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <Pencil style={{ width: 14, height: 14, color: !viewAsReader ? "#fff" : "#888", transition: "color 0.2s" }} />
-                  </div>
+          {/* Top bar: Read/Edit toggle + hamburger */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              {hasEditPerm && (
+                <div style={{ display: "flex", gap: 0, borderRadius: 8, overflow: "hidden", border: "0.5px solid #C9CED4" }}>
+                  <button
+                    onClick={() => setViewAsReader(true)}
+                    style={{
+                      padding: "5px 14px", fontSize: 12, fontWeight: 500, border: "none", cursor: "pointer",
+                      background: viewAsReader ? "#415162" : "#fff",
+                      color: viewAsReader ? "#fff" : "#5F7285",
+                    }}
+                  >
+                    Read
+                  </button>
+                  <button
+                    onClick={() => setViewAsReader(false)}
+                    style={{
+                      padding: "5px 14px", fontSize: 12, fontWeight: 500, border: "none", cursor: "pointer",
+                      background: !viewAsReader ? "#415162" : "#fff",
+                      color: !viewAsReader ? "#fff" : "#5F7285",
+                    }}
+                  >
+                    Edit
+                  </button>
                 </div>
-              </div>
+              )}
               {canEdit && (
                 addingParentId === null ? (
                   <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -694,7 +686,14 @@ const Operations = () => {
                 )
               )}
             </div>
-          )}
+            <button
+              onClick={() => setTocOpen(!tocOpen)}
+              style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 36, height: 36, background: "transparent", border: "none", borderRadius: 6, cursor: "pointer", color: "#5F7285" }}
+              title="Table of Contents"
+            >
+              <Menu style={{ width: 20, height: 20 }} />
+            </button>
+          </div>
 
             {isLoading && <div style={{ color: "#999", fontSize: 14, padding: "40px 0", textAlign: "center" }}>Loading operations manual…</div>}
             {error && <div style={{ color: "#c44", fontSize: 14 }}>Failed to load. Please refresh.</div>}

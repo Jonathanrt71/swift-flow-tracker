@@ -5,7 +5,7 @@ import {
   BookOpen, CalendarOff, CheckSquare, Moon, RefreshCw, Shirt, Heart,
   ShieldCheck, Globe, Coffee, AlertTriangle, MessageSquare, Layers,
   Users, AlertCircle, Monitor, Pencil, X, Save,
-  Menu, ChevronDown, ChevronRight, Plus, Trash2, Eye, EyeOff, Search,
+  Menu, ChevronDown, ChevronRight, Plus, Trash2, Search,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
@@ -297,13 +297,6 @@ const Handbook = () => {
         <div style={{ display: "flex", alignItems: "center", height: 56, padding: "0 16px" }}>
           <HeaderLogo isAdmin={isAdmin} onSignOut={signOut}>
             <button
-              onClick={() => setTocOpen(!tocOpen)}
-              style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 36, height: 36, background: "transparent", border: "none", borderRadius: 6, cursor: "pointer", color: "rgba(255,255,255,0.6)" }}
-              title="Table of Contents"
-            >
-              <Menu style={{ width: 18, height: 18 }} />
-            </button>
-            <button
               onClick={() => { setSearchOpen(!searchOpen); if (searchOpen) clearSearch(); }}
               style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 36, height: 36, background: "transparent", border: "none", borderRadius: 6, cursor: "pointer", color: "rgba(255,255,255,0.6)" }}
               title="Search"
@@ -372,27 +365,40 @@ const Handbook = () => {
         <div ref={contentRef} style={{ flex: 1, overflowY: "auto", padding: "24px 20px 120px" }}>
           <div style={{ maxWidth: 700, margin: "0 auto" }}>
 
-          {/* Reader view toggle — only shown for users with edit permission */}
-          {hasEditPerm && (
-            <div style={{ marginBottom: 12 }}>
-              <button
-                onClick={() => setViewAsReader(!viewAsReader)}
-                style={{
-                  display: "flex", alignItems: "center", gap: 6,
-                  padding: "7px 12px", fontSize: 12,
-                  color: viewAsReader ? "#fff" : "#415162",
-                  background: viewAsReader ? "#415162" : "#E7EBEF",
-                  border: "1px solid #C9CED4", borderRadius: 6,
-                  cursor: "pointer", fontWeight: 500,
-                }}
-              >
-                {viewAsReader
-                  ? <><EyeOff style={{ width: 13, height: 13 }} /> Reader view</>
-                  : <><Eye style={{ width: 13, height: 13 }} /> Editor view</>
-                }
-              </button>
-            </div>
-          )}
+          {/* Top bar: Read/Edit toggle + hamburger */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+            {hasEditPerm ? (
+              <div style={{ display: "flex", gap: 0, borderRadius: 8, overflow: "hidden", border: "0.5px solid #C9CED4" }}>
+                <button
+                  onClick={() => setViewAsReader(true)}
+                  style={{
+                    padding: "5px 14px", fontSize: 12, fontWeight: 500, border: "none", cursor: "pointer",
+                    background: viewAsReader ? "#415162" : "#fff",
+                    color: viewAsReader ? "#fff" : "#5F7285",
+                  }}
+                >
+                  Read
+                </button>
+                <button
+                  onClick={() => setViewAsReader(false)}
+                  style={{
+                    padding: "5px 14px", fontSize: 12, fontWeight: 500, border: "none", cursor: "pointer",
+                    background: !viewAsReader ? "#415162" : "#fff",
+                    color: !viewAsReader ? "#fff" : "#5F7285",
+                  }}
+                >
+                  Edit
+                </button>
+              </div>
+            ) : <div />}
+            <button
+              onClick={() => setTocOpen(!tocOpen)}
+              style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 36, height: 36, background: "transparent", border: "none", borderRadius: 6, cursor: "pointer", color: "#5F7285" }}
+              title="Table of Contents"
+            >
+              <Menu style={{ width: 20, height: 20 }} />
+            </button>
+          </div>
 
             {isLoading && <div style={{ color: "#999", fontSize: 14, padding: "40px 0", textAlign: "center" }}>Loading handbook…</div>}
             {error && <div style={{ color: "#c44", fontSize: 14 }}>Failed to load. Please refresh.</div>}
