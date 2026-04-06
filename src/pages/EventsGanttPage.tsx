@@ -13,7 +13,7 @@ const EventsGanttPage = () => {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const { isAdmin } = useAdmin();
-  const events = useEvents();
+  const { events } = useEvents();
   const { categories, categoryLabels } = useEventCategories();
 
   const [activeCategory, setActiveCategory] = useState<string>("all");
