@@ -192,7 +192,7 @@ function TopicRow({ topic, allTags, canEdit, isAdmin, isFaculty, residents, curr
 
   return (
     <>
-      <div style={{ background: "#fff", border: "1px solid #E7EBEF", borderRadius: 10, marginBottom: 8, overflow: "hidden" }}>
+      <div style={{ background: "#E7EBEF", border: "0.5px solid #D5DAE0", borderRadius: 10, marginBottom: 8, overflow: "hidden" }}>
         {/* Collapsed row */}
         <div
           style={{ display: "flex", alignItems: "center", gap: 10, padding: "11px 14px", cursor: "pointer" }}
