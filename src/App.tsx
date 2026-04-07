@@ -28,7 +28,6 @@ import BlockSchedule from "./pages/BlockSchedule.tsx";
 import ProcedureLogs from "./pages/ProcedureLogs.tsx";
 import ResidentSummary from "./pages/ResidentSummary.tsx";
 import Home from "./pages/Home.tsx";
-import UpdatePrompt from "./components/UpdatePrompt";
 import ScrollToTop from "./components/ScrollToTop";
 
 const queryClient = new QueryClient();
@@ -38,7 +37,6 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <UpdatePrompt />
       <BrowserRouter>
         <ScrollToTop />
         <AuthProvider>
