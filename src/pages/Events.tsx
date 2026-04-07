@@ -684,7 +684,7 @@ const Events = () => {
               </div>
 
               {/* Row 2: View toggles + Add button */}
-              <div className="flex items-center justify-between py-2.5">
+              <div className="flex items-start justify-between py-2.5">
                 <div className="flex items-center gap-0.5">
                   {([
                     { mode: "list" as const, icon: <List className="h-4 w-4" />, label: "List" },
@@ -695,7 +695,7 @@ const Events = () => {
                       key={mode}
                       onClick={() => setViewMode(mode)}
                       className="flex flex-col items-center gap-0.5 px-2 py-1 rounded-md transition-colors"
-                      style={{ background: "transparent" }}
+                      style={{ background: viewMode === mode ? "#D5DAE0" : "transparent" }}
                     >
                       <span style={{ color: viewMode === mode ? "#415162" : "#8A9AAB" }}>{icon}</span>
                       <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase", color: viewMode === mode ? "#415162" : "#8A9AAB" }}>{label}</span>
@@ -705,7 +705,7 @@ const Events = () => {
                     <button
                       onClick={() => setShowPast(!showPast)}
                       className="flex flex-col items-center gap-0.5 px-2 py-1 rounded-md transition-colors"
-                      style={{ background: "transparent" }}
+                      style={{ background: showPast ? "#D5DAE0" : "transparent" }}
                     >
                       <span style={{ color: showPast ? "#415162" : "#8A9AAB" }}>
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>

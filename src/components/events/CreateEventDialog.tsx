@@ -96,7 +96,7 @@ const CreateEventDialog = ({ onSubmit, defaultCategory }: CreateEventDialogProps
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <button className="flex items-center justify-center w-8 h-8 bg-transparent border-none cursor-pointer text-muted-foreground">
+        <button className="flex items-center justify-center w-8 h-8 mt-0.5 bg-transparent border-none cursor-pointer text-muted-foreground">
           <Plus className="h-[18px] w-[18px]" />
         </button>
       </DialogTrigger>
