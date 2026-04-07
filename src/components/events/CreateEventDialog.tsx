@@ -142,7 +142,7 @@ const CreateEventDialog = ({ onSubmit, defaultCategory }: CreateEventDialogProps
             <div>
               <label className="text-xs block mb-1.5" style={{ color: "#5F7285" }}>Topic</label>
               {topicId ? (() => {
-                const linked = clinicalTopics?.find(t => t.id === topicId);
+                const linked = clinicalTopics?.data?.find(t => t.id === topicId);
                 return (
                   <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "#fff", border: "0.5px solid #C9CED4", borderRadius: 6, padding: "5px 10px", fontSize: 12, color: "#2D3748", fontWeight: 500 }}>
                     {linked?.title || "Unknown"}
@@ -153,7 +153,7 @@ const CreateEventDialog = ({ onSubmit, defaultCategory }: CreateEventDialogProps
                 );
               })() : (
                 <ComboSearch
-                  items={(clinicalTopics || []).map(t => ({ id: t.id, label: t.title }))}
+                  items={(clinicalTopics?.data || []).map(t => ({ id: t.id, label: t.title }))}
                   placeholder="Search or create topic..."
                   createLabel="topic"
                   onSelect={(id) => setTopicId(id)}
