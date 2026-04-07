@@ -482,8 +482,8 @@ const Topics = () => {
           <span style={{ fontSize: 12, color: "#aaa" }}>{filtered.length} topic{filtered.length !== 1 ? "s" : ""}</span>
           {canEdit && !showAddForm && (
             <button onClick={() => setShowAddForm(true)}
-              style={{ display: "flex", alignItems: "center", gap: 5, padding: "6px 12px", fontSize: 12, color: "#fff", background: "#415162", border: "none", borderRadius: 7, cursor: "pointer" }}>
-              <Plus style={{ width: 13, height: 13 }} /> Add topic
+              style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 32, height: 32, background: "transparent", border: "none", cursor: "pointer", color: "#8A9AAB" }}>
+              <Plus style={{ width: 18, height: 18 }} />
             </button>
           )}
         </div>
