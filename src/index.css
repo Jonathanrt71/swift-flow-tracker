@@ -10,6 +10,13 @@ All colors MUST be HSL.
   * {
     -webkit-tap-highlight-color: transparent;
   }
+  button, a, [role="button"] {
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  button:focus, a:focus, [role="button"]:focus {
+    outline: none;
+  }
   html {
     font-size: 17px;
   }

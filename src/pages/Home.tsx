@@ -235,40 +235,6 @@ const Home = () => {
         {/* Dashboard Grid */}
         <div style={{ display: "grid", gridTemplateColumns: isCompact ? "1fr" : "1fr 1fr", gap: 16 }}>
 
-          {/* ── Announcements ── */}
-          <Card
-            icon={<Megaphone size={16} strokeWidth={2.2} color="#415162" />}
-            title="Announcements"
-            action={() => navigate("/announcements")}
-          >
-            {announcementsLoading ? <Spinner /> : recentAnnouncements.length === 0 ? (
-              <div style={{ fontSize: 13, color: "#8A9AAB", padding: "8px 0" }}>No announcements yet.</div>
-            ) : (
-              recentAnnouncements.map((a, i) => (
-                <div
-                  key={a.id}
-                  style={{
-                    padding: "10px 0",
-                    borderBottom: i < recentAnnouncements.length - 1 ? "1px solid #D5DAE0" : undefined,
-                    cursor: "pointer",
-                  }}
-                  onClick={() => navigate("/announcements")}
-                >
-                  <div style={{ fontSize: 11, color: "#52657A", fontWeight: 600, marginBottom: 3 }}>
-                    {formatDate(a.created_at.split("T")[0])}
-                  </div>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: "#3D3D3A", marginBottom: 3 }}>{a.title}</div>
-                  <div style={{
-                    fontSize: 12, color: "#6B7280", lineHeight: 1.45,
-                    display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" as const, overflow: "hidden",
-                  }}>
-                    {a.body.replace(/<[^>]*>/g, "").replace(/https?:\/\/(?:www\.)?(?:loom\.com|youtube\.com|youtu\.be|vimeo\.com)\S*/gi, "").trim() || a.title}
-                  </div>
-                </div>
-              ))
-            )}
-          </Card>
-
           {/* ── Feedback Distribution ── */}
           <Card
             icon={<ThumbsUp size={16} strokeWidth={2.2} color="#415162" />}

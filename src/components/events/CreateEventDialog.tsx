@@ -236,23 +236,6 @@ const CreateEventDialog = ({ onSubmit, defaultCategory }: CreateEventDialogProps
             />
           </div>
 
-          <div>
-            <label className="text-xs block mb-1.5" style={{ color: "#5F7285" }}>Repeats</label>
-            <Select value={recurrencePattern} onValueChange={(v) => setRecurrencePattern(v as RecurrencePattern)}>
-              <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none" style={{ borderColor: "#C9CED4", background: "#fff" }}>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">Does not repeat</SelectItem>
-                <SelectItem value="weekly">Weekly</SelectItem>
-                <SelectItem value="monthly">Monthly</SelectItem>
-                <SelectItem value="semi_annual">Every 6 months</SelectItem>
-                <SelectItem value="annually">Annually</SelectItem>
-                <SelectItem value="custom">Custom (manual date)</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
           <button
             onClick={handleSubmit}
             disabled={!title.trim() || !eventDate}

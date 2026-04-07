@@ -232,23 +232,6 @@ const EditEventDialog = ({ event, onUpdate }: EditEventDialogProps) => {
             />
           </div>
 
-          <div className="space-y-1.5">
-            <Label className="text-xs text-muted-foreground">Repeats</Label>
-            <Select value={recurrencePattern} onValueChange={(v) => setRecurrencePattern(v as RecurrencePattern)}>
-              <SelectTrigger className="bg-background rounded-lg">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">Does not repeat</SelectItem>
-                <SelectItem value="weekly">Weekly</SelectItem>
-                <SelectItem value="monthly">Monthly</SelectItem>
-                <SelectItem value="semi_annual">Every 6 months</SelectItem>
-                <SelectItem value="annually">Annually</SelectItem>
-                <SelectItem value="custom">Custom (manual date)</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
           <div className="flex justify-end pt-3 border-t border-border">
             <button
               onClick={handleSave}
