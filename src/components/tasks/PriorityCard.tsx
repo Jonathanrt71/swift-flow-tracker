@@ -23,11 +23,12 @@ interface PriorityCardProps {
   teamMembers: TeamMember[];
   linkedTaskCount?: number;
   linkedTasksDone?: number;
+  suppressClick?: boolean;
   onUpdate: (data: { id: string; title?: string; notes?: string; assigned_to?: string | null }) => void;
   onDelete: (id: string) => void;
 }
 
-const PriorityCard = ({ priority, rank, teamMembers, linkedTaskCount = 0, linkedTasksDone = 0, onUpdate, onDelete }: PriorityCardProps) => {
+const PriorityCard = ({ priority, rank, teamMembers, linkedTaskCount = 0, linkedTasksDone = 0, suppressClick, onUpdate, onDelete }: PriorityCardProps) => {
   const [editOpen, setEditOpen] = useState(false);
   const member = teamMembers.find((m) => m.id === priority.assigned_to);
   const assignedName = priority.assigned_name || (member ? [member.first_name, member.last_name].filter(Boolean).join(" ") : null);
@@ -36,7 +37,7 @@ const PriorityCard = ({ priority, rank, teamMembers, linkedTaskCount = 0, linked
     <>
       <Card
         className={cn("cursor-pointer hover:shadow-md transition-shadow border-border")}
-        onClick={() => setEditOpen(true)}
+        onClick={() => { if (!suppressClick) setEditOpen(true); }}
       >
         <div className="flex items-center gap-3 px-3 py-2.5">
           <div className="cursor-grab active:cursor-grabbing text-muted-foreground" onClick={(e) => e.stopPropagation()}>
