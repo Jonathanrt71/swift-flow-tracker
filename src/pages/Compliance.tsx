@@ -679,7 +679,7 @@ const Compliance = () => {
       )}
 
       {/* Tabs */}
-      <div style={{ padding: "12px 16px 0", background: "#F5F3EE" }}>
+      <div style={{ padding: "12px 16px 0", background: "#F5F3EE", maxWidth: 900, margin: "0 auto" }}>
 
         {/* Stats bar */}
         <div style={{
@@ -736,7 +736,7 @@ const Compliance = () => {
 
       {/* ── TAB: Requirements Table ─────────────────────────────────────── */}
       {activeTab === "table" && (
-        <div style={{ flex: 1, padding: "12px 16px 100px" }}>
+        <div style={{ flex: 1, padding: "12px 16px 100px", maxWidth: 900, margin: "0 auto" }}>
           {/* Filters */}
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
             <select
@@ -843,7 +843,7 @@ const Compliance = () => {
 
       {/* ── TAB: Narrative Document ─────────────────────────────────────── */}
       {activeTab === "narrative" && (
-        <div style={{ flex: 1, padding: "16px 16px 100px" }}>
+        <div style={{ flex: 1, padding: "16px 16px 100px", maxWidth: 900, margin: "0 auto" }}>
           <div style={{ fontSize: 13, color: "#888", marginBottom: 16, lineHeight: 1.6 }}>
             Write the program's compliance narrative here. Use <RequirementPill number="1.7.c" /> syntax in your markdown
             (e.g., <code style={{ fontSize: 11, background: "#E7EBEF", padding: "1px 4px", borderRadius: 3 }}>[1.7.c]</code>)
