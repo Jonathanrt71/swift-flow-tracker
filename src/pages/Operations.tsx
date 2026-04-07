@@ -634,9 +634,18 @@ const Operations = () => {
           style={{ flex: 1, overflowY: "auto", padding: "24px 20px 120px" }}
         >
           <div style={{ maxWidth: 900, margin: "0 auto" }}>
-          <h1 style={{ fontSize: 22, fontWeight: 600, color: "#2D3748", marginBottom: 16 }}>Program Handbook</h1>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
+            <button
+              onClick={() => setTocOpen(!tocOpen)}
+              style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 36, height: 36, background: "transparent", border: "none", borderRadius: 6, cursor: "pointer", color: "#5F7285", flexShrink: 0 }}
+              title="Table of Contents"
+            >
+              <Menu style={{ width: 20, height: 20 }} />
+            </button>
+            <h1 style={{ fontSize: 22, fontWeight: 600, color: "#2D3748", margin: 0 }}>Program Handbook</h1>
+          </div>
 
-          {/* Top bar: Read/Edit toggle + hamburger */}
+          {/* Top bar: Read/Edit toggle */}
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
               {hasEditPerm && (
@@ -687,13 +696,6 @@ const Operations = () => {
                 )
               )}
             </div>
-            <button
-              onClick={() => setTocOpen(!tocOpen)}
-              style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 36, height: 36, background: "transparent", border: "none", borderRadius: 6, cursor: "pointer", color: "#5F7285" }}
-              title="Table of Contents"
-            >
-              <Menu style={{ width: 20, height: 20 }} />
-            </button>
           </div>
 
             {isLoading && <div style={{ color: "#999", fontSize: 14, padding: "40px 0", textAlign: "center" }}>Loading operations manual…</div>}
