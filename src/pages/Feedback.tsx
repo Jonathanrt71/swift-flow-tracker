@@ -651,18 +651,6 @@ const Feedback = () => {
                 <PieChart className="h-4 w-4" />
                 <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase" }}>Summary</span>
               </TabsTrigger>
-              {canGenerateReport && (
-                <TabsTrigger value="report" className="flex flex-col items-center gap-0.5 h-auto px-2 py-1" title="Report">
-                  <FileText className="h-4 w-4" />
-                  <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase" }}>Report</span>
-                </TabsTrigger>
-              )}
-              {canViewMilestones && (
-                <TabsTrigger value="milestones" className="flex flex-col items-center gap-0.5 h-auto px-2 py-1" title="Milestones">
-                  <BookOpen className="h-4 w-4" />
-                  <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase" }}>Milestones</span>
-                </TabsTrigger>
-              )}
             </TabsList>
           </div>
           {/* Add button */}
@@ -683,20 +671,6 @@ const Feedback = () => {
             {renderSummary()}
           </div>
         </TabsContent>
-        {canGenerateReport && (
-          <TabsContent value="report" className="mt-0">
-            <div className="flex flex-col gap-2">
-              <MilestoneReport />
-            </div>
-          </TabsContent>
-        )}
-        {canViewMilestones && (
-          <TabsContent value="milestones" className="mt-0">
-            <div className="flex flex-col gap-2">
-              <MilestonesBrowser />
-            </div>
-          </TabsContent>
-        )}
         </Tabs>
       </main>
 
