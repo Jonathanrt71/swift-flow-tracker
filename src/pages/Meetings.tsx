@@ -35,6 +35,7 @@ import CreateTaskDialog from "@/components/tasks/CreateTaskDialog";
 import { useMeetingTags, useMeetingTagLinks } from "@/hooks/useMeetingTags";
 import NotificationBell from "@/components/NotificationBell";
 import type { Meeting } from "@/hooks/useMeetings";
+import { useMeetingCategories } from "@/hooks/useMeetingCategories";
 
 const getInitials = (name: string | null): string => {
   if (!name) return "?";
@@ -53,6 +54,7 @@ const MeetingCard = ({
   teamMembers,
   linkedTasks,
   meetingTagNames,
+  categoryName,
   onUpdate,
   onDelete,
   onCreateTask,
@@ -61,6 +63,7 @@ const MeetingCard = ({
   teamMembers: ReturnType<typeof useTeamMembers>["data"];
   linkedTasks: Task[];
   meetingTagNames: string[];
+  categoryName?: string;
   onUpdate: (data: { id: string; notes?: string | null }) => void;
   onDelete: (id: string) => void;
   onCreateTask: (data: {
@@ -96,6 +99,11 @@ const MeetingCard = ({
         {/* Title */}
         <div className="flex-1 min-w-0 pl-2 pr-1">
           <span className="font-medium text-sm truncate block">{meeting.title}</span>
+          {categoryName && (
+            <span style={{ fontSize: 10, fontWeight: 600, padding: "1px 7px", borderRadius: 4, background: "#D5DAE0", color: "#415162", textTransform: "uppercase" as const, letterSpacing: "0.03em" }}>
+              {categoryName}
+            </span>
+          )}
         </div>
 
         {/* Date preview */}
@@ -309,6 +317,11 @@ const Meetings = () => {
 
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
+
+  const { categories: meetingCategories } = useMeetingCategories();
+  const categoryNameMap = new Map<string, string>();
+  (meetingCategories.data || []).forEach((c) => categoryNameMap.set(c.id, c.name));
 
   const { tags: allTags } = useMeetingTags();
   const { links: tagLinks } = useMeetingTagLinks();
@@ -330,6 +343,10 @@ const Meetings = () => {
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       if (!m.title.toLowerCase().includes(q) && !(m.notes || "").toLowerCase().includes(q)) return false;
+    }
+    // Category filter
+    if (categoryFilter) {
+      if ((m as any).category_id !== categoryFilter) return false;
     }
     return true;
   });
@@ -377,8 +394,35 @@ const Meetings = () => {
       </header>
 
       <main className="px-4 py-6" style={{ maxWidth: 900, margin: "0 auto" }}>
-        {/* Toolbar */}
-        <div className="flex items-center justify-end pb-2.5">
+        {/* Category filter + Add button */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+          <div style={{ display: "flex", gap: 6, overflowX: "auto", WebkitOverflowScrolling: "touch" as any }}>
+            <button
+              onClick={() => setCategoryFilter(null)}
+              style={{
+                padding: "4px 12px", fontSize: 12, borderRadius: 20, border: "none", cursor: "pointer", whiteSpace: "nowrap",
+                background: categoryFilter === null ? "#415162" : "#E7EBEF",
+                color: categoryFilter === null ? "#fff" : "#555",
+                fontWeight: categoryFilter === null ? 600 : 400,
+              }}
+            >
+              All
+            </button>
+            {(meetingCategories.data || []).map(cat => (
+              <button
+                key={cat.id}
+                onClick={() => setCategoryFilter(categoryFilter === cat.id ? null : cat.id)}
+                style={{
+                  padding: "4px 12px", fontSize: 12, borderRadius: 20, border: "none", cursor: "pointer", whiteSpace: "nowrap",
+                  background: categoryFilter === cat.id ? "#415162" : "#E7EBEF",
+                  color: categoryFilter === cat.id ? "#fff" : "#555",
+                  fontWeight: categoryFilter === cat.id ? 600 : 400,
+                }}
+              >
+                {cat.name}
+              </button>
+            ))}
+          </div>
           <CreateMeetingDialog
             onSubmit={(data) => createMeeting.mutate(data)}
           />
@@ -427,6 +471,7 @@ const Meetings = () => {
                     teamMembers={teamMembers}
                     linkedTasks={tasksByMeeting.get(meeting.id) || []}
                     meetingTagNames={(tagsByMeeting.get(meeting.id) || []).map((id) => tagNameMap.get(id) || "").filter(Boolean)}
+                    categoryName={(meeting as any).category_id ? categoryNameMap.get((meeting as any).category_id) : undefined}
                     onUpdate={(data) => updateMeeting.mutate(data)}
                     onDelete={(id) => deleteMeeting.mutate(id)}
                     onCreateTask={(data) => createTask.mutate(data)}

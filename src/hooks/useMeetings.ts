@@ -12,6 +12,7 @@ export interface Meeting {
   created_at: string;
   updated_at: string;
   attendees: string[];
+  category_id: string | null;
 }
 
 export function useMeetings() {
@@ -66,6 +67,7 @@ export function useMeetings() {
       meeting_date: string;
       notes?: string;
       attendee_ids: string[];
+      category_id?: string;
     }) => {
       // Create meeting
       const { data: meeting, error: mErr } = await (supabase as any)
@@ -75,6 +77,7 @@ export function useMeetings() {
           meeting_date: data.meeting_date,
           notes: data.notes || null,
           created_by: user!.id,
+          category_id: data.category_id || null,
         })
         .select()
         .single();
@@ -112,11 +115,13 @@ export function useMeetings() {
       meeting_date?: string;
       notes?: string | null;
       attendee_ids?: string[];
+      category_id?: string | null;
     }) => {
       const updateData: any = {};
       if (data.title !== undefined) updateData.title = data.title;
       if (data.meeting_date !== undefined) updateData.meeting_date = data.meeting_date;
       if (data.notes !== undefined) updateData.notes = data.notes;
+      if (data.category_id !== undefined) updateData.category_id = data.category_id;
 
       if (Object.keys(updateData).length > 0) {
         const { error } = await (supabase as any).from("meetings").update(updateData).eq("id", id);

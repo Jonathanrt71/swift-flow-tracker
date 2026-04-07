@@ -12,12 +12,15 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { format, parseISO } from "date-fns";
 import { formatPersonName } from "@/lib/dateFormat";
+import { useMeetingCategories } from "@/hooks/useMeetingCategories";
+import ComboSearch from "@/components/shared/ComboSearch";
 
 interface CreateMeetingDialogProps {
   onSubmit: (data: {
     title: string;
     meeting_date: string;
     attendee_ids: string[];
+    category_id?: string;
   }) => void;
 }
 
@@ -28,7 +31,9 @@ const CreateMeetingDialog = ({ onSubmit }: CreateMeetingDialogProps) => {
   const [meetingDate, setMeetingDate] = useState("");
   const [selectedAttendees, setSelectedAttendees] = useState<string[]>([]);
   const [search, setSearch] = useState("");
+  const [categoryId, setCategoryId] = useState<string | null>(null);
   const { data: members } = useTeamMembers();
+  const { categories, createCategory } = useMeetingCategories();
 
   const handleOpenChange = (isOpen: boolean) => {
     if (isOpen) {
@@ -36,6 +41,7 @@ const CreateMeetingDialog = ({ onSubmit }: CreateMeetingDialogProps) => {
       setMeetingDate("");
       setSelectedAttendees([]);
       setSearch("");
+      setCategoryId(null);
     }
     setOpen(isOpen);
   };
@@ -46,6 +52,7 @@ const CreateMeetingDialog = ({ onSubmit }: CreateMeetingDialogProps) => {
       title: title.trim(),
       meeting_date: meetingDate,
       attendee_ids: selectedAttendees,
+      category_id: categoryId || undefined,
     });
     setOpen(false);
   };
@@ -108,6 +115,30 @@ const CreateMeetingDialog = ({ onSubmit }: CreateMeetingDialogProps) => {
               placeholder="Meeting title"
               className="rounded-lg" style={{ borderColor: "#C9CED4", background: "#fff" }}
             />
+          </div>
+
+          {/* Category */}
+          <div className="space-y-1.5">
+            <label className="text-xs block mb-1.5" style={{ color: "#5F7285" }}>Category</label>
+            {categoryId ? (() => {
+              const linked = categories.data?.find(c => c.id === categoryId);
+              return (
+                <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "#fff", border: "0.5px solid #C9CED4", borderRadius: 6, padding: "5px 10px", fontSize: 12, color: "#2D3748", fontWeight: 500 }}>
+                  {linked?.name || "Unknown"}
+                  <div onClick={() => setCategoryId(null)} style={{ cursor: "pointer", display: "flex" }}>
+                    <X style={{ width: 12, height: 12, color: "#8A9AAB" }} />
+                  </div>
+                </div>
+              );
+            })() : (
+              <ComboSearch
+                items={(categories.data || []).map(c => ({ id: c.id, label: c.name }))}
+                placeholder="Search or create category..."
+                createLabel="category"
+                onSelect={(id) => setCategoryId(id)}
+                onCreate={async (name) => { await createCategory.mutateAsync(name); }}
+              />
+            )}
           </div>
 
           {/* Date */}
