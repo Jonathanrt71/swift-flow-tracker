@@ -260,7 +260,8 @@ const HeaderLogo = ({
               {navSections.map((section, si) => {
                 const items = section.paths
                   .map(p => allNavItems.find(n => n.path === p))
-                  .filter((item): item is NavEntry => !!item && (!item.permissionKey || hasPerm(item.permissionKey, "view")));
+                  .filter((item): item is NavEntry => !!item && (!item.permissionKey || hasPerm(item.permissionKey, "view")))
+                  .sort((a, b) => a.label.localeCompare(b.label));
                 if (!items.length) return null;
                 return (
                   <div key={section.label}>
