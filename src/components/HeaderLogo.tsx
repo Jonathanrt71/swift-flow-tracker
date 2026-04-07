@@ -166,13 +166,14 @@ const HeaderLogo = ({
         onMouseDown={startPress} onMouseUp={endLongPress} onMouseLeave={cancelPress}
         onTouchStart={startPress} onTouchEnd={(e) => { e.preventDefault(); endLongPress(); }} onTouchCancel={cancelPress}
         onContextMenu={(e) => e.preventDefault()}
-        className="w-8 h-8 rounded-md overflow-hidden border-none cursor-pointer p-0 bg-transparent select-none"
+        className="w-8 h-8 rounded-md overflow-hidden border-none cursor-pointer p-0 bg-transparent select-none outline-none"
+        style={{ WebkitTapHighlightColor: "transparent" }}
       >
         <img src={navImageUrl} alt="" className="w-8 h-8 rounded-md object-cover pointer-events-none" draggable={false} />
       </button>
 
       {/* Page title — opens nav dropdown */}
-      <button onClick={() => setMenuOpen(!menuOpen)} className="border-none cursor-pointer p-0 bg-transparent">
+      <button onClick={() => setMenuOpen(!menuOpen)} className="border-none cursor-pointer p-0 bg-transparent outline-none" style={{ WebkitTapHighlightColor: "transparent" }}>
         <span className="text-base font-medium text-white whitespace-nowrap">{currentItem?.label || "FM App"}</span>
       </button>
 
