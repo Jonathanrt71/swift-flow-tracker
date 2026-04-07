@@ -455,7 +455,7 @@ const Topics = () => {
         )}
       </header>
 
-      <main style={{ maxWidth: 700, margin: "0 auto", padding: "20px 16px 120px" }}>
+      <main style={{ padding: "20px 16px 120px" }}>
         {/* Domain filter pills */}
         <div style={{ marginBottom: 14 }}>
           <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" as any }}>
