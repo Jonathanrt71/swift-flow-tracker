@@ -22,6 +22,9 @@ import {
   Hash,
 } from "lucide-react";
 import { usePriorities } from "@/hooks/usePriorities";
+import { useTeamMembers } from "@/hooks/useTeamMembers";
+import { useQuery } from "@tanstack/react-query";
+import { formatPersonName } from "@/lib/dateFormat";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -171,6 +174,38 @@ const Home = () => {
 
   const myPriorities = priorities.filter((p) => p.assigned_to === user?.id);
 
+  // Last feedback date per resident
+  const { data: teamMembers } = useTeamMembers();
+  const { data: residentRoleIds } = useQuery({
+    queryKey: ["home-resident-role-ids"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("user_roles").select("user_id").eq("role", "resident");
+      if (error) throw error;
+      return (data || []).map((r) => r.user_id);
+    },
+  });
+  const lastFeedbackRows = (() => {
+    const residentIds = new Set(residentRoleIds || []);
+    const residents = (teamMembers || []).filter((m) => residentIds.has(m.id));
+    const lastByResident = new Map<string, string>();
+    feedbackList.forEach((f) => {
+      const prev = lastByResident.get(f.resident_id);
+      if (!prev || f.created_at > prev) lastByResident.set(f.resident_id, f.created_at);
+    });
+    return residents
+      .map((r) => ({
+        id: r.id,
+        name: formatPersonName(r),
+        lastDate: lastByResident.get(r.id) || null,
+      }))
+      .sort((a, b) => {
+        if (!a.lastDate && !b.lastDate) return a.name.localeCompare(b.name);
+        if (!a.lastDate) return 1;
+        if (!b.lastDate) return -1;
+        return b.lastDate.localeCompare(a.lastDate);
+      });
+  })();
+
   // ─── Loading spinner ────────────────────────────────────────────────────
 
   const Spinner = () => (
@@ -297,6 +332,34 @@ const Home = () => {
                   })}
                 </div>
               </div>
+            )}
+          </Card>
+
+          {/* ── Feedback Dates ── */}
+          <Card
+            icon={<CalendarDays size={16} strokeWidth={2.2} color="#415162" />}
+            title="Feedback Dates"
+            action={() => navigate("/feedback")}
+          >
+            {feedbackQuery.isLoading ? <Spinner /> : lastFeedbackRows.length === 0 ? (
+              <div style={{ fontSize: 13, color: "#8A9AAB", padding: "8px 0" }}>No residents found.</div>
+            ) : (
+              lastFeedbackRows.slice(0, 8).map((r, i) => {
+                const days = r.lastDate ? Math.floor((Date.now() - new Date(r.lastDate).getTime()) / (1000 * 60 * 60 * 24)) : null;
+                const dateColor = days === null ? "#C9CED4" : days > 30 ? "#D4A017" : "#4A846C";
+                return (
+                  <div key={r.id} style={{
+                    display: "flex", alignItems: "center", justifyContent: "space-between",
+                    padding: "7px 0",
+                    borderBottom: i < Math.min(lastFeedbackRows.length, 8) - 1 ? "1px solid #D5DAE0" : undefined,
+                  }}>
+                    <span style={{ fontSize: 12, fontWeight: 500, color: "#2D3748" }}>{r.name}</span>
+                    <span style={{ fontSize: 11, fontWeight: 600, color: dateColor, whiteSpace: "nowrap" }}>
+                      {r.lastDate ? new Date(r.lastDate).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "None"}
+                    </span>
+                  </div>
+                );
+              })
             )}
           </Card>
 

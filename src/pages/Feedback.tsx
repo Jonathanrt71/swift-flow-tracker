@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { format, parseISO } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
-import { List, PieChart, FileText, BookOpen, Pencil, Trash2, X as XIcon, Search, ExternalLink } from "lucide-react";
+import { List, PieChart, FileText, BookOpen, Pencil, Trash2, X as XIcon, Search, ExternalLink, CalendarDays } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
@@ -651,6 +651,10 @@ const Feedback = () => {
                 <PieChart className="h-4 w-4" />
                 <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase" }}>Summary</span>
               </TabsTrigger>
+              <TabsTrigger value="lastFeedback" className="flex flex-col items-center gap-0.5 h-auto px-2 py-1" title="Last Feedback">
+                <CalendarDays className="h-4 w-4" />
+                <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase" }}>Dates</span>
+              </TabsTrigger>
             </TabsList>
           </div>
           {/* Add button */}
@@ -670,6 +674,55 @@ const Feedback = () => {
           <div className="flex flex-col gap-2">
             {renderSummary()}
           </div>
+        </TabsContent>
+        <TabsContent value="lastFeedback" className="mt-0">
+          {(() => {
+            const feedbackList = feedbackQuery.data || [];
+            const lastByResident = new Map<string, string>();
+            feedbackList.forEach(f => {
+              const prev = lastByResident.get(f.resident_id);
+              if (!prev || f.created_at > prev) lastByResident.set(f.resident_id, f.created_at);
+            });
+            const rows = residents
+              .map(r => ({
+                id: r.id,
+                name: formatPersonName(r),
+                lastDate: lastByResident.get(r.id) || null,
+              }))
+              .sort((a, b) => {
+                if (!a.lastDate && !b.lastDate) return a.name.localeCompare(b.name);
+                if (!a.lastDate) return 1;
+                if (!b.lastDate) return -1;
+                return b.lastDate.localeCompare(a.lastDate);
+              });
+            const now = new Date();
+            const daysBetween = (dateStr: string) => {
+              const d = new Date(dateStr);
+              return Math.floor((now.getTime() - d.getTime()) / (1000 * 60 * 60 * 24));
+            };
+            return rows.length === 0 ? (
+              <div style={{ fontSize: 13, color: "#8A9AAB", padding: "20px 0", textAlign: "center" }}>No residents found.</div>
+            ) : (
+              <div>
+                {rows.map((r, i) => {
+                  const days = r.lastDate ? daysBetween(r.lastDate) : null;
+                  const dateColor = days === null ? "#C9CED4" : days > 30 ? "#D4A017" : "#4A846C";
+                  return (
+                    <div key={r.id} style={{
+                      display: "flex", alignItems: "center", justifyContent: "space-between",
+                      padding: "10px 12px", background: i % 2 === 0 ? "#E7EBEF" : "#F5F3EE",
+                      borderRadius: i === 0 ? "8px 8px 0 0" : i === rows.length - 1 ? "0 0 8px 8px" : 0,
+                    }}>
+                      <span style={{ fontSize: 13, fontWeight: 500, color: "#2D3748" }}>{r.name}</span>
+                      <span style={{ fontSize: 12, fontWeight: 600, color: dateColor }}>
+                        {r.lastDate ? formatCardDate(r.lastDate) : "No feedback"}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })()}
         </TabsContent>
         </Tabs>
       </main>
