@@ -228,8 +228,8 @@ const EventsGantt = ({ events }: EventsGanttProps) => {
 
       <div ref={scrollRef} className="overflow-x-auto">
         <div style={{ minWidth: monthCount * 80, position: "relative" }}>
-          {/* Month headers */}
-          <div className="flex" style={{ borderBottom: "1px solid #E7EBEF" }}>
+          {/* Month headers — sticky below filter bar */}
+          <div className="flex sticky z-20" style={{ top: 140, borderBottom: "1px solid #E7EBEF", background: "#F5F3EE" }}>
             <div className="shrink-0" style={{ width: labelWidth }} />
             <div className="flex flex-1">
               {months.map((m, i) => (
