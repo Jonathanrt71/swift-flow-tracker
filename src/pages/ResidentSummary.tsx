@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
@@ -66,6 +66,13 @@ const ResidentSummary = () => {
       });
     },
   });
+
+  // Auto-select first resident when data loads
+  useEffect(() => {
+    if (selectedResident === "none" && residentsQuery.data?.length) {
+      setSelectedResident(residentsQuery.data[0].id);
+    }
+  }, [residentsQuery.data, selectedResident]);
 
   const resident = (residentsQuery.data || []).find(r => r.id === selectedResident);
   const residentName = resident ? (resident.display_name || `${resident.first_name} ${resident.last_name}`) : "";
