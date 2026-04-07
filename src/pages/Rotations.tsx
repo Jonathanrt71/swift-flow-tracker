@@ -233,15 +233,6 @@ const Rotations = () => {
         ) : (
           /* ── List View ── */
           <div>
-            <div style={{ marginBottom: 16, overflowX: "auto", WebkitOverflowScrolling: "touch" as any }}>
-              <div style={{ display: "flex", gap: 8, minWidth: "max-content", paddingBottom: 2 }}>
-                <button style={pillStyle(filter === "all")} onClick={() => setFilter("all")}>All</button>
-                <button style={pillStyle(filter === "required")} onClick={() => setFilter("required")}>Required</button>
-                <button style={pillStyle(filter === "elective")} onClick={() => setFilter("elective")}>Elective</button>
-                <button style={pillStyle(filter === "vacation")} onClick={() => setFilter("vacation")}>Vacation eligible</button>
-              </div>
-            </div>
-
             {isLoading && <p style={{ fontSize: 14, color: "#999" }}>Loading rotations...</p>}
 
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 12 }}>
