@@ -5,7 +5,7 @@ import { useTasks } from "@/hooks/useTasks";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ListTodo, CheckCircle2, Star, Search, X, Hash } from "lucide-react";
+import { ListTodo, CheckCircle2, Star, Search, X, Hash, ChevronDown } from "lucide-react";
 import TaskCard from "@/components/tasks/TaskCard";
 import CreateTaskDialog from "@/components/tasks/CreateTaskDialog";
 import NotificationBell from "@/components/NotificationBell";
@@ -51,6 +51,7 @@ const Index = () => {
   const [localMyPriorities, setLocalMyPriorities] = useState<typeof priorities>([]);
   const [activeTab, setActiveTab] = useState("priorities");
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [programCollapsed, setProgramCollapsed] = useState(true);
 
   // Touch long-press reorder
   const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -482,9 +483,19 @@ const Index = () => {
                 )}
 
                 {/* Program Priorities section */}
-                <div style={{ fontSize: 11, fontWeight: 600, color: "#8A9AAB", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8 }}>
-                  Program Priorities
-                </div>
+                <button
+                  onClick={() => setProgramCollapsed(!programCollapsed)}
+                  style={{
+                    display: "flex", alignItems: "center", gap: 6, width: "100%",
+                    fontSize: 11, fontWeight: 600, color: "#8A9AAB", textTransform: "uppercase",
+                    letterSpacing: "0.05em", marginBottom: programCollapsed ? 0 : 8,
+                    background: "none", border: "none", cursor: "pointer", padding: 0,
+                  }}
+                >
+                  <ChevronDown style={{ width: 14, height: 14, transition: "transform 0.2s", transform: programCollapsed ? "rotate(-90deg)" : "rotate(0deg)" }} />
+                  Program Priorities ({localPriorities.length})
+                </button>
+                {!programCollapsed && (
                 {localPriorities.length === 0 ? (
                   <div className="text-center py-12 text-muted-foreground">
                     <Hash className="h-10 w-10 mx-auto mb-3 opacity-40" />
@@ -547,6 +558,7 @@ const Index = () => {
                       );
                     })}
                   </div>
+                )}
                 )}
               </>
             )}
