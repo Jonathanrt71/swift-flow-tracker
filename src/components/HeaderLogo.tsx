@@ -74,8 +74,10 @@ const HeaderLogo = ({
   children?: React.ReactNode;
 }) => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [avatarMenuOpen, setAvatarMenuOpen] = useState(false);
   const [imageOpen, setImageOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const avatarMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -95,6 +97,22 @@ const HeaderLogo = ({
       window.scrollTo(0, scrollY);
     };
   }, [menuOpen]);
+
+  useEffect(() => {
+    if (!avatarMenuOpen) return;
+    const handler = (e: MouseEvent | TouchEvent) => {
+      if (avatarMenuRef.current && !avatarMenuRef.current.contains(e.target as Node)) {
+        setAvatarMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    document.addEventListener("touchstart", handler);
+    return () => {
+      document.removeEventListener("mousedown", handler);
+      document.removeEventListener("touchstart", handler);
+    };
+  }, [avatarMenuOpen]);
+
   const location = useLocation();
   const navigate = useNavigate();
   const { has: hasPerm } = usePermissions();
@@ -156,16 +174,44 @@ const HeaderLogo = ({
       {/* Right side: children (search, bell) + avatar + name — all evenly spaced */}
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
         {children}
-        <Link to="/profile" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none" }}>
-          {avatarUrl ? (
-            <img src={avatarUrl} alt="" style={{ width: 30, height: 30, borderRadius: "50%", objectFit: "cover", border: "1.5px solid rgba(255,255,255,0.3)" }} />
-          ) : (
-            <div style={{ width: 30, height: 30, borderRadius: "50%", background: "rgba(255,255,255,0.15)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 500, color: "#fff" }}>
-              {userInitials}
+        <div ref={avatarMenuRef} style={{ position: "relative" }}>
+          <button
+            onClick={() => setAvatarMenuOpen(!avatarMenuOpen)}
+            style={{ display: "flex", alignItems: "center", gap: 8, background: "none", border: "none", cursor: "pointer", padding: 0 }}
+          >
+            {avatarUrl ? (
+              <img src={avatarUrl} alt="" style={{ width: 30, height: 30, borderRadius: "50%", objectFit: "cover", border: "1.5px solid rgba(255,255,255,0.3)" }} />
+            ) : (
+              <div style={{ width: 30, height: 30, borderRadius: "50%", background: "rgba(255,255,255,0.15)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 500, color: "#fff" }}>
+                {userInitials}
+              </div>
+            )}
+            <span className="hidden sm:inline" style={{ fontSize: 13, fontWeight: 500, color: "#fff" }}>{userName}</span>
+          </button>
+          {avatarMenuOpen && (
+            <div style={{
+              position: "absolute", top: "calc(100% + 8px)", right: 0, zIndex: 60,
+              background: "#415162", borderRadius: 10, padding: "6px 0", minWidth: 160,
+              boxShadow: "0 8px 24px rgba(0,0,0,0.25)",
+            }}>
+              <Link
+                to="/profile"
+                onClick={() => setAvatarMenuOpen(false)}
+                style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 16px", color: "rgba(255,255,255,0.8)", fontSize: 14, textDecoration: "none" }}
+              >
+                <User style={{ width: 16, height: 16 }} /> Profile
+              </Link>
+              {onSignOut && (
+                <button
+                  onClick={() => { onSignOut(); setAvatarMenuOpen(false); }}
+                  style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 16px", color: "rgba(255,255,255,0.8)", fontSize: 14, width: "100%", background: "none", border: "none", cursor: "pointer", textAlign: "left" }}
+                >
+                  <LogOut style={{ width: 16, height: 16 }} /> Log out
+                </button>
+              )}
             </div>
           )}
-          <span className="hidden sm:inline" style={{ fontSize: 13, fontWeight: 500, color: "#fff" }}>{userName}</span>
-        </Link>
+        </div>
       </div>
 
       {/* Navigation dropdown — triggered by page title */}
