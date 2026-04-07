@@ -171,10 +171,10 @@ const EventsGantt = ({ events }: EventsGanttProps) => {
 
     // Wait a frame for layout
     requestAnimationFrame(() => {
-      const timelineWidth = el.scrollWidth - labelWidth;
-      const monthFrac = currentMonthIdx / monthCount;
-      const targetScroll = monthFrac * timelineWidth;
-      el.scrollLeft = Math.max(0, targetScroll);
+      // Each month column = (scrollWidth - labelWidth) / monthCount
+      const colWidth = (el.scrollWidth - labelWidth) / monthCount;
+      // Scroll so currentMonthIdx column starts right at the label edge
+      el.scrollLeft = Math.max(0, currentMonthIdx * colWidth);
       hasScrolledRef.current = true;
     });
   }, [currentMonthIdx, monthCount, labelWidth]);
