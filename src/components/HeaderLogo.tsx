@@ -23,7 +23,7 @@ const allNavItems: NavEntry[] = [
   { path: "/resident-summary", label: "Resident Summary", icon: UserCheck, permissionKey: "resident_summary.view" },
   { path: "/topics",      label: "Topics",       icon: BookOpenCheck, permissionKey: "topics.view" },
   { path: "/compliance",  label: "ACGME Handbook", icon: ShieldCheck,   permissionKey: "compliance.view" },
-  { path: "/schedule",    label: "Schedule",     icon: CalendarDays,  permissionKey: "schedule.view" },
+  { path: "/schedule",    label: "Block Matrix",  icon: CalendarDays,  permissionKey: "schedule.view" },
   { path: "/announcements", label: "Announcements", icon: Megaphone, permissionKey: "announcements.view" },
   { path: "/meetings",    label: "Meetings",     icon: Users,         permissionKey: "meetings.view" },
   { path: "/operations",  label: "Program Handbook", icon: ClipboardList, permissionKey: "operations.view" },
