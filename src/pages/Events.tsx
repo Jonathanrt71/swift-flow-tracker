@@ -630,27 +630,19 @@ const Events = () => {
                 <span style={{ color: "#8A9AAB" }}><Maximize2 className="h-4 w-4" /></span>
                 <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase", color: "#8A9AAB" }}>Full Gantt</span>
               </button>
+              {(viewMode === "list" || viewMode === "vertical") && (
+                <button
+                  onClick={() => setShowPast(!showPast)}
+                  className="flex flex-col items-center gap-0.5 px-2 py-1 rounded-md transition-colors"
+                  style={{ background: "transparent" }}
+                >
+                  <span style={{ color: showPast ? "#415162" : "#8A9AAB" }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  </span>
+                  <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase", color: showPast ? "#415162" : "#8A9AAB" }}>{showPast ? "Hide past" : "Show past"}</span>
+                </button>
+              )}
             </div>
-
-            {(viewMode === "list" || viewMode === "vertical") && (
-              <button
-                onClick={() => setShowPast(!showPast)}
-                style={{
-                  fontSize: 11,
-                  fontWeight: 500,
-                  color: showPast ? "#415162" : "#8A9AAB",
-                  background: showPast ? "#E7EBEF" : "transparent",
-                  border: "1px solid",
-                  borderColor: showPast ? "#C9CED4" : "#D5DAE0",
-                  borderRadius: 6,
-                  padding: "4px 10px",
-                  cursor: "pointer",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {showPast ? "Hide past" : "Show past"}
-              </button>
-            )}
 
             {canEditEvents && (
               <CreateEventDialog
