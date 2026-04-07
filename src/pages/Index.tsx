@@ -441,7 +441,7 @@ const Index = () => {
                 const showGapBefore = dragOverIdx === idx && dragIdx !== null && dragIdx > idx;
                 const showGapAfter = dragOverIdx === idx && dragIdx !== null && dragIdx < idx;
                 const dropGap = (
-                  <div style={{ marginTop: -6, marginBottom: -6 }}>
+                  <div style={{ marginTop: -12 }}>
                     <div style={{ height: 36, display: "flex", alignItems: "center" }}>
                       <div style={{ height: 4, background: "#415162", borderRadius: 2, width: "100%" }} />
                     </div>
@@ -496,7 +496,7 @@ const Index = () => {
                 const showGapBefore = dragOverIdx === idx && dragIdx !== null && dragIdx > idx;
                 const showGapAfter = dragOverIdx === idx && dragIdx !== null && dragIdx < idx;
                 const dropGap = (
-                  <div style={{ marginTop: -6, marginBottom: -6 }}>
+                  <div style={{ marginTop: -12 }}>
                     <div style={{ height: 36, display: "flex", alignItems: "center" }}>
                       <div style={{ height: 4, background: "#415162", borderRadius: 2, width: "100%" }} />
                     </div>
