@@ -22,7 +22,7 @@ const allNavItems: NavEntry[] = [
   { path: "/procedure-logs", label: "Procedures", icon: Activity,     permissionKey: "procedures.view" },
   { path: "/resident-summary", label: "Resident Summary", icon: UserCheck, permissionKey: "resident_summary.view" },
   { path: "/topics",      label: "Topics",       icon: BookOpenCheck, permissionKey: "topics.view" },
-  { path: "/compliance",  label: "Compliance",   icon: ShieldCheck,   permissionKey: "compliance.view" },
+  { path: "/compliance",  label: "ACGME Handbook", icon: ShieldCheck,   permissionKey: "compliance.view" },
   { path: "/schedule",    label: "Schedule",     icon: CalendarDays,  permissionKey: "schedule.view" },
   { path: "/announcements", label: "Announcements", icon: Megaphone, permissionKey: "announcements.view" },
   { path: "/meetings",    label: "Meetings",     icon: Users,         permissionKey: "meetings.view" },
@@ -36,8 +36,8 @@ const allNavItems: NavEntry[] = [
 interface NavSection { label: string; paths: string[]; }
 const navSections: NavSection[] = [
   { label: "Clinical",  paths: ["/cbme", "/events", "/feedback", "/evaluations", "/procedure-logs", "/resident-summary", "/topics"] },
-  { label: "Program",   paths: ["/compliance", "/schedule", "/announcements", "/meetings", "/tasks"] },
-  { label: "Reference", paths: ["/gme-handbook", "/handbook", "/operations", "/rotations"] },
+  { label: "Program",   paths: ["/schedule", "/announcements", "/meetings", "/tasks"] },
+  { label: "Reference", paths: ["/compliance", "/gme-handbook", "/handbook", "/operations", "/rotations"] },
 ];
 
 // Kill every possible browser highlight on interactive elements
