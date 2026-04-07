@@ -30,14 +30,18 @@ const EventsGantt = ({ events }: EventsGanttProps) => {
   const floatingTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const hasScrolledRef = useRef(false);
 
-  // Build rows from ALL events (no date filter)
+  // Build rows — filter out past occurrences (before current month)
   const rows = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
     const map = new Map<string, { startDate: Date; endDate: Date }[]>();
     events.forEach((ev) => {
       const start = parseISO(ev.event_date);
       const end = ev.end_date && ev.end_date !== ev.event_date ? parseISO(ev.end_date) : start;
+      // Skip if entirely in the past
+      if (end < today) return;
       const arr = map.get(ev.title) || [];
       arr.push({ startDate: start, endDate: end });
       map.set(ev.title, arr);
@@ -50,65 +54,40 @@ const EventsGantt = ({ events }: EventsGanttProps) => {
       rows.push({ title, occurrences, isMultiDay, earliestStart });
     });
 
-    // Sort by earliest upcoming occurrence, then by earliest start
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
     rows.sort((a, b) => {
-      const nextA = a.occurrences
-        .filter(o => o.endDate >= today)
-        .sort((x, y) => x.startDate.getTime() - y.startDate.getTime())[0];
-      const nextB = b.occurrences
-        .filter(o => o.endDate >= today)
-        .sort((x, y) => x.startDate.getTime() - y.startDate.getTime())[0];
-
-      if (nextA && !nextB) return -1;
-      if (!nextA && nextB) return 1;
-      if (nextA && nextB) {
-        return nextA.startDate.getTime() - nextB.startDate.getTime();
-      }
-      return a.earliestStart.getTime() - b.earliestStart.getTime();
+      const nextA = a.occurrences.sort((x, y) => x.startDate.getTime() - y.startDate.getTime())[0];
+      const nextB = b.occurrences.sort((x, y) => x.startDate.getTime() - y.startDate.getTime())[0];
+      return nextA.startDate.getTime() - nextB.startDate.getTime();
     });
 
     return rows;
   }, [events]);
 
-  // Compute month range from earliest event to latest event
+  // Compute month range: current month → one month after latest event
   const months = useMemo(() => {
-    if (rows.length === 0) {
-      // Fallback: current month + 12 forward
-      const result: { month: number; year: number; days: number; label: string; isCurrent: boolean }[] = [];
-      for (let i = 0; i < 13; i++) {
-        const m = (now.getMonth() + i) % 12;
-        const y = now.getFullYear() + Math.floor((now.getMonth() + i) / 12);
-        const isCurrent = m === now.getMonth() && y === now.getFullYear();
-        result.push({ month: m, year: y, days: getDaysInMonth(new Date(y, m)), label: MONTH_ABBRS[m], isCurrent });
-      }
-      return result;
-    }
-
-    // Find earliest start and latest end across all occurrences
-    let earliest = new Date(9999, 0);
-    let latest = new Date(0);
+    let latest = new Date();
     rows.forEach(row => {
       row.occurrences.forEach(o => {
-        if (o.startDate < earliest) earliest = o.startDate;
         if (o.endDate > latest) latest = o.endDate;
       });
     });
-
-    // Start one month before earliest, end one month after latest
-    let startM = earliest.getMonth() - 1;
-    let startY = earliest.getFullYear();
-    if (startM < 0) { startM = 11; startY--; }
 
     let endM = latest.getMonth() + 1;
     let endY = latest.getFullYear();
     if (endM > 11) { endM = 0; endY++; }
 
     const result: { month: number; year: number; days: number; label: string; isCurrent: boolean }[] = [];
-    let cm = startM;
-    let cy = startY;
+    let cm = now.getMonth();
+    let cy = now.getFullYear();
     while (cy < endY || (cy === endY && cm <= endM)) {
+      const isCurrent = cm === now.getMonth() && cy === now.getFullYear();
+      result.push({ month: cm, year: cy, days: getDaysInMonth(new Date(cy, cm)), label: MONTH_ABBRS[cm], isCurrent });
+      cm++;
+      if (cm > 11) { cm = 0; cy++; }
+    }
+
+    // Minimum 6 months shown
+    while (result.length < 6) {
       const isCurrent = cm === now.getMonth() && cy === now.getFullYear();
       result.push({ month: cm, year: cy, days: getDaysInMonth(new Date(cy, cm)), label: MONTH_ABBRS[cm], isCurrent });
       cm++;
@@ -119,11 +98,6 @@ const EventsGantt = ({ events }: EventsGanttProps) => {
   }, [rows]);
 
   const monthCount = months.length;
-
-  // Find current month index for auto-scroll
-  const currentMonthIdx = useMemo(() => {
-    return months.findIndex(m => m.month === now.getMonth() && m.year === now.getFullYear());
-  }, [months]);
 
   const todayPosition = useMemo(() => {
     for (let i = 0; i < months.length; i++) {
@@ -162,22 +136,6 @@ const EventsGantt = ({ events }: EventsGanttProps) => {
     el.addEventListener("scroll", handleScroll);
     return () => el.removeEventListener("scroll", handleScroll);
   }, [handleScroll]);
-
-  // Auto-scroll to current month on mount
-  useEffect(() => {
-    if (hasScrolledRef.current || currentMonthIdx < 0) return;
-    const el = scrollRef.current;
-    if (!el) return;
-
-    // Wait a frame for layout
-    requestAnimationFrame(() => {
-      // Each month column = (scrollWidth - labelWidth) / monthCount
-      const colWidth = (el.scrollWidth - labelWidth) / monthCount;
-      // Scroll so currentMonthIdx column starts right at the label edge
-      el.scrollLeft = Math.max(0, currentMonthIdx * colWidth);
-      hasScrolledRef.current = true;
-    });
-  }, [currentMonthIdx, monthCount, labelWidth]);
 
   useEffect(() => {
     return () => {
@@ -272,7 +230,7 @@ const EventsGantt = ({ events }: EventsGanttProps) => {
         <div style={{ minWidth: monthCount * 80, position: "relative" }}>
           {/* Month headers */}
           <div className="flex" style={{ borderBottom: "1px solid #E7EBEF" }}>
-            <div className="shrink-0 sticky left-0 z-10" style={{ width: labelWidth, background: "var(--background, #F5F3EE)" }} />
+            <div className="shrink-0" style={{ width: labelWidth }} />
             <div className="flex flex-1">
               {months.map((m, i) => (
                 <div
