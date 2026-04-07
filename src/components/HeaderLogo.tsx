@@ -173,28 +173,38 @@ const HeaderLogo = ({
   });
 
   return (
-    <div ref={containerRef} style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, position: "relative" }}>
+    <div ref={containerRef} style={{ display: "flex", alignItems: "center", gap: 8, flex: 1, position: "relative" }}>
 
-      {/* Logo + title → tap for home, long press for image viewer */}
+      {/* Logo image — long press for image viewer */}
       <div
-        onMouseDown={startPress} onMouseUp={endLongPress} onMouseLeave={cancelPress}
-        onTouchStart={startPress} onTouchEnd={(e) => { e.preventDefault(); endLongPress(); }} onTouchCancel={cancelPress}
+        onMouseDown={startPress}
+        onMouseUp={() => cancelPress()}
+        onMouseLeave={cancelPress}
+        onTouchStart={startPress}
+        onTouchEnd={(e) => { e.preventDefault(); cancelPress(); }}
+        onTouchCancel={cancelPress}
         onContextMenu={(e) => e.preventDefault()}
-        style={{ ...noFlash, display: "flex", alignItems: "center", gap: 10 }}
+        style={{ ...noFlash, width: 32, height: 32, borderRadius: 6, overflow: "hidden", flexShrink: 0 }}
       >
-        <div style={{ width: 32, height: 32, borderRadius: 6, overflow: "hidden", flexShrink: 0 }}>
-          <img src={navImageUrl} alt="" style={{ width: 32, height: 32, borderRadius: 6, objectFit: "cover", pointerEvents: "none", display: "block" }} draggable={false} />
-        </div>
+        <img src={navImageUrl} alt="" style={{ width: 32, height: 32, borderRadius: 6, objectFit: "cover", pointerEvents: "none", display: "block" }} draggable={false} />
+      </div>
+
+      {/* Home icon — tap to go home */}
+      <div
+        onClick={() => navigate("/")}
+        style={{ ...noFlash, display: "flex", alignItems: "center", justifyContent: "center", width: 28, height: 28, flexShrink: 0 }}
+      >
+        <Home style={{ width: 18, height: 18, color: "rgba(255,255,255,0.7)" }} />
+      </div>
+
+      {/* Page title + chevron → opens dropdown */}
+      <div
+        onClick={() => setMenuOpen(!menuOpen)}
+        style={{ ...noFlash, display: "flex", alignItems: "center", gap: 4 }}
+      >
         <span style={{ fontSize: 16, fontWeight: 500, color: "#fff", whiteSpace: "nowrap" }}>
           {currentItem?.label || "FM App"}
         </span>
-      </div>
-
-      {/* Dropdown chevron */}
-      <div
-        onClick={() => setMenuOpen(!menuOpen)}
-        style={{ ...noFlash, display: "flex", alignItems: "center", justifyContent: "center", width: 24, height: 24, marginLeft: -4 }}
-      >
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <polyline points="6 9 12 15 18 9" />
         </svg>
