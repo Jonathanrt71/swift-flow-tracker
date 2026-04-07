@@ -642,58 +642,6 @@ const Feedback = () => {
         {/* Toolbar */}
         <div className="flex items-center justify-between pb-2.5">
           <div className="flex gap-2 items-center">
-            {/* Overall pie chart */}
-            {(() => {
-              const total = myFeedback.length;
-              const posCount = myFeedback.filter((fb) => fb.sentiment === "positive").length;
-              const negCount = myFeedback.filter((fb) => fb.sentiment === "negative").length;
-              const posPct = total > 0 ? (posCount / total) * 100 : 0;
-              const negPct = total > 0 ? (negCount / total) * 100 : 0;
-
-              if (total === 0) return null;
-
-              const cx = 14, cy = 14, r = 12;
-              const toRad = (deg: number) => (deg * Math.PI) / 180;
-              const pt = (angle: number) => ({
-                x: cx + r * Math.sin(toRad(angle)),
-                y: cy - r * Math.cos(toRad(angle)),
-              });
-              const arc = (start: number, sweep: number, color: string) => {
-                if (sweep <= 0) return null;
-                if (sweep >= 359.99) return <circle key={color} cx={cx} cy={cy} r={r} fill={color} />;
-                const s = pt(start); const e = pt(start + sweep);
-                return <path key={color} d={`M${cx} ${cy} L${s.x} ${s.y} A${r} ${r} 0 ${sweep > 180 ? 1 : 0} 1 ${e.x} ${e.y} Z`} fill={color} />;
-              };
-              const negAngle = (negCount / total) * 360;
-              const posAngle = (posCount / total) * 360;
-
-              return (
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <button className="shrink-0 bg-transparent border-none cursor-pointer p-0">
-                      <svg width="28" height="28" viewBox="0 0 28 28">
-                        {arc(0, negAngle, "#c44444")}
-                        {arc(negAngle, posAngle, "#4A846C")}
-                      </svg>
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-3" align="start">
-                    <div className="flex flex-col gap-1.5 text-sm">
-                      <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full" style={{ background: "#4A846C" }} />
-                        <span>Positive: {Math.round(posPct)}% ({posCount})</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full" style={{ background: "#c44444" }} />
-                        <span>Negative: {Math.round(negPct)}% ({negCount})</span>
-                      </div>
-                      <div className="text-xs text-muted-foreground mt-1">Total: {total}</div>
-                    </div>
-                  </PopoverContent>
-                </Popover>
-              );
-            })()}
-
             <TabsList className="gap-1 h-auto p-1 bg-transparent">
               <TabsTrigger value="list" className="flex flex-col items-center gap-0.5 h-auto px-2 py-1" title="List">
                 <List className="h-4 w-4" />
