@@ -8,7 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Shield, User, LogOut, Search, Pencil, X as XIcon, Trash2, Plus, Filter } from "lucide-react";
+import { Shield, User, LogOut, Search, Pencil, X as XIcon, Trash2, Plus } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { DetailReadOnly } from "@/components/cbme/DetailField";
 import { formatCardDate, formatPersonName } from "@/lib/dateFormat";
@@ -309,7 +309,6 @@ const Meetings = () => {
 
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [personFilter, setPersonFilter] = useState<string | null>(null);
 
   const { tags: allTags } = useMeetingTags();
   const { links: tagLinks } = useMeetingTagLinks();
@@ -331,10 +330,6 @@ const Meetings = () => {
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       if (!m.title.toLowerCase().includes(q) && !(m.notes || "").toLowerCase().includes(q)) return false;
-    }
-    // Person filter
-    if (personFilter) {
-      if (m.created_by !== personFilter && !m.attendees.includes(personFilter)) return false;
     }
     return true;
   });
@@ -382,66 +377,11 @@ const Meetings = () => {
       </header>
 
       <main className="px-4 py-6" style={{ maxWidth: 900, margin: "0 auto" }}>
-        {/* Filter bar */}
-        <div className="flex items-center gap-1 pb-2.5">
-          {/* Person filter */}
-          <Popover>
-            <PopoverTrigger asChild>
-              <button
-                className={cn(
-                  "h-8 w-8 p-0 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors",
-                  personFilter
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-transparent text-muted-foreground hover:bg-accent"
-                )}
-              >
-                <Filter className="h-4 w-4" />
-              </button>
-            </PopoverTrigger>
-            <PopoverContent className="w-56 p-1" align="start">
-              {personFilter && (
-                <button
-                  onClick={() => setPersonFilter(null)}
-                  className="flex items-center gap-2 w-full px-2 py-1.5 rounded-md text-xs text-destructive cursor-pointer hover:bg-accent mb-1"
-                >
-                  <XIcon className="h-3 w-3" />
-                  Clear filter
-                </button>
-              )}
-              <div className="max-h-60 overflow-y-auto">
-                {teamMembers?.map((m) => (
-                  <button
-                    key={m.id}
-                    onClick={() => {
-                      setPersonFilter(personFilter === m.id ? null : m.id);
-                    }}
-                    className={cn(
-                      "flex items-center gap-2 w-full px-2 py-1.5 rounded-md text-sm text-left cursor-pointer transition-colors",
-                      personFilter === m.id ? "bg-primary/10" : "hover:bg-accent"
-                    )}
-                  >
-                    {m.avatar_url ? (
-                      <img src={m.avatar_url} className="w-5 h-5 rounded-full object-cover" alt="" />
-                    ) : (
-                      <div
-                        className="w-5 h-5 rounded-full flex items-center justify-center text-white"
-                        style={{ fontSize: 8, fontWeight: 500, background: getColor(m.display_name) }}
-                      >
-                        {getInitials(m.display_name)}
-                      </div>
-                    )}
-                    <span className="text-foreground text-xs">{formatPersonName(m)}</span>
-                  </button>
-                ))}
-              </div>
-            </PopoverContent>
-          </Popover>
-
-          <div className="ml-auto">
-            <CreateMeetingDialog
-              onSubmit={(data) => createMeeting.mutate(data)}
-            />
-          </div>
+        {/* Toolbar */}
+        <div className="flex items-center justify-end pb-2.5">
+          <CreateMeetingDialog
+            onSubmit={(data) => createMeeting.mutate(data)}
+          />
         </div>
 
         <div className="space-y-2">

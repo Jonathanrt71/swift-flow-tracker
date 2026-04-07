@@ -5,8 +5,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Plus, Check, X, Search, CalendarIcon } from "lucide-react";
+import { Plus, X, Search, CalendarIcon } from "lucide-react";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { useAuth } from "@/contexts/AuthContext";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -90,34 +89,30 @@ const CreateMeetingDialog = ({ onSubmit }: CreateMeetingDialogProps) => {
         </button>
       </DialogTrigger>
       <DialogContent
-        className="w-[calc(100%-2rem)] max-w-md bg-muted border-border rounded-xl p-0 [&>button[class*='absolute']]:hidden"
+        className="rounded-lg p-5 max-w-[calc(100vw-2rem)] w-full sm:max-w-md overflow-hidden"
+        style={{ background: "#F5F3EE", border: "1px solid #C9CED4", boxShadow: "0 8px 32px rgba(0,0,0,0.22)" }}
         overlayClassName="bg-[rgba(65,81,98,0.45)] backdrop-blur-sm"
       >
-        <div className="flex items-center justify-between px-5 pt-4 pb-2">
-          <div className="text-base font-medium">New meeting</div>
-          <button
-            onClick={() => setOpen(false)}
-            className="flex items-center justify-center w-9 h-9 bg-transparent border-none cursor-pointer"
-          >
-            <X className="h-4 w-4 text-foreground" />
-          </button>
+        <div className="overflow-y-auto max-h-[80vh] overflow-x-hidden">
+        <div className="flex items-center justify-between mb-5">
+          <span className="text-base font-semibold" style={{ color: "#2D3748" }}>New meeting</span>
         </div>
 
-        <div className="px-5 pb-5 flex flex-col gap-3.5">
+        <div className="flex flex-col gap-3.5">
           {/* Title */}
           <div className="space-y-1.5">
-            <Label className="text-xs text-muted-foreground">Title</Label>
+            <label className="text-xs block mb-1.5" style={{ color: "#5F7285" }}>Title</label>
             <Input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Meeting title"
-              className="bg-background rounded-lg"
+              className="rounded-lg" style={{ borderColor: "#C9CED4", background: "#fff" }}
             />
           </div>
 
           {/* Date */}
           <div className="space-y-1.5">
-            <Label className="text-xs text-muted-foreground">Date</Label>
+            <label className="text-xs block mb-1.5" style={{ color: "#5F7285" }}>Date</label>
             <Popover>
               <PopoverTrigger asChild>
                 <button className="flex items-center justify-between w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-left">
@@ -142,7 +137,7 @@ const CreateMeetingDialog = ({ onSubmit }: CreateMeetingDialogProps) => {
 
           {/* Attendees */}
           <div className="space-y-1.5">
-            <Label className="text-xs text-muted-foreground">Attendees</Label>
+            <label className="text-xs block mb-1.5" style={{ color: "#5F7285" }}>Attendees</label>
 
             {/* Selected chips */}
             {selectedMembers.length > 0 && (
@@ -229,15 +224,15 @@ const CreateMeetingDialog = ({ onSubmit }: CreateMeetingDialogProps) => {
           </div>
 
           {/* Save */}
-          <div className="flex justify-end pt-3 border-t border-border">
-            <button
-              onClick={handleSubmit}
-              disabled={!title.trim() || !meetingDate}
-              className="flex items-center justify-center w-11 h-11 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50"
-            >
-              <Check className="h-4 w-4" />
-            </button>
-          </div>
+          <button
+            onClick={handleSubmit}
+            disabled={!title.trim() || !meetingDate}
+            className="w-full rounded-lg py-3 text-sm font-medium text-white disabled:opacity-50"
+            style={{ background: "#415162" }}
+          >
+            Save meeting
+          </button>
+        </div>
         </div>
       </DialogContent>
     </Dialog>
