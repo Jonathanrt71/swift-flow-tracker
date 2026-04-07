@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Calendar, Search, X, Trash2, List, ClipboardCheck, Maximize2 } from "lucide-react";
 import { format, parseISO } from "date-fns";
-import { formatCardDate } from "@/lib/dateFormat";
+import { formatCardDate, ordinalSuffix } from "@/lib/dateFormat";
 import CreateEventDialog from "@/components/events/CreateEventDialog";
 import EditEventDialog from "@/components/events/EditEventDialog";
 import EvaluationDialog from "@/components/events/EvaluationDialog";
@@ -135,7 +135,16 @@ const EventCard = ({
 
   const formattedDate = (() => {
     try {
-      return format(parseISO(event.event_date), "EEE d");
+      const startStr = format(parseISO(event.event_date), "EEE d");
+      if (event.end_date && event.end_date !== event.event_date) {
+        const start = parseISO(event.event_date);
+        const end = parseISO(event.end_date);
+        if (start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear()) {
+          return `${format(start, "EEE d")} – ${format(end, "d")}`;
+        }
+        return `${format(start, "MMM d")} – ${format(end, "MMM d")}`;
+      }
+      return startStr;
     } catch {
       return event.event_date;
     }
@@ -176,11 +185,24 @@ const EventCard = ({
           )}
           {(() => {
             const dd = formatCardDate(event.event_date);
-            return dd ? (
+            if (!dd) return null;
+            let dateText = dd.text;
+            if (event.end_date && event.end_date !== event.event_date) {
+              try {
+                const start = parseISO(event.event_date);
+                const end = parseISO(event.end_date);
+                const sameMonth = start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear();
+                const endDay = end.getDate();
+                dateText = sameMonth
+                  ? `${dd.text} – ${endDay}${ordinalSuffix(endDay)}`
+                  : `${dd.text} – ${format(end, "MMM")} ${endDay}${ordinalSuffix(endDay)}`;
+              } catch {}
+            }
+            return (
               <span className={cn("text-[11px] whitespace-nowrap shrink-0", dd.urgent ? "text-destructive" : "text-muted-foreground")}>
-                {dd.text}
+                {dateText}
               </span>
-            ) : null;
+            );
           })()}
         </div>
         <div className="flex items-center shrink-0 gap-1.5 pr-1">

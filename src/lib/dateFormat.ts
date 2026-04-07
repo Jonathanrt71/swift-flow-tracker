@@ -6,7 +6,7 @@ export interface PersonNameLike {
   last_name?: string | null;
 }
 
-const ordinalSuffix = (d: number): string => {
+export const ordinalSuffix = (d: number): string => {
   if (d > 3 && d < 21) return "th";
   switch (d % 10) {
     case 1: return "st";
