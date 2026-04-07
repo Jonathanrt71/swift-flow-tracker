@@ -536,7 +536,7 @@ const Evaluations = () => {
                   className="rounded-lg overflow-hidden"
                   style={{
                     background: flashId === ev.id ? "rgba(74,132,108,0.15)" : "#E7EBEF",
-                    border: isViewed ? "0.5px solid #C9CED4" : "2px solid #415162",
+                    border: "0.5px solid #C9CED4",
                     transition: "background 0.4s ease",
                     marginBottom: 8,
                   }}
