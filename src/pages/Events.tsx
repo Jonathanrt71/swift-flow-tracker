@@ -493,14 +493,22 @@ const Events = () => {
   const filteredEvents = useMemo(() => {
     const all = events.data || [];
     const byCategory = activeCategory === "all" ? all : all.filter((e) => e.category === activeCategory);
-    if (!searchQuery.trim()) return byCategory;
-    const q = searchQuery.toLowerCase();
-    return byCategory.filter(
-      (e) =>
-        e.title.toLowerCase().includes(q) ||
-        (e.description || "").toLowerCase().includes(q)
-    );
-  }, [events.data, activeCategory, searchQuery]);
+    const withSearch = searchQuery.trim()
+      ? byCategory.filter(
+          (e) =>
+            e.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (e.description || "").toLowerCase().includes(searchQuery.toLowerCase())
+        )
+      : byCategory;
+
+    // For list and timeline views, hide overdue events on load
+    if (viewMode === "list" || viewMode === "vertical") {
+      const todayStr = new Date().toISOString().split("T")[0];
+      return withSearch.filter((e) => e.event_date >= todayStr);
+    }
+
+    return withSearch;
+  }, [events.data, activeCategory, searchQuery, viewMode]);
 
   const handleCategoryChange = (cat: string) => {
     if (cat === activeCategory) return;
