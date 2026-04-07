@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { CheckSquare, Users, Calendar, BookOpen, MessageSquare, Shield, User, LogOut, BookMarked, Stethoscope, ClipboardList, BookOpenCheck, Home, ShieldCheck, FileText, Megaphone, FileCheck, CalendarDays, Activity, UserCheck } from "lucide-react";
+import { CheckSquare, Users, Calendar, BookOpen, MessageSquare, Shield, User, LogOut, BookMarked, Stethoscope, ClipboardList, BookOpenCheck, Home, ShieldCheck, FileText, Megaphone, FileCheck, CalendarDays, Activity, UserCheck, BarChart2 } from "lucide-react";
 import { usePermissions } from "@/hooks/usePermissions";
 import { useAppSettings } from "@/hooks/useAppSettings";
 import { useAuth } from "@/contexts/AuthContext";
@@ -31,12 +31,13 @@ const allNavItems: NavEntry[] = [
   { path: "/gme-handbook",label: "GME Handbook", icon: FileText,      permissionKey: "gme_handbook.view" },
   { path: "/handbook",    label: "Resident Handbook", icon: BookMarked, permissionKey: "handbook.view" },
   { path: "/rotations",   label: "Rotations",    icon: Stethoscope,   permissionKey: "rotations.view" },
+  { path: "/milestones",  label: "Milestones",   icon: BarChart2,     permissionKey: "cbme.view" },
 ];
 
 interface NavSection { label: string; paths: string[]; }
 const navSections: NavSection[] = [
   { label: "Curriculum", paths: ["/rotations", "/topics"] },
-  { label: "Evaluation", paths: ["/cbme", "/evaluations", "/feedback", "/procedure-logs", "/resident-summary"] },
+  { label: "Evaluation", paths: ["/cbme", "/evaluations", "/feedback", "/milestones", "/procedure-logs", "/resident-summary"] },
   { label: "Program",    paths: ["/events", "/schedule", "/announcements", "/meetings", "/tasks"] },
   { label: "Reference",  paths: ["/compliance", "/gme-handbook", "/handbook", "/operations"] },
 ];

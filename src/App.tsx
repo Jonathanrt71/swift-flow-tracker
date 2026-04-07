@@ -27,6 +27,7 @@ import BlockSchedule from "./pages/BlockSchedule.tsx";
 import ProcedureLogs from "./pages/ProcedureLogs.tsx";
 import ResidentSummary from "./pages/ResidentSummary.tsx";
 import Home from "./pages/Home.tsx";
+import Milestones from "./pages/Milestones.tsx";
 import ScrollToTop from "./components/ScrollToTop";
 
 const queryClient = new QueryClient();
@@ -52,6 +53,7 @@ const App = () => (
               <Route path="/feedback" element={<RoleRoute permissionKey="feedback.view"><Feedback /></RoleRoute>} />
               <Route path="/tasks" element={<RoleRoute permissionKey="tasks.view"><Index /></RoleRoute>} />
               <Route path="/cbme" element={<RoleRoute permissionKey="cbme.view"><CBME /></RoleRoute>} />
+              <Route path="/milestones" element={<RoleRoute permissionKey="cbme.view"><Milestones /></RoleRoute>} />
               <Route path="/handbook" element={<RoleRoute permissionKey="handbook.view"><Handbook /></RoleRoute>} />
               <Route path="/gme-handbook" element={<RoleRoute permissionKey="gme_handbook.view"><GMEHandbook /></RoleRoute>} />
               <Route path="/rotations" element={<ProtectedRoute><Rotations /></ProtectedRoute>} />
