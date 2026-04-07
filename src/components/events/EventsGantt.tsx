@@ -188,19 +188,19 @@ const EventsGantt = ({ events }: EventsGanttProps) => {
 
   return (
     <div ref={containerRef} className="relative select-none" onClick={dismissTooltip}>
-      {/* Floating month label */}
+      {/* Floating month label — fixed so it stays visible on vertical scroll */}
       <div
         style={{
-          position: "absolute",
-          top: 8,
-          right: 12,
+          position: "fixed",
+          top: 120,
+          right: 16,
           background: "#415162",
           color: "#fff",
           padding: "4px 10px",
           borderRadius: 6,
           fontSize: 12,
           fontWeight: 500,
-          zIndex: 20,
+          zIndex: 50,
           pointerEvents: "none",
           opacity: showFloating ? 1 : 0,
           transition: "opacity 0.2s",
