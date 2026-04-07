@@ -239,10 +239,6 @@ const ProcedureLogs = () => {
               </button>
             ))}
           </div>
-
-          <div style={{ fontSize: 12, color: "#8A9AAB" }}>
-            {filtered.length} logs
-          </div>
         </div>
 
         {/* Content */}
