@@ -262,15 +262,15 @@ const CBME = () => {
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <div className="flex items-center pb-2.5">
             <TabsList className="gap-1 h-auto p-1 bg-transparent">
-              <TabsTrigger value="list" className="h-8 w-8 p-0" title="Competency List">
+              <TabsTrigger value="list" className="h-8 w-8 p-0 data-[state=active]:bg-[#D5DAE0] data-[state=active]:text-[#415162] data-[state=active]:shadow-none data-[state=inactive]:text-[#8A9AAB]" title="Competency List">
                 <ListTodo className="h-4 w-4" />
               </TabsTrigger>
               {canCreate && (
-                <TabsTrigger value="dashboard" className="h-8 w-8 p-0" title="Dashboard">
+                <TabsTrigger value="dashboard" className="h-8 w-8 p-0 data-[state=active]:bg-[#D5DAE0] data-[state=active]:text-[#415162] data-[state=active]:shadow-none data-[state=inactive]:text-[#8A9AAB]" title="Dashboard">
                   <BarChart2 className="h-4 w-4" />
                 </TabsTrigger>
               )}
-              <TabsTrigger value="history" className="h-8 w-8 p-0" title="Assessment History">
+              <TabsTrigger value="history" className="h-8 w-8 p-0 data-[state=active]:bg-[#D5DAE0] data-[state=active]:text-[#415162] data-[state=active]:shadow-none data-[state=inactive]:text-[#8A9AAB]" title="Assessment History">
                 <ClipboardList className="h-4 w-4" />
               </TabsTrigger>
             </TabsList>
