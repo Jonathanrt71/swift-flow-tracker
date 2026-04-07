@@ -96,17 +96,6 @@ const EventsGantt = ({ events }: EventsGanttProps) => {
 
   const monthCount = months.length;
 
-  const todayPosition = useMemo(() => {
-    for (let i = 0; i < months.length; i++) {
-      const m = months[i];
-      if (now.getFullYear() === m.year && now.getMonth() === m.month) {
-        const dayFrac = (now.getDate() - 1) / m.days;
-        return (i + dayFrac) / months.length;
-      }
-    }
-    return null;
-  }, [months]);
-
   useEffect(() => {
     return () => {
       if (tooltipTimer.current) clearTimeout(tooltipTimer.current);
@@ -199,22 +188,6 @@ const EventsGantt = ({ events }: EventsGanttProps) => {
             </div>
           </div>
 
-          {/* Today line */}
-          {todayPosition !== null && (
-            <div
-              style={{
-                position: "absolute",
-                top: 0,
-                bottom: 0,
-                left: `calc(${labelWidth}px + ${todayPosition * 100}% * (1 - ${labelWidth} / ${monthCount * 80}))`,
-                width: 2,
-                background: "#E24B4A",
-                opacity: 0.5,
-                zIndex: 5,
-                pointerEvents: "none",
-              }}
-            />
-          )}
 
           {/* Event rows */}
           {rows.length === 0 && (
