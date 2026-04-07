@@ -173,7 +173,7 @@ const EventsGantt = ({ events }: EventsGanttProps) => {
     requestAnimationFrame(() => {
       const timelineWidth = el.scrollWidth - labelWidth;
       const monthFrac = currentMonthIdx / monthCount;
-      const targetScroll = monthFrac * timelineWidth - el.clientWidth / 3;
+      const targetScroll = monthFrac * timelineWidth;
       el.scrollLeft = Math.max(0, targetScroll);
       hasScrolledRef.current = true;
     });
