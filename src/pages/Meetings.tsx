@@ -362,7 +362,7 @@ const Meetings = () => {
   return (
     <div className="min-h-screen bg-background pb-20">
       <header className="bg-[#415162] sticky top-0 z-40">
-        <div className="container flex items-center h-14 px-4">
+        <div className="flex items-center h-14 px-4">
           <HeaderLogo isAdmin={isAdmin} onSignOut={() => signOut()}>
             <button
               style={{

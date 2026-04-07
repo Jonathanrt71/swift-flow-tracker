@@ -598,7 +598,7 @@ const Feedback = () => {
     <div className="min-h-screen bg-background pb-20" style={{ background: "#F5F3EE" }}>
       {/* Header */}
       <header className="sticky top-0 z-40" style={{ background: "#415162" }}>
-        <div className="container flex items-center h-14 px-4">
+        <div className="flex items-center h-14 px-4">
           <HeaderLogo isAdmin={isAdmin} onSignOut={signOut}>
             <button
               style={{
