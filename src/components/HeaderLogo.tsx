@@ -175,22 +175,29 @@ const HeaderLogo = ({
   return (
     <div ref={containerRef} style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, position: "relative" }}>
 
-      {/* Logo */}
+      {/* Logo + title → tap for home, long press for image viewer */}
       <div
         onMouseDown={startPress} onMouseUp={endLongPress} onMouseLeave={cancelPress}
         onTouchStart={startPress} onTouchEnd={(e) => { e.preventDefault(); endLongPress(); }} onTouchCancel={cancelPress}
         onContextMenu={(e) => e.preventDefault()}
-        style={{ ...noFlash, width: 32, height: 32, borderRadius: 6, overflow: "hidden", flexShrink: 0 }}
+        style={{ ...noFlash, display: "flex", alignItems: "center", gap: 10 }}
       >
-        <img src={navImageUrl} alt="" style={{ width: 32, height: 32, borderRadius: 6, objectFit: "cover", pointerEvents: "none", display: "block" }} draggable={false} />
+        <div style={{ width: 32, height: 32, borderRadius: 6, overflow: "hidden", flexShrink: 0 }}>
+          <img src={navImageUrl} alt="" style={{ width: 32, height: 32, borderRadius: 6, objectFit: "cover", pointerEvents: "none", display: "block" }} draggable={false} />
+        </div>
+        <span style={{ fontSize: 16, fontWeight: 500, color: "#fff", whiteSpace: "nowrap" }}>
+          {currentItem?.label || "FM App"}
+        </span>
       </div>
 
-      {/* Page title → opens nav */}
+      {/* Dropdown chevron */}
       <div
         onClick={() => setMenuOpen(!menuOpen)}
-        style={{ ...noFlash, fontSize: 16, fontWeight: 500, color: "#fff", whiteSpace: "nowrap" }}
+        style={{ ...noFlash, display: "flex", alignItems: "center", justifyContent: "center", width: 24, height: 24, marginLeft: -4 }}
       >
-        {currentItem?.label || "FM App"}
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="6 9 12 15 18 9" />
+        </svg>
       </div>
 
       <div style={{ flex: 1 }} />
