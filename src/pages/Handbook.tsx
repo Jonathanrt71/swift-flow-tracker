@@ -364,6 +364,7 @@ const Handbook = () => {
 
         <div ref={contentRef} style={{ flex: 1, overflowY: "auto", padding: "24px 20px 120px" }}>
           <div style={{ maxWidth: 900, margin: "0 auto" }}>
+          <h1 style={{ fontSize: 22, fontWeight: 600, color: "#2D3748", marginBottom: 16 }}>Resident Handbook</h1>
 
           {/* Top bar: Read/Edit toggle + hamburger */}
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>

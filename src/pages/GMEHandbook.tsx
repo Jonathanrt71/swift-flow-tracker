@@ -363,7 +363,8 @@ const GMEHandbook = () => {
         </aside>
 
         <div ref={contentRef} style={{ flex: 1, overflowY: "auto", padding: "24px 20px 120px" }}>
-          <div style={{ maxWidth: 700, margin: "0 auto" }}>
+          <div style={{ maxWidth: 900, margin: "0 auto" }}>
+          <h1 style={{ fontSize: 22, fontWeight: 600, color: "#2D3748", marginBottom: 16 }}>GME Handbook</h1>
 
           {/* Reader view toggle — only shown for users with edit permission */}
           {/* Top bar: Read/Edit toggle + hamburger */}
