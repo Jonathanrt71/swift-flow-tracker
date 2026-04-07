@@ -53,9 +53,10 @@ const Index = () => {
   const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const touchActive = useRef(false);
-  const touchMovedEnough = useRef(false);
   const touchStartY = useRef(0);
   const [isDragging, setIsDragging] = useState(false);
+  const isDraggingRef = useRef(false);
+  const dragIdxRef = useRef<number | null>(null);
 
   const clearLongPress = () => {
     if (longPressTimer.current) {
@@ -64,17 +65,31 @@ const Index = () => {
     }
   };
 
+  // Lock body scroll when dragging
+  useEffect(() => {
+    if (isDragging) {
+      document.body.style.overflow = "hidden";
+      document.body.style.touchAction = "none";
+    } else {
+      document.body.style.overflow = "";
+      document.body.style.touchAction = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+      document.body.style.touchAction = "";
+    };
+  }, [isDragging]);
+
   const handleTouchStart = (idx: number, e: React.TouchEvent) => {
     touchActive.current = true;
-    touchMovedEnough.current = false;
     touchStartY.current = e.touches[0].clientY;
 
     longPressTimer.current = setTimeout(() => {
       if (!touchActive.current) return;
-      // Activate drag mode
       setDragIdx(idx);
+      dragIdxRef.current = idx;
       setIsDragging(true);
-      // Haptic feedback if available
+      isDraggingRef.current = true;
       if (navigator.vibrate) navigator.vibrate(30);
     }, 400);
   };
@@ -82,24 +97,25 @@ const Index = () => {
   const handleTouchMove = (e: React.TouchEvent) => {
     const dy = Math.abs(e.touches[0].clientY - touchStartY.current);
 
-    // If we moved before long press fired, cancel it (user is scrolling)
-    if (!isDragging && dy > 8) {
+    if (!isDraggingRef.current && dy > 8) {
       clearLongPress();
       touchActive.current = false;
       return;
     }
 
-    if (!isDragging || dragIdx === null) return;
-
-    // Prevent page scroll while dragging
-    e.preventDefault();
+    if (!isDraggingRef.current || dragIdxRef.current === null) return;
 
     const touchY = e.touches[0].clientY;
     for (let i = 0; i < itemRefs.current.length; i++) {
       const el = itemRefs.current[i];
       if (!el) continue;
       const rect = el.getBoundingClientRect();
-      if (touchY >= rect.top && touchY <= rect.bottom && i !== dragOverIdx) {
+      const midY = rect.top + rect.height / 2;
+      if (touchY < midY && i <= dragIdxRef.current) {
+        setDragOverIdx(i);
+        break;
+      }
+      if (touchY >= midY && i >= dragIdxRef.current) {
         setDragOverIdx(i);
         break;
       }
@@ -110,18 +126,18 @@ const Index = () => {
     clearLongPress();
     touchActive.current = false;
 
-    if (isDragging && dragIdx !== null && dragOverIdx !== null && dragIdx !== dragOverIdx) {
+    if (isDraggingRef.current && dragIdxRef.current !== null && dragOverIdx !== null && dragIdxRef.current !== dragOverIdx) {
       const reordered = [...localPriorities];
-      const [moved] = reordered.splice(dragIdx, 1);
+      const [moved] = reordered.splice(dragIdxRef.current, 1);
       reordered.splice(dragOverIdx, 0, moved);
       setLocalPriorities(reordered);
       reorderPriorities.mutate(reordered.map((r) => r.id));
     }
 
+    dragIdxRef.current = null;
     setDragIdx(null);
     setDragOverIdx(null);
-    // Delay clearing isDragging so the click handler on PriorityCard can check it
-    setTimeout(() => setIsDragging(false), 50);
+    setTimeout(() => { setIsDragging(false); isDraggingRef.current = false; }, 50);
   };
 
   useEffect(() => {
@@ -409,48 +425,57 @@ const Index = () => {
                 <p className="text-sm">No priorities yet. Add one to get started!</p>
               </div>
             ) : (
-              localPriorities.map((p, idx) => (
-                <div
-                  key={p.id}
-                  ref={(el) => { itemRefs.current[idx] = el; }}
-                  draggable={!isDragging}
-                  onDragStart={() => setDragIdx(idx)}
-                  onDragOver={(e) => { e.preventDefault(); setDragOverIdx(idx); }}
-                  onDragEnd={() => {
-                    if (dragIdx !== null && dragOverIdx !== null && dragIdx !== dragOverIdx) {
-                      const reordered = [...localPriorities];
-                      const [moved] = reordered.splice(dragIdx, 1);
-                      reordered.splice(dragOverIdx, 0, moved);
-                      setLocalPriorities(reordered);
-                      reorderPriorities.mutate(reordered.map((r) => r.id));
-                    }
-                    setDragIdx(null);
-                    setDragOverIdx(null);
-                  }}
-                  onTouchStart={(e) => handleTouchStart(idx, e)}
-                  onTouchMove={handleTouchMove}
-                  onTouchEnd={handleTouchEnd}
-                  style={{
-                    opacity: dragIdx === idx ? 0.5 : 1,
-                    borderTop: dragOverIdx === idx && dragIdx !== null && dragIdx > idx ? "2px solid #415162" : undefined,
-                    borderBottom: dragOverIdx === idx && dragIdx !== null && dragIdx < idx ? "2px solid #415162" : undefined,
-                    transform: isDragging && dragIdx === idx ? "scale(1.02)" : undefined,
-                    transition: isDragging ? "none" : "opacity 0.15s",
-                    touchAction: isDragging ? "none" : "auto",
-                  }}
-                >
-                  <PriorityCard
-                    priority={p}
-                    rank={idx + 1}
-                    teamMembers={teamMembers || []}
-                    linkedTaskCount={priorityTaskCounts.get(p.id)?.total || 0}
-                    linkedTasksDone={priorityTaskCounts.get(p.id)?.done || 0}
-                    suppressClick={isDragging}
-                    onUpdate={(data) => updatePriority.mutate(data)}
-                    onDelete={(id) => deletePriority.mutate(id)}
-                  />
-                </div>
-              ))
+              localPriorities.map((p, idx) => {
+                const showLineBefore = dragOverIdx === idx && dragIdx !== null && dragIdx > idx;
+                const showLineAfter = dragOverIdx === idx && dragIdx !== null && dragIdx < idx;
+                return (
+                  <div key={p.id}>
+                    {showLineBefore && (
+                      <div style={{ height: 4, background: "#415162", borderRadius: 2, margin: "-2px 0" }} />
+                    )}
+                    <div
+                      ref={(el) => { itemRefs.current[idx] = el; }}
+                      draggable={!isDragging}
+                      onDragStart={() => setDragIdx(idx)}
+                      onDragOver={(e) => { e.preventDefault(); setDragOverIdx(idx); }}
+                      onDragEnd={() => {
+                        if (dragIdx !== null && dragOverIdx !== null && dragIdx !== dragOverIdx) {
+                          const reordered = [...localPriorities];
+                          const [moved] = reordered.splice(dragIdx, 1);
+                          reordered.splice(dragOverIdx, 0, moved);
+                          setLocalPriorities(reordered);
+                          reorderPriorities.mutate(reordered.map((r) => r.id));
+                        }
+                        setDragIdx(null);
+                        setDragOverIdx(null);
+                      }}
+                      onTouchStart={(e) => handleTouchStart(idx, e)}
+                      onTouchMove={handleTouchMove}
+                      onTouchEnd={handleTouchEnd}
+                      style={{
+                        opacity: dragIdx === idx ? 0.5 : 1,
+                        transform: isDragging && dragIdx === idx ? "scale(1.02)" : undefined,
+                        transition: isDragging ? "none" : "opacity 0.15s",
+                        touchAction: isDragging ? "none" : "auto",
+                      }}
+                    >
+                      <PriorityCard
+                        priority={p}
+                        rank={idx + 1}
+                        teamMembers={teamMembers || []}
+                        linkedTaskCount={priorityTaskCounts.get(p.id)?.total || 0}
+                        linkedTasksDone={priorityTaskCounts.get(p.id)?.done || 0}
+                        suppressClick={isDragging}
+                        onUpdate={(data) => updatePriority.mutate(data)}
+                        onDelete={(id) => deletePriority.mutate(id)}
+                      />
+                    </div>
+                    {showLineAfter && (
+                      <div style={{ height: 4, background: "#415162", borderRadius: 2, margin: "-2px 0" }} />
+                    )}
+                  </div>
+                );
+              })
             )}
           </TabsContent>
 
