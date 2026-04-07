@@ -24,10 +24,7 @@ const EventsGantt = ({ events }: EventsGanttProps) => {
   const now = new Date();
 
   const [tooltip, setTooltip] = useState<{ title: string; dateStr: string; x: number; y: number } | null>(null);
-  const [floatingMonth, setFloatingMonth] = useState<string>("");
-  const [showFloating, setShowFloating] = useState(false);
   const tooltipTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const floatingTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -110,37 +107,9 @@ const EventsGantt = ({ events }: EventsGanttProps) => {
     return null;
   }, [months]);
 
-  const handleScroll = useCallback(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-
-    const scrollLeft = el.scrollLeft;
-    const scrollWidth = el.scrollWidth;
-    const centerOffset = scrollLeft + el.clientWidth / 2 - labelWidth;
-    const timelineWidth = scrollWidth - labelWidth;
-    const centerFrac = Math.max(0, centerOffset / timelineWidth);
-    const monthIdx = Math.min(Math.floor(centerFrac * monthCount), months.length - 1);
-
-    if (monthIdx >= 0 && monthIdx < months.length) {
-      const m = months[monthIdx];
-      setFloatingMonth(`${MONTH_ABBRS[m.month]} ${m.year}`);
-      setShowFloating(true);
-      if (floatingTimer.current) clearTimeout(floatingTimer.current);
-      floatingTimer.current = setTimeout(() => setShowFloating(false), 1500);
-    }
-  }, [months, labelWidth, monthCount]);
-
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-    el.addEventListener("scroll", handleScroll);
-    return () => el.removeEventListener("scroll", handleScroll);
-  }, [handleScroll]);
-
   useEffect(() => {
     return () => {
       if (tooltipTimer.current) clearTimeout(tooltipTimer.current);
-      if (floatingTimer.current) clearTimeout(floatingTimer.current);
     };
   }, []);
 
@@ -188,26 +157,6 @@ const EventsGantt = ({ events }: EventsGanttProps) => {
 
   return (
     <div ref={containerRef} className="relative select-none" onClick={dismissTooltip}>
-      {/* Floating month label — fixed so it stays visible on vertical scroll */}
-      <div
-        style={{
-          position: "fixed",
-          top: 120,
-          right: 16,
-          background: "#415162",
-          color: "#fff",
-          padding: "4px 10px",
-          borderRadius: 6,
-          fontSize: 12,
-          fontWeight: 500,
-          zIndex: 50,
-          pointerEvents: "none",
-          opacity: showFloating ? 1 : 0,
-          transition: "opacity 0.2s",
-        }}
-      >
-        {floatingMonth}
-      </div>
 
       {/* Tooltip */}
       {tooltip && (
@@ -228,8 +177,8 @@ const EventsGantt = ({ events }: EventsGanttProps) => {
 
       <div ref={scrollRef} className="overflow-x-auto">
         <div style={{ minWidth: monthCount * 80, position: "relative" }}>
-          {/* Month headers — sticky below filter bar */}
-          <div className="flex sticky z-20" style={{ top: 140, borderBottom: "1px solid #E7EBEF", background: "#F5F3EE" }}>
+          {/* Month headers */}
+          <div className="flex" style={{ borderBottom: "1px solid #E7EBEF" }}>
             <div className="shrink-0" style={{ width: labelWidth }} />
             <div className="flex flex-1">
               {months.map((m, i) => (
