@@ -168,7 +168,7 @@ const ProcedureLogs = () => {
         )}
       </header>
 
-      <main style={{ padding: "12px 16px 100px" }}>
+      <main style={{ maxWidth: 900, margin: "0 auto", padding: "12px 16px 100px" }}>
 
         {/* Filters — row 1: dropdowns */}
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>

@@ -601,7 +601,7 @@ const Announcements = () => {
         </div>
       </header>
 
-      <main style={{ maxWidth: 700, margin: "0 auto", padding: "16px 16px 100px" }}>
+      <main style={{ maxWidth: 900, margin: "0 auto", padding: "16px 16px 100px" }}>
         {isLoading ? (
           <div style={{ padding: 40, textAlign: "center" }}>
             <div style={{

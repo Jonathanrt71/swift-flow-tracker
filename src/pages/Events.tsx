@@ -597,7 +597,7 @@ const Events = () => {
         )}
       </header>
 
-      <main className="container max-w-[1200px] px-4 pt-0 pb-4">
+      <main className="px-4 pt-0 pb-4" style={{ maxWidth: 900, margin: "0 auto" }}>
 
         {/* Sticky filter bar below header */}
         <div className="sticky z-30 bg-background" style={{ top: 56 }}>

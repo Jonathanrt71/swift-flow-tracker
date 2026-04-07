@@ -223,7 +223,7 @@ const Home = () => {
         </div>
       </header>
 
-      <main style={{ maxWidth: 960, margin: "0 auto", padding: "20px 16px 100px" }}>
+      <main style={{ maxWidth: 900, margin: "0 auto", padding: "20px 16px 100px" }}>
         {/* Greeting */}
         <div style={{ marginBottom: 20 }}>
           <div style={{ fontSize: 20, fontWeight: 600, color: "#2D3748", marginBottom: 2 }}>

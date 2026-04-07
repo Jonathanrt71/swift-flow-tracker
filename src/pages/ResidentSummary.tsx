@@ -265,7 +265,7 @@ const ResidentSummary = () => {
         </div>
       </header>
 
-      <main style={{ maxWidth: 680, margin: "0 auto", padding: "12px 16px 100px" }}>
+      <main style={{ maxWidth: 900, margin: "0 auto", padding: "12px 16px 100px" }}>
         {/* Resident selector */}
         <div style={{ marginBottom: 16 }}>
           <Select value={selectedResident} onValueChange={setSelectedResident}>

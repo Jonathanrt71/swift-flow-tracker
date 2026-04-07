@@ -401,7 +401,7 @@ const Meetings = () => {
         )}
       </header>
 
-      <main className="container max-w-[1200px] px-4 py-6">
+      <main className="px-4 py-6" style={{ maxWidth: 900, margin: "0 auto" }}>
         {/* Filter bar */}
         <div className="flex items-center gap-1 pb-2.5">
           {/* Person filter */}

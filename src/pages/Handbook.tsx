@@ -363,7 +363,7 @@ const Handbook = () => {
         </aside>
 
         <div ref={contentRef} style={{ flex: 1, overflowY: "auto", padding: "24px 20px 120px" }}>
-          <div style={{ maxWidth: 700, margin: "0 auto" }}>
+          <div style={{ maxWidth: 900, margin: "0 auto" }}>
 
           {/* Top bar: Read/Edit toggle + hamburger */}
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>

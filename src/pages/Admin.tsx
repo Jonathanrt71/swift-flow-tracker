@@ -844,7 +844,7 @@ const Admin = () => {
         </div>
       </header>
 
-      <main className="container max-w-[1200px] px-4 py-4 space-y-2">
+      <main className="px-4 py-4 space-y-2" style={{ maxWidth: 900, margin: "0 auto" }}>
 
         {/* Team Members */}
         <div

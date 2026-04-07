@@ -177,7 +177,7 @@ const Rotations = () => {
         </div>
       </header>
 
-      <main className="container max-w-[1200px] px-4 py-5 pb-24">
+      <main className="px-4 py-5 pb-24" style={{ maxWidth: 900, margin: "0 auto" }}>
         {selected ? (
           /* ── Detail View ── */
           <div>

@@ -258,7 +258,7 @@ const CBME = () => {
         )}
       </header>
 
-      <main className="container max-w-[1200px] px-4 pt-2 pb-6">
+      <main className="px-4 pt-2 pb-6" style={{ maxWidth: 900, margin: "0 auto" }}>
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <div className="flex items-center pb-2.5">
             <TabsList className="gap-1 h-auto p-1 bg-transparent">
