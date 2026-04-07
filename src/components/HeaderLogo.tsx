@@ -142,12 +142,19 @@ const HeaderLogo = ({
 
   useEffect(() => {
     if (menuOpen && containerRef.current) {
-      const appWrapper = containerRef.current.closest('.mx-auto');
-      if (appWrapper) {
-        const rect = appWrapper.getBoundingClientRect();
+      // Use the header's own position — works for both normal and full-width pages
+      const headerEl = containerRef.current.closest('header');
+      if (headerEl) {
+        const rect = headerEl.getBoundingClientRect();
         setMenuLeft(rect.left);
       } else {
-        setMenuLeft(0);
+        const appWrapper = containerRef.current.closest('.mx-auto');
+        if (appWrapper) {
+          const rect = appWrapper.getBoundingClientRect();
+          setMenuLeft(rect.left);
+        } else {
+          setMenuLeft(0);
+        }
       }
     }
   }, [menuOpen]);
