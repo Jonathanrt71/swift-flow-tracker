@@ -22,11 +22,13 @@ import { formatPersonName } from "@/lib/dateFormat";
 import type { ProgramEvent, EventCategory, RecurrencePattern } from "@/hooks/useEvents";
 import { RECURRENCE_LABELS } from "@/hooks/useEvents";
 import { useEventCategories } from "@/hooks/useEventCategories";
-import { useClinicalTopics } from "@/hooks/useClinicalTopics";
 import ComboSearch from "@/components/shared/ComboSearch";
+import type { ClinicalTopic } from "@/hooks/useClinicalTopics";
 
 interface EditEventDialogProps {
   event: ProgramEvent;
+  clinicalTopics?: ClinicalTopic[];
+  onCreateTopic?: (title: string) => Promise<void>;
   onUpdate: (data: {
     id: string;
     title?: string;
@@ -42,7 +44,7 @@ interface EditEventDialogProps {
   }) => void;
 }
 
-const EditEventDialog = ({ event, onUpdate }: EditEventDialogProps) => {
+const EditEventDialog = ({ event, clinicalTopics, onCreateTopic, onUpdate }: EditEventDialogProps) => {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState(event.title);
   const [eventDate, setEventDate] = useState(event.event_date);
@@ -55,7 +57,6 @@ const EditEventDialog = ({ event, onUpdate }: EditEventDialogProps) => {
   const [recurrencePattern, setRecurrencePattern] = useState<RecurrencePattern>(event.recurrence_pattern || "none");
   const { data: members } = useTeamMembers();
   const { categories } = useEventCategories();
-  const { topics: clinicalTopics, createTopic } = useClinicalTopics();
   const [topicId, setTopicId] = useState<string | null>((event as any).topic_id || null);
 
   const selectedDate = eventDate ? parseISO(eventDate) : undefined;
@@ -148,7 +149,7 @@ const EditEventDialog = ({ event, onUpdate }: EditEventDialogProps) => {
             <div className="space-y-1.5">
               <Label className="text-xs text-muted-foreground">Topic</Label>
               {topicId ? (() => {
-                const linked = clinicalTopics?.data?.find(t => t.id === topicId);
+                const linked = clinicalTopics?.find(t => t.id === topicId);
                 return (
                   <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "#fff", border: "0.5px solid #C9CED4", borderRadius: 6, padding: "5px 10px", fontSize: 12, color: "#2D3748", fontWeight: 500 }}>
                     {linked?.title || "Unknown"}
@@ -159,12 +160,12 @@ const EditEventDialog = ({ event, onUpdate }: EditEventDialogProps) => {
                 );
               })() : (
                 <ComboSearch
-                  items={(clinicalTopics?.data || []).map(t => ({ id: t.id, label: t.title }))}
+                  items={(clinicalTopics || []).map(t => ({ id: t.id, label: t.title }))}
                   placeholder="Search or create topic..."
                   createLabel="topic"
                   onSelect={(id) => setTopicId(id)}
                   onCreate={async (title) => {
-                    await createTopic.mutateAsync({ title });
+                    if (onCreateTopic) await onCreateTopic(title);
                   }}
                 />
               )}

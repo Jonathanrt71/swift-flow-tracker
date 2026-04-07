@@ -34,6 +34,7 @@ import EventsVerticalTimeline from "@/components/events/EventsVerticalTimeline";
 import NotificationBell from "@/components/NotificationBell";
 import HeaderLogo from "@/components/HeaderLogo";
 import OperationsLinkPill from "@/components/shared/OperationsLinkPill";
+import { useClinicalTopics } from "@/hooks/useClinicalTopics";
 
 const VerticalTimelineIcon = ({ className }: { className?: string }) => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className={className}>
@@ -83,6 +84,8 @@ const EventCard = ({
   canEdit,
   isFacultyOrAdmin,
   evaluationStatus,
+  clinicalTopics,
+  onCreateTopic,
   onUpdate,
   onDelete,
   onConfirmRecurrence,
@@ -93,6 +96,8 @@ const EventCard = ({
   canEdit: boolean;
   isFacultyOrAdmin: boolean;
   evaluationStatus?: Record<string, boolean>;
+  clinicalTopics?: import("@/hooks/useClinicalTopics").ClinicalTopic[];
+  onCreateTopic?: (title: string) => Promise<void>;
   onUpdate: (data: {
     id: string;
     title?: string;
@@ -104,6 +109,7 @@ const EventCard = ({
     category?: EventCategory;
     assigned_to?: string | null;
     recurrence_pattern?: RecurrencePattern;
+    topic_id?: string | null;
   }) => void;
   onDelete: (id: string) => void;
   onConfirmRecurrence: (event: ProgramEvent, nextDate: string) => void;
@@ -264,7 +270,7 @@ const EventCard = ({
             <div className="flex items-center gap-0.5 shrink-0">
               {canEdit && (
                 <>
-                  <EditEventDialog event={event} onUpdate={onUpdate} />
+                  <EditEventDialog event={event} clinicalTopics={clinicalTopics} onCreateTopic={onCreateTopic} onUpdate={onUpdate} />
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
                       <button
@@ -374,6 +380,8 @@ const GroupedEventList = ({
   isAdmin,
   isFacultyOrAdmin,
   evaluationStatus,
+  clinicalTopics,
+  onCreateTopic,
   onUpdate,
   onDelete,
   onConfirmRecurrence,
@@ -386,6 +394,8 @@ const GroupedEventList = ({
   isAdmin: boolean;
   isFacultyOrAdmin: boolean;
   evaluationStatus?: Record<string, boolean>;
+  clinicalTopics?: import("@/hooks/useClinicalTopics").ClinicalTopic[];
+  onCreateTopic?: (title: string) => Promise<void>;
   onUpdate: (data: {
     id: string;
     title?: string;
@@ -450,6 +460,8 @@ const GroupedEventList = ({
               canEdit={isAdmin || ev.created_by === userId}
               isFacultyOrAdmin={isFacultyOrAdmin}
               evaluationStatus={evaluationStatus}
+              clinicalTopics={clinicalTopics}
+              onCreateTopic={onCreateTopic}
               onUpdate={onUpdate}
               onDelete={onDelete}
               onConfirmRecurrence={onConfirmRecurrence}
@@ -474,6 +486,11 @@ const Events = () => {
   const canEditEvents = hasPerm("events.edit");
   const canEvaluate = hasPerm("events.evaluate");
   const isFacultyOrAdmin = canEvaluate;
+
+  // Clinical topics for didactic event linking
+  const { topics: topicsQuery, createTopic } = useClinicalTopics();
+  const clinicalTopicsData = topicsQuery.data || [];
+  const handleCreateTopic = async (title: string) => { await createTopic.mutateAsync({ title }); };
 
   // Query evaluation status for current user (which events they've evaluated)
   const { data: evaluationStatus } = useQuery({
@@ -689,6 +706,8 @@ const Events = () => {
             isAdmin={canEditEvents}
             isFacultyOrAdmin={isFacultyOrAdmin}
             evaluationStatus={evaluationStatus}
+            clinicalTopics={clinicalTopicsData}
+            onCreateTopic={handleCreateTopic}
             onUpdate={(data) => { if (canEditEvents) updateEvent.mutate(data); }}
             onDelete={(id) => { if (canEditEvents) deleteEvent.mutate(id); }}
             onConfirmRecurrence={(event, nextDate) => { if (canEditEvents) confirmRecurrence.mutate({ event, nextDate }); }}
