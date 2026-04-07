@@ -15,6 +15,7 @@ All colors MUST be HSL.
   }
   *:focus-visible {
     outline: none !important;
+    box-shadow: none !important;
   }
   html {
     font-size: 17px;
@@ -46,7 +47,7 @@ All colors MUST be HSL.
 
     --border: 213 8% 81%;
     --input: 213 8% 81%;
-    --ring: 208 22% 32%;
+    --ring: 0 0% 100% / 0;
 
     --warning: 25 95% 53%;
     --warning-foreground: 25 95% 20%;
@@ -93,7 +94,7 @@ All colors MUST be HSL.
 
     --border: 220 12% 25%;
     --input: 220 12% 25%;
-    --ring: 212.7 26.8% 83.9%;
+    --ring: 0 0% 100% / 0;
     --warning: 25 95% 53%;
     --warning-foreground: 25 95% 90%;
     --starred: 0 72% 50%;
