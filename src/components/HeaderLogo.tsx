@@ -35,8 +35,8 @@ const allNavItems: NavEntry[] = [
 
 interface NavSection { label: string; paths: string[]; }
 const navSections: NavSection[] = [
-  { label: "Clinical",   paths: ["/procedure-logs", "/resident-summary", "/topics"] },
-  { label: "Evaluation", paths: ["/cbme", "/evaluations", "/feedback"] },
+  { label: "Clinical",   paths: ["/topics"] },
+  { label: "Evaluation", paths: ["/cbme", "/evaluations", "/feedback", "/procedure-logs", "/resident-summary"] },
   { label: "Program",    paths: ["/events", "/schedule", "/announcements", "/meetings", "/tasks"] },
   { label: "Reference",  paths: ["/compliance", "/gme-handbook", "/handbook", "/operations", "/rotations"] },
 ];
