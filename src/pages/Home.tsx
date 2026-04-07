@@ -347,6 +347,41 @@ const Home = () => {
             )}
           </Card>
 
+          {/* ── My Priorities ── */}
+          <Card
+            icon={<Hash size={16} strokeWidth={2.2} color="#415162" />}
+            title="My Priorities"
+            action={() => navigate("/tasks")}
+          >
+            {prioritiesLoading ? <Spinner /> : myPriorities.length === 0 ? (
+              <div style={{ fontSize: 13, color: "#8A9AAB", padding: "8px 0" }}>No priorities assigned to you.</div>
+            ) : (
+              myPriorities.map((p, i) => (
+                <div
+                  key={p.id}
+                  style={{
+                    display: "flex", alignItems: "center", gap: 10,
+                    padding: "10px 0",
+                    borderBottom: i < myPriorities.length - 1 ? "1px solid #D5DAE0" : undefined,
+                    cursor: "pointer",
+                  }}
+                  onClick={() => navigate("/tasks")}
+                >
+                  <div style={{
+                    width: 24, height: 24, borderRadius: "50%", background: "#415162",
+                    color: "#fff", fontSize: 11, fontWeight: 700,
+                    display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+                  }}>
+                    {p.display_order + 1}
+                  </div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: "#3D3D3A", flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
+                    {p.title}
+                  </div>
+                </div>
+              ))
+            )}
+          </Card>
+
           {/* ── My Tasks ── */}
           <Card
             icon={<ClipboardCheck size={16} strokeWidth={2.2} color="#415162" />}
@@ -398,41 +433,6 @@ const Home = () => {
                   </div>
                 );
               })
-            )}
-          </Card>
-
-          {/* ── My Priorities ── */}
-          <Card
-            icon={<Hash size={16} strokeWidth={2.2} color="#415162" />}
-            title="My Priorities"
-            action={() => navigate("/tasks")}
-          >
-            {prioritiesLoading ? <Spinner /> : myPriorities.length === 0 ? (
-              <div style={{ fontSize: 13, color: "#8A9AAB", padding: "8px 0" }}>No priorities assigned to you.</div>
-            ) : (
-              myPriorities.map((p, i) => (
-                <div
-                  key={p.id}
-                  style={{
-                    display: "flex", alignItems: "center", gap: 10,
-                    padding: "10px 0",
-                    borderBottom: i < myPriorities.length - 1 ? "1px solid #D5DAE0" : undefined,
-                    cursor: "pointer",
-                  }}
-                  onClick={() => navigate("/tasks")}
-                >
-                  <div style={{
-                    width: 24, height: 24, borderRadius: "50%", background: "#415162",
-                    color: "#fff", fontSize: 11, fontWeight: 700,
-                    display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
-                  }}>
-                    {p.display_order + 1}
-                  </div>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: "#3D3D3A", flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
-                    {p.title}
-                  </div>
-                </div>
-              ))
             )}
           </Card>
 

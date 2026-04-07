@@ -8,14 +8,13 @@ All colors MUST be HSL.
 
 @layer base {
   * {
-    -webkit-tap-highlight-color: transparent;
+    -webkit-tap-highlight-color: transparent !important;
   }
-  button, a, [role="button"] {
-    outline: none;
-    -webkit-tap-highlight-color: transparent;
+  *:focus {
+    outline: none !important;
   }
-  button:focus, a:focus, [role="button"]:focus {
-    outline: none;
+  *:focus-visible {
+    outline: none !important;
   }
   html {
     font-size: 17px;
