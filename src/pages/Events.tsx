@@ -470,16 +470,19 @@ const Events = () => {
 
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeCategory, setActiveCategory] = useState<string>("all");
+  const [activeCategories, setActiveCategories] = useState<Set<string>>(new Set());
   const [viewMode, setViewMode] = useState<"list" | "vertical" | "gantt">("list");
   const [showPast, setShowPast] = useState(false);
   const navigate = useNavigate();
 
   const { categories, categoryLabels } = useEventCategories();
 
+  const allCategoryNames = categories.map(c => c.name);
+  const isAllSelected = activeCategories.size === 0;
+
   const filteredEvents = useMemo(() => {
     const all = events.data || [];
-    const byCategory = activeCategory === "all" ? all : all.filter((e) => e.category === activeCategory);
+    const byCategory = isAllSelected ? all : all.filter((e) => activeCategories.has(e.category));
     const withSearch = searchQuery.trim()
       ? byCategory.filter(
           (e) =>
@@ -495,11 +498,22 @@ const Events = () => {
     }
 
     return withSearch;
-  }, [events.data, activeCategory, searchQuery, viewMode, showPast]);
+  }, [events.data, activeCategories, isAllSelected, searchQuery, viewMode, showPast]);
 
-  const handleCategoryChange = (cat: string) => {
-    if (cat === activeCategory) return;
-    setActiveCategory(cat);
+  const handleCategoryToggle = (cat: string) => {
+    setActiveCategories(prev => {
+      const next = new Set(prev);
+      if (next.has(cat)) {
+        next.delete(cat);
+      } else {
+        next.add(cat);
+      }
+      return next;
+    });
+  };
+
+  const handleAllClick = () => {
+    setActiveCategories(new Set());
   };
 
   return (
@@ -552,42 +566,45 @@ const Events = () => {
           {/* Row 1: Category tabs */}
           <div className="flex items-center" style={{ borderBottom: "1px solid #D5DAE0" }}>
             <button
-              onClick={() => handleCategoryChange("all")}
+              onClick={handleAllClick}
               style={{
                 padding: "6px 0",
                 marginRight: 20,
                 border: "none",
-                borderBottom: activeCategory === "all" ? "2px solid #415162" : "2px solid transparent",
+                borderBottom: isAllSelected ? "2px solid #415162" : "2px solid transparent",
                 cursor: "pointer",
                 fontSize: 13,
-                fontWeight: activeCategory === "all" ? 700 : 500,
+                fontWeight: isAllSelected ? 700 : 500,
                 background: "transparent",
-                color: activeCategory === "all" ? "#415162" : "#8A9AAB",
+                color: isAllSelected ? "#415162" : "#8A9AAB",
                 transition: "all 0.15s",
               }}
             >
               All
             </button>
-            {categories.map((cat) => (
-              <button
-                key={cat.name}
-                onClick={() => handleCategoryChange(cat.name)}
-                style={{
-                  padding: "6px 0",
-                  marginRight: 20,
-                  border: "none",
-                  borderBottom: activeCategory === cat.name ? "2px solid #415162" : "2px solid transparent",
-                  cursor: "pointer",
-                  fontSize: 13,
-                  fontWeight: activeCategory === cat.name ? 700 : 500,
-                  background: "transparent",
-                  color: activeCategory === cat.name ? "#415162" : "#8A9AAB",
-                  transition: "all 0.15s",
-                }}
-              >
-                {cat.label}
-              </button>
-            ))}
+            {categories.map((cat) => {
+              const isActive = activeCategories.has(cat.name);
+              return (
+                <button
+                  key={cat.name}
+                  onClick={() => handleCategoryToggle(cat.name)}
+                  style={{
+                    padding: "6px 0",
+                    marginRight: 20,
+                    border: "none",
+                    borderBottom: isActive ? "2px solid #415162" : "2px solid transparent",
+                    cursor: "pointer",
+                    fontSize: 13,
+                    fontWeight: isActive ? 700 : 500,
+                    background: "transparent",
+                    color: isActive ? "#415162" : "#8A9AAB",
+                    transition: "all 0.15s",
+                  }}
+                >
+                  {cat.label}
+                </button>
+              );
+            })}
           </div>
 
           {/* Row 2: View toggles + Add button — always visible */}
@@ -633,7 +650,7 @@ const Events = () => {
             {canEditEvents && (
               <CreateEventDialog
                 onSubmit={(data) => createEvent.mutate(data)}
-                defaultCategory={activeCategory === "all" ? "program" : activeCategory as EventCategory}
+                defaultCategory={activeCategories.size === 1 ? (Array.from(activeCategories)[0] as EventCategory) : "program"}
               />
             )}
           </div>
@@ -662,7 +679,7 @@ const Events = () => {
             onDelete={(id) => { if (canEditEvents) deleteEvent.mutate(id); }}
             onConfirmRecurrence={(event, nextDate) => { if (canEditEvents) confirmRecurrence.mutate({ event, nextDate }); }}
             onSkipRecurrence={(id) => { if (canEditEvents) skipRecurrence.mutate(id); }}
-            emptyMessage={activeCategory === "all" ? "No events" : `No ${categoryLabels[activeCategory] || activeCategory} events`}
+            emptyMessage={isAllSelected ? "No events" : `No events in selected categories`}
           />
         )}
       </main>
