@@ -738,7 +738,7 @@ const Compliance = () => {
       {activeTab === "table" && (
         <div style={{ flex: 1, padding: "12px 16px 100px", maxWidth: 900, margin: "0 auto" }}>
           {/* Filters */}
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12, justifyContent: "center" }}>
             <select
               value={filterSection ?? ""}
               onChange={e => setFilterSection(e.target.value ? Number(e.target.value) : null)}
