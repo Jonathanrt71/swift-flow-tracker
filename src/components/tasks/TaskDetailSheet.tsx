@@ -38,7 +38,9 @@ import { cn } from "@/lib/utils";
 import { format, parseISO } from "date-fns";
 import type { Task } from "@/hooks/useTasks";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
+import { usePriorities } from "@/hooks/usePriorities";
 import { formatPersonName } from "@/lib/dateFormat";
+import ComboSearch from "@/components/shared/ComboSearch";
 
 interface TaskDetailSheetProps {
   task: Task;
@@ -49,6 +51,7 @@ interface TaskDetailSheetProps {
     due_date?: string | null;
     assigned_to?: string | null;
     owed_to?: string | null;
+    priority_id?: string | null;
   }) => void;
   onDelete: (id: string) => void;
   onTriggerOpen?: () => void;
@@ -70,13 +73,16 @@ const TaskDetailSheet = ({
   const [assignedTo, setAssignedTo] = useState<string>(
     task.assigned_to || "unassigned"
   );
+  const [priorityId, setPriorityId] = useState<string | null>(task.priority_id || null);
   const { data: members } = useTeamMembers();
+  const { priorities, createPriority } = usePriorities();
 
   const handleOpenChange = (isOpen: boolean) => {
     if (isOpen) {
       setTitle(task.title);
       setDueDate(task.due_date ? task.due_date.split("T")[0] : "");
       setAssignedTo(task.assigned_to || "unassigned");
+      setPriorityId(task.priority_id || null);
       onTriggerOpen?.();
     }
     setOpen(isOpen);
@@ -89,6 +95,7 @@ const TaskDetailSheet = ({
       title: title.trim(),
       due_date: dueDate || null,
       assigned_to: assignedTo === "unassigned" ? null : assignedTo,
+      priority_id: priorityId,
     });
     setOpen(false);
   };
@@ -200,6 +207,40 @@ const TaskDetailSheet = ({
                 ))}
               </SelectContent>
             </Select>
+          </div>
+
+          {/* Priority link */}
+          <div className="space-y-1.5">
+            <Label className="text-xs font-normal text-muted-foreground">
+              Priority
+            </Label>
+            <div style={{ background: "#E7EBEF", borderRadius: 8, padding: 12 }}>
+              {priorityId ? (() => {
+                const linked = priorities.find(p => p.id === priorityId);
+                return (
+                  <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "#fff", border: "0.5px solid #C9CED4", borderRadius: 6, padding: "5px 10px", fontSize: 12, color: "#2D3748", fontWeight: 500 }}>
+                    <span style={{ width: 18, height: 18, borderRadius: "50%", background: "#415162", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 500, flexShrink: 0 }}>
+                      {linked ? priorities.indexOf(linked) + 1 : "?"}
+                    </span>
+                    {linked?.title || "Unknown"}
+                    <button onClick={() => setPriorityId(null)} style={{ background: "none", border: "none", cursor: "pointer", padding: 0, display: "flex" }}>
+                      <X style={{ width: 12, height: 12, color: "#8A9AAB" }} />
+                    </button>
+                  </div>
+                );
+              })() : (
+                <ComboSearch
+                  items={priorities.map((p, idx) => ({ id: p.id, label: p.title, rank: idx + 1 }))}
+                  placeholder="Search or create priority..."
+                  createLabel="priority"
+                  onSelect={(id) => setPriorityId(id)}
+                  onCreate={async (title) => {
+                    await createPriority.mutateAsync({ title });
+                    // After creation, the priorities list will refresh; user can re-select
+                  }}
+                />
+              )}
+            </div>
           </div>
 
           <div className="flex items-center justify-between pt-4 border-t border-border">

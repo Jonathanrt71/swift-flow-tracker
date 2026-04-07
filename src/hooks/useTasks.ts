@@ -17,6 +17,7 @@ export interface Task {
   owed_to: string | null;
   meeting_id: string | null;
   starred: boolean;
+  priority_id: string | null;
   position: number;
   created_at: string;
   updated_at: string;
@@ -80,7 +81,7 @@ export function useTasks() {
   });
 
   const updateTask = useMutation({
-    mutationFn: async ({ id, ...data }: { id: string; title?: string; description?: string; due_date?: string | null; assigned_to?: string | null; owed_to?: string | null }) => {
+    mutationFn: async ({ id, ...data }: { id: string; title?: string; description?: string; due_date?: string | null; assigned_to?: string | null; owed_to?: string | null; priority_id?: string | null }) => {
       // Check if assignment changed to notify
       if (data.assigned_to && data.assigned_to !== user?.id) {
         const taskTitle = data.title || "a task";

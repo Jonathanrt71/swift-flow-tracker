@@ -10,6 +10,7 @@ interface TaskCardProps {
   task: Task;
   isOverdue: boolean;
   teamMembers: TeamMember[];
+  priorityName?: string | null;
   onToggleComplete: (data: { id: string; completed: boolean }) => void;
   onToggleStar: (data: { id: string; starred: boolean }) => void;
   onCardClick: (task: Task) => void;
@@ -74,6 +75,7 @@ const TaskCard = ({
   task,
   isOverdue,
   teamMembers,
+  priorityName,
   onToggleComplete,
   onToggleStar,
   onCardClick,
@@ -99,11 +101,17 @@ const TaskCard = ({
 
         <div
           className={cn(
-            "flex-1 min-w-0 text-left min-h-[44px] flex items-center px-1",
+            "flex-1 min-w-0 text-left min-h-[44px] flex flex-col justify-center px-1",
             task.completed && "line-through text-muted-foreground"
           )}
         >
           <span className="font-medium text-sm truncate">{task.title}</span>
+          {priorityName && (
+            <div style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 1 }}>
+              <svg style={{ width: 12, height: 12, color: "#8A9AAB", flexShrink: 0 }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 3h7v7H3z"/><path d="M14 3h7v7h-7z"/><path d="M14 14h7v7h-7z"/><path d="M3 14h7v7H3z"/></svg>
+              <span style={{ fontSize: 11, color: "#415162", fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{priorityName}</span>
+            </div>
+          )}
         </div>
 
         <div className="flex items-center shrink-0">

@@ -46,7 +46,7 @@ const Index = () => {
   const [dragIdx, setDragIdx] = useState<number | null>(null);
   const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
   const [localPriorities, setLocalPriorities] = useState(priorities);
-  const [activeTab, setActiveTab] = useState("priorities");
+  const [activeTab, setActiveTab] = useState("myPriorities");
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
   useEffect(() => {
@@ -54,6 +54,32 @@ const Index = () => {
   }, [priorities]);
 
   const now = new Date();
+
+  // Flatten all tasks for priority linking
+  const flatAllTasks = (() => {
+    const result: Task[] = [];
+    const walk = (t: Task) => { result.push(t); t.subtasks?.forEach(walk); };
+    tasks.forEach(walk);
+    return result;
+  })();
+
+  // Build priority name map and task counts per priority
+  const priorityNameMap = new Map<string, string>();
+  priorities.forEach(p => priorityNameMap.set(p.id, p.title));
+
+  const priorityTaskCounts = new Map<string, { total: number; done: number }>();
+  flatAllTasks.forEach(t => {
+    const pid = (t as any).priority_id;
+    if (pid) {
+      const entry = priorityTaskCounts.get(pid) || { total: 0, done: 0 };
+      entry.total++;
+      if (t.completed) entry.done++;
+      priorityTaskCounts.set(pid, entry);
+    }
+  });
+
+  // My priorities = program priorities assigned to current user
+  const myPriorities = priorities.filter(p => p.assigned_to === user?.id);
 
   const searchFilter = (t: Task): boolean => {
     if (!searchQuery.trim()) return true;
@@ -145,6 +171,7 @@ const Index = () => {
           task={task}
           isOverdue={isOverdue(task)}
           teamMembers={teamMembers || []}
+          priorityName={(task as any).priority_id ? priorityNameMap.get((task as any).priority_id) || null : null}
           onToggleComplete={(d) => toggleComplete.mutate(d)}
           onToggleStar={(d) => toggleStar.mutate(d)}
           onCardClick={(t) => setSelectedTask(t)}
@@ -177,6 +204,7 @@ const Index = () => {
         task={task}
         isOverdue={isOverdue(task)}
         teamMembers={teamMembers || []}
+        priorityName={(task as any).priority_id ? priorityNameMap.get((task as any).priority_id) || null : null}
         onToggleComplete={(d) => toggleComplete.mutate(d)}
         onToggleStar={(d) => toggleStar.mutate(d)}
         onCardClick={(t) => setSelectedTask(t)}
@@ -230,6 +258,10 @@ const Index = () => {
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <div className="flex items-center justify-between mb-4">
             <TabsList className="gap-1 h-auto p-1 bg-transparent">
+              <TabsTrigger value="myPriorities" className="flex flex-col items-center gap-0.5 h-auto px-2 py-1" title="My Priorities">
+                <Hash className="h-4 w-4" />
+                <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase" }}>My Priorities</span>
+              </TabsTrigger>
               <TabsTrigger value="priorities" className="flex flex-col items-center gap-0.5 h-auto px-2 py-1" title="Priorities">
                 <Hash className="h-4 w-4" />
                 <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase" }}>Priorities</span>
@@ -247,7 +279,7 @@ const Index = () => {
                 <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase" }}>Done</span>
               </TabsTrigger>
             </TabsList>
-            {activeTab === "priorities" && canEditPriorities ? (
+            {(activeTab === "priorities") && canEditPriorities ? (
               <CreatePriorityDialog
                 onSubmit={(data) => createPriority.mutate(data)}
                 loading={createPriority.isPending}
@@ -261,6 +293,35 @@ const Index = () => {
               />
             ) : null}
           </div>
+
+          <TabsContent value="myPriorities" className="space-y-3 mt-0">
+            {prioritiesLoading ? (
+              <div className="flex justify-center py-12">
+                <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+              </div>
+            ) : myPriorities.length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground">
+                <Hash className="h-10 w-10 mx-auto mb-3 opacity-40" />
+                <p className="text-sm">No priorities assigned to you</p>
+              </div>
+            ) : (
+              myPriorities.map((p) => {
+                const programRank = priorities.indexOf(p) + 1;
+                return (
+                  <PriorityCard
+                    key={p.id}
+                    priority={p}
+                    rank={programRank}
+                    teamMembers={teamMembers || []}
+                    linkedTaskCount={priorityTaskCounts.get(p.id)?.total || 0}
+                    linkedTasksDone={priorityTaskCounts.get(p.id)?.done || 0}
+                    onUpdate={(data) => updatePriority.mutate(data)}
+                    onDelete={(id) => deletePriority.mutate(id)}
+                  />
+                );
+              })
+            )}
+          </TabsContent>
 
           <TabsContent value="priorities" className="space-y-3 mt-0">
             {prioritiesLoading ? (
@@ -300,6 +361,8 @@ const Index = () => {
                     priority={p}
                     rank={idx + 1}
                     teamMembers={teamMembers || []}
+                    linkedTaskCount={priorityTaskCounts.get(p.id)?.total || 0}
+                    linkedTasksDone={priorityTaskCounts.get(p.id)?.done || 0}
                     onUpdate={(data) => updatePriority.mutate(data)}
                     onDelete={(id) => deletePriority.mutate(id)}
                   />
