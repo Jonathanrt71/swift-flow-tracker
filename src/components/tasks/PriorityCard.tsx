@@ -36,7 +36,8 @@ const PriorityCard = ({ priority, rank, teamMembers, linkedTaskCount = 0, linked
   return (
     <>
       <Card
-        className={cn("cursor-pointer hover:shadow-md transition-shadow border-border")}
+        className={cn("cursor-pointer hover:shadow-md transition-shadow border-border select-none")}
+        style={{ WebkitTouchCallout: "none", WebkitUserSelect: "none" }}
         onClick={() => { if (!suppressClick) setEditOpen(true); }}
       >
         <div className="flex items-center gap-3 px-3 py-2.5">
