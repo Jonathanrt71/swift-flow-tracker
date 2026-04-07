@@ -49,7 +49,7 @@ const Index = () => {
   const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
   const [localPriorities, setLocalPriorities] = useState(priorities);
   const [localMyPriorities, setLocalMyPriorities] = useState<typeof priorities>([]);
-  const [activeTab, setActiveTab] = useState("myPriorities");
+  const [activeTab, setActiveTab] = useState("priorities");
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
   // Touch long-press reorder
@@ -389,10 +389,6 @@ const Index = () => {
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <div className="flex items-center justify-between mb-4">
             <TabsList className="gap-1 h-auto p-1 bg-transparent">
-              <TabsTrigger value="myPriorities" className="flex flex-col items-center gap-0.5 h-auto px-2 py-1" title="My Priorities">
-                <Hash className="h-4 w-4" />
-                <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase" }}>My Priorities</span>
-              </TabsTrigger>
               <TabsTrigger value="priorities" className="flex flex-col items-center gap-0.5 h-auto px-2 py-1" title="Priorities">
                 <Hash className="h-4 w-4" />
                 <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase" }}>Priorities</span>
@@ -425,126 +421,134 @@ const Index = () => {
             ) : null}
           </div>
 
-          <TabsContent value="myPriorities" className="space-y-3 mt-0">
+          <TabsContent value="priorities" className="mt-0">
             {prioritiesLoading ? (
               <div className="flex justify-center py-12">
                 <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
               </div>
-            ) : localMyPriorities.length === 0 ? (
-              <div className="text-center py-12 text-muted-foreground">
-                <Hash className="h-10 w-10 mx-auto mb-3 opacity-40" />
-                <p className="text-sm">No priorities assigned to you</p>
-              </div>
             ) : (
-              localMyPriorities.map((p, idx) => {
-                const programRank = priorities.indexOf(p) + 1;
-                const showGapBefore = dragOverIdx === idx && dragIdx !== null && dragIdx > idx;
-                const showGapAfter = dragOverIdx === idx && dragIdx !== null && dragIdx < idx;
-                const dropGap = (
-                  <div style={{ marginTop: -12 }}>
-                    <div style={{ height: 36, display: "flex", alignItems: "center" }}>
-                      <div style={{ height: 4, background: "#415162", borderRadius: 2, width: "100%" }} />
+              <>
+                {/* My Priorities section */}
+                {localMyPriorities.length > 0 && (
+                  <>
+                    <div style={{ fontSize: 11, fontWeight: 600, color: "#8A9AAB", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8 }}>
+                      My Priorities
                     </div>
-                  </div>
-                );
-                return (
-                  <div key={p.id}>
-                    {showGapBefore && dropGap}
-                    <div
-                      ref={(el) => { itemRefs.current[idx] = el; }}
-                      onTouchStart={(e) => handleTouchStart(idx, e, "my")}
-                      onTouchEnd={handleTouchEndMy}
-                      style={{
-                        opacity: dragIdx === idx ? 0.4 : 1,
-                        transform: isDragging && dragIdx === idx ? "scale(1.03)" : undefined,
-                        transition: isDragging && dragIdx === idx ? "none" : "opacity 0.15s, transform 0.15s",
-                        touchAction: isDragging ? "none" : "auto",
-                      }}
-                    >
-                      <PriorityCard
-                        priority={p}
-                        rank={idx + 1}
-                        secondaryRank={programRank}
-                        secondaryLabel="Program rank"
-                        teamMembers={teamMembers || []}
-                        linkedTaskCount={priorityTaskCounts.get(p.id)?.total || 0}
-                        linkedTasksDone={priorityTaskCounts.get(p.id)?.done || 0}
-                        suppressClick={isDragging}
-                        onUpdate={(data) => updatePriority.mutate(data)}
-                        onDelete={(id) => deletePriority.mutate(id)}
-                      />
+                    <div className="space-y-3" style={{ marginBottom: 20 }}>
+                      {localMyPriorities.map((p, idx) => {
+                        const programRank = priorities.indexOf(p) + 1;
+                        const showGapBefore = dragOverIdx === idx && dragIdx !== null && dragIdx > idx && activeListRef.current === "my";
+                        const showGapAfter = dragOverIdx === idx && dragIdx !== null && dragIdx < idx && activeListRef.current === "my";
+                        const dropGap = (
+                          <div style={{ marginTop: -12 }}>
+                            <div style={{ height: 36, display: "flex", alignItems: "center" }}>
+                              <div style={{ height: 4, background: "#415162", borderRadius: 2, width: "100%" }} />
+                            </div>
+                          </div>
+                        );
+                        return (
+                          <div key={p.id}>
+                            {showGapBefore && dropGap}
+                            <div
+                              ref={(el) => { itemRefs.current[idx] = el; }}
+                              onTouchStart={(e) => handleTouchStart(idx, e, "my")}
+                              onTouchEnd={handleTouchEndMy}
+                              style={{
+                                opacity: isDragging && dragIdx === idx && activeListRef.current === "my" ? 0.4 : 1,
+                                transform: isDragging && dragIdx === idx && activeListRef.current === "my" ? "scale(1.03)" : undefined,
+                                transition: isDragging && dragIdx === idx ? "none" : "opacity 0.15s, transform 0.15s",
+                                touchAction: isDragging ? "none" : "auto",
+                              }}
+                            >
+                              <PriorityCard
+                                priority={p}
+                                rank={idx + 1}
+                                secondaryRank={programRank}
+                                secondaryLabel="Program rank"
+                                teamMembers={teamMembers || []}
+                                linkedTaskCount={priorityTaskCounts.get(p.id)?.total || 0}
+                                linkedTasksDone={priorityTaskCounts.get(p.id)?.done || 0}
+                                suppressClick={isDragging}
+                                onUpdate={(data) => updatePriority.mutate(data)}
+                                onDelete={(id) => deletePriority.mutate(id)}
+                              />
+                            </div>
+                            {showGapAfter && dropGap}
+                          </div>
+                        );
+                      })}
                     </div>
-                    {showGapAfter && dropGap}
-                  </div>
-                );
-              })
-            )}
-          </TabsContent>
+                  </>
+                )}
 
-          <TabsContent value="priorities" className="space-y-3 mt-0">
-            {prioritiesLoading ? (
-              <div className="flex justify-center py-12">
-                <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-              </div>
-            ) : localPriorities.length === 0 ? (
-              <div className="text-center py-12 text-muted-foreground">
-                <Hash className="h-10 w-10 mx-auto mb-3 opacity-40" />
-                <p className="text-sm">No priorities yet. Add one to get started!</p>
-              </div>
-            ) : (
-              localPriorities.map((p, idx) => {
-                const showGapBefore = dragOverIdx === idx && dragIdx !== null && dragIdx > idx;
-                const showGapAfter = dragOverIdx === idx && dragIdx !== null && dragIdx < idx;
-                const dropGap = (
-                  <div style={{ marginTop: -12 }}>
-                    <div style={{ height: 36, display: "flex", alignItems: "center" }}>
-                      <div style={{ height: 4, background: "#415162", borderRadius: 2, width: "100%" }} />
-                    </div>
+                {/* Program Priorities section */}
+                <div style={{ fontSize: 11, fontWeight: 600, color: "#8A9AAB", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8 }}>
+                  Program Priorities
+                </div>
+                {localPriorities.length === 0 ? (
+                  <div className="text-center py-12 text-muted-foreground">
+                    <Hash className="h-10 w-10 mx-auto mb-3 opacity-40" />
+                    <p className="text-sm">No priorities yet. Add one to get started!</p>
                   </div>
-                );
-                return (
-                  <div key={p.id}>
-                    {showGapBefore && dropGap}
-                    <div
-                      ref={(el) => { itemRefs.current[idx] = el; }}
-                      draggable={!isDragging}
-                      onDragStart={() => setDragIdx(idx)}
-                      onDragOver={(e) => { e.preventDefault(); setDragOverIdx(idx); }}
-                      onDragEnd={() => {
-                        if (dragIdx !== null && dragOverIdx !== null && dragIdx !== dragOverIdx) {
-                          const reordered = [...localPriorities];
-                          const [moved] = reordered.splice(dragIdx, 1);
-                          reordered.splice(dragOverIdx, 0, moved);
-                          setLocalPriorities(reordered);
-                          reorderPriorities.mutate(reordered.map((r) => r.id));
-                        }
-                        setDragIdx(null);
-                        setDragOverIdx(null);
-                      }}
-                      onTouchStart={(e) => handleTouchStart(idx, e, "program")}
-                      onTouchEnd={handleTouchEndProgram}
-                      style={{
-                        opacity: dragIdx === idx ? 0.4 : 1,
-                        transform: isDragging && dragIdx === idx ? "scale(1.03)" : undefined,
-                        transition: isDragging && dragIdx === idx ? "none" : "opacity 0.15s, transform 0.15s",
-                        touchAction: isDragging ? "none" : "auto",
-                      }}
-                    >
-                      <PriorityCard
-                        priority={p}
-                        rank={idx + 1}
-                        teamMembers={teamMembers || []}
-                        linkedTaskCount={priorityTaskCounts.get(p.id)?.total || 0}
-                        linkedTasksDone={priorityTaskCounts.get(p.id)?.done || 0}
-                        suppressClick={isDragging}
-                        onUpdate={(data) => updatePriority.mutate(data)}
-                        onDelete={(id) => deletePriority.mutate(id)}
-                      />
-                    </div>
-                    {showGapAfter && dropGap}
+                ) : (
+                  <div className="space-y-3">
+                    {localPriorities.map((p, idx) => {
+                      const showGapBefore = dragOverIdx === idx && dragIdx !== null && dragIdx > idx && activeListRef.current === "program";
+                      const showGapAfter = dragOverIdx === idx && dragIdx !== null && dragIdx < idx && activeListRef.current === "program";
+                      const dropGap = (
+                        <div style={{ marginTop: -12 }}>
+                          <div style={{ height: 36, display: "flex", alignItems: "center" }}>
+                            <div style={{ height: 4, background: "#415162", borderRadius: 2, width: "100%" }} />
+                          </div>
+                        </div>
+                      );
+                      return (
+                        <div key={p.id}>
+                          {showGapBefore && dropGap}
+                          <div
+                            ref={(el) => { itemRefs.current[idx] = el; }}
+                            draggable={!isDragging && canEditPriorities}
+                            onDragStart={() => { setDragIdx(idx); activeListRef.current = "program"; }}
+                            onDragOver={(e) => { e.preventDefault(); setDragOverIdx(idx); }}
+                            onDragEnd={() => {
+                              if (dragIdx !== null && dragOverIdx !== null && dragIdx !== dragOverIdx) {
+                                const reordered = [...localPriorities];
+                                const [moved] = reordered.splice(dragIdx, 1);
+                                reordered.splice(dragOverIdx, 0, moved);
+                                setLocalPriorities(reordered);
+                                reorderPriorities.mutate(reordered.map((r) => r.id));
+                              }
+                              setDragIdx(null);
+                              setDragOverIdx(null);
+                            }}
+                            onTouchStart={canEditPriorities ? (e) => handleTouchStart(idx, e, "program") : undefined}
+                            onTouchEnd={canEditPriorities ? handleTouchEndProgram : undefined}
+                            style={{
+                              opacity: isDragging && dragIdx === idx && activeListRef.current === "program" ? 0.4 : 1,
+                              transform: isDragging && dragIdx === idx && activeListRef.current === "program" ? "scale(1.03)" : undefined,
+                              transition: isDragging && dragIdx === idx ? "none" : "opacity 0.15s, transform 0.15s",
+                              touchAction: isDragging ? "none" : "auto",
+                            }}
+                          >
+                            <PriorityCard
+                              priority={p}
+                              rank={idx + 1}
+                              teamMembers={teamMembers || []}
+                              linkedTaskCount={priorityTaskCounts.get(p.id)?.total || 0}
+                              linkedTasksDone={priorityTaskCounts.get(p.id)?.done || 0}
+                              suppressClick={isDragging}
+                              showGrip={canEditPriorities}
+                              onUpdate={(data) => updatePriority.mutate(data)}
+                              onDelete={(id) => deletePriority.mutate(id)}
+                            />
+                          </div>
+                          {showGapAfter && dropGap}
+                        </div>
+                      );
+                    })}
                   </div>
-                );
-              })
+                )}
+              </>
             )}
           </TabsContent>
 
