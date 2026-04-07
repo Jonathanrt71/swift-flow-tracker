@@ -438,21 +438,24 @@ const Index = () => {
             ) : (
               localMyPriorities.map((p, idx) => {
                 const programRank = priorities.indexOf(p) + 1;
-                const showLineBefore = dragOverIdx === idx && dragIdx !== null && dragIdx > idx;
-                const showLineAfter = dragOverIdx === idx && dragIdx !== null && dragIdx < idx;
+                const showGapBefore = dragOverIdx === idx && dragIdx !== null && dragIdx > idx;
+                const showGapAfter = dragOverIdx === idx && dragIdx !== null && dragIdx < idx;
+                const dropGap = (
+                  <div style={{ height: 28, display: "flex", alignItems: "center", transition: "height 0.15s ease" }}>
+                    <div style={{ height: 4, background: "#415162", borderRadius: 2, width: "100%" }} />
+                  </div>
+                );
                 return (
                   <div key={p.id}>
-                    {showLineBefore && (
-                      <div style={{ height: 4, background: "#415162", borderRadius: 2, margin: "-2px 0" }} />
-                    )}
+                    {showGapBefore && dropGap}
                     <div
                       ref={(el) => { itemRefs.current[idx] = el; }}
                       onTouchStart={(e) => handleTouchStart(idx, e, "my")}
                       onTouchEnd={handleTouchEndMy}
                       style={{
-                        opacity: dragIdx === idx ? 0.5 : 1,
-                        transform: isDragging && dragIdx === idx ? "scale(1.02)" : undefined,
-                        transition: isDragging ? "none" : "opacity 0.15s",
+                        opacity: dragIdx === idx ? 0.4 : 1,
+                        transform: isDragging && dragIdx === idx ? "scale(1.03)" : undefined,
+                        transition: isDragging && dragIdx === idx ? "none" : "opacity 0.15s, transform 0.15s",
                         touchAction: isDragging ? "none" : "auto",
                       }}
                     >
@@ -469,9 +472,7 @@ const Index = () => {
                         onDelete={(id) => deletePriority.mutate(id)}
                       />
                     </div>
-                    {showLineAfter && (
-                      <div style={{ height: 4, background: "#415162", borderRadius: 2, margin: "-2px 0" }} />
-                    )}
+                    {showGapAfter && dropGap}
                   </div>
                 );
               })
@@ -490,13 +491,16 @@ const Index = () => {
               </div>
             ) : (
               localPriorities.map((p, idx) => {
-                const showLineBefore = dragOverIdx === idx && dragIdx !== null && dragIdx > idx;
-                const showLineAfter = dragOverIdx === idx && dragIdx !== null && dragIdx < idx;
+                const showGapBefore = dragOverIdx === idx && dragIdx !== null && dragIdx > idx;
+                const showGapAfter = dragOverIdx === idx && dragIdx !== null && dragIdx < idx;
+                const dropGap = (
+                  <div style={{ height: 28, display: "flex", alignItems: "center" }}>
+                    <div style={{ height: 4, background: "#415162", borderRadius: 2, width: "100%" }} />
+                  </div>
+                );
                 return (
                   <div key={p.id}>
-                    {showLineBefore && (
-                      <div style={{ height: 4, background: "#415162", borderRadius: 2, margin: "-2px 0" }} />
-                    )}
+                    {showGapBefore && dropGap}
                     <div
                       ref={(el) => { itemRefs.current[idx] = el; }}
                       draggable={!isDragging}
@@ -516,9 +520,9 @@ const Index = () => {
                       onTouchStart={(e) => handleTouchStart(idx, e, "program")}
                       onTouchEnd={handleTouchEndProgram}
                       style={{
-                        opacity: dragIdx === idx ? 0.5 : 1,
-                        transform: isDragging && dragIdx === idx ? "scale(1.02)" : undefined,
-                        transition: isDragging ? "none" : "opacity 0.15s",
+                        opacity: dragIdx === idx ? 0.4 : 1,
+                        transform: isDragging && dragIdx === idx ? "scale(1.03)" : undefined,
+                        transition: isDragging && dragIdx === idx ? "none" : "opacity 0.15s, transform 0.15s",
                         touchAction: isDragging ? "none" : "auto",
                       }}
                     >
@@ -533,9 +537,7 @@ const Index = () => {
                         onDelete={(id) => deletePriority.mutate(id)}
                       />
                     </div>
-                    {showLineAfter && (
-                      <div style={{ height: 4, background: "#415162", borderRadius: 2, margin: "-2px 0" }} />
-                    )}
+                    {showGapAfter && dropGap}
                   </div>
                 );
               })
