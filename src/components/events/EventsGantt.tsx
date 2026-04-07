@@ -168,7 +168,7 @@ const EventsGantt = ({ events }: EventsGanttProps) => {
         <div style={{ minWidth: monthCount * 80, position: "relative" }}>
           {/* Month headers */}
           <div className="flex" style={{ borderBottom: "1px solid #E7EBEF" }}>
-            <div className="shrink-0" style={{ width: labelWidth }} />
+            <div className="shrink-0 sticky left-0 z-10" style={{ width: labelWidth, background: "#F5F3EE" }} />
             <div className="flex flex-1">
               {months.map((m, i) => (
                 <div
@@ -214,7 +214,7 @@ const EventsGantt = ({ events }: EventsGanttProps) => {
                   fontSize: isMobile ? 11 : 13,
                   fontWeight: 500,
                   color: "#2D3748",
-                  background: rowIdx % 2 === 1 ? "#F0EEE8" : "var(--background, #fff)",
+                  background: rowIdx % 2 === 1 ? "#F0EEE8" : "#F5F3EE",
                   overflow: "hidden",
                   textOverflow: "ellipsis",
                   whiteSpace: "nowrap",
