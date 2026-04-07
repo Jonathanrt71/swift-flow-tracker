@@ -22,6 +22,8 @@ import { formatPersonName } from "@/lib/dateFormat";
 import type { ProgramEvent, EventCategory, RecurrencePattern } from "@/hooks/useEvents";
 import { RECURRENCE_LABELS } from "@/hooks/useEvents";
 import { useEventCategories } from "@/hooks/useEventCategories";
+import { useClinicalTopics } from "@/hooks/useClinicalTopics";
+import ComboSearch from "@/components/shared/ComboSearch";
 
 interface EditEventDialogProps {
   event: ProgramEvent;
@@ -36,6 +38,7 @@ interface EditEventDialogProps {
     category?: EventCategory;
     assigned_to?: string | null;
     recurrence_pattern?: RecurrencePattern;
+    topic_id?: string | null;
   }) => void;
 }
 
@@ -52,6 +55,8 @@ const EditEventDialog = ({ event, onUpdate }: EditEventDialogProps) => {
   const [recurrencePattern, setRecurrencePattern] = useState<RecurrencePattern>(event.recurrence_pattern || "none");
   const { data: members } = useTeamMembers();
   const { categories } = useEventCategories();
+  const { topics: clinicalTopics, createTopic } = useClinicalTopics();
+  const [topicId, setTopicId] = useState<string | null>((event as any).topic_id || null);
 
   const selectedDate = eventDate ? parseISO(eventDate) : undefined;
 
@@ -66,6 +71,7 @@ const EditEventDialog = ({ event, onUpdate }: EditEventDialogProps) => {
       setCategory(event.category as EventCategory);
       setAssignedTo(event.assigned_to || "unassigned");
       setRecurrencePattern(event.recurrence_pattern || "none");
+      setTopicId((event as any).topic_id || null);
     }
     setOpen(isOpen);
   };
@@ -83,6 +89,7 @@ const EditEventDialog = ({ event, onUpdate }: EditEventDialogProps) => {
       category,
       assigned_to: assignedTo === "unassigned" ? null : assignedTo,
       recurrence_pattern: recurrencePattern,
+      topic_id: category === "didactic" ? topicId : null,
     });
     setOpen(false);
   };
@@ -136,6 +143,33 @@ const EditEventDialog = ({ event, onUpdate }: EditEventDialogProps) => {
               </SelectContent>
             </Select>
           </div>
+
+          {category === "didactic" && (
+            <div className="space-y-1.5">
+              <Label className="text-xs text-muted-foreground">Topic</Label>
+              {topicId ? (() => {
+                const linked = clinicalTopics?.find(t => t.id === topicId);
+                return (
+                  <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "#fff", border: "0.5px solid #C9CED4", borderRadius: 6, padding: "5px 10px", fontSize: 12, color: "#2D3748", fontWeight: 500 }}>
+                    {linked?.title || "Unknown"}
+                    <div onClick={() => setTopicId(null)} style={{ cursor: "pointer", display: "flex" }}>
+                      <X style={{ width: 12, height: 12, color: "#8A9AAB" }} />
+                    </div>
+                  </div>
+                );
+              })() : (
+                <ComboSearch
+                  items={(clinicalTopics || []).map(t => ({ id: t.id, label: t.title }))}
+                  placeholder="Search or create topic..."
+                  createLabel="topic"
+                  onSelect={(id) => setTopicId(id)}
+                  onCreate={async (title) => {
+                    await createTopic.mutateAsync({ title });
+                  }}
+                />
+              )}
+            </div>
+          )}
 
           <div className="space-y-1.5">
             <Label className="text-xs text-muted-foreground">Date</Label>

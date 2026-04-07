@@ -23,6 +23,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import type { EventCategory, RecurrencePattern } from "@/hooks/useEvents";
 import { RECURRENCE_LABELS } from "@/hooks/useEvents";
 import { useEventCategories } from "@/hooks/useEventCategories";
+import { useClinicalTopics } from "@/hooks/useClinicalTopics";
+import ComboSearch from "@/components/shared/ComboSearch";
 
 interface CreateEventDialogProps {
   onSubmit: (data: {
@@ -35,6 +37,7 @@ interface CreateEventDialogProps {
     category: EventCategory;
     assigned_to?: string;
     recurrence_pattern?: RecurrencePattern;
+    topic_id?: string;
   }) => void;
   defaultCategory?: EventCategory;
 }
@@ -53,6 +56,8 @@ const CreateEventDialog = ({ onSubmit, defaultCategory }: CreateEventDialogProps
   const [recurrencePattern, setRecurrencePattern] = useState<RecurrencePattern>("none");
   const { data: members } = useTeamMembers();
   const { categories } = useEventCategories();
+  const { topics: clinicalTopics, createTopic } = useClinicalTopics();
+  const [topicId, setTopicId] = useState<string | null>(null);
 
   const selectedDate = eventDate ? parseISO(eventDate) : undefined;
 
@@ -66,6 +71,7 @@ const CreateEventDialog = ({ onSubmit, defaultCategory }: CreateEventDialogProps
       setDescription("");
       setCategory(defaultCategory || "program");
       setAssignedTo(user?.id || "unassigned");
+      setTopicId(null);
     }
     setOpen(isOpen);
   };
@@ -82,6 +88,7 @@ const CreateEventDialog = ({ onSubmit, defaultCategory }: CreateEventDialogProps
       category,
       assigned_to: assignedTo === "unassigned" ? undefined : assignedTo,
       recurrence_pattern: recurrencePattern,
+      topic_id: topicId || undefined,
     });
     setOpen(false);
   };
@@ -130,6 +137,33 @@ const CreateEventDialog = ({ onSubmit, defaultCategory }: CreateEventDialogProps
               </SelectContent>
             </Select>
           </div>
+
+          {category === "didactic" && (
+            <div>
+              <label className="text-xs block mb-1.5" style={{ color: "#5F7285" }}>Topic</label>
+              {topicId ? (() => {
+                const linked = clinicalTopics?.find(t => t.id === topicId);
+                return (
+                  <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "#fff", border: "0.5px solid #C9CED4", borderRadius: 6, padding: "5px 10px", fontSize: 12, color: "#2D3748", fontWeight: 500 }}>
+                    {linked?.title || "Unknown"}
+                    <div onClick={() => setTopicId(null)} style={{ cursor: "pointer", display: "flex" }}>
+                      <X style={{ width: 12, height: 12, color: "#8A9AAB" }} />
+                    </div>
+                  </div>
+                );
+              })() : (
+                <ComboSearch
+                  items={(clinicalTopics || []).map(t => ({ id: t.id, label: t.title }))}
+                  placeholder="Search or create topic..."
+                  createLabel="topic"
+                  onSelect={(id) => setTopicId(id)}
+                  onCreate={async (title) => {
+                    await createTopic.mutateAsync({ title });
+                  }}
+                />
+              )}
+            </div>
+          )}
 
           <div>
             <label className="text-xs block mb-1.5" style={{ color: "#5F7285" }}>Date</label>
