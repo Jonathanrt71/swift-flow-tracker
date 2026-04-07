@@ -20,15 +20,18 @@ const getAvatarColor = (name: string | null): string => {
 interface PriorityCardProps {
   priority: Priority;
   rank: number;
+  secondaryRank?: number | null;
+  secondaryLabel?: string;
   teamMembers: TeamMember[];
   linkedTaskCount?: number;
   linkedTasksDone?: number;
   suppressClick?: boolean;
+  showGrip?: boolean;
   onUpdate: (data: { id: string; title?: string; notes?: string; assigned_to?: string | null }) => void;
   onDelete: (id: string) => void;
 }
 
-const PriorityCard = ({ priority, rank, teamMembers, linkedTaskCount = 0, linkedTasksDone = 0, suppressClick, onUpdate, onDelete }: PriorityCardProps) => {
+const PriorityCard = ({ priority, rank, secondaryRank, secondaryLabel, teamMembers, linkedTaskCount = 0, linkedTasksDone = 0, suppressClick, showGrip = true, onUpdate, onDelete }: PriorityCardProps) => {
   const [editOpen, setEditOpen] = useState(false);
   const member = teamMembers.find((m) => m.id === priority.assigned_to);
   const assignedName = priority.assigned_name || (member ? [member.first_name, member.last_name].filter(Boolean).join(" ") : null);
@@ -41,9 +44,11 @@ const PriorityCard = ({ priority, rank, teamMembers, linkedTaskCount = 0, linked
         onClick={() => { if (!suppressClick) setEditOpen(true); }}
       >
         <div className="flex items-center gap-3 px-3 py-2.5">
-          <div className="cursor-grab active:cursor-grabbing text-muted-foreground" onClick={(e) => e.stopPropagation()}>
-            <GripVertical className="h-4 w-4" />
-          </div>
+          {showGrip && (
+            <div className="cursor-grab active:cursor-grabbing text-muted-foreground" onClick={(e) => e.stopPropagation()}>
+              <GripVertical className="h-4 w-4" />
+            </div>
+          )}
 
           <div
             className="flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold text-white shrink-0"
@@ -53,6 +58,24 @@ const PriorityCard = ({ priority, rank, teamMembers, linkedTaskCount = 0, linked
           </div>
 
           <span className="flex-1 text-sm font-medium truncate" style={{ color: "#2D3748" }}>{priority.title}</span>
+
+          {secondaryRank != null && (
+            <span
+              title={secondaryLabel || ""}
+              style={{
+                fontSize: 10,
+                fontWeight: 600,
+                color: "#8A9AAB",
+                background: "#E7EBEF",
+                borderRadius: 10,
+                padding: "2px 7px",
+                whiteSpace: "nowrap",
+                flexShrink: 0,
+              }}
+            >
+              P{secondaryRank}
+            </span>
+          )}
 
           <div className="shrink-0">
             {assignedName ? (

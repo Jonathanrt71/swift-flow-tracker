@@ -14,6 +14,7 @@ import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { useMeetings } from "@/hooks/useMeetings";
 import HeaderLogo from "@/components/HeaderLogo";
 import { usePriorities } from "@/hooks/usePriorities";
+import { useUserPriorityOrder } from "@/hooks/useUserPriorityOrder";
 import PriorityCard from "@/components/tasks/PriorityCard";
 import CreatePriorityDialog from "@/components/tasks/CreatePriorityDialog";
 import EditTaskDialog from "@/components/tasks/EditTaskDialog";
@@ -40,12 +41,14 @@ const Index = () => {
   } = useTasks();
 
   const { priorities, isLoading: prioritiesLoading, createPriority, updatePriority, deletePriority, reorderPriorities } = usePriorities();
+  const { userOrder, reorder: reorderUserPriorities } = useUserPriorityOrder();
   const { has: hasPerm } = usePermissions();
   const canEditPriorities = hasPerm("priorities.edit");
 
   const [dragIdx, setDragIdx] = useState<number | null>(null);
   const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
   const [localPriorities, setLocalPriorities] = useState(priorities);
+  const [localMyPriorities, setLocalMyPriorities] = useState<typeof priorities>([]);
   const [activeTab, setActiveTab] = useState("myPriorities");
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
@@ -169,8 +172,22 @@ const Index = () => {
     }
   });
 
-  // My priorities = program priorities assigned to current user
-  const myPriorities = priorities.filter(p => p.assigned_to === user?.id);
+  // My priorities = program priorities assigned to current user, sorted by user order
+  const myPrioritiesUnsorted = priorities.filter(p => p.assigned_to === user?.id);
+  const myPriorities = (() => {
+    if (userOrder.length === 0) return myPrioritiesUnsorted;
+    const orderMap = new Map<string, number>();
+    userOrder.forEach(o => orderMap.set(o.priority_id, o.display_order));
+    return [...myPrioritiesUnsorted].sort((a, b) => {
+      const oa = orderMap.has(a.id) ? orderMap.get(a.id)! : 999;
+      const ob = orderMap.has(b.id) ? orderMap.get(b.id)! : 999;
+      return oa - ob;
+    });
+  })();
+
+  useEffect(() => {
+    setLocalMyPriorities(myPriorities);
+  }, [priorities, userOrder]);
 
   const searchFilter = (t: Task): boolean => {
     if (!searchQuery.trim()) return true;
@@ -390,25 +407,64 @@ const Index = () => {
               <div className="flex justify-center py-12">
                 <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
               </div>
-            ) : myPriorities.length === 0 ? (
+            ) : localMyPriorities.length === 0 ? (
               <div className="text-center py-12 text-muted-foreground">
                 <Hash className="h-10 w-10 mx-auto mb-3 opacity-40" />
                 <p className="text-sm">No priorities assigned to you</p>
               </div>
             ) : (
-              myPriorities.map((p) => {
+              localMyPriorities.map((p, idx) => {
                 const programRank = priorities.indexOf(p) + 1;
+                const showLineBefore = dragOverIdx === idx && dragIdx !== null && dragIdx > idx;
+                const showLineAfter = dragOverIdx === idx && dragIdx !== null && dragIdx < idx;
                 return (
-                  <PriorityCard
-                    key={p.id}
-                    priority={p}
-                    rank={programRank}
-                    teamMembers={teamMembers || []}
-                    linkedTaskCount={priorityTaskCounts.get(p.id)?.total || 0}
-                    linkedTasksDone={priorityTaskCounts.get(p.id)?.done || 0}
-                    onUpdate={(data) => updatePriority.mutate(data)}
-                    onDelete={(id) => deletePriority.mutate(id)}
-                  />
+                  <div key={p.id}>
+                    {showLineBefore && (
+                      <div style={{ height: 4, background: "#415162", borderRadius: 2, margin: "-2px 0" }} />
+                    )}
+                    <div
+                      ref={(el) => { itemRefs.current[idx] = el; }}
+                      onTouchStart={(e) => handleTouchStart(idx, e)}
+                      onTouchMove={handleTouchMove}
+                      onTouchEnd={() => {
+                        clearLongPress();
+                        touchActive.current = false;
+                        if (isDraggingRef.current && dragIdxRef.current !== null && dragOverIdx !== null && dragIdxRef.current !== dragOverIdx) {
+                          const reordered = [...localMyPriorities];
+                          const [moved] = reordered.splice(dragIdxRef.current, 1);
+                          reordered.splice(dragOverIdx, 0, moved);
+                          setLocalMyPriorities(reordered);
+                          reorderUserPriorities.mutate(reordered.map(r => r.id));
+                        }
+                        dragIdxRef.current = null;
+                        setDragIdx(null);
+                        setDragOverIdx(null);
+                        setTimeout(() => { setIsDragging(false); isDraggingRef.current = false; }, 50);
+                      }}
+                      style={{
+                        opacity: dragIdx === idx ? 0.5 : 1,
+                        transform: isDragging && dragIdx === idx ? "scale(1.02)" : undefined,
+                        transition: isDragging ? "none" : "opacity 0.15s",
+                        touchAction: isDragging ? "none" : "auto",
+                      }}
+                    >
+                      <PriorityCard
+                        priority={p}
+                        rank={idx + 1}
+                        secondaryRank={programRank}
+                        secondaryLabel="Program rank"
+                        teamMembers={teamMembers || []}
+                        linkedTaskCount={priorityTaskCounts.get(p.id)?.total || 0}
+                        linkedTasksDone={priorityTaskCounts.get(p.id)?.done || 0}
+                        suppressClick={isDragging}
+                        onUpdate={(data) => updatePriority.mutate(data)}
+                        onDelete={(id) => deletePriority.mutate(id)}
+                      />
+                    </div>
+                    {showLineAfter && (
+                      <div style={{ height: 4, background: "#415162", borderRadius: 2, margin: "-2px 0" }} />
+                    )}
+                  </div>
                 );
               })
             )}
