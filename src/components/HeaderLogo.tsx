@@ -175,26 +175,17 @@ const HeaderLogo = ({
   return (
     <div ref={containerRef} style={{ display: "flex", alignItems: "center", gap: 8, flex: 1, position: "relative" }}>
 
-      {/* Logo image — long press for image viewer */}
+      {/* Image + Home icon — single tap area: short tap=home, long press=image viewer */}
       <div
-        onMouseDown={startPress}
-        onMouseUp={() => cancelPress()}
-        onMouseLeave={cancelPress}
-        onTouchStart={startPress}
-        onTouchEnd={(e) => { e.preventDefault(); cancelPress(); }}
-        onTouchCancel={cancelPress}
+        onMouseDown={startPress} onMouseUp={endLongPress} onMouseLeave={cancelPress}
+        onTouchStart={startPress} onTouchEnd={(e) => { e.preventDefault(); endLongPress(); }} onTouchCancel={cancelPress}
         onContextMenu={(e) => e.preventDefault()}
-        style={{ ...noFlash, width: 32, height: 32, borderRadius: 6, overflow: "hidden", flexShrink: 0 }}
+        style={{ ...noFlash, display: "flex", alignItems: "center", gap: 6 }}
       >
-        <img src={navImageUrl} alt="" style={{ width: 32, height: 32, borderRadius: 6, objectFit: "cover", pointerEvents: "none", display: "block" }} draggable={false} />
-      </div>
-
-      {/* Home icon — tap to go home */}
-      <div
-        onClick={() => navigate("/")}
-        style={{ ...noFlash, display: "flex", alignItems: "center", justifyContent: "center", width: 28, height: 28, flexShrink: 0 }}
-      >
-        <Home style={{ width: 18, height: 18, color: "rgba(255,255,255,0.7)" }} />
+        <div style={{ width: 32, height: 32, borderRadius: 6, overflow: "hidden", flexShrink: 0 }}>
+          <img src={navImageUrl} alt="" style={{ width: 32, height: 32, borderRadius: 6, objectFit: "cover", pointerEvents: "none", display: "block" }} draggable={false} />
+        </div>
+        <Home style={{ width: 18, height: 18, color: "rgba(255,255,255,0.7)", flexShrink: 0 }} />
       </div>
 
       {/* Page title + chevron → opens dropdown */}
