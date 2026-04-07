@@ -695,7 +695,9 @@ const Events = () => {
             <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
           </div>
         ) : viewMode === "gantt" ? (
-          <EventsGantt events={filteredEvents} />
+          <div style={{ width: "100vw", marginLeft: "calc(-50vw + 50%)", position: "relative" }}>
+            <EventsGantt events={filteredEvents} />
+          </div>
         ) : viewMode === "vertical" ? (
           <EventsVerticalTimeline events={filteredEvents} />
         ) : (
