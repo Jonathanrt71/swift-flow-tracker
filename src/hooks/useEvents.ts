@@ -97,7 +97,8 @@ export function useEvents() {
         .from("events")
         .select("*")
         .eq("archived", false)
-        .order("event_date", { ascending: true });
+        .order("event_date", { ascending: true })
+        .order("start_time", { ascending: true, nullsFirst: false });
       if (error) throw error;
       return (data || []) as ProgramEvent[];
     },
