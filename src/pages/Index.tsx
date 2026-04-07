@@ -390,23 +390,24 @@ const Index = () => {
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <div className="flex items-center justify-between mb-4">
             <TabsList className="gap-1 h-auto p-1 bg-transparent">
-              <TabsTrigger value="priorities" className="flex flex-col items-center gap-0.5 h-auto px-2 py-1" title="Priorities">
+              <TabsTrigger value="priorities" className="flex flex-col items-center gap-0.5 h-auto px-2 py-1 data-[state=active]:bg-[#415162] data-[state=active]:text-white data-[state=active]:shadow-none" title="Priorities">
                 <Hash className="h-4 w-4" />
                 <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase" }}>Priorities</span>
               </TabsTrigger>
-              <TabsTrigger value="myTasks" className="flex flex-col items-center gap-0.5 h-auto px-2 py-1" title="My Tasks">
+              <TabsTrigger value="myTasks" className="flex flex-col items-center gap-0.5 h-auto px-2 py-1 data-[state=active]:bg-[#415162] data-[state=active]:text-white data-[state=active]:shadow-none" title="My Tasks">
                 <ListTodo className="h-4 w-4" />
                 <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase" }}>Tasks</span>
               </TabsTrigger>
-              <TabsTrigger value="starred" className="flex flex-col items-center gap-0.5 h-auto px-2 py-1" title="Starred">
+              <TabsTrigger value="starred" className="flex flex-col items-center gap-0.5 h-auto px-2 py-1 data-[state=active]:bg-[#415162] data-[state=active]:text-white data-[state=active]:shadow-none" title="Starred">
                 <Star className="h-4 w-4" />
                 <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase" }}>Starred</span>
               </TabsTrigger>
-              <TabsTrigger value="completed" className="flex flex-col items-center gap-0.5 h-auto px-2 py-1" title="Completed">
+              <TabsTrigger value="completed" className="flex flex-col items-center gap-0.5 h-auto px-2 py-1 data-[state=active]:bg-[#415162] data-[state=active]:text-white data-[state=active]:shadow-none" title="Completed">
                 <CheckCircle2 className="h-4 w-4" />
                 <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase" }}>Done</span>
               </TabsTrigger>
             </TabsList>
+            <div className="flex items-center self-center">
             {(activeTab === "priorities") && canEditPriorities ? (
               <CreatePriorityDialog
                 onSubmit={(data) => createPriority.mutate(data)}
@@ -420,6 +421,7 @@ const Index = () => {
                 inlineIcon
               />
             ) : null}
+            </div>
           </div>
 
           <TabsContent value="priorities" className="mt-0">
