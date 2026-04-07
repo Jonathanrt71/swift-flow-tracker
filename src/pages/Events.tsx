@@ -23,7 +23,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Calendar, Search, X, Trash2, List, ClipboardCheck } from "lucide-react";
+import { Calendar, Search, X, Trash2, List, ClipboardCheck, ArrowLeft } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { formatCardDate, ordinalSuffix } from "@/lib/dateFormat";
 import CreateEventDialog from "@/components/events/CreateEventDialog";
@@ -597,94 +597,133 @@ const Events = () => {
         )}
       </header>
 
-      <main className="px-4 pt-0 pb-4" style={{ maxWidth: 900, margin: "0 auto" }}>
+      <main className="px-4 pt-0 pb-4" style={{ maxWidth: viewMode === "gantt" ? undefined : 900, margin: "0 auto" }}>
 
         {/* Sticky filter bar below header */}
         <div className="sticky z-30 bg-background" style={{ top: 56 }}>
 
-          {/* Row 1: Category tabs */}
-          <div className="flex items-center" style={{ borderBottom: "1px solid #D5DAE0" }}>
-            <button
-              onClick={handleAllClick}
-              style={{
-                padding: "6px 0",
-                marginRight: 20,
-                border: "none",
-                borderBottom: isAllSelected ? "2px solid #415162" : "2px solid transparent",
-                cursor: "pointer",
-                fontSize: 13,
-                fontWeight: isAllSelected ? 700 : 500,
-                background: "transparent",
-                color: isAllSelected ? "#415162" : "#8A9AAB",
-                transition: "all 0.15s",
-              }}
-            >
-              All
-            </button>
-            {categories.map((cat) => {
-              const isActive = activeCategories.has(cat.name);
-              return (
+          {viewMode === "gantt" ? (
+            /* Gantt mode: back arrow + category tabs in one row */
+            <div className="flex items-center" style={{ gap: 8, borderBottom: "1px solid #D5DAE0" }}>
+              <button
+                onClick={() => setViewMode("list")}
+                style={{
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  width: 28, height: 28, background: "transparent", border: "none",
+                  cursor: "pointer", color: "#5F7285", flexShrink: 0,
+                }}
+              >
+                <ArrowLeft style={{ width: 16, height: 16 }} />
+              </button>
+              <button
+                onClick={handleAllClick}
+                style={{
+                  padding: "6px 0", marginRight: 20, border: "none",
+                  borderBottom: isAllSelected ? "2px solid #415162" : "2px solid transparent",
+                  cursor: "pointer", fontSize: 13, fontWeight: isAllSelected ? 700 : 500,
+                  background: "transparent", color: isAllSelected ? "#415162" : "#8A9AAB",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                All
+              </button>
+              {categories.map((cat) => {
+                const isActive = activeCategories.has(cat.name);
+                return (
+                  <button
+                    key={cat.name}
+                    onClick={() => handleCategoryToggle(cat.name)}
+                    style={{
+                      padding: "6px 0", marginRight: 20, border: "none",
+                      borderBottom: isActive ? "2px solid #415162" : "2px solid transparent",
+                      cursor: "pointer", fontSize: 13, fontWeight: isActive ? 700 : 500,
+                      background: "transparent", color: isActive ? "#415162" : "#8A9AAB",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {cat.label}
+                  </button>
+                );
+              })}
+            </div>
+          ) : (
+            /* List/Timeline mode: category tabs + view toggles */
+            <>
+              {/* Row 1: Category tabs */}
+              <div className="flex items-center" style={{ borderBottom: "1px solid #D5DAE0" }}>
                 <button
-                  key={cat.name}
-                  onClick={() => handleCategoryToggle(cat.name)}
+                  onClick={handleAllClick}
                   style={{
-                    padding: "6px 0",
-                    marginRight: 20,
-                    border: "none",
-                    borderBottom: isActive ? "2px solid #415162" : "2px solid transparent",
-                    cursor: "pointer",
-                    fontSize: 13,
-                    fontWeight: isActive ? 700 : 500,
-                    background: "transparent",
-                    color: isActive ? "#415162" : "#8A9AAB",
+                    padding: "6px 0", marginRight: 20, border: "none",
+                    borderBottom: isAllSelected ? "2px solid #415162" : "2px solid transparent",
+                    cursor: "pointer", fontSize: 13, fontWeight: isAllSelected ? 700 : 500,
+                    background: "transparent", color: isAllSelected ? "#415162" : "#8A9AAB",
                     transition: "all 0.15s",
                   }}
                 >
-                  {cat.label}
+                  All
                 </button>
-              );
-            })}
-          </div>
+                {categories.map((cat) => {
+                  const isActive = activeCategories.has(cat.name);
+                  return (
+                    <button
+                      key={cat.name}
+                      onClick={() => handleCategoryToggle(cat.name)}
+                      style={{
+                        padding: "6px 0", marginRight: 20, border: "none",
+                        borderBottom: isActive ? "2px solid #415162" : "2px solid transparent",
+                        cursor: "pointer", fontSize: 13, fontWeight: isActive ? 700 : 500,
+                        background: "transparent", color: isActive ? "#415162" : "#8A9AAB",
+                        transition: "all 0.15s",
+                      }}
+                    >
+                      {cat.label}
+                    </button>
+                  );
+                })}
+              </div>
 
-          {/* Row 2: View toggles + Add button — always visible */}
-          <div className="flex items-center justify-between py-2.5">
-            <div className="flex items-center gap-0.5">
-              {([
-                { mode: "list" as const, icon: <List className="h-4 w-4" />, label: "List" },
-                { mode: "vertical" as const, icon: <VerticalTimelineIcon />, label: "Timeline" },
-                { mode: "gantt" as const, icon: <GanttIcon />, label: "Gantt" },
-              ] as { mode: "list" | "vertical" | "gantt"; icon: React.ReactNode; label: string }[]).map(({ mode, icon, label }) => (
-                <button
-                  key={mode}
-                  onClick={() => setViewMode(mode)}
-                  className="flex flex-col items-center gap-0.5 px-2 py-1 rounded-md transition-colors"
-                  style={{ background: "transparent" }}
-                >
-                  <span style={{ color: viewMode === mode ? "#415162" : "#8A9AAB" }}>{icon}</span>
-                  <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase", color: viewMode === mode ? "#415162" : "#8A9AAB" }}>{label}</span>
-                </button>
-              ))}
-              {(viewMode === "list" || viewMode === "vertical") && (
-                <button
-                  onClick={() => setShowPast(!showPast)}
-                  className="flex flex-col items-center gap-0.5 px-2 py-1 rounded-md transition-colors"
-                  style={{ background: "transparent" }}
-                >
-                  <span style={{ color: showPast ? "#415162" : "#8A9AAB" }}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                  </span>
-                  <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase", color: showPast ? "#415162" : "#8A9AAB" }}>{showPast ? "Hide past" : "Show past"}</span>
-                </button>
-              )}
-            </div>
+              {/* Row 2: View toggles + Add button */}
+              <div className="flex items-center justify-between py-2.5">
+                <div className="flex items-center gap-0.5">
+                  {([
+                    { mode: "list" as const, icon: <List className="h-4 w-4" />, label: "List" },
+                    { mode: "vertical" as const, icon: <VerticalTimelineIcon />, label: "Timeline" },
+                    { mode: "gantt" as const, icon: <GanttIcon />, label: "Gantt" },
+                  ] as { mode: "list" | "vertical" | "gantt"; icon: React.ReactNode; label: string }[]).map(({ mode, icon, label }) => (
+                    <button
+                      key={mode}
+                      onClick={() => setViewMode(mode)}
+                      className="flex flex-col items-center gap-0.5 px-2 py-1 rounded-md transition-colors"
+                      style={{ background: "transparent" }}
+                    >
+                      <span style={{ color: viewMode === mode ? "#415162" : "#8A9AAB" }}>{icon}</span>
+                      <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase", color: viewMode === mode ? "#415162" : "#8A9AAB" }}>{label}</span>
+                    </button>
+                  ))}
+                  {(viewMode === "list" || viewMode === "vertical") && (
+                    <button
+                      onClick={() => setShowPast(!showPast)}
+                      className="flex flex-col items-center gap-0.5 px-2 py-1 rounded-md transition-colors"
+                      style={{ background: "transparent" }}
+                    >
+                      <span style={{ color: showPast ? "#415162" : "#8A9AAB" }}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                      </span>
+                      <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase", color: showPast ? "#415162" : "#8A9AAB" }}>{showPast ? "Hide past" : "Show past"}</span>
+                    </button>
+                  )}
+                </div>
 
-            {canEditEvents && (
-              <CreateEventDialog
-                onSubmit={(data) => createEvent.mutate(data)}
-                defaultCategory={activeCategories.size === 1 ? (Array.from(activeCategories)[0] as EventCategory) : "program"}
-              />
-            )}
-          </div>
+                {canEditEvents && (
+                  <CreateEventDialog
+                    onSubmit={(data) => createEvent.mutate(data)}
+                    defaultCategory={activeCategories.size === 1 ? (Array.from(activeCategories)[0] as EventCategory) : "program"}
+                  />
+                )}
+              </div>
+            </>
+          )}
 
 
         </div>
@@ -695,9 +734,7 @@ const Events = () => {
             <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
           </div>
         ) : viewMode === "gantt" ? (
-          <div style={{ width: "100vw", marginLeft: "calc(-50vw + 50%)", position: "relative" }}>
-            <EventsGantt events={filteredEvents} />
-          </div>
+          <EventsGantt events={filteredEvents} />
         ) : viewMode === "vertical" ? (
           <EventsVerticalTimeline events={filteredEvents} />
         ) : (
