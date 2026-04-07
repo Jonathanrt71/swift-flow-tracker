@@ -683,7 +683,7 @@ const Compliance = () => {
 
         {/* Stats bar */}
         <div style={{
-          display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 14,
+          display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 14, alignItems: "center",
           padding: "10px 12px", background: "#fff", borderRadius: 8,
           border: "1px solid #E7EBEF",
         }}>
