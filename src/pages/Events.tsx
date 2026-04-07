@@ -486,6 +486,7 @@ const Events = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState<string>("all");
   const [viewMode, setViewMode] = useState<"list" | "vertical" | "gantt">("list");
+  const [showPast, setShowPast] = useState(false);
   const navigate = useNavigate();
 
   const { categories, categoryLabels } = useEventCategories();
@@ -501,14 +502,14 @@ const Events = () => {
         )
       : byCategory;
 
-    // For list and timeline views, hide overdue events on load
-    if (viewMode === "list" || viewMode === "vertical") {
+    // For list and timeline views, hide overdue events unless toggled
+    if ((viewMode === "list" || viewMode === "vertical") && !showPast) {
       const todayStr = new Date().toISOString().split("T")[0];
       return withSearch.filter((e) => e.event_date >= todayStr);
     }
 
     return withSearch;
-  }, [events.data, activeCategory, searchQuery, viewMode]);
+  }, [events.data, activeCategory, searchQuery, viewMode, showPast]);
 
   const handleCategoryChange = (cat: string) => {
     if (cat === activeCategory) return;
@@ -630,6 +631,26 @@ const Events = () => {
                 <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase", color: "#8A9AAB" }}>Full Gantt</span>
               </button>
             </div>
+
+            {(viewMode === "list" || viewMode === "vertical") && (
+              <button
+                onClick={() => setShowPast(!showPast)}
+                style={{
+                  fontSize: 11,
+                  fontWeight: 500,
+                  color: showPast ? "#415162" : "#8A9AAB",
+                  background: showPast ? "#E7EBEF" : "transparent",
+                  border: "1px solid",
+                  borderColor: showPast ? "#C9CED4" : "#D5DAE0",
+                  borderRadius: 6,
+                  padding: "4px 10px",
+                  cursor: "pointer",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {showPast ? "Hide past" : "Show past"}
+              </button>
+            )}
 
             {canEditEvents && (
               <CreateEventDialog
