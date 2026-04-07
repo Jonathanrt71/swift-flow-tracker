@@ -175,17 +175,17 @@ const HeaderLogo = ({
   return (
     <div ref={containerRef} style={{ display: "flex", alignItems: "center", gap: 8, flex: 1, position: "relative" }}>
 
-      {/* Image + Home icon — single tap area: short tap=home, long press=image viewer */}
+      {/* Image with home badge overlay — tap=home, long press=image viewer */}
       <div
         onMouseDown={startPress} onMouseUp={endLongPress} onMouseLeave={cancelPress}
         onTouchStart={startPress} onTouchEnd={(e) => { e.preventDefault(); endLongPress(); }} onTouchCancel={cancelPress}
         onContextMenu={(e) => e.preventDefault()}
-        style={{ ...noFlash, display: "flex", alignItems: "center", gap: 6 }}
+        style={{ ...noFlash, position: "relative", width: 32, height: 32, borderRadius: 6, overflow: "hidden", flexShrink: 0 }}
       >
-        <div style={{ width: 32, height: 32, borderRadius: 6, overflow: "hidden", flexShrink: 0 }}>
-          <img src={navImageUrl} alt="" style={{ width: 32, height: 32, borderRadius: 6, objectFit: "cover", pointerEvents: "none", display: "block" }} draggable={false} />
+        <img src={navImageUrl} alt="" style={{ width: 32, height: 32, borderRadius: 6, objectFit: "cover", pointerEvents: "none", display: "block" }} draggable={false} />
+        <div style={{ position: "absolute", bottom: -1, right: -1, width: 14, height: 14, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <Home style={{ width: 10, height: 10, color: "rgba(255,255,255,0.7)" }} />
         </div>
-        <Home style={{ width: 18, height: 18, color: "rgba(255,255,255,0.7)", flexShrink: 0 }} />
       </div>
 
       {/* Page title + chevron → opens dropdown */}
