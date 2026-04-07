@@ -15,7 +15,7 @@ interface NavEntry {
 
 const allNavItems: NavEntry[] = [
   { path: "/",            label: "FM App",       icon: Home },
-  { path: "/cbme",        label: "CBME",         icon: BookOpen,      permissionKey: "cbme.view" },
+  { path: "/cbme",        label: "Competencies",  icon: BookOpen,      permissionKey: "cbme.view" },
   { path: "/events",      label: "Events",       icon: Calendar,      permissionKey: "events.view" },
   { path: "/feedback",    label: "Feedback",     icon: MessageSquare, permissionKey: "feedback.view" },
   { path: "/evaluations", label: "Evaluations",  icon: FileCheck,     permissionKey: "evaluations.view" },
