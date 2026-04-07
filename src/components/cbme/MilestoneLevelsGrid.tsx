@@ -180,7 +180,7 @@ const MilestoneLevelsGrid = () => {
               <th style={{
                 position: "sticky", left: 0, top: 0, zIndex: 4,
                 background: "#415162", color: "#fff", fontSize: 11, fontWeight: 500,
-                padding: "6px 8px", textAlign: "left", minWidth: 160,
+                padding: "6px 8px", textAlign: "left", minWidth: 110, maxWidth: 130,
                 borderRight: "1px solid rgba(255,255,255,0.2)",
               }}>
                 Resident
@@ -231,7 +231,7 @@ const MilestoneLevelsGrid = () => {
                       position: "sticky", left: 0, zIndex: 2,
                       background: rowBg, fontSize: 11, fontWeight: 500,
                       color: "#2D3748", padding: "4px 8px", textAlign: "left",
-                      minWidth: 160, whiteSpace: "nowrap",
+                      minWidth: 110, maxWidth: 130, whiteSpace: "nowrap",
                       overflow: "hidden", textOverflow: "ellipsis",
                       borderRight: "1px solid #C9CED4",
                       borderBottom: "0.5px solid #D5DAE0",
