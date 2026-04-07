@@ -1,7 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { CheckSquare, Users, Calendar, BookOpen, MessageSquare, Shield, User, LogOut, BookMarked, Stethoscope, ClipboardList, BookOpenCheck, Home, ShieldCheck, FileText, Megaphone, FileCheck, CalendarDays, Activity, UserCheck } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { usePermissions } from "@/hooks/usePermissions";
 import { useAppSettings } from "@/hooks/useAppSettings";
 import { useAuth } from "@/contexts/AuthContext";
@@ -41,6 +40,21 @@ const navSections: NavSection[] = [
   { label: "Reference", paths: ["/gme-handbook", "/handbook", "/rotations"] },
 ];
 
+// Kill every possible browser highlight on interactive elements
+const noFlash: React.CSSProperties = {
+  background: "none",
+  border: "none",
+  outline: "none",
+  padding: 0,
+  margin: 0,
+  cursor: "pointer",
+  WebkitTapHighlightColor: "transparent",
+  WebkitAppearance: "none",
+  userSelect: "none",
+  boxShadow: "none",
+  color: "inherit",
+};
+
 export function useUserProfile() {
   const { user } = useAuth();
   const [profile, setProfile] = useState<{ display_name: string | null; first_name: string | null; last_name: string | null; avatar_url: string | null } | null>(null);
@@ -76,42 +90,9 @@ const HeaderLogo = ({
   const [menuOpen, setMenuOpen] = useState(false);
   const [avatarMenuOpen, setAvatarMenuOpen] = useState(false);
   const [imageOpen, setImageOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
   const avatarMenuRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!menuOpen) return;
-    
-    // Lock body scroll
-    const scrollY = window.scrollY;
-    document.body.style.position = "fixed";
-    document.body.style.top = `-${scrollY}px`;
-    document.body.style.left = "0";
-    document.body.style.right = "0";
-    
-    return () => {
-      document.body.style.position = "";
-      document.body.style.top = "";
-      document.body.style.left = "";
-      document.body.style.right = "";
-      window.scrollTo(0, scrollY);
-    };
-  }, [menuOpen]);
-
-  useEffect(() => {
-    if (!avatarMenuOpen) return;
-    const handler = (e: MouseEvent | TouchEvent) => {
-      if (avatarMenuRef.current && !avatarMenuRef.current.contains(e.target as Node)) {
-        setAvatarMenuOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handler);
-    document.addEventListener("touchstart", handler);
-    return () => {
-      document.removeEventListener("mousedown", handler);
-      document.removeEventListener("touchstart", handler);
-    };
-  }, [avatarMenuOpen]);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [menuLeft, setMenuLeft] = useState(0);
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -124,68 +105,108 @@ const HeaderLogo = ({
     || (location.pathname === "/admin" ? { path: "/admin", label: "Admin", icon: Shield, permissionKey: "admin.all" } as NavEntry : undefined)
     || (location.pathname === "/profile" ? { path: "/profile", label: "Profile", icon: User } as NavEntry : undefined);
 
+  // Logo: long-press → image viewer, short tap → home
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const imageOpenedAt = useRef(0);
-
   const startPress = useCallback(() => {
-    longPressTimer.current = setTimeout(() => {
-      imageOpenedAt.current = Date.now();
-      setImageOpen(true);
-    }, 500);
+    longPressTimer.current = setTimeout(() => { imageOpenedAt.current = Date.now(); setImageOpen(true); }, 500);
   }, []);
-  const endLongPress = useCallback(() => { if (longPressTimer.current) { clearTimeout(longPressTimer.current); longPressTimer.current = null; navigate("/"); } }, [navigate]);
-  const cancelPress = useCallback(() => { if (longPressTimer.current) { clearTimeout(longPressTimer.current); longPressTimer.current = null; } }, []);
-  const closeImage = useCallback(() => { if (Date.now() - imageOpenedAt.current < 600) return; setImageOpen(false); }, []);
+  const endLongPress = useCallback(() => {
+    if (longPressTimer.current) { clearTimeout(longPressTimer.current); longPressTimer.current = null; navigate("/"); }
+  }, [navigate]);
+  const cancelPress = useCallback(() => {
+    if (longPressTimer.current) { clearTimeout(longPressTimer.current); longPressTimer.current = null; }
+  }, []);
+  const closeImage = useCallback(() => {
+    if (Date.now() - imageOpenedAt.current < 600) return; setImageOpen(false);
+  }, []);
 
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [menuLeft, setMenuLeft] = useState(0);
+  // Lock body scroll when nav open
+  useEffect(() => {
+    if (!menuOpen) return;
+    const scrollY = window.scrollY;
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.left = "0";
+    document.body.style.right = "0";
+    return () => {
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.left = "";
+      document.body.style.right = "";
+      window.scrollTo(0, scrollY);
+    };
+  }, [menuOpen]);
 
+  // Dropdown left position from header
   useEffect(() => {
     if (menuOpen && containerRef.current) {
-      // Use the header's own position — works for both normal and full-width pages
-      const headerEl = containerRef.current.closest('header');
+      const headerEl = containerRef.current.closest("header");
       if (headerEl) {
-        const rect = headerEl.getBoundingClientRect();
-        setMenuLeft(rect.left);
+        setMenuLeft(headerEl.getBoundingClientRect().left);
       } else {
-        const appWrapper = containerRef.current.closest('.mx-auto');
-        if (appWrapper) {
-          const rect = appWrapper.getBoundingClientRect();
-          setMenuLeft(rect.left);
-        } else {
-          setMenuLeft(0);
-        }
+        const wrapper = containerRef.current.closest(".mx-auto");
+        setMenuLeft(wrapper ? wrapper.getBoundingClientRect().left : 0);
       }
     }
   }, [menuOpen]);
 
+  // Close avatar menu on outside click
+  useEffect(() => {
+    if (!avatarMenuOpen) return;
+    const handler = (e: MouseEvent | TouchEvent) => {
+      if (avatarMenuRef.current && !avatarMenuRef.current.contains(e.target as Node)) setAvatarMenuOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    document.addEventListener("touchstart", handler);
+    return () => { document.removeEventListener("mousedown", handler); document.removeEventListener("touchstart", handler); };
+  }, [avatarMenuOpen]);
+
+  const navLink = (active: boolean): React.CSSProperties => ({
+    ...noFlash,
+    display: "flex",
+    alignItems: "center",
+    gap: 12,
+    padding: "10px 16px",
+    fontSize: 14,
+    whiteSpace: "nowrap",
+    textDecoration: "none",
+    color: active ? "#fff" : "rgba(255,255,255,0.7)",
+    background: active ? "rgba(255,255,255,0.1)" : "transparent",
+  });
+
   return (
-    <div ref={containerRef} className="relative flex items-center gap-2.5" style={{ flex: 1 }}>
+    <div ref={containerRef} style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, position: "relative" }}>
+
       {/* Logo */}
-      <button
+      <div
         onMouseDown={startPress} onMouseUp={endLongPress} onMouseLeave={cancelPress}
         onTouchStart={startPress} onTouchEnd={(e) => { e.preventDefault(); endLongPress(); }} onTouchCancel={cancelPress}
         onContextMenu={(e) => e.preventDefault()}
-        className="w-8 h-8 rounded-md overflow-hidden border-none cursor-pointer p-0 bg-transparent select-none outline-none"
-        style={{ WebkitTapHighlightColor: "transparent" }}
+        style={{ ...noFlash, width: 32, height: 32, borderRadius: 6, overflow: "hidden", flexShrink: 0 }}
       >
-        <img src={navImageUrl} alt="" className="w-8 h-8 rounded-md object-cover pointer-events-none" draggable={false} />
-      </button>
+        <img src={navImageUrl} alt="" style={{ width: 32, height: 32, borderRadius: 6, objectFit: "cover", pointerEvents: "none", display: "block" }} draggable={false} />
+      </div>
 
-      {/* Page title — opens nav dropdown */}
-      <button onClick={() => setMenuOpen(!menuOpen)} className="border-none cursor-pointer p-0 bg-transparent outline-none" style={{ WebkitTapHighlightColor: "transparent" }}>
-        <span className="text-base font-medium text-white whitespace-nowrap">{currentItem?.label || "FM App"}</span>
-      </button>
+      {/* Page title → opens nav */}
+      <div
+        onClick={() => setMenuOpen(!menuOpen)}
+        style={{ ...noFlash, fontSize: 16, fontWeight: 500, color: "#fff", whiteSpace: "nowrap" }}
+      >
+        {currentItem?.label || "FM App"}
+      </div>
 
       <div style={{ flex: 1 }} />
 
-      {/* Right side: children (search, bell) + avatar + name — all evenly spaced */}
+      {/* Right side */}
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
         {children}
+
+        {/* Avatar dropdown */}
         <div ref={avatarMenuRef} style={{ position: "relative" }}>
-          <button
+          <div
             onClick={() => setAvatarMenuOpen(!avatarMenuOpen)}
-            style={{ display: "flex", alignItems: "center", gap: 8, background: "none", border: "none", cursor: "pointer", padding: 0 }}
+            style={{ ...noFlash, display: "flex", alignItems: "center", gap: 8 }}
           >
             {avatarUrl ? (
               <img src={avatarUrl} alt="" style={{ width: 30, height: 30, borderRadius: "50%", objectFit: "cover", border: "1.5px solid rgba(255,255,255,0.3)" }} />
@@ -194,79 +215,89 @@ const HeaderLogo = ({
                 {userInitials}
               </div>
             )}
-            <span className="hidden sm:inline" style={{ fontSize: 13, fontWeight: 500, color: "#fff" }}>{userName}</span>
-          </button>
+            <span style={{ fontSize: 13, fontWeight: 500, color: "#fff", display: "none" }} className="sm:!inline">{userName}</span>
+          </div>
+
           {avatarMenuOpen && (
             <div style={{
               position: "absolute", top: "calc(100% + 8px)", right: 0, zIndex: 60,
               background: "#415162", borderRadius: 10, padding: "6px 0", minWidth: 160,
               boxShadow: "0 8px 24px rgba(0,0,0,0.25)",
             }}>
-              <Link
-                to="/profile"
-                onClick={() => setAvatarMenuOpen(false)}
-                style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 16px", color: "rgba(255,255,255,0.8)", fontSize: 14, textDecoration: "none" }}
-              >
+              <Link to="/profile" onClick={() => setAvatarMenuOpen(false)} style={navLink(location.pathname === "/profile")}>
                 <User style={{ width: 16, height: 16 }} /> Profile
               </Link>
               {onSignOut && (
-                <button
-                  onClick={() => { onSignOut(); setAvatarMenuOpen(false); }}
-                  style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 16px", color: "rgba(255,255,255,0.8)", fontSize: 14, width: "100%", background: "none", border: "none", cursor: "pointer", textAlign: "left" }}
-                >
+                <div onClick={() => { onSignOut(); setAvatarMenuOpen(false); }} style={navLink(false)}>
                   <LogOut style={{ width: 16, height: 16 }} /> Log out
-                </button>
+                </div>
               )}
             </div>
           )}
         </div>
       </div>
 
-      {/* Navigation dropdown — triggered by page title */}
+      {/* Navigation panel */}
       {menuOpen && (
-        <div className="fixed inset-0 z-[60]" style={{ top: 56 }} onClick={() => setMenuOpen(false)}>
+        <div
+          style={{ position: "fixed", inset: 0, top: 56, zIndex: 60 }}
+          onClick={() => setMenuOpen(false)}
+        >
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              position: "absolute",
-              top: 0,
-              left: menuLeft,
-              bottom: 0,
-              width: 260,
-              background: "#415162",
-              display: "flex",
-              flexDirection: "column",
+              position: "absolute", top: 0, left: menuLeft, bottom: 0, width: 260,
+              background: "#415162", display: "flex", flexDirection: "column",
             }}
           >
             <div style={{ flex: 1, overflowY: "scroll", WebkitOverflowScrolling: "touch" }}>
-              <Link to="/" onClick={() => setMenuOpen(false)} className={cn("flex items-center gap-3 px-4 py-2.5 text-sm whitespace-nowrap", location.pathname === "/" ? "text-white bg-white/10" : "text-white/70")}>
-                <Home className="h-4 w-4" /> FM App
+              <Link to="/" onClick={() => setMenuOpen(false)} style={navLink(location.pathname === "/")}>
+                <Home style={{ width: 16, height: 16 }} /> FM App
               </Link>
               <div style={{ height: 0.5, background: "rgba(255,255,255,0.15)" }} />
+
               {navSections.map((section, si) => {
-                const items = section.paths.map(p => allNavItems.find(n => n.path === p)).filter((item): item is NavEntry => !!item && (!item.permissionKey || hasPerm(item.permissionKey, "view")));
+                const items = section.paths
+                  .map(p => allNavItems.find(n => n.path === p))
+                  .filter((item): item is NavEntry => !!item && (!item.permissionKey || hasPerm(item.permissionKey, "view")));
                 if (!items.length) return null;
-                return (<div key={section.label}>
-                  {si > 0 && <div style={{ height: 0.5, background: "rgba(255,255,255,0.15)" }} />}
-                  <div style={{ padding: "6px 16px 2px", fontSize: 10, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)" }}>{section.label}</div>
-                  {items.map(item => { const I = item.icon; return (
-                    <Link key={item.path} to={item.path} onClick={() => setMenuOpen(false)} className={cn("flex items-center gap-3 px-4 py-2.5 text-sm whitespace-nowrap", location.pathname === item.path ? "text-white bg-white/10" : "text-white/70")}><I className="h-4 w-4" /> {item.label}</Link>
-                  ); })}
-                </div>);
+                return (
+                  <div key={section.label}>
+                    {si > 0 && <div style={{ height: 0.5, background: "rgba(255,255,255,0.15)" }} />}
+                    <div style={{ padding: "6px 16px 2px", fontSize: 10, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)" }}>
+                      {section.label}
+                    </div>
+                    {items.map(item => {
+                      const I = item.icon;
+                      return (
+                        <Link key={item.path} to={item.path} onClick={() => setMenuOpen(false)} style={navLink(location.pathname === item.path)}>
+                          <I style={{ width: 16, height: 16 }} /> {item.label}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                );
               })}
+
               <div style={{ height: 0.5, background: "rgba(255,255,255,0.15)" }} />
-              {isAdmin && (<>
-                <div style={{ padding: "6px 16px 2px", fontSize: 10, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)" }}>Administration</div>
-                <Link to="/admin" onClick={() => setMenuOpen(false)} className={cn("flex items-center gap-3 px-4 py-2.5 text-sm whitespace-nowrap", location.pathname === "/admin" ? "text-white bg-white/10" : "text-white/70")}><Shield className="h-4 w-4" /> Admin</Link>
-              </>)}
+              {isAdmin && (
+                <>
+                  <div style={{ padding: "6px 16px 2px", fontSize: 10, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", color: "rgba(255,255,255,0.35)" }}>
+                    Administration
+                  </div>
+                  <Link to="/admin" onClick={() => setMenuOpen(false)} style={navLink(location.pathname === "/admin")}>
+                    <Shield style={{ width: 16, height: 16 }} /> Admin
+                  </Link>
+                </>
+              )}
               {onSignOut && (
                 <>
-                <Link to="/profile" onClick={() => setMenuOpen(false)} className={cn("flex items-center gap-3 px-4 py-2.5 text-sm whitespace-nowrap", location.pathname === "/profile" ? "text-white bg-white/10" : "text-white/70")}>
-                  <User className="h-4 w-4" /> Profile
-                </Link>
-                <button onClick={() => { onSignOut(); setMenuOpen(false); }} className="flex items-center gap-3 px-4 py-2.5 text-sm whitespace-nowrap text-white/70 w-full border-none bg-transparent cursor-pointer text-left">
-                  <LogOut className="h-4 w-4" /> Log out
-                </button>
+                  <Link to="/profile" onClick={() => setMenuOpen(false)} style={navLink(location.pathname === "/profile")}>
+                    <User style={{ width: 16, height: 16 }} /> Profile
+                  </Link>
+                  <div onClick={() => { onSignOut(); setMenuOpen(false); }} style={navLink(false)}>
+                    <LogOut style={{ width: 16, height: 16 }} /> Log out
+                  </div>
                 </>
               )}
             </div>
@@ -274,11 +305,14 @@ const HeaderLogo = ({
         </div>
       )}
 
-      {/* Long-press image viewer */}
+      {/* Image viewer (long-press logo) */}
       {imageOpen && (
-        <div className="fixed inset-0 z-[80] bg-black/70 flex items-center justify-center" onClick={closeImage}
-          onTouchEnd={(e) => { if (Date.now() - imageOpenedAt.current < 600) { e.preventDefault(); e.stopPropagation(); } }}>
-          <img src={navImageUrl} alt="" className="max-w-[90vw] max-h-[90vh] rounded-xl shadow-2xl object-contain" onClick={(e) => e.stopPropagation()} />
+        <div
+          onClick={closeImage}
+          onTouchEnd={(e) => { if (Date.now() - imageOpenedAt.current < 600) { e.preventDefault(); e.stopPropagation(); } }}
+          style={{ position: "fixed", inset: 0, zIndex: 80, background: "rgba(0,0,0,0.7)", display: "flex", alignItems: "center", justifyContent: "center" }}
+        >
+          <img src={navImageUrl} alt="" onClick={(e) => e.stopPropagation()} style={{ maxWidth: "90vw", maxHeight: "90vh", borderRadius: 12, boxShadow: "0 8px 32px rgba(0,0,0,0.4)", objectFit: "contain" }} />
         </div>
       )}
     </div>
