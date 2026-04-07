@@ -304,7 +304,6 @@ const HeaderLogo = ({
             </div>
           </div>
         </div>
-      </div>
 
       {/* Image viewer (long-press logo) */}
       {imageOpen && (
