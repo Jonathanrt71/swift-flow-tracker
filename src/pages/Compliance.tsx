@@ -689,7 +689,7 @@ const Compliance = () => {
           border: "1px solid #E7EBEF",
         }}>
           <div style={{ fontSize: 12, color: "#555" }}>
-            <strong style={{ fontSize: 16, color: "#333" }}>{stats.total}</strong> total
+            <strong>{stats.total}</strong> total
           </div>
           <div style={{ width: 1, background: "#E7EBEF" }} />
           <div style={{ fontSize: 12, color: STATUS_CONFIG.compliant.color }}>
