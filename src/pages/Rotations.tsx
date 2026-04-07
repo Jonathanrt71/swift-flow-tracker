@@ -233,15 +233,13 @@ const Rotations = () => {
         ) : (
           /* ── List View ── */
           <div>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-              <span style={{ fontSize: 13, color: "#999" }}>{filtered.length} rotation{filtered.length !== 1 ? "s" : ""}</span>
-            </div>
-
-            <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
-              <button style={pillStyle(filter === "all")} onClick={() => setFilter("all")}>All</button>
-              <button style={pillStyle(filter === "required")} onClick={() => setFilter("required")}>Required</button>
-              <button style={pillStyle(filter === "elective")} onClick={() => setFilter("elective")}>Elective</button>
-              <button style={pillStyle(filter === "vacation")} onClick={() => setFilter("vacation")}>Vacation eligible</button>
+            <div style={{ marginBottom: 16, overflowX: "auto", WebkitOverflowScrolling: "touch" as any }}>
+              <div style={{ display: "flex", gap: 8, minWidth: "max-content", paddingBottom: 2 }}>
+                <button style={pillStyle(filter === "all")} onClick={() => setFilter("all")}>All</button>
+                <button style={pillStyle(filter === "required")} onClick={() => setFilter("required")}>Required</button>
+                <button style={pillStyle(filter === "elective")} onClick={() => setFilter("elective")}>Elective</button>
+                <button style={pillStyle(filter === "vacation")} onClick={() => setFilter("vacation")}>Vacation eligible</button>
+              </div>
             </div>
 
             {isLoading && <p style={{ fontSize: 14, color: "#999" }}>Loading rotations...</p>}
