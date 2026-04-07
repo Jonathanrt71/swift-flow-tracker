@@ -147,7 +147,7 @@ const CreateFeedbackDialog = ({ onSubmit, residents }: CreateFeedbackDialogProps
             </button>
             <button
               type="button"
-              onClick={() => { setSentiment("positive"); setGuidanceLevel(null); }}}
+              onClick={() => { setSentiment("positive"); setGuidanceLevel(null); }}
               className="flex-1 flex items-center justify-center py-2.5 rounded-lg transition-opacity"
               style={{
                 background: "#4A846C",
