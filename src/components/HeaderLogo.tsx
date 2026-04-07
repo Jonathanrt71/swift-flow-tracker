@@ -235,7 +235,7 @@ const HeaderLogo = ({
       {/* Navigation panel */}
       {menuOpen && (
         <div
-          style={{ position: "fixed", inset: 0, top: 56, zIndex: 60, background: "rgba(0,0,0,0.3)" }}
+          style={{ position: "fixed", inset: 0, top: 56, zIndex: 60 }}
           onClick={() => setMenuOpen(false)}
         >
           <div
