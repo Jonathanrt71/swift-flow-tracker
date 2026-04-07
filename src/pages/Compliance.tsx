@@ -715,7 +715,7 @@ const Compliance = () => {
             <select
               value={filterSection ?? ""}
               onChange={e => setFilterSection(e.target.value ? Number(e.target.value) : null)}
-              style={{ fontSize: 12, padding: "7px 8px", border: "1px solid #C9CED4", borderRadius: 6, background: "#fff", color: "#333" }}
+              style={{ fontSize: 12, padding: "7px 28px 7px 12px", border: "1px solid #C9CED4", borderRadius: 6, background: "#fff", color: "#333" }}
             >
               <option value="">All Sections</option>
               {Object.entries(SECTION_NAMES).map(([num, name]) => (
@@ -725,7 +725,7 @@ const Compliance = () => {
             <select
               value={filterStatus ?? ""}
               onChange={e => setFilterStatus(e.target.value as ComplianceStatus || null)}
-              style={{ fontSize: 12, padding: "7px 8px", border: "1px solid #C9CED4", borderRadius: 6, background: "#fff", color: "#333" }}
+              style={{ fontSize: 12, padding: "7px 28px 7px 12px", border: "1px solid #C9CED4", borderRadius: 6, background: "#fff", color: "#333" }}
             >
               <option value="">All Status</option>
               {(Object.entries(STATUS_CONFIG) as [ComplianceStatus, { label: string }][]).map(([key, cfg]) => (
@@ -735,7 +735,7 @@ const Compliance = () => {
             <select
               value={filterType ?? ""}
               onChange={e => setFilterType(e.target.value || null)}
-              style={{ fontSize: 12, padding: "7px 8px", border: "1px solid #C9CED4", borderRadius: 6, background: "#fff", color: "#333" }}
+              style={{ fontSize: 12, padding: "7px 28px 7px 12px", border: "1px solid #C9CED4", borderRadius: 6, background: "#fff", color: "#333" }}
             >
               <option value="">All Types</option>
               <option value="core">Core</option>
@@ -745,7 +745,7 @@ const Compliance = () => {
             <select
               value={filterSource ?? ""}
               onChange={e => setFilterSource(e.target.value || null)}
-              style={{ fontSize: 12, padding: "7px 8px", border: "1px solid #C9CED4", borderRadius: 6, background: "#fff", color: "#333" }}
+              style={{ fontSize: 12, padding: "7px 28px 7px 12px", border: "1px solid #C9CED4", borderRadius: 6, background: "#fff", color: "#333" }}
             >
               <option value="">All Sources</option>
               <option value="common">Common (CPR)</option>
