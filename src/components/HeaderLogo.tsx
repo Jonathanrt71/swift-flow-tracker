@@ -183,8 +183,8 @@ const HeaderLogo = ({
         style={{ ...noFlash, position: "relative", width: 32, height: 32, borderRadius: 6, overflow: "hidden", flexShrink: 0 }}
       >
         <img src={navImageUrl} alt="" style={{ width: 32, height: 32, borderRadius: 6, objectFit: "cover", pointerEvents: "none", display: "block" }} draggable={false} />
-        <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <Home style={{ width: 18, height: 18, color: "rgba(255,255,255,0.7)" }} />
+        <div style={{ position: "absolute", bottom: -1, right: -1, width: 15, height: 15, background: "#415162", borderRadius: "4px 0 6px 0", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <Home style={{ width: 9, height: 9, color: "#fff" }} />
         </div>
       </div>
 
