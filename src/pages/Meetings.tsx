@@ -8,7 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Shield, User, LogOut, Search, Pencil, X as XIcon, Trash2, Plus, Filter, Tag } from "lucide-react";
+import { Shield, User, LogOut, Search, Pencil, X as XIcon, Trash2, Plus, Filter } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { DetailReadOnly } from "@/components/cbme/DetailField";
 import { formatCardDate, formatPersonName } from "@/lib/dateFormat";
@@ -228,20 +228,6 @@ const MeetingCard = ({
             </div>
           )}
 
-          {/* Tags */}
-          {meetingTagNames.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 mb-2">
-              {meetingTagNames.map((name) => (
-                <span
-                  key={name}
-                  className="text-[10px] px-2 py-0.5 rounded-full bg-[#D5DAE0] text-foreground/70"
-                >
-                  {name}
-                </span>
-              ))}
-            </div>
-          )}
-
           {/* Linked tasks */}
           {linkedTasks.length > 0 && (
             <>
@@ -324,7 +310,6 @@ const Meetings = () => {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [personFilter, setPersonFilter] = useState<string | null>(null);
-  const [tagFilter, setTagFilter] = useState<string | null>(null);
 
   const { tags: allTags } = useMeetingTags();
   const { links: tagLinks } = useMeetingTagLinks();
@@ -350,11 +335,6 @@ const Meetings = () => {
     // Person filter
     if (personFilter) {
       if (m.created_by !== personFilter && !m.attendees.includes(personFilter)) return false;
-    }
-    // Tag filter
-    if (tagFilter) {
-      const mTags = tagsByMeeting.get(m.id) || [];
-      if (!mTags.includes(tagFilter)) return false;
     }
     return true;
   });
@@ -456,52 +436,6 @@ const Meetings = () => {
               </div>
             </PopoverContent>
           </Popover>
-
-          {/* Tag filter */}
-          {(allTags.data?.length ?? 0) > 0 && (
-            <Popover>
-              <PopoverTrigger asChild>
-                <button
-                  className={cn(
-                    "h-8 w-8 p-0 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors",
-                    tagFilter
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-transparent text-muted-foreground hover:bg-accent"
-                  )}
-                >
-                  <Tag className="h-4 w-4" />
-                </button>
-              </PopoverTrigger>
-              <PopoverContent className="w-48 p-1" align="start">
-                {tagFilter && (
-                  <button
-                    onClick={() => setTagFilter(null)}
-                    className="flex items-center gap-2 w-full px-2 py-1.5 rounded-md text-xs text-destructive cursor-pointer hover:bg-accent mb-1"
-                  >
-                    <XIcon className="h-3 w-3" />
-                    Clear filter
-                  </button>
-                )}
-                <div className="max-h-60 overflow-y-auto">
-                  {allTags.data?.map((tag) => (
-                    <button
-                      key={tag.id}
-                      onClick={() => {
-                        setTagFilter(tagFilter === tag.id ? null : tag.id);
-                      }}
-                      className={cn(
-                        "flex items-center gap-2 w-full px-2 py-1.5 rounded-md text-sm text-left cursor-pointer transition-colors",
-                        tagFilter === tag.id ? "bg-primary/10" : "hover:bg-accent"
-                      )}
-                    >
-                      <Tag className="h-3 w-3 text-muted-foreground" />
-                      <span className="text-foreground text-xs">{tag.name}</span>
-                    </button>
-                  ))}
-                </div>
-              </PopoverContent>
-            </Popover>
-          )}
 
           <div className="ml-auto">
             <CreateMeetingDialog
