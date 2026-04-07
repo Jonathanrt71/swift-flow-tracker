@@ -233,18 +233,24 @@ const HeaderLogo = ({
       </div>
 
       {/* Navigation panel */}
-      {menuOpen && (
+      {/* Backdrop — always in DOM, toggle pointer events and visibility */}
+      <div
+        style={{
+          position: "fixed", inset: 0, top: 56, zIndex: 60,
+          pointerEvents: menuOpen ? "auto" : "none",
+          visibility: menuOpen ? "visible" : "hidden",
+        }}
+        onClick={() => setMenuOpen(false)}
+      >
         <div
-          style={{ position: "fixed", inset: 0, top: 56, zIndex: 60 }}
-          onClick={() => setMenuOpen(false)}
+          onClick={(e) => e.stopPropagation()}
+          style={{
+            position: "absolute", top: 0, left: menuLeft, bottom: 0, width: 260,
+            background: "#415162", display: "flex", flexDirection: "column",
+            transform: menuOpen ? "translateX(0)" : "translateX(-100%)",
+            transition: "transform 0.15s ease-out",
+          }}
         >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              position: "absolute", top: 0, left: menuLeft, bottom: 0, width: 260,
-              background: "#415162", display: "flex", flexDirection: "column",
-            }}
-          >
             <div style={{ flex: 1, overflowY: "scroll", WebkitOverflowScrolling: "touch" }}>
               <Link to="/" onClick={() => setMenuOpen(false)} style={navLink(location.pathname === "/")}>
                 <Home style={{ width: 16, height: 16 }} /> FM App
@@ -298,7 +304,7 @@ const HeaderLogo = ({
             </div>
           </div>
         </div>
-      )}
+      </div>
 
       {/* Image viewer (long-press logo) */}
       {imageOpen && (
