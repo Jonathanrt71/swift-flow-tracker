@@ -60,6 +60,9 @@ const Index = () => {
   const [isDragging, setIsDragging] = useState(false);
   const isDraggingRef = useRef(false);
   const dragIdxRef = useRef<number | null>(null);
+  const dragOverIdxRef = useRef<number | null>(null);
+  const listRef = useRef<HTMLDivElement>(null);
+  const activeListRef = useRef<"program" | "my">("program");
 
   const clearLongPress = () => {
     if (longPressTimer.current) {
@@ -68,79 +71,99 @@ const Index = () => {
     }
   };
 
-  // Lock body scroll when dragging
+  // Native touchmove with passive:false to actually prevent scroll on iOS
   useEffect(() => {
-    if (isDragging) {
-      document.body.style.overflow = "hidden";
-      document.body.style.touchAction = "none";
-    } else {
-      document.body.style.overflow = "";
-      document.body.style.touchAction = "";
-    }
-    return () => {
-      document.body.style.overflow = "";
-      document.body.style.touchAction = "";
-    };
-  }, [isDragging]);
+    const handler = (e: TouchEvent) => {
+      if (!isDraggingRef.current || dragIdxRef.current === null) {
+        // Check if we should cancel long press (user scrolling before activation)
+        if (touchActive.current) {
+          const dy = Math.abs(e.touches[0].clientY - touchStartY.current);
+          if (dy > 8) {
+            clearLongPress();
+            touchActive.current = false;
+          }
+        }
+        return;
+      }
 
-  const handleTouchStart = (idx: number, e: React.TouchEvent) => {
+      // PREVENT SCROLL — this is the key line, only works with passive:false
+      e.preventDefault();
+
+      const touchY = e.touches[0].clientY;
+      for (let i = 0; i < itemRefs.current.length; i++) {
+        const el = itemRefs.current[i];
+        if (!el) continue;
+        const rect = el.getBoundingClientRect();
+        const midY = rect.top + rect.height / 2;
+        if (touchY < midY) {
+          if (i !== dragOverIdxRef.current) {
+            dragOverIdxRef.current = i;
+            setDragOverIdx(i);
+          }
+          return;
+        }
+      }
+      // Past the last item
+      const lastIdx = itemRefs.current.length - 1;
+      if (lastIdx >= 0 && lastIdx !== dragOverIdxRef.current) {
+        dragOverIdxRef.current = lastIdx;
+        setDragOverIdx(lastIdx);
+      }
+    };
+
+    document.addEventListener("touchmove", handler, { passive: false });
+    return () => document.removeEventListener("touchmove", handler);
+  }, []);
+
+  const handleTouchStart = (idx: number, e: React.TouchEvent, list: "program" | "my") => {
     touchActive.current = true;
     touchStartY.current = e.touches[0].clientY;
+    activeListRef.current = list;
 
     longPressTimer.current = setTimeout(() => {
       if (!touchActive.current) return;
       setDragIdx(idx);
       dragIdxRef.current = idx;
+      dragOverIdxRef.current = idx;
       setIsDragging(true);
       isDraggingRef.current = true;
       if (navigator.vibrate) navigator.vibrate(30);
     }, 400);
   };
 
-  const handleTouchMove = (e: React.TouchEvent) => {
-    const dy = Math.abs(e.touches[0].clientY - touchStartY.current);
-
-    if (!isDraggingRef.current && dy > 8) {
-      clearLongPress();
-      touchActive.current = false;
-      return;
-    }
-
-    if (!isDraggingRef.current || dragIdxRef.current === null) return;
-
-    const touchY = e.touches[0].clientY;
-    for (let i = 0; i < itemRefs.current.length; i++) {
-      const el = itemRefs.current[i];
-      if (!el) continue;
-      const rect = el.getBoundingClientRect();
-      const midY = rect.top + rect.height / 2;
-      if (touchY < midY && i <= dragIdxRef.current) {
-        setDragOverIdx(i);
-        break;
-      }
-      if (touchY >= midY && i >= dragIdxRef.current) {
-        setDragOverIdx(i);
-        break;
-      }
-    }
-  };
-
-  const handleTouchEnd = () => {
+  const finishDrag = (reorderFn: (from: number, to: number) => void) => {
     clearLongPress();
     touchActive.current = false;
 
-    if (isDraggingRef.current && dragIdxRef.current !== null && dragOverIdx !== null && dragIdxRef.current !== dragOverIdx) {
-      const reordered = [...localPriorities];
-      const [moved] = reordered.splice(dragIdxRef.current, 1);
-      reordered.splice(dragOverIdx, 0, moved);
-      setLocalPriorities(reordered);
-      reorderPriorities.mutate(reordered.map((r) => r.id));
+    if (isDraggingRef.current && dragIdxRef.current !== null && dragOverIdxRef.current !== null && dragIdxRef.current !== dragOverIdxRef.current) {
+      reorderFn(dragIdxRef.current, dragOverIdxRef.current);
     }
 
     dragIdxRef.current = null;
+    dragOverIdxRef.current = null;
     setDragIdx(null);
     setDragOverIdx(null);
     setTimeout(() => { setIsDragging(false); isDraggingRef.current = false; }, 50);
+  };
+
+  const handleTouchEndProgram = () => {
+    finishDrag((from, to) => {
+      const reordered = [...localPriorities];
+      const [moved] = reordered.splice(from, 1);
+      reordered.splice(to, 0, moved);
+      setLocalPriorities(reordered);
+      reorderPriorities.mutate(reordered.map(r => r.id));
+    });
+  };
+
+  const handleTouchEndMy = () => {
+    finishDrag((from, to) => {
+      const reordered = [...localMyPriorities];
+      const [moved] = reordered.splice(from, 1);
+      reordered.splice(to, 0, moved);
+      setLocalMyPriorities(reordered);
+      reorderUserPriorities.mutate(reordered.map(r => r.id));
+    });
   };
 
   useEffect(() => {
@@ -424,23 +447,8 @@ const Index = () => {
                     )}
                     <div
                       ref={(el) => { itemRefs.current[idx] = el; }}
-                      onTouchStart={(e) => handleTouchStart(idx, e)}
-                      onTouchMove={handleTouchMove}
-                      onTouchEnd={() => {
-                        clearLongPress();
-                        touchActive.current = false;
-                        if (isDraggingRef.current && dragIdxRef.current !== null && dragOverIdx !== null && dragIdxRef.current !== dragOverIdx) {
-                          const reordered = [...localMyPriorities];
-                          const [moved] = reordered.splice(dragIdxRef.current, 1);
-                          reordered.splice(dragOverIdx, 0, moved);
-                          setLocalMyPriorities(reordered);
-                          reorderUserPriorities.mutate(reordered.map(r => r.id));
-                        }
-                        dragIdxRef.current = null;
-                        setDragIdx(null);
-                        setDragOverIdx(null);
-                        setTimeout(() => { setIsDragging(false); isDraggingRef.current = false; }, 50);
-                      }}
+                      onTouchStart={(e) => handleTouchStart(idx, e, "my")}
+                      onTouchEnd={handleTouchEndMy}
                       style={{
                         opacity: dragIdx === idx ? 0.5 : 1,
                         transform: isDragging && dragIdx === idx ? "scale(1.02)" : undefined,
@@ -505,9 +513,8 @@ const Index = () => {
                         setDragIdx(null);
                         setDragOverIdx(null);
                       }}
-                      onTouchStart={(e) => handleTouchStart(idx, e)}
-                      onTouchMove={handleTouchMove}
-                      onTouchEnd={handleTouchEnd}
+                      onTouchStart={(e) => handleTouchStart(idx, e, "program")}
+                      onTouchEnd={handleTouchEndProgram}
                       style={{
                         opacity: dragIdx === idx ? 0.5 : 1,
                         transform: isDragging && dragIdx === idx ? "scale(1.02)" : undefined,
