@@ -148,7 +148,7 @@ const EditUserDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={handleOpen}>
-      <DialogContent className="w-[calc(100%-2rem)] max-w-sm bg-muted border-border rounded-xl p-0 [&>button[class*='absolute']]:hidden">
+      <DialogContent className="w-[calc(100%-2rem)] max-w-sm max-h-[85vh] overflow-y-auto bg-muted border-border rounded-xl p-0 [&>button[class*='absolute']]:hidden">
         <div className="flex items-center justify-between px-5 pt-4 pb-2">
           <DialogTitle className="text-base font-medium">Edit user</DialogTitle>
           <button
@@ -309,7 +309,7 @@ const DeleteUserDialog = ({
           <Trash2 className="h-3.5 w-3.5" />
         </button>
       </DialogTrigger>
-      <DialogContent className="w-[calc(100%-2rem)] max-w-sm bg-muted border-border rounded-xl p-0 [&>button[class*='absolute']]:hidden">
+      <DialogContent className="w-[calc(100%-2rem)] max-w-sm max-h-[85vh] overflow-y-auto bg-muted border-border rounded-xl p-0 [&>button[class*='absolute']]:hidden">
         <div className="flex items-center justify-between px-5 pt-4 pb-2">
           <DialogTitle className="text-base font-medium">Delete user</DialogTitle>
           <button
@@ -416,7 +416,7 @@ const AddUserDialog = ({
           <Plus className="h-[18px] w-[18px]" />
         </button>
       </DialogTrigger>
-      <DialogContent className="w-[calc(100%-2rem)] max-w-sm bg-muted border-border rounded-xl p-0 [&>button[class*='absolute']]:hidden">
+      <DialogContent className="w-[calc(100%-2rem)] max-w-sm max-h-[85vh] overflow-y-auto bg-muted border-border rounded-xl p-0 [&>button[class*='absolute']]:hidden">
         <div className="flex items-center justify-between px-5 pt-4 pb-2">
           <DialogTitle className="text-base font-medium">Add user</DialogTitle>
           <button
