@@ -496,7 +496,7 @@ const Index = () => {
                   Program Priorities ({localPriorities.length})
                 </button>
                 {!programCollapsed && (
-                {localPriorities.length === 0 ? (
+                  localPriorities.length === 0 ? (
                   <div className="text-center py-12 text-muted-foreground">
                     <Hash className="h-10 w-10 mx-auto mb-3 opacity-40" />
                     <p className="text-sm">No priorities yet. Add one to get started!</p>
