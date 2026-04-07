@@ -1,5 +1,5 @@
 // force rebuild v5
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { format, parseISO } from "date-fns";
 import { useTasks } from "@/hooks/useTasks";
 import { useAuth } from "@/contexts/AuthContext";
@@ -48,6 +48,45 @@ const Index = () => {
   const [localPriorities, setLocalPriorities] = useState(priorities);
   const [activeTab, setActiveTab] = useState("myPriorities");
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+
+  // Touch reorder state
+  const touchStartY = useRef(0);
+  const touchStartIdx = useRef<number | null>(null);
+  const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  const handleTouchStart = (idx: number, e: React.TouchEvent) => {
+    touchStartY.current = e.touches[0].clientY;
+    touchStartIdx.current = idx;
+    setDragIdx(idx);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (touchStartIdx.current === null) return;
+    const touchY = e.touches[0].clientY;
+    // Find which item we're over
+    for (let i = 0; i < itemRefs.current.length; i++) {
+      const el = itemRefs.current[i];
+      if (!el) continue;
+      const rect = el.getBoundingClientRect();
+      if (touchY >= rect.top && touchY <= rect.bottom) {
+        setDragOverIdx(i);
+        break;
+      }
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (touchStartIdx.current !== null && dragOverIdx !== null && touchStartIdx.current !== dragOverIdx) {
+      const reordered = [...localPriorities];
+      const [moved] = reordered.splice(touchStartIdx.current, 1);
+      reordered.splice(dragOverIdx, 0, moved);
+      setLocalPriorities(reordered);
+      reorderPriorities.mutate(reordered.map((r) => r.id));
+    }
+    touchStartIdx.current = null;
+    setDragIdx(null);
+    setDragOverIdx(null);
+  };
 
   useEffect(() => {
     setLocalPriorities(priorities);
@@ -337,6 +376,7 @@ const Index = () => {
               localPriorities.map((p, idx) => (
                 <div
                   key={p.id}
+                  ref={(el) => { itemRefs.current[idx] = el; }}
                   draggable
                   onDragStart={() => setDragIdx(idx)}
                   onDragOver={(e) => { e.preventDefault(); setDragOverIdx(idx); }}
@@ -351,6 +391,9 @@ const Index = () => {
                     setDragIdx(null);
                     setDragOverIdx(null);
                   }}
+                  onTouchStart={(e) => handleTouchStart(idx, e)}
+                  onTouchMove={handleTouchMove}
+                  onTouchEnd={handleTouchEnd}
                   style={{
                     opacity: dragIdx === idx ? 0.5 : 1,
                     borderTop: dragOverIdx === idx && dragIdx !== null && dragIdx > idx ? "2px solid #415162" : undefined,
