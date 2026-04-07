@@ -704,39 +704,39 @@ const Compliance = () => {
             <strong>{stats.unreviewed}</strong> unreviewed
           </div>
         </div>
-
-        {/* Tab bar */}
-        <div style={{ display: "flex", gap: 0, borderBottom: "2px solid #E7EBEF" }}>
-          <button
-            onClick={() => setActiveTab("table")}
-            style={{
-              padding: "10px 16px", fontSize: 13, fontWeight: 600, cursor: "pointer",
-              background: "transparent", border: "none",
-              color: activeTab === "table" ? "#415162" : "#999",
-              borderBottom: activeTab === "table" ? "2px solid #415162" : "2px solid transparent",
-              marginBottom: -2, display: "flex", alignItems: "center", gap: 6,
-            }}
-          >
-            <ClipboardList style={{ width: 15, height: 15 }} /> Requirements
-          </button>
-          <button
-            onClick={() => setActiveTab("narrative")}
-            style={{
-              padding: "10px 16px", fontSize: 13, fontWeight: 600, cursor: "pointer",
-              background: "transparent", border: "none",
-              color: activeTab === "narrative" ? "#415162" : "#999",
-              borderBottom: activeTab === "narrative" ? "2px solid #415162" : "2px solid transparent",
-              marginBottom: -2, display: "flex", alignItems: "center", gap: 6,
-            }}
-          >
-            <BookOpen style={{ width: 15, height: 15 }} /> Narrative
-          </button>
-        </div>
       </div>
 
       {/* ── TAB: Requirements Table ─────────────────────────────────────── */}
       {activeTab === "table" && (
         <div style={{ flex: 1, padding: "12px 16px 100px", maxWidth: 900, margin: "0 auto" }}>
+          {/* Tab bar */}
+          <div style={{ display: "flex", gap: 0, borderBottom: "2px solid #E7EBEF", marginBottom: 12 }}>
+            <button
+              onClick={() => setActiveTab("table")}
+              style={{
+                padding: "8px 0", marginRight: 20, fontSize: 13, fontWeight: 600, cursor: "pointer",
+                background: "transparent", border: "none",
+                color: activeTab === "table" ? "#415162" : "#999",
+                borderBottom: activeTab === "table" ? "2px solid #415162" : "2px solid transparent",
+                marginBottom: -2, display: "flex", alignItems: "center", gap: 6,
+              }}
+            >
+              <ClipboardList style={{ width: 15, height: 15 }} /> Requirements
+            </button>
+            <button
+              onClick={() => setActiveTab("narrative")}
+              style={{
+                padding: "8px 0", marginRight: 20, fontSize: 13, fontWeight: 600, cursor: "pointer",
+                background: "transparent", border: "none",
+                color: activeTab === "narrative" ? "#415162" : "#999",
+                borderBottom: activeTab === "narrative" ? "2px solid #415162" : "2px solid transparent",
+                marginBottom: -2, display: "flex", alignItems: "center", gap: 6,
+              }}
+            >
+              <BookOpen style={{ width: 15, height: 15 }} /> Narrative
+            </button>
+          </div>
+
           {/* Filters */}
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12, justifyContent: "center" }}>
             <select
@@ -844,6 +844,34 @@ const Compliance = () => {
       {/* ── TAB: Narrative Document ─────────────────────────────────────── */}
       {activeTab === "narrative" && (
         <div style={{ flex: 1, padding: "16px 16px 100px", maxWidth: 900, margin: "0 auto" }}>
+          {/* Tab bar */}
+          <div style={{ display: "flex", gap: 0, borderBottom: "2px solid #E7EBEF", marginBottom: 12 }}>
+            <button
+              onClick={() => setActiveTab("table")}
+              style={{
+                padding: "8px 0", marginRight: 20, fontSize: 13, fontWeight: 600, cursor: "pointer",
+                background: "transparent", border: "none",
+                color: activeTab === "table" ? "#415162" : "#999",
+                borderBottom: activeTab === "table" ? "2px solid #415162" : "2px solid transparent",
+                marginBottom: -2, display: "flex", alignItems: "center", gap: 6,
+              }}
+            >
+              <ClipboardList style={{ width: 15, height: 15 }} /> Requirements
+            </button>
+            <button
+              onClick={() => setActiveTab("narrative")}
+              style={{
+                padding: "8px 0", marginRight: 20, fontSize: 13, fontWeight: 600, cursor: "pointer",
+                background: "transparent", border: "none",
+                color: activeTab === "narrative" ? "#415162" : "#999",
+                borderBottom: activeTab === "narrative" ? "2px solid #415162" : "2px solid transparent",
+                marginBottom: -2, display: "flex", alignItems: "center", gap: 6,
+              }}
+            >
+              <BookOpen style={{ width: 15, height: 15 }} /> Narrative
+            </button>
+          </div>
+
           <div style={{ fontSize: 13, color: "#888", marginBottom: 16, lineHeight: 1.6 }}>
             Write the program's compliance narrative here. Use <RequirementPill number="1.7.c" /> syntax in your markdown
             (e.g., <code style={{ fontSize: 11, background: "#E7EBEF", padding: "1px 4px", borderRadius: 3 }}>[1.7.c]</code>)
