@@ -272,7 +272,7 @@ const EventsGantt = ({ events }: EventsGanttProps) => {
         <div style={{ minWidth: monthCount * 80, position: "relative" }}>
           {/* Month headers */}
           <div className="flex" style={{ borderBottom: "1px solid #E7EBEF" }}>
-            <div className="shrink-0" style={{ width: labelWidth }} />
+            <div className="shrink-0 sticky left-0 z-10" style={{ width: labelWidth, background: "var(--background, #F5F3EE)" }} />
             <div className="flex flex-1">
               {months.map((m, i) => (
                 <div
