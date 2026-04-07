@@ -140,12 +140,12 @@ const Rotations = () => {
   const [filter, setFilter] = useState<"all" | "required" | "elective" | "vacation">("all");
   const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
 
-  const filtered = rotations?.filter((r) => {
+  const filtered = (rotations?.filter((r) => {
     if (filter === "required") return r.rotation_type === "required";
     if (filter === "elective") return r.rotation_type === "elective";
     if (filter === "vacation") return r.vacation_eligible;
     return true;
-  }) || [];
+  }) || []).sort((a, b) => a.name.localeCompare(b.name));
 
   const selected = selectedSlug ? rotations?.find((r) => r.slug === selectedSlug) : null;
 
@@ -177,7 +177,7 @@ const Rotations = () => {
         </div>
       </header>
 
-      <main className="px-4 py-5 pb-24" style={{ maxWidth: 900, margin: "0 auto" }}>
+      <main className="px-4 py-5 pb-24" style={{ maxWidth: 1200, margin: "0 auto" }}>
         {selected ? (
           /* ── Detail View ── */
           <div>
@@ -235,7 +235,7 @@ const Rotations = () => {
           <div>
             {isLoading && <p style={{ fontSize: 14, color: "#999" }}>Loading rotations...</p>}
 
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 12 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
               {filtered.map((r) => (
                 <div
                   key={r.id}
