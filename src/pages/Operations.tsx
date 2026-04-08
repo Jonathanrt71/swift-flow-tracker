@@ -56,7 +56,7 @@ const Operations = () => {
   const [activeSectionId, setActiveSectionId] = useState<string>("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState("");
-  const [editContent, setEditContent] = useState("");
+  const editContentRef = useRef("");
   const [addingParentId, setAddingParentId] = useState<string | null | undefined>(undefined);
   const [newSectionTitle, setNewSectionTitle] = useState("");
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
@@ -95,15 +95,15 @@ const Operations = () => {
 
   const startEditing = (s: OperationsSection) => {
     setEditTitle(s.title);
-    setEditContent(s.content || "");
+    editContentRef.current = s.content || "";
     setEditingId(s.id);
   };
 
-  const cancelEditing = () => { setEditingId(null); setEditTitle(""); setEditContent(""); };
+  const cancelEditing = () => { setEditingId(null); setEditTitle(""); editContentRef.current = ""; };
 
   const handleSave = (id: string) => {
     updateSection.mutate(
-      { id, title: editTitle.trim(), content: editContent, userId: user?.id || "" },
+      { id, title: editTitle.trim(), content: editContentRef.current, userId: user?.id || "" },
       {
         onSuccess: () => { cancelEditing(); toast({ title: "Section saved" }); },
         onError: (e: any) => toast({ title: "Error saving", description: e.message, variant: "destructive" }),
@@ -273,8 +273,8 @@ const Operations = () => {
         {isEditing ? (
           <>
             <SectionTipTapEditor
-              content={editContent}
-              onChange={setEditContent}
+              content={editContentRef.current}
+              onChange={(html) => { editContentRef.current = html; }}
               minHeight={320}
             />
             <div style={{ display: "flex", gap: 6, justifyContent: "flex-end", marginTop: 10 }}>
