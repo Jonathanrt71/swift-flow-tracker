@@ -163,7 +163,7 @@ const Home = () => {
   };
   const allTasks = flattenTasks(tasks);
   const myTasks = allTasks
-    .filter((t) => !t.completed && (t.assigned_to === user?.id || t.created_by === user?.id))
+    .filter((t) => !t.completed && (isAdmin || t.assigned_to === user?.id || t.created_by === user?.id))
     .sort((a, b) => {
       if (!a.due_date) return 1;
       if (!b.due_date) return -1;
@@ -173,7 +173,7 @@ const Home = () => {
 
   const overdueTasks = myTasks.filter((t) => t.due_date && t.due_date < todayStr);
 
-  const myPriorities = priorities.filter((p) => p.assigned_to === user?.id);
+  const myPriorities = isAdmin ? priorities : priorities.filter((p) => p.assigned_to === user?.id);
 
   // Last feedback date per resident
   const { data: teamMembers } = useTeamMembers();

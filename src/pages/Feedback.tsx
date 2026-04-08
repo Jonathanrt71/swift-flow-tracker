@@ -184,7 +184,7 @@ const Feedback = () => {
   const nameMap = new Map<string, string>();
   members.forEach((m) => nameMap.set(m.id, formatPersonName(m)));
   const allFeedback = feedbackQuery.data || [];
-  const myFeedback = useMemo(() => allFeedback.filter((fb) => fb.faculty_id === user?.id), [allFeedback, user?.id]);
+  const myFeedback = useMemo(() => isAdmin ? allFeedback : allFeedback.filter((fb) => fb.faculty_id === user?.id), [allFeedback, user?.id, isAdmin]);
 
   // Filter for list view
   const filtered = myFeedback.filter((fb) => {
