@@ -144,13 +144,11 @@ const BlockSchedule = () => {
       .map(([num, dates]) => ({ num, ...dates }));
   }, [yearEntries]);
 
-  // Filter (resident, PGY, search — all on top of year filter)
-  const filtered = useMemo(() => {
+  // Filter and group in one pass to avoid stale memo references
+  const grouped = useMemo(() => {
     let data = yearEntries;
-    console.log("Filter running — filterResident:", filterResident, "filterPgy:", filterPgy, "yearEntries count:", yearEntries.length);
     if (filterResident !== "all") {
       data = data.filter(e => e.resident_name === filterResident);
-      console.log("After resident filter:", data.length, "rows");
     }
     if (filterPgy !== "all") {
       data = data.filter(e => e.pgy_level === parseInt(filterPgy, 10));
@@ -162,13 +160,9 @@ const BlockSchedule = () => {
         e.rotation.toLowerCase().includes(q)
       );
     }
-    return data;
-  }, [yearEntries, filterResident, filterPgy, searchQuery]);
 
-  // Group by resident, then by block
-  const grouped = useMemo(() => {
     const map = new Map<string, { name: string; pgy: number | null; blocks: Map<number, string[]> }>();
-    filtered.forEach(e => {
+    data.forEach(e => {
       const key = `${e.resident_name}::${e.pgy_level}`;
       if (!map.has(key)) {
         map.set(key, { name: e.resident_name, pgy: e.pgy_level, blocks: new Map() });
@@ -179,16 +173,14 @@ const BlockSchedule = () => {
       }
       entry.blocks.get(e.block_number)!.push(e.rotation);
     });
-    const result = Array.from(map.values())
+    return Array.from(map.values())
       .sort((a, b) => {
         const pgyA = a.pgy ?? 99;
         const pgyB = b.pgy ?? 99;
         if (pgyA !== pgyB) return pgyA - pgyB;
         return a.name.localeCompare(b.name);
       });
-    console.log("Grouped residents:", result.length, result.map(r => r.name));
-    return result;
-  }, [filtered]);
+  }, [yearEntries, filterResident, filterPgy, searchQuery]);
 
   // Determine current block
   const today = new Date();
@@ -349,7 +341,7 @@ const BlockSchedule = () => {
               </SelectContent>
             </Select>
           )}
-          <Select value={filterResident} onValueChange={(v) => { console.log("filterResident changed to:", v); setFilterResident(v); }}>
+          <Select value={filterResident} onValueChange={setFilterResident}>
             <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0" style={{ borderColor: "#C9CED4", background: "#fff", maxWidth: 280 }}>
               <SelectValue placeholder="All residents" />
             </SelectTrigger>
