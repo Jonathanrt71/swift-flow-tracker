@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { UserCategoryProvider } from "@/contexts/UserCategoryContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import RoleRoute from "@/components/RoleRoute";
 import Index from "./pages/Index.tsx";
@@ -39,6 +40,7 @@ const App = () => (
       <BrowserRouter>
         <ScrollToTop />
         <AuthProvider>
+          <UserCategoryProvider>
           <div style={{ background: "#F5F3EE", minHeight: "100vh" }}>
             <Routes>
               <Route path="/login" element={<Login />} />
@@ -67,6 +69,7 @@ const App = () => (
               <Route path="*" element={<NotFound />} />
             </Routes>
           </div>
+          </UserCategoryProvider>
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>

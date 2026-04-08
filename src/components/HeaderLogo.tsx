@@ -4,6 +4,7 @@ import { CheckSquare, Users, Calendar, BookOpen, MessageSquare, Shield, User, Lo
 import { usePermissions } from "@/hooks/usePermissions";
 import { useAppSettings } from "@/hooks/useAppSettings";
 import { useAuth } from "@/contexts/AuthContext";
+import { useUserCategory } from "@/contexts/UserCategoryContext";
 import { supabase } from "@/integrations/supabase/client";
 
 interface NavEntry {
@@ -101,6 +102,7 @@ const HeaderLogo = ({
   const { settings } = useAppSettings();
   const navImageUrl = settings.nav_image_url || "/yosemite-header.png";
   const { userName, userInitials, avatarUrl } = useUserProfile();
+  const { activeCategory, setActiveCategory } = useUserCategory();
 
   const currentItem = allNavItems.find((n) => n.path === location.pathname)
     || (location.pathname === "/admin" ? { path: "/admin", label: "Admin", icon: Shield, permissionKey: "admin.all" } as NavEntry : undefined)
@@ -204,6 +206,24 @@ const HeaderLogo = ({
 
       {/* Right side */}
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        {/* Admin category toggle */}
+        {isAdmin && (
+          <div style={{ display: "flex", borderRadius: 5, overflow: "hidden", border: "1px solid rgba(255,255,255,0.25)" }}>
+            {(["FM", "GME"] as const).map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setActiveCategory(cat)}
+                style={{
+                  padding: "3px 10px", fontSize: 11, fontWeight: 600, border: "none", cursor: "pointer",
+                  background: activeCategory === cat ? "rgba(255,255,255,0.25)" : "transparent",
+                  color: activeCategory === cat ? "#fff" : "rgba(255,255,255,0.5)",
+                }}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+        )}
         {children}
 
         {/* Avatar dropdown */}
