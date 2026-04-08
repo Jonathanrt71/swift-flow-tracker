@@ -715,7 +715,7 @@ const Feedback = () => {
                     }}>
                       <span style={{ fontSize: 13, fontWeight: 500, color: "#2D3748" }}>{r.name}</span>
                       <span style={{ fontSize: 12, fontWeight: 600, color: dateColor }}>
-                        {r.lastDate ? formatCardDate(r.lastDate) : "No feedback"}
+                        {r.lastDate ? (formatCardDate(r.lastDate)?.text || new Date(r.lastDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })) : "No feedback"}
                       </span>
                     </div>
                   );
