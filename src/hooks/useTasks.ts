@@ -19,6 +19,7 @@ export interface Task {
   meeting_id: string | null;
   starred: boolean;
   priority_id: string | null;
+  operations_section_id: string | null;
   position: number;
   created_at: string;
   updated_at: string;

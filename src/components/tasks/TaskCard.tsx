@@ -1,4 +1,6 @@
-import { Star, Pencil } from "lucide-react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Star, Pencil, BookMarked } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { formatCardDate } from "@/lib/dateFormat";
@@ -10,6 +12,7 @@ interface TaskCardProps {
   isOverdue: boolean;
   teamMembers: TeamMember[];
   priorityName?: string | null;
+  sectionName?: string | null;
   onToggleComplete: (data: { id: string; completed: boolean }) => void;
   onToggleStar: (data: { id: string; starred: boolean }) => void;
   onCardClick: (task: Task) => void;
@@ -32,25 +35,31 @@ const TaskCard = ({
   isOverdue,
   teamMembers,
   priorityName,
+  sectionName,
   onToggleComplete,
   onToggleStar,
   onCardClick,
 }: TaskCardProps) => {
+  const [expanded, setExpanded] = useState(false);
+  const navigate = useNavigate();
   const member = teamMembers.find((m) => m.id === (task.assigned_to || task.created_by));
   const assignedName = member ? [member.first_name, member.last_name].filter(Boolean).join(" ") || member.display_name : null;
   const dd = formatCardDate(task.due_date);
+  const hasDetails = !!priorityName || !!sectionName || !!task.description;
 
   return (
     <Card
       className={cn("border-border select-none overflow-hidden")}
       style={{ WebkitTouchCallout: "none", WebkitUserSelect: "none" }}
     >
+      {/* Header row */}
       <div
         className="flex items-center gap-3 px-3 py-2.5 cursor-pointer"
         onClick={(e) => {
           const target = e.target as HTMLElement;
           if (target.closest("button, .checkbox-hit")) return;
-          onCardClick(task);
+          if (hasDetails) setExpanded(!expanded);
+          else onCardClick(task);
         }}
       >
         {/* Checkbox */}
@@ -69,21 +78,13 @@ const TaskCard = ({
           )}
         </div>
 
-        {/* Title + priority link */}
-        <div className="flex-1 min-w-0 flex flex-col justify-center">
-          <span
-            className="text-sm font-medium truncate"
-            style={{ color: task.completed ? "#8A9AAB" : "#2D3748", textDecoration: task.completed ? "line-through" : "none" }}
-          >
-            {task.title}
-          </span>
-          {priorityName && (
-            <div style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 1 }}>
-              <svg style={{ width: 12, height: 12, color: "#8A9AAB", flexShrink: 0 }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 3h7v7H3z"/><path d="M14 3h7v7h-7z"/><path d="M14 14h7v7h-7z"/><path d="M3 14h7v7H3z"/></svg>
-              <span style={{ fontSize: 11, color: "#415162", fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{priorityName}</span>
-            </div>
-          )}
-        </div>
+        {/* Title */}
+        <span
+          className="flex-1 min-w-0 text-sm font-medium truncate"
+          style={{ color: task.completed ? "#8A9AAB" : "#2D3748", textDecoration: task.completed ? "line-through" : "none" }}
+        >
+          {task.title}
+        </span>
 
         {/* Due date */}
         {dd && (
@@ -118,6 +119,32 @@ const TaskCard = ({
           <Pencil style={{ width: 14, height: 14 }} />
         </button>
       </div>
+
+      {/* Expanded details */}
+      {expanded && (
+        <div style={{ padding: "0 12px 10px 50px", display: "flex", flexDirection: "column", gap: 6 }}>
+          {priorityName && (
+            <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "5px 8px", background: "#F5F3EE", borderRadius: 6 }}>
+              <svg style={{ width: 14, height: 14, color: "#415162", flexShrink: 0 }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 3h7v7H3z"/><path d="M14 3h7v7h-7z"/><path d="M14 14h7v7h-7z"/><path d="M3 14h7v7H3z"/></svg>
+              <span style={{ fontSize: 12, color: "#2D3748", fontWeight: 500 }}>{priorityName}</span>
+            </div>
+          )}
+          {sectionName && (
+            <div
+              onClick={(e) => { e.stopPropagation(); navigate(`/handbook?section=${(task as any).operations_section_id}`); }}
+              style={{ display: "flex", alignItems: "center", gap: 6, padding: "5px 8px", background: "#F5F3EE", borderRadius: 6, cursor: "pointer" }}
+            >
+              <BookMarked style={{ width: 14, height: 14, color: "#415162", flexShrink: 0 }} />
+              <span style={{ fontSize: 12, color: "#415162", fontWeight: 500, textDecoration: "underline", textDecorationColor: "#C9CED4" }}>{sectionName}</span>
+            </div>
+          )}
+          {task.description && (
+            <div style={{ fontSize: 12, color: "#5F7285", lineHeight: 1.5, padding: "2px 8px" }}
+              dangerouslySetInnerHTML={{ __html: task.description }}
+            />
+          )}
+        </div>
+      )}
     </Card>
   );
 };

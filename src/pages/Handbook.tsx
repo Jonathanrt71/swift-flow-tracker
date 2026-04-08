@@ -38,6 +38,7 @@ const Handbook = () => {
   const { user, signOut } = useAuth();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { isAdmin } = useAdmin();
   const { has: hasPerm } = usePermissions();
   const hasEditPerm = hasPerm("handbook.edit");
@@ -221,6 +222,14 @@ const Handbook = () => {
     handleScroll();
     return () => container.removeEventListener("scroll", handleScroll);
   }, [allSections]);
+
+  // Scroll to section if ?section= param is present
+  useEffect(() => {
+    const sectionId = searchParams.get("section");
+    if (sectionId && allSections?.length) {
+      setTimeout(() => scrollTo(sectionId), 200);
+    }
+  }, [searchParams, allSections]);
 
   const scrollTo = (id: string) => {
     const el = sectionRefs.current.get(id);

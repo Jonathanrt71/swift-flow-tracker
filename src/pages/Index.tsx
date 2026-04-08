@@ -19,6 +19,8 @@ import PriorityCard from "@/components/tasks/PriorityCard";
 import CreatePriorityDialog from "@/components/tasks/CreatePriorityDialog";
 import EditTaskDialog from "@/components/tasks/EditTaskDialog";
 import { usePermissions } from "@/hooks/usePermissions";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const Index = () => {
   const { user, signOut } = useAuth();
@@ -79,6 +81,23 @@ const Index = () => {
       priorityTaskCounts.set(pid, entry);
     }
   });
+
+  // Fetch handbook section names for tasks with operations_section_id
+  const sectionIds = [...new Set(flatAllTasks.map(t => (t as any).operations_section_id).filter(Boolean))] as string[];
+  const sectionNamesQuery = useQuery({
+    queryKey: ["task-section-names", sectionIds.join(",")],
+    enabled: sectionIds.length > 0,
+    queryFn: async () => {
+      const { data } = await (supabase as any)
+        .from("handbook_sections")
+        .select("id, title")
+        .in("id", sectionIds);
+      const map = new Map<string, string>();
+      (data || []).forEach((s: any) => map.set(s.id, s.title));
+      return map;
+    },
+  });
+  const sectionNameMap = sectionNamesQuery.data || new Map<string, string>();
 
   // My priorities = program priorities assigned to current user, sorted by user order
   const myPrioritiesUnsorted = isAdmin ? priorities : priorities.filter(p => p.assigned_to === user?.id);
@@ -188,6 +207,7 @@ const Index = () => {
           isOverdue={isOverdue(task)}
           teamMembers={teamMembers || []}
           priorityName={(task as any).priority_id ? priorityNameMap.get((task as any).priority_id) || null : null}
+          sectionName={(task as any).operations_section_id ? sectionNameMap.get((task as any).operations_section_id) || null : null}
           onToggleComplete={(d) => toggleComplete.mutate(d)}
           onToggleStar={(d) => toggleStar.mutate(d)}
           onCardClick={(t) => setSelectedTask(t)}
@@ -221,6 +241,7 @@ const Index = () => {
         isOverdue={isOverdue(task)}
         teamMembers={teamMembers || []}
         priorityName={(task as any).priority_id ? priorityNameMap.get((task as any).priority_id) || null : null}
+        sectionName={(task as any).operations_section_id ? sectionNameMap.get((task as any).operations_section_id) || null : null}
         onToggleComplete={(d) => toggleComplete.mutate(d)}
         onToggleStar={(d) => toggleStar.mutate(d)}
         onCardClick={(t) => setSelectedTask(t)}
