@@ -146,7 +146,7 @@ const CreateMeetingDialog = ({ onSubmit }: CreateMeetingDialogProps) => {
             <label className="text-xs block mb-1.5" style={{ color: "#5F7285" }}>Date</label>
             <Popover>
               <PopoverTrigger asChild>
-                <button className="flex items-center justify-between w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-left">
+                <button className="flex items-center justify-between w-full px-3 py-2 border rounded-lg text-sm text-left" style={{ borderColor: "#C9CED4", background: "#fff" }}>
                   <span className={meetingDate ? "text-foreground" : "text-muted-foreground"}>
                     {meetingDate ? format(parseISO(meetingDate), "MMM d, yyyy") : "Select date"}
                   </span>
@@ -207,7 +207,7 @@ const CreateMeetingDialog = ({ onSubmit }: CreateMeetingDialogProps) => {
             )}
 
             {/* Search + dropdown */}
-            <div className="bg-background border border-border rounded-lg overflow-hidden">
+            <div className="border rounded-lg overflow-hidden" style={{ borderColor: "#C9CED4", background: "#fff" }}>
               <div className="flex items-center gap-2 px-3 py-2 border-b border-border">
                 <Search className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                 <input
