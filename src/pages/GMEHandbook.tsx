@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import {
   Home, Phone, Calendar, Clock, Shield, Repeat, FileText, TrendingUp,
@@ -94,15 +94,35 @@ const GMEHandbook = () => {
     setEditTitle(s.title);
     setEditContent(s.content || "");
     setEditingId(s.id);
+    setTimeout(() => {
+      const el = sectionRefs.current.get(s.id);
+      if (el) el.scrollIntoView({ block: "start", behavior: "instant" });
+    }, 100);
   };
 
-  const cancelEditing = () => { setEditingId(null); setEditTitle(""); setEditContent(""); };
+  const cancelEditing = () => {
+    const prevId = editingId;
+    setEditingId(null); setEditTitle(""); setEditContent("");
+    if (prevId) {
+      setTimeout(() => {
+        const el = sectionRefs.current.get(prevId);
+        if (el) el.scrollIntoView({ block: "start", behavior: "instant" });
+      }, 50);
+    }
+  };
 
   const handleSave = (id: string) => {
     updateSection.mutate(
       { id, title: editTitle.trim(), content: editContent, userId: user?.id || "" },
       {
-        onSuccess: () => { cancelEditing(); toast({ title: "Section saved" }); },
+        onSuccess: () => {
+          setEditingId(null); setEditTitle(""); setEditContent("");
+          toast({ title: "Section saved" });
+          setTimeout(() => {
+            const el = sectionRefs.current.get(id);
+            if (el) el.scrollIntoView({ block: "start", behavior: "instant" });
+          }, 100);
+        },
         onError: (e: any) => toast({ title: "Error saving", description: e.message, variant: "destructive" }),
       }
     );
@@ -174,7 +194,7 @@ const GMEHandbook = () => {
   };
 
   // ── Section Content Block ─────────────────────────────────────────────
-  const SectionBlock = ({ section, depth = 0 }: { section: GMEHandbookSection; depth?: number }) => {
+  const renderSection = (section: GMEHandbookSection, depth = 0): React.ReactNode => {
     const subs = getSubsections(section.id);
     const isEditing = editingId === section.id;
 
@@ -255,7 +275,7 @@ const GMEHandbook = () => {
         {/* Subsections */}
         {depth === 0 && subs.length > 0 && (
           <div style={{ marginTop: 24, borderLeft: "2px solid #E7EBEF", paddingLeft: 16 }}>
-            {subs.map(sub => <SectionBlock key={sub.id} section={sub} depth={1} />)}
+            {subs.map(sub => <React.Fragment key={sub.id}>{renderSection(sub, 1)}</React.Fragment>)}
           </div>
         )}
 
@@ -405,7 +425,7 @@ const GMEHandbook = () => {
 
             {isLoading && <div style={{ color: "#999", fontSize: 14, padding: "40px 0", textAlign: "center" }}>Loading GME handbook…</div>}
             {error && <div style={{ color: "#c44", fontSize: 14 }}>Failed to load. Please refresh.</div>}
-            {topSections.map(s => <SectionBlock key={s.id} section={s} />)}
+            {topSections.map(s => <React.Fragment key={s.id}>{renderSection(s)}</React.Fragment>)}
           </div>
         </div>
       </div>
