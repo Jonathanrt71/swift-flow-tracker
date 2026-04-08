@@ -38,13 +38,14 @@ interface PriorityCardProps {
   onUnlinkTask: (taskId: string) => void;
   onLinkTask: (taskId: string) => void;
   onCreateTask: (title: string) => void;
+  onTaskClick?: (task: Task) => void;
 }
 
 const PriorityCard = ({
   priority, rank, secondaryRank, secondaryLabel, teamMembers,
   linkedTasks, unlinkableTasks,
   showArrows = true, isFirst, isLast, onMoveUp, onMoveDown,
-  onUpdate, onDelete, onToggleTaskComplete, onUnlinkTask, onLinkTask, onCreateTask,
+  onUpdate, onDelete, onToggleTaskComplete, onUnlinkTask, onLinkTask, onCreateTask, onTaskClick,
 }: PriorityCardProps) => {
   const [editOpen, setEditOpen] = useState(false);
   const [expanded, setExpanded] = useState(false);
@@ -146,7 +147,14 @@ const PriorityCard = ({
                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12" /></svg>
                   )}
                 </div>
-                <span style={{ fontSize: 12, color: t.completed ? "#8A9AAB" : "#2D3748", flex: 1, textDecoration: t.completed ? "line-through" : "none" }}>
+                <span
+                  onClick={(e) => { if (onTaskClick) { e.stopPropagation(); onTaskClick(t); } }}
+                  style={{
+                    fontSize: 12, color: t.completed ? "#8A9AAB" : "#2D3748", flex: 1,
+                    textDecoration: t.completed ? "line-through" : "none",
+                    cursor: onTaskClick ? "pointer" : "default",
+                  }}
+                >
                   {t.title}
                 </span>
                 <button

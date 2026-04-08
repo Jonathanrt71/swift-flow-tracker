@@ -390,6 +390,7 @@ const Index = () => {
                                 onUnlinkTask={(id) => updateTask.mutate({ id, priority_id: null })}
                                 onLinkTask={(id) => updateTask.mutate({ id, priority_id: p.id })}
                                 onCreateTask={(title) => createTask.mutate({ title, assigned_to: p.assigned_to || undefined, priority_id: p.id })}
+                                onTaskClick={(t) => setSelectedTask(t)}
                               />
                           </div>
                         );
@@ -462,6 +463,7 @@ const Index = () => {
                               onUnlinkTask={(id) => updateTask.mutate({ id, priority_id: null })}
                               onLinkTask={(id) => updateTask.mutate({ id, priority_id: p.id })}
                               onCreateTask={(title) => createTask.mutate({ title, assigned_to: p.assigned_to || undefined, priority_id: p.id })}
+                              onTaskClick={(t) => setSelectedTask(t)}
                             />
                         </div>
                       );
