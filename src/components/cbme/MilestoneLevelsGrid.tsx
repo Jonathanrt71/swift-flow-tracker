@@ -179,8 +179,8 @@ const MilestoneLevelsGrid = () => {
             <tr>
               <th style={{
                 position: "sticky", left: 0, top: 0, zIndex: 4,
-                background: "#415162", color: "#fff", fontSize: 11, fontWeight: 500,
-                padding: "6px 8px", textAlign: "left", minWidth: 110, maxWidth: 130,
+                background: "#415162", color: "#fff", fontSize: 13, fontWeight: 500,
+                padding: "8px 10px", textAlign: "left", minWidth: 150, maxWidth: 180,
                 borderRight: "1px solid rgba(255,255,255,0.2)",
               }}>
                 Resident
@@ -188,10 +188,10 @@ const MilestoneLevelsGrid = () => {
               {allSubcategories.map(sub => (
                 <th key={sub.id} style={{
                   position: "sticky", top: 0, zIndex: 3,
-                  background: "#415162", color: "#fff", fontSize: 9, fontWeight: 500,
-                  padding: "4px 3px", textAlign: "center", whiteSpace: "nowrap",
+                  background: "#415162", color: "#fff", fontSize: 11, fontWeight: 500,
+                  padding: "6px 4px", textAlign: "center", whiteSpace: "nowrap",
                   borderLeft: "0.5px solid rgba(255,255,255,0.15)",
-                  minWidth: 42,
+                  minWidth: 44,
                 }}>
                   {sub.code}
                 </th>
@@ -212,8 +212,8 @@ const MilestoneLevelsGrid = () => {
                         colSpan={allSubcategories.length + 1}
                         style={{
                           position: "sticky", left: 0, zIndex: 2,
-                          background: "#D5DAE0", fontSize: 11, fontWeight: 600,
-                          color: "#415162", padding: "5px 8px",
+                          background: "#D5DAE0", fontSize: 12, fontWeight: 600,
+                          color: "#415162", padding: "6px 10px",
                         }}
                       >
                         PGY-{resident.pgy || "?"}
@@ -229,9 +229,9 @@ const MilestoneLevelsGrid = () => {
                   <tr key={resident.id}>
                     <td style={{
                       position: "sticky", left: 0, zIndex: 2,
-                      background: rowBg, fontSize: 11, fontWeight: 500,
-                      color: "#2D3748", padding: "4px 8px", textAlign: "left",
-                      minWidth: 110, maxWidth: 130, whiteSpace: "nowrap",
+                      background: rowBg, fontSize: 13, fontWeight: 500,
+                      color: "#2D3748", padding: "6px 10px", textAlign: "left",
+                      minWidth: 150, maxWidth: 180, whiteSpace: "nowrap",
                       overflow: "hidden", textOverflow: "ellipsis",
                       borderRight: "1px solid #C9CED4",
                       borderBottom: "0.5px solid #D5DAE0",

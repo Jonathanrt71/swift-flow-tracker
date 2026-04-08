@@ -20,7 +20,7 @@ const Milestones = () => {
         </div>
       </header>
 
-      <main style={{ maxWidth: 900, margin: "0 auto", padding: "12px 16px 100px" }}>
+      <main style={{ maxWidth: 1200, margin: "0 auto", padding: "12px 16px 100px" }}>
         <MilestoneLevelsGrid />
       </main>
     </div>
