@@ -16,7 +16,6 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import HeaderLogo from "@/components/HeaderLogo";
 import NotificationBell from "@/components/NotificationBell";
-import { TaskTemplatesSection } from "@/components/operations/TaskTemplatesSection";
 import SectionTipTapEditor from "@/components/shared/SectionTipTapEditor";
 import { EVENT_CATEGORY_LABELS } from "@/hooks/useEvents";
 import type { EventCategory } from "@/hooks/useEvents";
@@ -53,14 +52,13 @@ const Operations = () => {
 
   // Linked events & task templates per section
   const [linkedEvents, setLinkedEvents] = useState<Record<string, any[]>>({});
-  const [linkedTemplates, setLinkedTemplates] = useState<Record<string, any[]>>({});
+  const [linkedTasks, setLinkedTasks] = useState<Record<string, any[]>>({});
   const [linkedRefresh, setLinkedRefresh] = useState(0);
 
   useEffect(() => {
     if (!allSections?.length) return;
     const sectionIds = allSections.map(s => s.id);
     // Fetch events linked to operations sections
-    // Cast to 'any' to bypass typed client rejecting unknown column in .in() filter
     (supabase
       .from("events")
       .select("id, title, event_date, category, operations_section_id") as any)
@@ -78,13 +76,13 @@ const Operations = () => {
         });
         setLinkedEvents(grouped);
       });
-    // Fetch task templates linked to operations sections
+    // Fetch tasks linked to operations sections
     (supabase
-      .from("task_templates")
-      .select("id, name, category, operations_section_id") as any)
+      .from("tasks")
+      .select("id, title, completed, due_date, operations_section_id") as any)
       .in("operations_section_id", sectionIds)
       .then(({ data, error }: { data: any[]; error: any }) => {
-        if (error) { console.error("Linked templates fetch error:", error); return; }
+        if (error) { console.error("Linked tasks fetch error:", error); return; }
         const grouped: Record<string, any[]> = {};
         (data || []).forEach((t: any) => {
           const sid = t.operations_section_id;
@@ -92,7 +90,7 @@ const Operations = () => {
           if (!grouped[sid]) grouped[sid] = [];
           grouped[sid].push(t);
         });
-        setLinkedTemplates(grouped);
+        setLinkedTasks(grouped);
       });
   }, [allSections, linkedRefresh]);
 
@@ -119,10 +117,9 @@ const Operations = () => {
   const [eventDescription, setEventDescription] = useState("");
 
   // Create Task Template dialog state
-  const [createTemplateForSection, setCreateTemplateForSection] = useState<OperationsSection | null>(null);
-  const [templateName, setTemplateName] = useState("");
-  const [templateCategory, setTemplateCategory] = useState("");
-  const [templateDescription, setTemplateDescription] = useState("");
+  const [createTaskForSection, setCreateTaskForSection] = useState<OperationsSection | null>(null);
+  const [taskTitle, setTaskTitle] = useState("");
+  const [taskDescription, setTaskDescription] = useState("");
 
   const contentRef = useRef<HTMLDivElement>(null);
   const sectionRefs = useRef<Map<string, HTMLElement>>(new Map());
@@ -230,27 +227,26 @@ const Operations = () => {
     }
   };
 
-  const handleCreateTemplate = async () => {
-    if (!templateName.trim() || !createTemplateForSection) return;
+  const handleCreateTask = async () => {
+    if (!taskTitle.trim() || !createTaskForSection) return;
     try {
-      const { error } = await supabase
-        .from("task_templates")
+      const { error } = await (supabase as any)
+        .from("tasks")
         .insert({
-          name: templateName.trim(),
-          description: templateDescription.trim() || `From Operations Manual: ${createTemplateForSection.title}`,
-          category: templateCategory || null,
+          title: taskTitle.trim(),
+          description: taskDescription.trim() || null,
           created_by: user?.id,
-          operations_section_id: createTemplateForSection.id,
-        } as any);
+          operations_section_id: createTaskForSection.id,
+          completed: false,
+        });
       if (error) throw error;
-      toast({ title: "Template created", description: `"${templateName.trim()}" added to Task Templates` });
+      toast({ title: "Task created", description: `"${taskTitle.trim()}" linked to ${createTaskForSection.title}` });
       setLinkedRefresh(r => r + 1);
-      setCreateTemplateForSection(null);
-      setTemplateName("");
-      setTemplateDescription("");
-      setTemplateCategory("");
+      setCreateTaskForSection(null);
+      setTaskTitle("");
+      setTaskDescription("");
     } catch (e: any) {
-      toast({ title: "Error creating template", description: e.message, variant: "destructive" });
+      toast({ title: "Error creating task", description: e.message, variant: "destructive" });
     }
   };
 
@@ -438,22 +434,21 @@ const Operations = () => {
               </button>
               <button
                 onClick={() => {
-                  setCreateTemplateForSection(section);
-                  setTemplateName(`${section.title} Prep`);
-                  setTemplateDescription(`From Operations Manual: ${section.title}`);
-                  setTemplateCategory("");
+                  setCreateTaskForSection(section);
+                  setTaskTitle(`${section.title}`);
+                  setTaskDescription(`From Program Handbook: ${section.title}`);
                 }}
                 style={{ display: "flex", alignItems: "center", gap: 4, padding: "4px 8px", fontSize: 11, color: "#415162", background: "#fff", border: "0.5px solid #C9CED4", borderRadius: 4, cursor: "pointer" }}
               >
-                <ClipboardList style={{ width: 11, height: 11 }} /> Create template
+                <CheckSquare style={{ width: 11, height: 11 }} /> Create task
               </button>
             </div>
 
-            {/* Linked events & templates */}
+            {/* Linked events & tasks */}
             {(() => {
               const sectionEvents = linkedEvents[section.id] || [];
-              const sectionTemplates = linkedTemplates[section.id] || [];
-              if (sectionEvents.length === 0 && sectionTemplates.length === 0) return null;
+              const sectionTasks = linkedTasks[section.id] || [];
+              if (sectionEvents.length === 0 && sectionTasks.length === 0) return null;
               return (
                 <div style={{ marginTop: 10, display: "flex", flexDirection: "column", gap: 6 }}>
                   {sectionEvents.length > 0 && (
@@ -476,18 +471,16 @@ const Operations = () => {
                       </div>
                     </div>
                   )}
-                  {sectionTemplates.length > 0 && (
+                  {sectionTasks.length > 0 && (
                     <div>
-                      <div style={{ fontSize: 11, fontWeight: 600, color: "#8a9baa", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 6 }}>Linked Task Templates</div>
+                      <div style={{ fontSize: 11, fontWeight: 600, color: "#8a9baa", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 6 }}>Linked Tasks</div>
                       <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
-                        {sectionTemplates.map((t: any) => (
-                          <div key={t.id} onClick={() => { const el = document.getElementById("task-templates-section"); if (el) el.scrollIntoView({ behavior: "smooth" }); }}
+                        {sectionTasks.map((t: any) => (
+                          <div key={t.id} onClick={() => navigate("/tasks")}
                             style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 10px", background: "#fff", border: "0.5px solid #D5DAE0", borderRadius: 5, cursor: "pointer", fontSize: 12 }}>
-                            <ClipboardList style={{ width: 12, height: 12, color: "#415162", flexShrink: 0 }} />
-                            <span style={{ flex: 1, color: "#333", fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{t.name}</span>
-                            {t.category && (
-                              <span style={{ fontSize: 10, padding: "1px 5px", borderRadius: 3, background: "#F5F3EE", color: "#52657A", flexShrink: 0 }}>{t.category}</span>
-                            )}
+                            <CheckSquare style={{ width: 12, height: 12, color: t.completed ? "#4A846C" : "#415162", flexShrink: 0 }} />
+                            <span style={{ flex: 1, color: t.completed ? "#999" : "#333", fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", textDecoration: t.completed ? "line-through" : "none" }}>{t.title}</span>
+                            {t.due_date && <span style={{ fontSize: 11, color: "#999", flexShrink: 0 }}>{formatDate(t.due_date)}</span>}
                           </div>
                         ))}
                       </div>
@@ -535,6 +528,52 @@ const Operations = () => {
               {subs.map(sub => <SectionBlock key={sub.id} section={sub} depth={1} />)}
             </div>
           )}
+
+          {/* Linked events & tasks (reader view) */}
+          {(() => {
+            const sectionEvents = linkedEvents[section.id] || [];
+            const sectionTasks = linkedTasks[section.id] || [];
+            if (sectionEvents.length === 0 && sectionTasks.length === 0) return null;
+            return (
+              <div style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 6 }}>
+                {sectionEvents.length > 0 && (
+                  <div>
+                    <div style={{ fontSize: 11, fontWeight: 600, color: "#8a9baa", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 6 }}>Linked Events</div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                      {sectionEvents.map((ev: any) => (
+                        <div key={ev.id} onClick={() => navigate("/events")}
+                          style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 10px", background: "#E7EBEF", border: "0.5px solid #D5DAE0", borderRadius: 5, cursor: "pointer", fontSize: 12 }}>
+                          <Calendar style={{ width: 12, height: 12, color: "#415162", flexShrink: 0 }} />
+                          <span style={{ flex: 1, color: "#333", fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{ev.title}</span>
+                          {ev.category && (
+                            <span style={{ fontSize: 10, padding: "1px 5px", borderRadius: 3, background: "#F5F3EE", color: "#52657A", flexShrink: 0 }}>
+                              {EVENT_CATEGORY_LABELS[ev.category as EventCategory] || ev.category}
+                            </span>
+                          )}
+                          <span style={{ fontSize: 11, color: "#999", flexShrink: 0 }}>{formatDate(ev.event_date)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {sectionTasks.length > 0 && (
+                  <div>
+                    <div style={{ fontSize: 11, fontWeight: 600, color: "#8a9baa", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 6 }}>Linked Tasks</div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                      {sectionTasks.map((t: any) => (
+                        <div key={t.id} onClick={() => navigate("/tasks")}
+                          style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 10px", background: "#E7EBEF", border: "0.5px solid #D5DAE0", borderRadius: 5, cursor: "pointer", fontSize: 12 }}>
+                          <CheckSquare style={{ width: 12, height: 12, color: t.completed ? "#4A846C" : "#415162", flexShrink: 0 }} />
+                          <span style={{ flex: 1, color: t.completed ? "#999" : "#333", fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", textDecoration: t.completed ? "line-through" : "none" }}>{t.title}</span>
+                          {t.due_date && <span style={{ fontSize: 11, color: "#999", flexShrink: 0 }}>{formatDate(t.due_date)}</span>}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
         </div>
         {depth === 0 && <div style={{ borderBottom: "1px solid #E0DDD8", marginTop: 28 }} />}
         </>
@@ -701,20 +740,6 @@ const Operations = () => {
             {isLoading && <div style={{ color: "#999", fontSize: 14, padding: "40px 0", textAlign: "center" }}>Loading operations manual…</div>}
             {error && <div style={{ color: "#c44", fontSize: 14 }}>Failed to load. Please refresh.</div>}
             {topSections.map((s, i) => <SectionBlock key={s.id} section={s} index={i} totalSiblings={topSections.length} />)}
-
-            {/* Task Templates — only in editor mode */}
-            {!isLoading && canEdit && (
-              <div style={{ marginBottom: 52 }} ref={el => { if (el) sectionRefs.current.set("task-templates", el); }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 6 }}>
-                  <h1 style={{ fontSize: 20, fontWeight: 600, color: "#333", margin: 0 }}>Task Templates</h1>
-                </div>
-                <div id="task-templates-section" style={{ fontSize: 11, color: "#bbb", marginBottom: 18 }}>
-                  Reusable task bundles · spawn into Tasks with one tap
-                </div>
-                <TaskTemplatesSection canEdit={canEdit} />
-                <div style={{ borderBottom: "1px solid #E0DDD8", marginTop: 28 }} />
-              </div>
-            )}
           </div>
         </div>
       </div>
@@ -781,50 +806,34 @@ const Operations = () => {
         </div>
       )}
 
-      {/* Create Task Template dialog */}
-      {createTemplateForSection && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 100, background: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
-          <div style={{ background: "#fff", borderRadius: 14, padding: 24, maxWidth: 400, width: "100%", boxShadow: "0 8px 32px rgba(0,0,0,0.22)" }}>
+      {/* Create Task dialog */}
+      {createTaskForSection && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 100, background: "rgba(65,81,98,0.45)", backdropFilter: "blur(2px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
+          <div style={{ background: "#F5F3EE", borderRadius: 10, padding: 20, maxWidth: 400, width: "100%", border: "1px solid #C9CED4", boxShadow: "0 8px 32px rgba(0,0,0,0.22)" }}>
             <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 4 }}>
-              <h3 style={{ fontSize: 15, fontWeight: 600, color: "#333" }}>Create Task Template</h3>
-              <button onClick={() => setCreateTemplateForSection(null)} style={{ background: "transparent", border: "none", cursor: "pointer", padding: 2, color: "#aaa" }}><X style={{ width: 16, height: 16 }} /></button>
+              <h3 style={{ fontSize: 15, fontWeight: 600, color: "#2D3748" }}>Create task</h3>
+              <button onClick={() => setCreateTaskForSection(null)} style={{ background: "transparent", border: "none", cursor: "pointer", padding: 2, color: "#aaa" }}><X style={{ width: 16, height: 16 }} /></button>
             </div>
-            <p style={{ fontSize: 12, color: "#888", marginBottom: 16 }}>From section: {createTemplateForSection.title}</p>
+            <p style={{ fontSize: 12, color: "#5F7285", marginBottom: 16 }}>Linked to: {createTaskForSection.title}</p>
 
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               <div>
-                <label style={{ fontSize: 11, color: "#888", textTransform: "uppercase", letterSpacing: 0.5, display: "block", marginBottom: 4 }}>Template name</label>
-                <input value={templateName} onChange={e => setTemplateName(e.target.value)}
+                <label style={{ fontSize: 12, color: "#5F7285", display: "block", marginBottom: 4 }}>Title</label>
+                <input value={taskTitle} onChange={e => setTaskTitle(e.target.value)}
                   style={{ width: "100%", padding: "7px 10px", fontSize: 13, border: "1px solid #C9CED4", borderRadius: 6, outline: "none", background: "#fff", boxSizing: "border-box" }} />
               </div>
               <div>
-                <label style={{ fontSize: 11, color: "#888", textTransform: "uppercase", letterSpacing: 0.5, display: "block", marginBottom: 4 }}>Category</label>
-                <select value={templateCategory} onChange={e => setTemplateCategory(e.target.value)}
-                  style={{ width: "100%", padding: "7px 10px", fontSize: 13, border: "1px solid #C9CED4", borderRadius: 6, outline: "none", background: "#fff", boxSizing: "border-box", color: templateCategory ? "#333" : "#aaa" }}>
-                  <option value="">Select category…</option>
-                  <option value="program">Program</option>
-                  <option value="didactic">Didactic</option>
-                  <option value="committee">Committee</option>
-                  <option value="compliance">Compliance</option>
-                  <option value="administrative">Administrative</option>
-                  <option value="wellness">Wellness</option>
-                  <option value="faculty">Faculty</option>
-                </select>
-              </div>
-              <div>
-                <label style={{ fontSize: 11, color: "#888", textTransform: "uppercase", letterSpacing: 0.5, display: "block", marginBottom: 4 }}>Description (optional)</label>
-                <textarea value={templateDescription} onChange={e => setTemplateDescription(e.target.value)} rows={3}
+                <label style={{ fontSize: 12, color: "#5F7285", display: "block", marginBottom: 4 }}>Description (optional)</label>
+                <textarea value={taskDescription} onChange={e => setTaskDescription(e.target.value)} rows={3}
                   style={{ width: "100%", padding: "7px 10px", fontSize: 13, border: "1px solid #C9CED4", borderRadius: 6, outline: "none", background: "#fff", resize: "vertical", boxSizing: "border-box" }} />
               </div>
             </div>
 
-            <div style={{ display: "flex", gap: 8, marginTop: 18 }}>
-              <button onClick={() => setCreateTemplateForSection(null)} style={{ flex: 1, padding: "8px 0", fontSize: 13, color: "#777", background: "transparent", border: "1px solid #C9CED4", borderRadius: 7, cursor: "pointer" }}>Cancel</button>
-              <button onClick={handleCreateTemplate} disabled={!templateName.trim()}
-                style={{ flex: 1, padding: "8px 0", fontSize: 13, color: "#fff", background: templateName.trim() ? "#415162" : "#aaa", border: "none", borderRadius: 7, cursor: templateName.trim() ? "pointer" : "not-allowed", fontWeight: 500 }}>
-                Create Template
-              </button>
-            </div>
+            <button onClick={handleCreateTask} disabled={!taskTitle.trim()}
+              className="w-full rounded-lg py-3 text-sm font-medium text-white disabled:opacity-50"
+              style={{ background: "#415162", marginTop: 16 }}>
+              Save task
+            </button>
           </div>
         </div>
       )}
