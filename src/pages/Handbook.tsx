@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -388,7 +388,7 @@ const Handbook = () => {
   };
 
   // ── Section Content Block ─────────────────────────────────────────────
-  const SectionBlock = ({ section, depth = 0 }: { section: HandbookSection; depth?: number }) => {
+  const renderSection = (section: HandbookSection, depth = 0): React.ReactNode => {
     const subs = getSubsections(section.id);
     const isEditing = editingId === section.id;
 
@@ -561,7 +561,7 @@ const Handbook = () => {
         {/* Subsections */}
         {depth === 0 && subs.length > 0 && (
           <div style={{ marginTop: 24, borderLeft: "2px solid #E7EBEF", paddingLeft: 16 }}>
-            {subs.map(sub => <SectionBlock key={sub.id} section={sub} depth={1} />)}
+            {subs.map(sub => <React.Fragment key={sub.id}>{renderSection(sub, 1)}</React.Fragment>)}
           </div>
         )}
 
@@ -711,7 +711,7 @@ const Handbook = () => {
 
             {isLoading && <div style={{ color: "#999", fontSize: 14, padding: "40px 0", textAlign: "center" }}>Loading handbook…</div>}
             {error && <div style={{ color: "#c44", fontSize: 14 }}>Failed to load. Please refresh.</div>}
-            {topSections.map(s => <SectionBlock key={s.id} section={s} />)}
+            {topSections.map(s => <React.Fragment key={s.id}>{renderSection(s)}</React.Fragment>)}
           </div>
         </div>
       </div>
