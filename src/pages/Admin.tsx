@@ -68,6 +68,8 @@ const EditUserDialog = ({
   externalOpen?: boolean;
   onExternalOpenChange?: (open: boolean) => void;
 }) => {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [internalOpen, setInternalOpen] = useState(false);
   const open = externalOpen !== undefined ? externalOpen : internalOpen;
   const setOpen = (v: boolean) => {
@@ -161,6 +163,39 @@ const EditUserDialog = ({
         </div>
 
         <div className="px-5 pb-5 flex flex-col gap-3.5">
+          {/* Avatar */}
+          <div className="flex items-center gap-3">
+            {u.avatar_url ? (
+              <img src={u.avatar_url} alt="" style={{ width: 48, height: 48, borderRadius: "50%", objectFit: "cover", border: "1px solid #C9CED4" }} />
+            ) : (
+              <div style={{ width: 48, height: 48, borderRadius: "50%", background: "#E7EBEF", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, fontWeight: 500, color: "#5F7285", border: "1px solid #C9CED4" }}>
+                {(u.first_name || "?")[0]}{(u.last_name || "")[0]}
+              </div>
+            )}
+            <label style={{ fontSize: 12, padding: "5px 12px", background: "#E7EBEF", border: "0.5px solid #C9CED4", borderRadius: 6, cursor: "pointer", color: "#415162", fontWeight: 500 }}>
+              Change photo
+              <input type="file" accept="image/*" style={{ display: "none" }} onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                try {
+                  const { compressImage } = await import("@/lib/compressImage");
+                  const compressed = await compressImage(file, 256, 0.8);
+                  const path = `${u.id}/avatar.jpg`;
+                  const { error: upErr } = await supabase.storage.from("avatars").upload(path, compressed, { upsert: true, contentType: "image/jpeg" });
+                  if (upErr) throw upErr;
+                  const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(path);
+                  const newUrl = `${urlData.publicUrl}?t=${Date.now()}`;
+                  await (supabase as any).from("profiles").update({ avatar_url: newUrl }).eq("id", u.id);
+                  queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+                  queryClient.invalidateQueries({ queryKey: ["team-members"] });
+                  toast({ title: "Avatar updated" });
+                } catch (err: any) {
+                  toast({ title: "Upload failed", description: err.message, variant: "destructive" });
+                }
+                e.target.value = "";
+              }} />
+            </label>
+          </div>
           <div className="space-y-1.5">
             <Label className="text-xs text-muted-foreground">Email</Label>
             <Input

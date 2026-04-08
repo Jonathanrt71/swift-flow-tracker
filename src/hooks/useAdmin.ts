@@ -10,6 +10,7 @@ export interface ManagedUser {
   display_name: string | null;
   first_name: string | null;
   last_name: string | null;
+  avatar_url: string | null;
   graduation_year: number | null;
   ni_names: string | null;
   role: UserRole;
@@ -41,7 +42,7 @@ export function useAdmin() {
     queryFn: async () => {
       const { data: profiles, error: pErr } = await supabase
         .from("profiles")
-        .select("id, display_name, first_name, last_name, email, created_at, graduation_year, ni_names");
+        .select("id, display_name, first_name, last_name, email, created_at, graduation_year, ni_names, avatar_url");
       if (pErr) throw pErr;
 
       const { data: roles, error: rErr } = await supabase
@@ -59,6 +60,7 @@ export function useAdmin() {
           display_name: p.display_name,
           first_name: p.first_name,
           last_name: p.last_name,
+          avatar_url: (p as any).avatar_url || null,
           graduation_year: p.graduation_year ?? null,
           ni_names: (p as any).ni_names || null,
           role: (r?.role || "resident") as UserRole,
