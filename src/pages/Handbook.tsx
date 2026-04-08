@@ -111,13 +111,14 @@ const Handbook = () => {
   }, [allSections, linkedRefresh]);
 
   const handleFileUpload = async (sectionId: string, files: FileList | null) => {
-    if (!files || files.length === 0) return;
+    if (!files || files.length === 0) { setUploadingSectionId(null); return; }
     setUploadingSectionId(sectionId);
     try {
       for (const file of Array.from(files)) {
         const filePath = `${sectionId}/${Date.now()}-${file.name}`;
+        console.log("Uploading to handbook-attachments:", filePath);
         const { error: uploadErr } = await supabase.storage.from("handbook-attachments").upload(filePath, file);
-        if (uploadErr) throw uploadErr;
+        if (uploadErr) { console.error("Storage upload error:", uploadErr); throw uploadErr; }
         const { error: insertErr } = await (supabase as any).from("handbook_attachments").insert({
           section_id: sectionId,
           file_name: file.name,
@@ -126,15 +127,17 @@ const Handbook = () => {
           content_type: file.type,
           uploaded_by: user?.id,
         });
-        if (insertErr) throw insertErr;
+        if (insertErr) { console.error("DB insert error:", insertErr); throw insertErr; }
       }
       toast({ title: "File(s) uploaded" });
       setLinkedRefresh(r => r + 1);
     } catch (e: any) {
-      toast({ title: "Upload failed", description: e.message, variant: "destructive" });
+      console.error("Upload failed:", e);
+      toast({ title: "Upload failed", description: e.message || JSON.stringify(e), variant: "destructive" });
+    } finally {
+      setUploadingSectionId(null);
+      if (fileInputRef.current) fileInputRef.current.value = "";
     }
-    setUploadingSectionId(null);
-    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const handleDeleteFile = async (fileId: string, filePath: string) => {
@@ -443,19 +446,12 @@ const Handbook = () => {
                 <CheckSquare style={{ width: 11, height: 11 }} /> Add task
               </button>
               <button
-                onClick={() => { setUploadingSectionId(section.id); fileInputRef.current?.click(); }}
-                disabled={uploadingSectionId === section.id}
+                onClick={() => { setUploadingSectionId(section.id); setTimeout(() => fileInputRef.current?.click(), 50); }}
+                disabled={!!uploadingSectionId}
                 style={{ display: "flex", alignItems: "center", gap: 4, padding: "4px 8px", fontSize: 11, color: "#415162", background: "#fff", border: "0.5px solid #C9CED4", borderRadius: 4, cursor: "pointer" }}
               >
                 <Paperclip style={{ width: 11, height: 11 }} /> {uploadingSectionId === section.id ? "Uploading…" : "Attach file"}
               </button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                multiple
-                style={{ display: "none" }}
-                onChange={(e) => handleFileUpload(section.id, e.target.files)}
-              />
             </div>
           </>
         ) : (
@@ -707,6 +703,15 @@ const Handbook = () => {
           </div>
         </div>
       )}
+
+      {/* Hidden global file input */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        multiple
+        style={{ display: "none" }}
+        onChange={(e) => { if (uploadingSectionId) handleFileUpload(uploadingSectionId, e.target.files); }}
+      />
 
       {/* Add Event dialog */}
       {createEventForSection && (
