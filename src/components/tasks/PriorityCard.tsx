@@ -1,10 +1,12 @@
 import { useState } from "react";
-import { ArrowUp, ArrowDown } from "lucide-react";
+import { ArrowUp, ArrowDown, Pencil, X, Plus } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import type { Priority } from "@/hooks/usePriorities";
 import type { TeamMember } from "@/hooks/useTeamMembers";
+import type { Task } from "@/hooks/useTasks";
 import EditPriorityDialog from "./EditPriorityDialog";
+import ComboSearch from "@/components/shared/ComboSearch";
 
 const getInitials = (name: string | null): string => {
   if (!name) return "?";
@@ -23,9 +25,8 @@ interface PriorityCardProps {
   secondaryRank?: number | null;
   secondaryLabel?: string;
   teamMembers: TeamMember[];
-  linkedTaskCount?: number;
-  linkedTasksDone?: number;
-  suppressClick?: boolean;
+  linkedTasks: Task[];
+  unlinkableTasks: Task[];
   showArrows?: boolean;
   isFirst?: boolean;
   isLast?: boolean;
@@ -33,21 +34,38 @@ interface PriorityCardProps {
   onMoveDown?: () => void;
   onUpdate: (data: { id: string; title?: string; notes?: string; assigned_to?: string | null }) => void;
   onDelete: (id: string) => void;
+  onToggleTaskComplete: (data: { id: string; completed: boolean }) => void;
+  onUnlinkTask: (taskId: string) => void;
+  onLinkTask: (taskId: string) => void;
+  onCreateTask: (title: string) => void;
 }
 
-const PriorityCard = ({ priority, rank, secondaryRank, secondaryLabel, teamMembers, linkedTaskCount = 0, linkedTasksDone = 0, suppressClick, showArrows = true, isFirst, isLast, onMoveUp, onMoveDown, onUpdate, onDelete }: PriorityCardProps) => {
+const PriorityCard = ({
+  priority, rank, secondaryRank, secondaryLabel, teamMembers,
+  linkedTasks, unlinkableTasks,
+  showArrows = true, isFirst, isLast, onMoveUp, onMoveDown,
+  onUpdate, onDelete, onToggleTaskComplete, onUnlinkTask, onLinkTask, onCreateTask,
+}: PriorityCardProps) => {
   const [editOpen, setEditOpen] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+  const [showLinkInput, setShowLinkInput] = useState(false);
   const member = teamMembers.find((m) => m.id === priority.assigned_to);
   const assignedName = priority.assigned_name || (member ? [member.first_name, member.last_name].filter(Boolean).join(" ") : null);
+
+  const doneCount = linkedTasks.filter(t => t.completed).length;
+  const totalCount = linkedTasks.length;
 
   return (
     <>
       <Card
-        className={cn("cursor-pointer hover:shadow-md transition-shadow border-border select-none")}
+        className={cn("border-border select-none overflow-hidden")}
         style={{ WebkitTouchCallout: "none", WebkitUserSelect: "none" }}
-        onClick={() => { if (!suppressClick) setEditOpen(true); }}
       >
-        <div className="flex items-center gap-3 px-3 py-2.5">
+        {/* Header row — tap to expand */}
+        <div
+          className="flex items-center gap-3 px-3 py-2.5 cursor-pointer"
+          onClick={() => setExpanded(!expanded)}
+        >
           {showArrows && (
             <div className="flex flex-col gap-0" onClick={(e) => e.stopPropagation()}>
               <button
@@ -79,51 +97,92 @@ const PriorityCard = ({ priority, rank, secondaryRank, secondaryLabel, teamMembe
           {secondaryRank != null && (
             <span
               title={secondaryLabel || ""}
-              style={{
-                fontSize: 10,
-                fontWeight: 600,
-                color: "#8A9AAB",
-                background: "#E7EBEF",
-                borderRadius: 10,
-                padding: "2px 7px",
-                whiteSpace: "nowrap",
-                flexShrink: 0,
-              }}
+              style={{ fontSize: 10, fontWeight: 600, color: "#8A9AAB", background: "#E7EBEF", borderRadius: 10, padding: "2px 7px", whiteSpace: "nowrap", flexShrink: 0 }}
             >
               P{secondaryRank}
             </span>
           )}
 
+          {totalCount > 0 && (
+            <span style={{ fontSize: 11, color: "#8A9AAB", flexShrink: 0 }}>{doneCount}/{totalCount}</span>
+          )}
+
           <div className="shrink-0">
             {member?.avatar_url ? (
-              <img
-                src={member.avatar_url}
-                alt={assignedName || ""}
-                className="w-7 h-7 rounded-full object-cover shrink-0"
-                title={assignedName || ""}
-              />
+              <img src={member.avatar_url} alt={assignedName || ""} className="w-7 h-7 rounded-full object-cover shrink-0" title={assignedName || ""} />
             ) : assignedName ? (
-              <div
-                className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-semibold text-white"
-                style={{ background: getAvatarColor(assignedName) }}
-                title={assignedName}
-              >
+              <div className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-semibold text-white" style={{ background: getAvatarColor(assignedName) }} title={assignedName}>
                 {getInitials(assignedName)}
               </div>
             ) : (
-              <div
-                className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-semibold border"
-                style={{ color: "#A0AEC0", borderColor: "#CBD5E0" }}
-              >
-                ?
-              </div>
+              <div className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-semibold border" style={{ color: "#A0AEC0", borderColor: "#CBD5E0" }}>?</div>
             )}
           </div>
+
+          {/* Pencil — opens edit dialog */}
+          <button
+            onClick={(e) => { e.stopPropagation(); setEditOpen(true); }}
+            style={{ padding: 4, background: "transparent", border: "none", cursor: "pointer", color: "#8A9AAB", display: "flex", flexShrink: 0 }}
+          >
+            <Pencil style={{ width: 14, height: 14 }} />
+          </button>
         </div>
-        {linkedTaskCount > 0 && (
-          <div style={{ padding: "0 12px 8px 52px", display: "flex", alignItems: "center", gap: 6 }}>
-            <svg style={{ width: 14, height: 14, color: "#8A9AAB" }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
-            <span style={{ fontSize: 11, color: "#5F7285" }}>{linkedTasksDone} of {linkedTaskCount} tasks done</span>
+
+        {/* Expanded: linked tasks */}
+        {expanded && (
+          <div style={{ padding: "0 12px 10px 58px", display: "flex", flexDirection: "column", gap: 4 }}>
+            {linkedTasks.map(t => (
+              <div key={t.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "5px 8px", background: "#F5F3EE", borderRadius: 6 }}>
+                <div
+                  onClick={(e) => { e.stopPropagation(); onToggleTaskComplete({ id: t.id, completed: !t.completed }); }}
+                  style={{
+                    width: 16, height: 16, borderRadius: 3, flexShrink: 0, cursor: "pointer",
+                    border: t.completed ? "none" : "1.5px solid #C9CED4",
+                    background: t.completed ? "#4A846C" : "transparent",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                  }}
+                >
+                  {t.completed && (
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12" /></svg>
+                  )}
+                </div>
+                <span style={{ fontSize: 12, color: t.completed ? "#8A9AAB" : "#2D3748", flex: 1, textDecoration: t.completed ? "line-through" : "none" }}>
+                  {t.title}
+                </span>
+                <button
+                  onClick={(e) => { e.stopPropagation(); onUnlinkTask(t.id); }}
+                  style={{ padding: 2, background: "transparent", border: "none", cursor: "pointer", display: "flex", color: "#C9CED4", flexShrink: 0 }}
+                >
+                  <X style={{ width: 12, height: 12 }} />
+                </button>
+              </div>
+            ))}
+
+            {/* Link or create task */}
+            {showLinkInput ? (
+              <div onClick={(e) => e.stopPropagation()}>
+                <ComboSearch
+                  items={unlinkableTasks.map(t => ({ id: t.id, label: t.title }))}
+                  placeholder="Search or create task..."
+                  createLabel="task"
+                  onSelect={(id) => { onLinkTask(id); setShowLinkInput(false); }}
+                  onCreate={(title) => { onCreateTask(title); setShowLinkInput(false); }}
+                  autoFocus
+                />
+              </div>
+            ) : (
+              <button
+                onClick={(e) => { e.stopPropagation(); setShowLinkInput(true); }}
+                style={{
+                  display: "flex", alignItems: "center", gap: 6, padding: "5px 8px",
+                  border: "1px dashed #C9CED4", borderRadius: 6, background: "transparent",
+                  cursor: "pointer", marginTop: 2, color: "#8A9AAB", fontSize: 12,
+                }}
+              >
+                <Plus style={{ width: 14, height: 14 }} />
+                Link or create task
+              </button>
+            )}
           </div>
         )}
       </Card>

@@ -3,14 +3,11 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Trash2, X } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
-import { useTasks } from "@/hooks/useTasks";
 import { formatPersonName } from "@/lib/dateFormat";
 import RichTextEditor from "./RichTextEditor";
-import ComboSearch from "@/components/shared/ComboSearch";
 import type { Priority } from "@/hooks/usePriorities";
-import type { Task } from "@/hooks/useTasks";
 
 interface EditPriorityDialogProps {
   priority: Priority;
@@ -25,18 +22,6 @@ const EditPriorityDialog = ({ priority, open, onOpenChange, onUpdate, onDelete }
   const [notes, setNotes] = useState(priority.notes || "");
   const [assignedTo, setAssignedTo] = useState(priority.assigned_to || "unassigned");
   const { data: members } = useTeamMembers();
-  const { tasks: allTaskTrees, createTask, updateTask } = useTasks();
-
-  // Flatten task tree to get all tasks
-  const flattenTasks = (trees: Task[]): Task[] => {
-    const result: Task[] = [];
-    const walk = (t: Task) => { result.push(t); t.subtasks?.forEach(walk); };
-    trees.forEach(walk);
-    return result;
-  };
-  const allTasks = flattenTasks(allTaskTrees);
-  const linkedTasks = allTasks.filter(t => (t as any).priority_id === priority.id);
-  const unlinkableTasks = allTasks.filter(t => !(t as any).priority_id);
 
   const handleOpenChange = (isOpen: boolean) => {
     if (isOpen) { setTitle(priority.title); setNotes(priority.notes || ""); setAssignedTo(priority.assigned_to || "unassigned"); }
@@ -93,47 +78,6 @@ const EditPriorityDialog = ({ priority, open, onOpenChange, onUpdate, onDelete }
             <label className="text-xs block mb-1.5" style={{ color: "#5F7285" }}>Notes</label>
             <div className="[&_.ProseMirror]:min-h-[80px] [&_.ProseMirror]:sm:min-h-[80px] [&_.ProseMirror]:md:min-h-[80px] [&_.tiptap-editor]:min-h-[100px] [&_.tiptap-editor]:sm:min-h-[100px] [&_.tiptap-editor]:md:min-h-[100px] [&_.rounded-md]:bg-white [&_.ProseMirror]:bg-white" style={{ background: "#fff", borderRadius: 8 }}>
               <RichTextEditor content={notes} onChange={setNotes} />
-            </div>
-          </div>
-
-          {/* Linked tasks */}
-          <div className="mb-4">
-            <div style={{ background: "#E7EBEF", borderRadius: 8, padding: 12 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
-                <svg style={{ width: 14, height: 14, color: "#8A9AAB" }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
-                <span style={{ fontSize: 11, fontWeight: 500, color: "#5F7285", textTransform: "uppercase", letterSpacing: "0.04em" }}>
-                  Tasks {linkedTasks.length > 0 ? `(${linkedTasks.length})` : ""}
-                </span>
-              </div>
-              {linkedTasks.map(t => (
-                <div key={t.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 0", borderBottom: "0.5px solid #D5DAE0" }}>
-                  <div style={{
-                    width: 14, height: 14, borderRadius: 3, flexShrink: 0,
-                    border: t.completed ? "none" : "1.5px solid #C9CED4",
-                    background: t.completed ? "#4A846C" : "transparent",
-                  }} />
-                  <span style={{ fontSize: 12, color: t.completed ? "#8A9AAB" : "#2D3748", flex: 1, textDecoration: t.completed ? "line-through" : "none" }}>
-                    {t.title}
-                  </span>
-                  <button
-                    onClick={() => updateTask.mutate({ id: t.id, priority_id: null })}
-                    style={{ background: "none", border: "none", cursor: "pointer", padding: 0, display: "flex" }}
-                  >
-                    <X style={{ width: 14, height: 14, color: "#C9CED4" }} />
-                  </button>
-                </div>
-              ))}
-              <div style={{ marginTop: linkedTasks.length > 0 ? 8 : 0 }}>
-                <ComboSearch
-                  items={unlinkableTasks.map(t => ({ id: t.id, label: t.title }))}
-                  placeholder="Search or create task..."
-                  createLabel="task"
-                  onSelect={(id) => updateTask.mutate({ id, priority_id: priority.id })}
-                  onCreate={async (title) => {
-                    await createTask.mutateAsync({ title, assigned_to: priority.assigned_to || undefined, priority_id: priority.id });
-                  }}
-                />
-              </div>
             </div>
           </div>
 

@@ -326,8 +326,8 @@ const Index = () => {
                                 priority={p}
                                 rank={idx + 1}
                                 teamMembers={teamMembers || []}
-                                linkedTaskCount={priorityTaskCounts.get(p.id)?.total || 0}
-                                linkedTasksDone={priorityTaskCounts.get(p.id)?.done || 0}
+                                linkedTasks={flatAllTasks.filter(t => (t as any).priority_id === p.id)}
+                                unlinkableTasks={flatAllTasks.filter(t => !(t as any).priority_id && !t.completed)}
                                 showArrows
                                 isFirst={idx === 0}
                                 isLast={idx === localMyPriorities.length - 1}
@@ -345,6 +345,10 @@ const Index = () => {
                                 }}
                                 onUpdate={(data) => updatePriority.mutate(data)}
                                 onDelete={(id) => deletePriority.mutate(id)}
+                                onToggleTaskComplete={(d) => updateTask.mutate(d)}
+                                onUnlinkTask={(id) => updateTask.mutate({ id, priority_id: null })}
+                                onLinkTask={(id) => updateTask.mutate({ id, priority_id: p.id })}
+                                onCreateTask={(title) => createTask.mutate({ title, assigned_to: p.assigned_to || undefined, priority_id: p.id })}
                               />
                           </div>
                         );
@@ -390,8 +394,8 @@ const Index = () => {
                               priority={p}
                               rank={idx + 1}
                               teamMembers={teamMembers || []}
-                              linkedTaskCount={priorityTaskCounts.get(p.id)?.total || 0}
-                              linkedTasksDone={priorityTaskCounts.get(p.id)?.done || 0}
+                              linkedTasks={flatAllTasks.filter(t => (t as any).priority_id === p.id)}
+                              unlinkableTasks={flatAllTasks.filter(t => !(t as any).priority_id && !t.completed)}
                               showArrows={canEditPriorities}
                               isFirst={idx === 0}
                               isLast={idx === localPriorities.length - 1}
@@ -409,6 +413,10 @@ const Index = () => {
                               }}
                               onUpdate={(data) => updatePriority.mutate(data)}
                               onDelete={(id) => deletePriority.mutate(id)}
+                              onToggleTaskComplete={(d) => updateTask.mutate(d)}
+                              onUnlinkTask={(id) => updateTask.mutate({ id, priority_id: null })}
+                              onLinkTask={(id) => updateTask.mutate({ id, priority_id: p.id })}
+                              onCreateTask={(title) => createTask.mutate({ title, assigned_to: p.assigned_to || undefined, priority_id: p.id })}
                             />
                         </div>
                       );
