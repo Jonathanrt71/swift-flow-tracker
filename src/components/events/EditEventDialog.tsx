@@ -34,6 +34,7 @@ import { RECURRENCE_LABELS } from "@/hooks/useEvents";
 import { useEventCategories } from "@/hooks/useEventCategories";
 import ComboSearch from "@/components/shared/ComboSearch";
 import type { ClinicalTopic } from "@/hooks/useClinicalTopics";
+import TimeSelect from "@/components/shared/TimeSelect";
 
 interface EditEventDialogProps {
   event: ProgramEvent;
@@ -235,26 +236,12 @@ const EditEventDialog = ({ event, open, onOpenChange, clinicalTopics, onCreateTo
           </div>
 
           {/* Start / End time */}
-          <div className="grid grid-cols-2 gap-3 mb-4">
-            <div>
-              <label className="text-xs block mb-1.5" style={{ color: "#5F7285" }}>Start time</label>
-              <Input
-                type="time"
-                value={startTime}
-                onChange={(e) => setStartTime(e.target.value)}
-                className="rounded-lg focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none"
-                style={{ borderColor: "#C9CED4", background: "#fff", boxShadow: "none" }}
-              />
-            </div>
-            <div>
-              <label className="text-xs block mb-1.5" style={{ color: "#5F7285" }}>End time</label>
-              <Input
-                type="time"
-                value={endTime}
-                onChange={(e) => setEndTime(e.target.value)}
-                className="rounded-lg focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none"
-                style={{ borderColor: "#C9CED4", background: "#fff", boxShadow: "none" }}
-              />
+          <div className="mb-4">
+            <label className="text-xs block mb-1.5" style={{ color: "#5F7285" }}>Time</label>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <TimeSelect value={startTime} onChange={setStartTime} placeholder="Start" />
+              <span style={{ fontSize: 12, color: "#8A9AAB" }}>to</span>
+              <TimeSelect value={endTime} onChange={setEndTime} placeholder="End" />
             </div>
           </div>
 

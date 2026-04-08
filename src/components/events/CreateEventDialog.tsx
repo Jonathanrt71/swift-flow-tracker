@@ -25,6 +25,7 @@ import { RECURRENCE_LABELS } from "@/hooks/useEvents";
 import { useEventCategories } from "@/hooks/useEventCategories";
 import { useClinicalTopics } from "@/hooks/useClinicalTopics";
 import ComboSearch from "@/components/shared/ComboSearch";
+import TimeSelect from "@/components/shared/TimeSelect";
 
 interface CreateEventDialogProps {
   onSubmit: (data: {
@@ -219,26 +220,12 @@ const CreateEventDialog = ({ onSubmit, defaultCategory }: CreateEventDialogProps
             </Popover>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-xs block mb-1.5" style={{ color: "#5F7285" }}>Start time</label>
-              <Input
-                type="time"
-                value={startTime}
-                onChange={(e) => setStartTime(e.target.value)}
-                className="rounded-lg focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none"
-                style={{ borderColor: "#C9CED4", background: "#fff" }}
-              />
-            </div>
-            <div>
-              <label className="text-xs block mb-1.5" style={{ color: "#5F7285" }}>End time</label>
-              <Input
-                type="time"
-                value={endTime}
-                onChange={(e) => setEndTime(e.target.value)}
-                className="rounded-lg focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none"
-                style={{ borderColor: "#C9CED4", background: "#fff" }}
-              />
+          <div>
+            <label className="text-xs block mb-1.5" style={{ color: "#5F7285" }}>Time</label>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <TimeSelect value={startTime} onChange={setStartTime} placeholder="Start" />
+              <span style={{ fontSize: 12, color: "#8A9AAB" }}>to</span>
+              <TimeSelect value={endTime} onChange={setEndTime} placeholder="End" />
             </div>
           </div>
 
