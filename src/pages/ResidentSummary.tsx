@@ -194,6 +194,21 @@ const ResidentSummary = () => {
     },
   });
 
+  // Logbook counts
+  const logbookQuery = useQuery({
+    queryKey: ["summary_logbook", selectedResident],
+    enabled: !!selectedResident && selectedResident !== "none",
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from("logbook_counts")
+        .select("encounter_type, total")
+        .eq("profile_id", selectedResident)
+        .order("encounter_type");
+      if (error) throw error;
+      return (data || []) as { encounter_type: string; total: number }[];
+    },
+  });
+
   // Computed values
   const feedbackList = feedbackQuery.data || [];
   const posCount = feedbackList.filter(f => f.sentiment === "positive").length;
@@ -221,6 +236,8 @@ const ResidentSummary = () => {
     });
     return Array.from(map.entries()).sort((a, b) => b[1].total - a[1].total);
   }, [procsList]);
+
+  const logbookList = logbookQuery.data || [];
 
   // Current + next blocks
   const scheduleBlocks = useMemo(() => {
@@ -450,6 +467,31 @@ const ResidentSummary = () => {
                         <td style={{ textAlign: "center", padding: "6px 6px 4px", color: "#2D3748", fontWeight: 500, borderTop: "1px solid #D5DAE0" }}>{procsList.length}</td>
                       </tr>
                     </tfoot>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {/* Log book counts */}
+            {logbookList.length > 0 && (
+              <div style={secStyle}>
+                <div style={secTitle}>Log book counts</div>
+                <div style={{ overflowX: "auto" }}>
+                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
+                    <thead>
+                      <tr>
+                        <th style={{ textAlign: "left", padding: "4px 6px", fontSize: 11, color: "#8A9AAB", fontWeight: 500, borderBottom: "1px solid #D5DAE0" }}>Encounter type</th>
+                        <th style={{ textAlign: "center", padding: "4px 6px", fontSize: 11, color: "#8A9AAB", fontWeight: 500, borderBottom: "1px solid #D5DAE0", width: 50 }}>Total</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {logbookList.map((row, i) => (
+                        <tr key={row.encounter_type} style={{ background: i % 2 === 0 ? "transparent" : "rgba(0,0,0,0.03)" }}>
+                          <td style={{ padding: "4px 6px", color: "#2D3748", fontWeight: 500 }}>{row.encounter_type}</td>
+                          <td style={{ textAlign: "center", padding: "4px 6px", color: "#2D3748", fontWeight: 500 }}>{row.total}</td>
+                        </tr>
+                      ))}
+                    </tbody>
                   </table>
                 </div>
               </div>
