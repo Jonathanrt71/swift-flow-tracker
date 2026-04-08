@@ -325,8 +325,6 @@ const Index = () => {
                               <PriorityCard
                                 priority={p}
                                 rank={idx + 1}
-                                secondaryRank={programRank}
-                                secondaryLabel="Program rank"
                                 teamMembers={teamMembers || []}
                                 linkedTaskCount={priorityTaskCounts.get(p.id)?.total || 0}
                                 linkedTasksDone={priorityTaskCounts.get(p.id)?.done || 0}
