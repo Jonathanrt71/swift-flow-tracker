@@ -298,7 +298,7 @@ const Rotations = () => {
               <TypeCard value={selected.rotation_type} rotationId={selected.id} canEdit={canEdit} />
             </div>
             {narrativeSections.map(({ label, field }) => (
-              <EditableSection key={field} label={label} field={field} value={selected[field] as string} rotationId={selected.id} canEdit={canEdit} />
+              <EditableSection key={field} label={label} field={field} value={(selected[field] as string) || ""} rotationId={selected.id} canEdit={canEdit} />
             ))}
           </div>
         ) : (
