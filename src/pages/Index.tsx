@@ -1,5 +1,6 @@
 // force rebuild v5
 import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { format, parseISO } from "date-fns";
 import { useTasks } from "@/hooks/useTasks";
 import { useAuth } from "@/contexts/AuthContext";
@@ -52,6 +53,21 @@ const Index = () => {
   const [activeTab, setActiveTab] = useState("priorities");
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [programCollapsed, setProgramCollapsed] = useState(true);
+  const [highlightPriority, setHighlightPriority] = useState<string | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Handle ?tab= and ?highlight= query params
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    const highlight = searchParams.get("highlight");
+    if (tab) setActiveTab(tab);
+    if (highlight) {
+      setHighlightPriority(highlight);
+      setTimeout(() => setHighlightPriority(null), 2000);
+      // Clear params
+      setSearchParams({}, { replace: true });
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     setLocalPriorities(priorities);
@@ -342,7 +358,11 @@ const Index = () => {
                       {localMyPriorities.map((p, idx) => {
                         const programRank = priorities.indexOf(p) + 1;
                         return (
-                          <div key={p.id}>
+                          <div key={p.id} style={{
+                            borderRadius: 8,
+                            boxShadow: highlightPriority === p.id ? "0 0 0 2px #415162" : "none",
+                            transition: "box-shadow 0.3s ease",
+                          }}>
                               <PriorityCard
                                 priority={p}
                                 rank={idx + 1}
@@ -410,7 +430,11 @@ const Index = () => {
                         </div>
                       );
                       return (
-                        <div key={p.id} className="mb-1.5">
+                        <div key={p.id} className="mb-1.5" style={{
+                          borderRadius: 8,
+                          boxShadow: highlightPriority === p.id ? "0 0 0 2px #415162" : "none",
+                          transition: "box-shadow 0.3s ease",
+                        }}>
                             <PriorityCard
                               priority={p}
                               rank={idx + 1}

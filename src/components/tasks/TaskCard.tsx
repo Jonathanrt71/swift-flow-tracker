@@ -124,9 +124,12 @@ const TaskCard = ({
       {expanded && (
         <div style={{ padding: "0 12px 10px 50px", display: "flex", flexDirection: "column", gap: 6 }}>
           {priorityName && (
-            <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "5px 8px", background: "#F5F3EE", borderRadius: 6 }}>
+            <div
+              onClick={(e) => { e.stopPropagation(); navigate(`/tasks?tab=priorities&highlight=${(task as any).priority_id}`); }}
+              style={{ display: "flex", alignItems: "center", gap: 6, padding: "5px 8px", background: "#F5F3EE", borderRadius: 6, cursor: "pointer" }}
+            >
               <svg style={{ width: 14, height: 14, color: "#415162", flexShrink: 0 }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 3h7v7H3z"/><path d="M14 3h7v7h-7z"/><path d="M14 14h7v7h-7z"/><path d="M3 14h7v7H3z"/></svg>
-              <span style={{ fontSize: 12, color: "#2D3748", fontWeight: 500 }}>{priorityName}</span>
+              <span style={{ fontSize: 12, color: "#415162", fontWeight: 500, textDecoration: "underline", textDecorationColor: "#C9CED4" }}>{priorityName}</span>
             </div>
           )}
           {sectionName && (
