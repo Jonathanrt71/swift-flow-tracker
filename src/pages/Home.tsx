@@ -208,23 +208,12 @@ const Home = () => {
   })();
 
   // Faculty feedback counts
-  const { data: facultyAdminRoleIds } = useQuery({
-    queryKey: ["home-faculty-admin-role-ids"],
-    queryFn: async () => {
-      const { data, error } = await supabase.from("user_roles").select("user_id, role").in("role", ["faculty", "admin"]);
-      if (error) throw error;
-      return (data || []).map((r) => ({ userId: r.user_id, role: r.role as string }));
-    },
-  });
   const facultyCountRows = (() => {
-    const facultySet = new Set((facultyAdminRoleIds || []).map(r => r.userId));
-    const roleMap = new Map((facultyAdminRoleIds || []).map(r => [r.userId, r.role]));
     const nameMap = new Map((teamMembers || []).map(m => [m.id, formatPersonName(m)]));
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     const startOfYear = new Date(now.getFullYear(), 0, 1);
     const countsMap = new Map<string, { total: number; month: number; year: number }>();
-    facultySet.forEach(uid => countsMap.set(uid, { total: 0, month: 0, year: 0 }));
     feedbackList.forEach(f => {
       if (!countsMap.has(f.faculty_id)) countsMap.set(f.faculty_id, { total: 0, month: 0, year: 0 });
       const c = countsMap.get(f.faculty_id)!;
@@ -234,8 +223,7 @@ const Home = () => {
       if (d >= startOfYear) c.year++;
     });
     return Array.from(countsMap.entries())
-      .map(([uid, counts]) => ({ id: uid, name: nameMap.get(uid) || "Unknown", role: roleMap.get(uid) || "—", ...counts }))
-      .filter(r => facultySet.has(r.id) || r.total > 0)
+      .map(([uid, counts]) => ({ id: uid, name: nameMap.get(uid) || "Unknown", ...counts }))
       .sort((a, b) => b.total - a.total);
   })();
 

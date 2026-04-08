@@ -147,19 +147,6 @@ const Feedback = () => {
     },
   });
 
-  // Fetch user IDs with faculty or admin roles
-  const { data: facultyAdminRoles } = useQuery({
-    queryKey: ["faculty-admin-role-ids"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("user_roles")
-        .select("user_id, role")
-        .in("role", ["faculty", "admin"]);
-      if (error) throw error;
-      return (data || []).map((r) => ({ userId: r.user_id, role: r.role as string }));
-    },
-  });
-
   // Fetch graduation years for residents
   const { data: graduationYears } = useQuery({
     queryKey: ["resident-graduation-years"],
@@ -745,16 +732,11 @@ const Feedback = () => {
         <TabsContent value="facultyCounts" className="mt-0">
           {(() => {
             const feedbackList = feedbackQuery.data || [];
-            const facultySet = new Set((facultyAdminRoles || []).map(r => r.userId));
-            const roleMap = new Map((facultyAdminRoles || []).map(r => [r.userId, r.role]));
             const now = new Date();
             const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
             const startOfYear = new Date(now.getFullYear(), 0, 1);
 
             const countsMap = new Map<string, { total: number; month: number; year: number }>();
-            // Initialize all faculty/admin with zero counts
-            facultySet.forEach(uid => countsMap.set(uid, { total: 0, month: 0, year: 0 }));
-            // Also count any feedback submitter even if not in faculty/admin roles
             feedbackList.forEach(f => {
               if (!countsMap.has(f.faculty_id)) countsMap.set(f.faculty_id, { total: 0, month: 0, year: 0 });
               const c = countsMap.get(f.faculty_id)!;
@@ -768,10 +750,8 @@ const Feedback = () => {
               .map(([uid, counts]) => ({
                 id: uid,
                 name: nameMap.get(uid) || "Unknown",
-                role: roleMap.get(uid) || "—",
                 ...counts,
               }))
-              .filter(r => facultySet.has(r.id) || r.total > 0)
               .sort((a, b) => b.total - a.total);
 
             const totalAll = rows.reduce((s, r) => s + r.total, 0);
@@ -813,7 +793,6 @@ const Feedback = () => {
                   }}>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <span style={{ fontSize: 13, fontWeight: 500, color: "#2D3748" }}>{r.name}</span>
-                      <span style={{ fontSize: 10, color: "#8A9AAB", marginLeft: 6, textTransform: "capitalize" }}>{r.role}</span>
                     </div>
                     <span style={{ width: 50, fontSize: 13, fontWeight: 600, color: r.month > 0 ? "#415162" : "#C9CED4", textAlign: "center" }}>{r.month}</span>
                     <span style={{ width: 50, fontSize: 13, fontWeight: 600, color: r.year > 0 ? "#415162" : "#C9CED4", textAlign: "center" }}>{r.year}</span>
