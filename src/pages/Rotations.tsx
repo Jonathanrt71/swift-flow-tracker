@@ -235,7 +235,7 @@ const Rotations = () => {
           <div>
             {isLoading && <p style={{ fontSize: 14, color: "#999" }}>Loading rotations...</p>}
 
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 12 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
               {filtered.map((r) => (
                 <div
                   key={r.id}
