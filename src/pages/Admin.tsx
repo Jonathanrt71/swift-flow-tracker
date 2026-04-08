@@ -583,6 +583,9 @@ const RoleAccessSection = () => {
       { action: "View page", key: "announcements.view" },
       { action: "Create / edit / delete", key: "announcements.edit" },
     ]},
+    { name: "Block Schedule", rows: [
+      { action: "View page", key: "schedule.view" },
+    ]},
     { name: "CBME", rows: [
       { action: "View page", key: "cbme.view" },
       { action: "Assess / edit / all scores", key: "cbme.assess" },
@@ -601,10 +604,6 @@ const RoleAccessSection = () => {
       { action: "Generate report", key: "feedback.report" },
       { action: "View milestones", key: "feedback.milestones" },
     ]},
-    { name: "Resident Handbook", rows: [
-      { action: "View page", key: "handbook.view" },
-      { action: "Edit sections", key: "handbook.edit" },
-    ]},
     { name: "GME Handbook", rows: [
       { action: "View page", key: "gme_handbook.view" },
       { action: "Edit sections", key: "gme_handbook.edit" },
@@ -613,16 +612,16 @@ const RoleAccessSection = () => {
       { action: "View page", key: "meetings.view" },
       { action: "Create / edit / delete", key: "meetings.edit" },
     ]},
-    { name: "Operations", rows: [
-      { action: "View page", key: "operations.view" },
-      { action: "Edit sections", key: "operations.edit" },
-    ]},
     { name: "Priorities", rows: [
       { action: "View page", key: "priorities.view" },
       { action: "Create / edit / delete", key: "priorities.edit" },
     ]},
     { name: "Profile", rows: [
       { action: "View / edit own", key: "profile.own" },
+    ]},
+    { name: "Program Handbook", rows: [
+      { action: "View page", key: "handbook.view" },
+      { action: "Edit sections", key: "handbook.edit" },
     ]},
     { name: "Rotations", rows: [
       { action: "View page", key: "rotations.view" },
