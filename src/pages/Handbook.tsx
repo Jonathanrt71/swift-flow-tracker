@@ -8,7 +8,7 @@ import {
   ShieldCheck, Globe, Coffee, AlertTriangle, MessageSquare, Layers,
   Users, AlertCircle, Monitor, Pencil, X, Save,
   Menu, ChevronDown, ChevronRight, Plus, Trash2, Search, ArrowUp, ArrowDown,
-  CalendarPlus,
+  CalendarPlus, Paperclip,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
@@ -69,11 +69,14 @@ const Handbook = () => {
   // Linked events & tasks
   const [linkedEvents, setLinkedEvents] = useState<Record<string, any[]>>({});
   const [linkedTasks, setLinkedTasks] = useState<Record<string, any[]>>({});
+  const [linkedFiles, setLinkedFiles] = useState<Record<string, any[]>>({});
   const [linkedRefresh, setLinkedRefresh] = useState(0);
   const [createEventForSection, setCreateEventForSection] = useState<HandbookSection | null>(null);
   const [eventTitle, setEventTitle] = useState("");
   const [eventDate, setEventDate] = useState("");
   const [eventCategory, setEventCategory] = useState("program");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploadingSectionId, setUploadingSectionId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!allSections?.length) return;
@@ -96,7 +99,57 @@ const Handbook = () => {
         (data || []).forEach((t: any) => { const sid = t.operations_section_id; if (sid) { if (!grouped[sid]) grouped[sid] = []; grouped[sid].push(t); } });
         setLinkedTasks(grouped);
       });
+    (supabase as any).from("handbook_attachments").select("*").in("section_id", sectionIds).order("created_at", { ascending: true })
+      .then(({ data, error: err }: { data: any[]; error: any }) => {
+        if (err) return;
+        const grouped: Record<string, any[]> = {};
+        (data || []).forEach((f: any) => { const sid = f.section_id; if (sid) { if (!grouped[sid]) grouped[sid] = []; grouped[sid].push(f); } });
+        setLinkedFiles(grouped);
+      });
   }, [allSections, linkedRefresh]);
+
+  const handleFileUpload = async (sectionId: string, files: FileList | null) => {
+    if (!files || files.length === 0) return;
+    setUploadingSectionId(sectionId);
+    try {
+      for (const file of Array.from(files)) {
+        const filePath = `${sectionId}/${Date.now()}-${file.name}`;
+        const { error: uploadErr } = await supabase.storage.from("handbook-attachments").upload(filePath, file);
+        if (uploadErr) throw uploadErr;
+        const { error: insertErr } = await (supabase as any).from("handbook_attachments").insert({
+          section_id: sectionId,
+          file_name: file.name,
+          file_path: filePath,
+          file_size: file.size,
+          content_type: file.type,
+          uploaded_by: user?.id,
+        });
+        if (insertErr) throw insertErr;
+      }
+      toast({ title: "File(s) uploaded" });
+      setLinkedRefresh(r => r + 1);
+    } catch (e: any) {
+      toast({ title: "Upload failed", description: e.message, variant: "destructive" });
+    }
+    setUploadingSectionId(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handleDeleteFile = async (fileId: string, filePath: string) => {
+    try {
+      await supabase.storage.from("handbook-attachments").remove([filePath]);
+      await (supabase as any).from("handbook_attachments").delete().eq("id", fileId);
+      toast({ title: "File removed" });
+      setLinkedRefresh(r => r + 1);
+    } catch (e: any) {
+      toast({ title: "Error", description: e.message, variant: "destructive" });
+    }
+  };
+
+  const getFileUrl = (filePath: string) => {
+    const { data } = supabase.storage.from("handbook-attachments").getPublicUrl(filePath);
+    return data?.publicUrl || "";
+  };
 
   const handleCreateEvent = async () => {
     if (!eventTitle.trim() || !createEventForSection) return;
@@ -353,7 +406,7 @@ const Handbook = () => {
                 <Save style={{ width: 12, height: 12 }} /> {updateSection.isPending ? "Saving…" : "Save"}
               </button>
             </div>
-            {/* Create event / task buttons */}
+            {/* Create event / task / attach file buttons */}
             <div style={{ display: "flex", gap: 6, marginTop: 10 }}>
               <button
                 onClick={() => { setCreateEventForSection(section); setEventTitle(section.title); setEventDate(new Date().toISOString().split("T")[0]); setEventCategory("program"); }}
@@ -379,6 +432,20 @@ const Handbook = () => {
                 }}
                 iconTrigger
               />
+              <button
+                onClick={() => { setUploadingSectionId(section.id); fileInputRef.current?.click(); }}
+                disabled={uploadingSectionId === section.id}
+                style={{ display: "flex", alignItems: "center", gap: 4, padding: "4px 8px", fontSize: 11, color: "#415162", background: "#fff", border: "0.5px solid #C9CED4", borderRadius: 4, cursor: "pointer" }}
+              >
+                <Paperclip style={{ width: 11, height: 11 }} /> {uploadingSectionId === section.id ? "Uploading…" : "Attach file"}
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                multiple
+                style={{ display: "none" }}
+                onChange={(e) => handleFileUpload(section.id, e.target.files)}
+              />
             </div>
           </>
         ) : (
@@ -391,11 +458,12 @@ const Handbook = () => {
           </>
         )}
 
-        {/* Linked events & tasks — visible in edit mode even when section is not being edited */}
+        {/* Linked events, tasks & files — visible in edit mode even when section is not being edited */}
         {canEdit && !isEditing && (() => {
           const sectionEvents = linkedEvents[section.id] || [];
           const sectionTasks = linkedTasks[section.id] || [];
-          if (sectionEvents.length === 0 && sectionTasks.length === 0) return null;
+          const sectionFiles = linkedFiles[section.id] || [];
+          if (sectionEvents.length === 0 && sectionTasks.length === 0 && sectionFiles.length === 0) return null;
           return (
             <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 6 }}>
               {sectionEvents.length > 0 && (
@@ -428,6 +496,28 @@ const Handbook = () => {
                         <CheckSquare style={{ width: 12, height: 12, color: t.completed ? "#4A846C" : "#415162", flexShrink: 0 }} />
                         <span style={{ flex: 1, color: t.completed ? "#999" : "#333", fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", textDecoration: t.completed ? "line-through" : "none" }}>{t.title}</span>
                         {t.due_date && <span style={{ fontSize: 11, color: "#999", flexShrink: 0 }}>{formatDateShort(t.due_date)}</span>}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {sectionFiles.length > 0 && (
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: "#8a9baa", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 6 }}>Attached files</div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                    {sectionFiles.map((f: any) => (
+                      <div key={f.id}
+                        style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 10px", background: "#fff", border: "0.5px solid #D5DAE0", borderRadius: 5, fontSize: 12 }}>
+                        <Paperclip style={{ width: 12, height: 12, color: "#415162", flexShrink: 0 }} />
+                        <a href={getFileUrl(f.file_path)} target="_blank" rel="noopener noreferrer"
+                          style={{ flex: 1, color: "#415162", fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", textDecoration: "underline" }}>
+                          {f.file_name}
+                        </a>
+                        {f.file_size && <span style={{ fontSize: 10, color: "#999", flexShrink: 0 }}>{(f.file_size / 1024).toFixed(0)} KB</span>}
+                        <button onClick={() => handleDeleteFile(f.id, f.file_path)}
+                          style={{ background: "transparent", border: "none", cursor: "pointer", padding: 2, color: "#c44", flexShrink: 0 }}>
+                          <X style={{ width: 11, height: 11 }} />
+                        </button>
                       </div>
                     ))}
                   </div>
