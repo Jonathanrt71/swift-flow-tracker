@@ -62,23 +62,17 @@ const ResidentSummary = () => {
         reader.readAsDataURL(file);
       });
       const { data: { session } } = await supabase.auth.getSession();
-      const resp = await fetch(
-        `https://mutqwziuksuonnkjjkmp.supabase.co/functions/v1/extract-logbook-counts`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${session?.access_token}`,
-          },
-          body: JSON.stringify({
-            imageBase64: base64,
-            mediaType: file.type || "image/png",
-            profileId: selectedResident,
-          }),
-        }
-      );
-      const result = await resp.json();
-      if (!resp.ok) throw new Error(result.error || "Upload failed");
+      const res = await supabase.functions.invoke("extract-logbook-counts", {
+        body: {
+          imageBase64: base64,
+          mediaType: file.type || "image/png",
+          profileId: selectedResident,
+        },
+        headers: { Authorization: `Bearer ${session?.access_token}` },
+      });
+      if (res.error) throw new Error(res.error.message || "Upload failed");
+      const result = res.data;
+      if (result?.error) throw new Error(result.error);
       setLogbookUploadMsg(result.message || `Saved ${result.rows?.length || 0} entries`);
       queryClient.invalidateQueries({ queryKey: ["summary_logbook", selectedResident] });
     } catch (e: any) {
