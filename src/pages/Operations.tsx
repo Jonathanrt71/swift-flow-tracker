@@ -22,6 +22,7 @@ import type { EventCategory } from "@/hooks/useEvents";
 import { useDocumentSearch } from "@/hooks/useDocumentSearch";
 import DocumentSearchBar from "@/components/shared/DocumentSearchBar";
 import { usePermissions } from "@/hooks/usePermissions";
+import CreateTaskDialog from "@/components/tasks/CreateTaskDialog";
 
 const iconMap: Record<string, React.FC<{ className?: string; style?: React.CSSProperties }>> = {
   home: Home, phone: Phone, calendar: Calendar, clock: Clock, shield: Shield,
@@ -115,11 +116,6 @@ const Operations = () => {
   const [eventDate, setEventDate] = useState(new Date().toISOString().split("T")[0]);
   const [eventCategory, setEventCategory] = useState<EventCategory>("program");
   const [eventDescription, setEventDescription] = useState("");
-
-  // Create Task Template dialog state
-  const [createTaskForSection, setCreateTaskForSection] = useState<OperationsSection | null>(null);
-  const [taskTitle, setTaskTitle] = useState("");
-  const [taskDescription, setTaskDescription] = useState("");
 
   const contentRef = useRef<HTMLDivElement>(null);
   const sectionRefs = useRef<Map<string, HTMLElement>>(new Map());
@@ -227,28 +223,6 @@ const Operations = () => {
     }
   };
 
-  const handleCreateTask = async () => {
-    if (!taskTitle.trim() || !createTaskForSection) return;
-    try {
-      const { error } = await (supabase as any)
-        .from("tasks")
-        .insert({
-          title: taskTitle.trim(),
-          description: taskDescription.trim() || null,
-          created_by: user?.id,
-          operations_section_id: createTaskForSection.id,
-          completed: false,
-        });
-      if (error) throw error;
-      toast({ title: "Task created", description: `"${taskTitle.trim()}" linked to ${createTaskForSection.title}` });
-      setLinkedRefresh(r => r + 1);
-      setCreateTaskForSection(null);
-      setTaskTitle("");
-      setTaskDescription("");
-    } catch (e: any) {
-      toast({ title: "Error creating task", description: e.message, variant: "destructive" });
-    }
-  };
 
   const formatDate = (d: string) => {
     try { return new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }); }
@@ -432,16 +406,28 @@ const Operations = () => {
               >
                 <CalendarPlus style={{ width: 11, height: 11 }} /> Create event
               </button>
-              <button
-                onClick={() => {
-                  setCreateTaskForSection(section);
-                  setTaskTitle(`${section.title}`);
-                  setTaskDescription(`From Program Handbook: ${section.title}`);
-                }}
-                style={{ display: "flex", alignItems: "center", gap: 4, padding: "4px 8px", fontSize: 11, color: "#415162", background: "#fff", border: "0.5px solid #C9CED4", borderRadius: 4, cursor: "pointer" }}
-              >
-                <CheckSquare style={{ width: 11, height: 11 }} /> Create task
-              </button>
+                <CreateTaskDialog
+                  onSubmit={async (data) => {
+                    try {
+                      const { error } = await (supabase as any).from("tasks").insert({
+                        title: data.title,
+                        description: data.description || null,
+                        due_date: data.due_date || null,
+                        assigned_to: data.assigned_to || null,
+                        owed_to: data.owed_to || null,
+                        created_by: user?.id,
+                        operations_section_id: section.id,
+                        completed: false,
+                      });
+                      if (error) throw error;
+                      toast({ title: "Task created", description: `"${data.title}" linked to ${section.title}` });
+                      setLinkedRefresh(r => r + 1);
+                    } catch (e: any) {
+                      toast({ title: "Error creating task", description: e.message, variant: "destructive" });
+                    }
+                  }}
+                  iconTrigger
+                />
             </div>
 
             {/* Linked events & tasks */}
@@ -802,38 +788,6 @@ const Operations = () => {
                 Create Event
               </button>
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* Create Task dialog */}
-      {createTaskForSection && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 100, background: "rgba(65,81,98,0.45)", backdropFilter: "blur(2px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
-          <div style={{ background: "#F5F3EE", borderRadius: 10, padding: 20, maxWidth: 400, width: "100%", border: "1px solid #C9CED4", boxShadow: "0 8px 32px rgba(0,0,0,0.22)" }}>
-            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 4 }}>
-              <h3 style={{ fontSize: 15, fontWeight: 600, color: "#2D3748" }}>Create task</h3>
-              <button onClick={() => setCreateTaskForSection(null)} style={{ background: "transparent", border: "none", cursor: "pointer", padding: 2, color: "#aaa" }}><X style={{ width: 16, height: 16 }} /></button>
-            </div>
-            <p style={{ fontSize: 12, color: "#5F7285", marginBottom: 16 }}>Linked to: {createTaskForSection.title}</p>
-
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              <div>
-                <label style={{ fontSize: 12, color: "#5F7285", display: "block", marginBottom: 4 }}>Title</label>
-                <input value={taskTitle} onChange={e => setTaskTitle(e.target.value)}
-                  style={{ width: "100%", padding: "7px 10px", fontSize: 13, border: "1px solid #C9CED4", borderRadius: 6, outline: "none", background: "#fff", boxSizing: "border-box" }} />
-              </div>
-              <div>
-                <label style={{ fontSize: 12, color: "#5F7285", display: "block", marginBottom: 4 }}>Description (optional)</label>
-                <textarea value={taskDescription} onChange={e => setTaskDescription(e.target.value)} rows={3}
-                  style={{ width: "100%", padding: "7px 10px", fontSize: 13, border: "1px solid #C9CED4", borderRadius: 6, outline: "none", background: "#fff", resize: "vertical", boxSizing: "border-box" }} />
-              </div>
-            </div>
-
-            <button onClick={handleCreateTask} disabled={!taskTitle.trim()}
-              className="w-full rounded-lg py-3 text-sm font-medium text-white disabled:opacity-50"
-              style={{ background: "#415162", marginTop: 16 }}>
-              Save task
-            </button>
           </div>
         </div>
       )}
