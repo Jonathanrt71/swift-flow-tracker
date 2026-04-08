@@ -147,8 +147,10 @@ const BlockSchedule = () => {
   // Filter (resident, PGY, search — all on top of year filter)
   const filtered = useMemo(() => {
     let data = yearEntries;
+    console.log("Filter running — filterResident:", filterResident, "filterPgy:", filterPgy, "yearEntries count:", yearEntries.length);
     if (filterResident !== "all") {
       data = data.filter(e => e.resident_name === filterResident);
+      console.log("After resident filter:", data.length, "rows");
     }
     if (filterPgy !== "all") {
       data = data.filter(e => e.pgy_level === parseInt(filterPgy, 10));
@@ -345,7 +347,7 @@ const BlockSchedule = () => {
               </SelectContent>
             </Select>
           )}
-          <Select value={filterResident} onValueChange={setFilterResident}>
+          <Select value={filterResident} onValueChange={(v) => { console.log("filterResident changed to:", v); setFilterResident(v); }}>
             <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0" style={{ borderColor: "#C9CED4", background: "#fff", maxWidth: 280 }}>
               <SelectValue placeholder="All residents" />
             </SelectTrigger>
