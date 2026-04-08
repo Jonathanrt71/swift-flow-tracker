@@ -515,51 +515,6 @@ const Operations = () => {
             </div>
           )}
 
-          {/* Linked events & tasks (reader view) */}
-          {(() => {
-            const sectionEvents = linkedEvents[section.id] || [];
-            const sectionTasks = linkedTasks[section.id] || [];
-            if (sectionEvents.length === 0 && sectionTasks.length === 0) return null;
-            return (
-              <div style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 6 }}>
-                {sectionEvents.length > 0 && (
-                  <div>
-                    <div style={{ fontSize: 11, fontWeight: 600, color: "#8a9baa", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 6 }}>Linked Events</div>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
-                      {sectionEvents.map((ev: any) => (
-                        <div key={ev.id} onClick={() => navigate("/events")}
-                          style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 10px", background: "#E7EBEF", border: "0.5px solid #D5DAE0", borderRadius: 5, cursor: "pointer", fontSize: 12 }}>
-                          <Calendar style={{ width: 12, height: 12, color: "#415162", flexShrink: 0 }} />
-                          <span style={{ flex: 1, color: "#333", fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{ev.title}</span>
-                          {ev.category && (
-                            <span style={{ fontSize: 10, padding: "1px 5px", borderRadius: 3, background: "#F5F3EE", color: "#52657A", flexShrink: 0 }}>
-                              {EVENT_CATEGORY_LABELS[ev.category as EventCategory] || ev.category}
-                            </span>
-                          )}
-                          <span style={{ fontSize: 11, color: "#999", flexShrink: 0 }}>{formatDate(ev.event_date)}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                {sectionTasks.length > 0 && (
-                  <div>
-                    <div style={{ fontSize: 11, fontWeight: 600, color: "#8a9baa", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 6 }}>Linked Tasks</div>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
-                      {sectionTasks.map((t: any) => (
-                        <div key={t.id} onClick={() => navigate("/tasks")}
-                          style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 10px", background: "#E7EBEF", border: "0.5px solid #D5DAE0", borderRadius: 5, cursor: "pointer", fontSize: 12 }}>
-                          <CheckSquare style={{ width: 12, height: 12, color: t.completed ? "#4A846C" : "#415162", flexShrink: 0 }} />
-                          <span style={{ flex: 1, color: t.completed ? "#999" : "#333", fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", textDecoration: t.completed ? "line-through" : "none" }}>{t.title}</span>
-                          {t.due_date && <span style={{ fontSize: 11, color: "#999", flexShrink: 0 }}>{formatDate(t.due_date)}</span>}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            );
-          })()}
         </div>
         {depth === 0 && <div style={{ borderBottom: "1px solid #E0DDD8", marginTop: 28 }} />}
         </>
