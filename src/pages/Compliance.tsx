@@ -768,6 +768,9 @@ const Compliance = () => {
           <div style={{ fontSize: 12, color: "#999", marginBottom: 12 }}>
             {stats.total} total · <span style={{ color: STATUS_CONFIG.compliant.color }}>{stats.met} met</span> · <span style={{ color: STATUS_CONFIG.partially_compliant.color }}>{stats.partial} partial</span> · <span style={{ color: STATUS_CONFIG.non_compliant.color }}>{stats.notMet} not met</span> · {stats.unreviewed} unreviewed
           </div>
+          <div style={{ fontSize: 12, color: "#999", marginBottom: 12 }}>
+            {filtered.length} of {requirements?.length || 0} displayed
+          </div>
 
           {/* Grouped requirements */}
           {Object.entries(groupedBySection)
