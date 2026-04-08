@@ -45,6 +45,11 @@ const Index = () => {
   const { has: hasPerm } = usePermissions();
   const canEditPriorities = hasPerm("priorities.edit");
 
+  const [localPriorities, setLocalPriorities] = useState(priorities);
+  const [localMyPriorities, setLocalMyPriorities] = useState<typeof priorities>([]);
+  const [activeTab, setActiveTab] = useState("priorities");
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [programCollapsed, setProgramCollapsed] = useState(true);
 
   useEffect(() => {
     setLocalPriorities(priorities);
