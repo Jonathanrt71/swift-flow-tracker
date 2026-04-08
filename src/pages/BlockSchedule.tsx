@@ -179,13 +179,15 @@ const BlockSchedule = () => {
       }
       entry.blocks.get(e.block_number)!.push(e.rotation);
     });
-    return Array.from(map.values())
+    const result = Array.from(map.values())
       .sort((a, b) => {
         const pgyA = a.pgy ?? 99;
         const pgyB = b.pgy ?? 99;
         if (pgyA !== pgyB) return pgyA - pgyB;
         return a.name.localeCompare(b.name);
       });
+    console.log("Grouped residents:", result.length, result.map(r => r.name));
+    return result;
   }, [filtered]);
 
   // Determine current block
