@@ -142,17 +142,20 @@ const Handbook = () => {
     const idx = siblings.findIndex(s => s.id === sectionId);
     const swapIdx = direction === "up" ? idx - 1 : idx + 1;
     if (swapIdx < 0 || swapIdx >= siblings.length) return;
-    // Swap in array
     [siblings[idx], siblings[swapIdx]] = [siblings[swapIdx], siblings[idx]];
-    // Renumber all siblings
-    try {
-      await Promise.all(siblings.map((s, i) =>
-        (supabase as any).from("handbook_sections").update({ display_order: i * 10 }).eq("id", s.id)
-      ));
-      queryClient.invalidateQueries({ queryKey: ["handbook-sections"] });
-    } catch (e: any) {
-      toast({ title: "Reorder failed", description: e.message, variant: "destructive" });
+    for (let i = 0; i < siblings.length; i++) {
+      const { error } = await (supabase as any)
+        .from("handbook_sections")
+        .update({ display_order: i * 10 })
+        .eq("id", siblings[i].id);
+      if (error) {
+        console.error("Reorder error:", error);
+        toast({ title: "Reorder failed", description: error.message || JSON.stringify(error), variant: "destructive" });
+        return;
+      }
     }
+    queryClient.invalidateQueries({ queryKey: ["handbook-sections"] });
+    toast({ title: "Reordered" });
   };
 
   // ── TOC Item ─────────────────────────────────────────────────────────
