@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { format, parseISO } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
-import { List, PieChart, FileText, BookOpen, Pencil, Trash2, X as XIcon, Search, ExternalLink, CalendarDays } from "lucide-react";
+import { List, PieChart, FileText, BookOpen, Pencil, Trash2, X as XIcon, Search, ExternalLink, CalendarDays, Users } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
@@ -144,6 +144,19 @@ const Feedback = () => {
         .eq("role", "resident");
       if (error) throw error;
       return (data || []).map((r) => r.user_id);
+    },
+  });
+
+  // Fetch user IDs with faculty or admin roles
+  const { data: facultyAdminRoles } = useQuery({
+    queryKey: ["faculty-admin-role-ids"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("user_roles")
+        .select("user_id, role")
+        .in("role", ["faculty", "admin"]);
+      if (error) throw error;
+      return (data || []).map((r) => ({ userId: r.user_id, role: r.role as string }));
     },
   });
 
@@ -651,9 +664,13 @@ const Feedback = () => {
                 <PieChart className="h-4 w-4" />
                 <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase" }}>Summary</span>
               </TabsTrigger>
-              <TabsTrigger value="lastFeedback" className="flex flex-col items-center gap-0.5 h-auto px-2 py-1 data-[state=active]:bg-[#D5DAE0] data-[state=active]:text-[#415162] data-[state=active]:shadow-none data-[state=inactive]:text-[#8A9AAB]" title="Last Feedback">
+              <TabsTrigger value="lastFeedback" className="flex flex-col items-center gap-0.5 h-auto px-2 py-1 data-[state=active]:bg-[#D5DAE0] data-[state=active]:text-[#415162] data-[state=active]:shadow-none data-[state=inactive]:text-[#8A9AAB]" title="Last Dates">
                 <CalendarDays className="h-4 w-4" />
-                <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase" }}>Dates</span>
+                <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase" }}>Last Dates</span>
+              </TabsTrigger>
+              <TabsTrigger value="facultyCounts" className="flex flex-col items-center gap-0.5 h-auto px-2 py-1 data-[state=active]:bg-[#D5DAE0] data-[state=active]:text-[#415162] data-[state=active]:shadow-none data-[state=inactive]:text-[#8A9AAB]" title="Faculty">
+                <Users className="h-4 w-4" />
+                <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase" }}>Faculty</span>
               </TabsTrigger>
             </TabsList>
           </div>
@@ -720,6 +737,89 @@ const Feedback = () => {
                     </div>
                   );
                 })}
+              </div>
+            );
+          })()}
+        </TabsContent>
+
+        <TabsContent value="facultyCounts" className="mt-0">
+          {(() => {
+            const feedbackList = feedbackQuery.data || [];
+            const facultySet = new Set((facultyAdminRoles || []).map(r => r.userId));
+            const roleMap = new Map((facultyAdminRoles || []).map(r => [r.userId, r.role]));
+            const now = new Date();
+            const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+            const startOfYear = new Date(now.getFullYear(), 0, 1);
+
+            const countsMap = new Map<string, { total: number; month: number; year: number }>();
+            // Initialize all faculty/admin with zero counts
+            facultySet.forEach(uid => countsMap.set(uid, { total: 0, month: 0, year: 0 }));
+            // Also count any feedback submitter even if not in faculty/admin roles
+            feedbackList.forEach(f => {
+              if (!countsMap.has(f.faculty_id)) countsMap.set(f.faculty_id, { total: 0, month: 0, year: 0 });
+              const c = countsMap.get(f.faculty_id)!;
+              c.total++;
+              const d = new Date(f.created_at);
+              if (d >= startOfMonth) c.month++;
+              if (d >= startOfYear) c.year++;
+            });
+
+            const rows = Array.from(countsMap.entries())
+              .map(([uid, counts]) => ({
+                id: uid,
+                name: nameMap.get(uid) || "Unknown",
+                role: roleMap.get(uid) || "—",
+                ...counts,
+              }))
+              .filter(r => facultySet.has(r.id) || r.total > 0)
+              .sort((a, b) => b.total - a.total);
+
+            const totalAll = rows.reduce((s, r) => s + r.total, 0);
+            const totalMonth = rows.reduce((s, r) => s + r.month, 0);
+            const totalYear = rows.reduce((s, r) => s + r.year, 0);
+
+            return rows.length === 0 ? (
+              <div style={{ fontSize: 13, color: "#8A9AAB", padding: "20px 0", textAlign: "center" }}>No faculty data found.</div>
+            ) : (
+              <div>
+                {/* Summary row */}
+                <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
+                  <div style={{ flex: 1, background: "#E7EBEF", borderRadius: 8, padding: "10px 12px", textAlign: "center" }}>
+                    <div style={{ fontSize: 20, fontWeight: 600, color: "#415162" }}>{totalMonth}</div>
+                    <div style={{ fontSize: 11, color: "#5F7285" }}>This month</div>
+                  </div>
+                  <div style={{ flex: 1, background: "#E7EBEF", borderRadius: 8, padding: "10px 12px", textAlign: "center" }}>
+                    <div style={{ fontSize: 20, fontWeight: 600, color: "#415162" }}>{totalYear}</div>
+                    <div style={{ fontSize: 11, color: "#5F7285" }}>This year</div>
+                  </div>
+                  <div style={{ flex: 1, background: "#E7EBEF", borderRadius: 8, padding: "10px 12px", textAlign: "center" }}>
+                    <div style={{ fontSize: 20, fontWeight: 600, color: "#415162" }}>{totalAll}</div>
+                    <div style={{ fontSize: 11, color: "#5F7285" }}>All time</div>
+                  </div>
+                </div>
+                {/* Header */}
+                <div style={{ display: "flex", alignItems: "center", padding: "8px 12px", background: "#415162", borderRadius: "8px 8px 0 0" }}>
+                  <span style={{ flex: 1, fontSize: 11, fontWeight: 600, color: "#fff" }}>Faculty</span>
+                  <span style={{ width: 50, fontSize: 11, fontWeight: 600, color: "#fff", textAlign: "center" }}>Mo</span>
+                  <span style={{ width: 50, fontSize: 11, fontWeight: 600, color: "#fff", textAlign: "center" }}>Yr</span>
+                  <span style={{ width: 50, fontSize: 11, fontWeight: 600, color: "#fff", textAlign: "center" }}>Total</span>
+                </div>
+                {/* Rows */}
+                {rows.map((r, i) => (
+                  <div key={r.id} style={{
+                    display: "flex", alignItems: "center", padding: "9px 12px",
+                    background: i % 2 === 0 ? "#E7EBEF" : "#F5F3EE",
+                    borderRadius: i === rows.length - 1 ? "0 0 8px 8px" : 0,
+                  }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <span style={{ fontSize: 13, fontWeight: 500, color: "#2D3748" }}>{r.name}</span>
+                      <span style={{ fontSize: 10, color: "#8A9AAB", marginLeft: 6, textTransform: "capitalize" }}>{r.role}</span>
+                    </div>
+                    <span style={{ width: 50, fontSize: 13, fontWeight: 600, color: r.month > 0 ? "#415162" : "#C9CED4", textAlign: "center" }}>{r.month}</span>
+                    <span style={{ width: 50, fontSize: 13, fontWeight: 600, color: r.year > 0 ? "#415162" : "#C9CED4", textAlign: "center" }}>{r.year}</span>
+                    <span style={{ width: 50, fontSize: 13, fontWeight: 600, color: r.total > 0 ? "#415162" : "#C9CED4", textAlign: "center" }}>{r.total}</span>
+                  </div>
+                ))}
               </div>
             );
           })()}
