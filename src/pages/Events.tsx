@@ -79,6 +79,7 @@ const EventCard = ({
   onEdit,
   onConfirmRecurrence,
   onSkipRecurrence,
+  sectionName,
 }: {
   event: ProgramEvent;
   teamMembers: ReturnType<typeof useTeamMembers>["data"];
