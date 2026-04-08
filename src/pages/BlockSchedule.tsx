@@ -147,8 +147,10 @@ const BlockSchedule = () => {
   // Filter and group in one pass to avoid stale memo references
   const grouped = useMemo(() => {
     let data = yearEntries;
+    console.log("[schedule] memo run — filterResident:", filterResident, "filterPgy:", filterPgy, "entries:", yearEntries.length);
     if (filterResident !== "all") {
       data = data.filter(e => e.resident_name === filterResident);
+      console.log("[schedule] after resident filter:", data.length);
     }
     if (filterPgy !== "all") {
       data = data.filter(e => e.pgy_level === parseInt(filterPgy, 10));
@@ -402,6 +404,7 @@ const BlockSchedule = () => {
         </div>
 
         {/* Schedule grid */}
+        {(() => { console.log("[schedule] rendering with grouped:", grouped.length, "residents"); return null; })()}
         {scheduleQuery.isLoading ? (
           <div style={{ display: "flex", justifyContent: "center", padding: 48 }}>
             <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
