@@ -464,8 +464,8 @@ const Handbook = () => {
           </>
         )}
 
-        {/* Linked events, tasks & files — visible in edit mode even when section is not being edited */}
-        {canEdit && !isEditing && (() => {
+        {/* Linked events, tasks & files — visible in edit mode regardless of section edit state */}
+        {canEdit && (() => {
           const sectionEvents = linkedEvents[section.id] || [];
           const sectionTasks = linkedTasks[section.id] || [];
           const sectionFiles = linkedFiles[section.id] || [];
