@@ -98,35 +98,45 @@ function EditableMetaCard({ label, value, field, rotationId, canEdit, icon: Icon
   });
 
   return (
-    <div
-      onClick={() => { if (canEdit && !editing) { setDraft(value || ""); setEditing(true); } }}
-      style={{ background: "#E7EBEF", borderRadius: 8, padding: "10px 12px", cursor: canEdit ? "pointer" : "default", minHeight: 52 }}
-    >
-      <div style={{ fontSize: 11, color: "#5F7285", marginBottom: 2, display: "flex", alignItems: "center", gap: 4 }}>
-        {Icon && <Icon style={{ width: 11, height: 11 }} />}
-        <span style={{ flex: 1 }}>{label}</span>
-        {editing && (
-          <div style={{ display: "flex", gap: 3 }} onClick={e => e.stopPropagation()}>
-            <button onClick={() => setEditing(false)} style={{ padding: "1px 6px", fontSize: 10, color: "#777", background: "#fff", border: "0.5px solid #C9CED4", borderRadius: 3, cursor: "pointer" }}>Cancel</button>
-            <button onClick={() => save.mutate()} style={{ padding: "1px 6px", fontSize: 10, color: "#fff", background: "#415162", border: "none", borderRadius: 3, cursor: "pointer" }}>Save</button>
-          </div>
-        )}
-      </div>
-      {editing ? (
-        <input
-          autoFocus
-          value={draft}
-          onChange={e => setDraft(e.target.value)}
-          onKeyDown={e => { if (e.key === "Enter") save.mutate(); if (e.key === "Escape") setEditing(false); }}
-          onClick={e => e.stopPropagation()}
-          style={{ width: "100%", padding: "5px 8px", fontSize: 13, border: "1px solid #C9CED4", borderRadius: 4, outline: "none", background: "#fff", boxSizing: "border-box", marginTop: 2 }}
-        />
-      ) : (
+    <>
+      <div
+        onClick={() => { if (canEdit) { setDraft(value || ""); setEditing(true); } }}
+        style={{ background: "#E7EBEF", borderRadius: 8, padding: "10px 12px", cursor: canEdit ? "pointer" : "default", minHeight: 52 }}
+      >
+        <div style={{ fontSize: 11, color: "#5F7285", marginBottom: 2, display: "flex", alignItems: "center", gap: 4 }}>
+          {Icon && <Icon style={{ width: 11, height: 11 }} />}
+          {label}
+        </div>
         <div style={{ fontSize: 13, color: value ? "#333" : "#bbb", fontWeight: 500, fontStyle: value ? "normal" : "italic" }}>
           {value || (canEdit ? "Tap to edit" : "—")}
         </div>
+      </div>
+      {editing && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 100, background: "rgba(65,81,98,0.45)", backdropFilter: "blur(2px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
+          <div style={{ background: "#F5F3EE", borderRadius: 10, padding: 20, maxWidth: 400, width: "100%", border: "1px solid #C9CED4" }}>
+            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 16 }}>
+              <h3 style={{ fontSize: 15, fontWeight: 600, color: "#2D3748", margin: 0 }}>{label}</h3>
+              <button onClick={() => setEditing(false)} style={{ background: "transparent", border: "none", cursor: "pointer", padding: 2, color: "#aaa" }}><X style={{ width: 16, height: 16 }} /></button>
+            </div>
+            <input
+              autoFocus
+              value={draft}
+              onChange={e => setDraft(e.target.value)}
+              onKeyDown={e => { if (e.key === "Enter") save.mutate(); if (e.key === "Escape") setEditing(false); }}
+              style={{ width: "100%", padding: "9px 12px", fontSize: 14, border: "1px solid #C9CED4", borderRadius: 6, outline: "none", background: "#fff", boxSizing: "border-box" }}
+            />
+            <button
+              onClick={() => save.mutate()}
+              disabled={save.isPending}
+              className="w-full rounded-lg py-3 text-sm font-medium text-white disabled:opacity-50"
+              style={{ background: "#415162", marginTop: 16 }}
+            >
+              {save.isPending ? "Saving…" : "Save"}
+            </button>
+          </div>
+        </div>
       )}
-    </div>
+    </>
   );
 }
 
