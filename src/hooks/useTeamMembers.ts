@@ -34,6 +34,7 @@ export function useTeamMembers() {
           display_name: formatPersonName(member),
           role: roleMap[member.id] || "resident",
         }))
+        .filter((member) => member.role !== "admin")
         .sort((a, b) => formatPersonName(a).localeCompare(formatPersonName(b)));
     },
   });
