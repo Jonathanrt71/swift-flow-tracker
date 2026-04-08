@@ -96,11 +96,11 @@ const MeetingCard = ({
         className="flex items-center min-h-[48px] px-2 cursor-pointer"
         onClick={() => setExpanded(!expanded)}
       >
-        {/* Title */}
-        <div className="flex-1 min-w-0 pl-2 pr-1">
-          <span className="font-medium text-sm truncate block">{meeting.title}</span>
+        {/* Title + category */}
+        <div className="flex-1 min-w-0 pl-2 pr-1" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span className="font-medium text-sm truncate">{meeting.title}</span>
           {categoryName && (
-            <span style={{ fontSize: 10, fontWeight: 600, padding: "1px 7px", borderRadius: 4, background: "#D5DAE0", color: "#415162", textTransform: "uppercase" as const, letterSpacing: "0.03em" }}>
+            <span style={{ fontSize: 10, fontWeight: 600, padding: "1px 7px", borderRadius: 4, background: "#D5DAE0", color: "#415162", textTransform: "uppercase" as const, letterSpacing: "0.03em", whiteSpace: "nowrap", flexShrink: 0 }}>
               {categoryName}
             </span>
           )}
