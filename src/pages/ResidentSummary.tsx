@@ -45,11 +45,24 @@ const ResidentSummary = () => {
   const { user, signOut } = useAuth();
   const { isAdmin } = useAdmin();
   const [selectedResident, setSelectedResident] = useState<string>("none");
-  const canUploadLogbook = user?.email === "hmcfm@jrtmd.com" || user?.email === "Kcollins@hhcs.org";
   const [logbookUploading, setLogbookUploading] = useState(false);
   const [logbookUploadMsg, setLogbookUploadMsg] = useState<string | null>(null);
   const logbookFileRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
+
+  const canUploadQuery = useQuery({
+    queryKey: ["can_upload_logbook", user?.id],
+    enabled: !!user?.id,
+    queryFn: async () => {
+      const { data } = await (supabase as any)
+        .from("profiles")
+        .select("can_upload_logbook")
+        .eq("id", user!.id)
+        .single();
+      return data?.can_upload_logbook === true;
+    },
+  });
+  const canUploadLogbook = canUploadQuery.data === true;
 
   const handleLogbookUpload = async (file: File) => {
     if (!selectedResident || selectedResident === "none") return;
