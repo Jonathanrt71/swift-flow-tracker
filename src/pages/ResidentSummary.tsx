@@ -45,6 +45,7 @@ const ResidentSummary = () => {
   const { user, signOut } = useAuth();
   const { isAdmin } = useAdmin();
   const [selectedResident, setSelectedResident] = useState<string>("none");
+  const canUploadLogbook = user?.email === "hmcfm@jrtmd.com" || user?.email === "Kcollins@hhcs.org";
   const [logbookUploading, setLogbookUploading] = useState(false);
   const [logbookUploadMsg, setLogbookUploadMsg] = useState<string | null>(null);
   const logbookFileRef = useRef<HTMLInputElement>(null);
@@ -530,11 +531,11 @@ const ResidentSummary = () => {
             )}
 
             {/* Log book counts */}
-            {(logbookList.length > 0 || isAdmin) && (
+            {(logbookList.length > 0 || canUploadLogbook) && (
               <div style={secStyle}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
                   <div style={secTitle as any}>Log book counts</div>
-                  {isAdmin && (
+                  {canUploadLogbook && (
                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                       {logbookUploadMsg && (
                         <span style={{ fontSize: 11, color: logbookUploadMsg.startsWith("Error") ? "#9F2929" : "#4A846C" }}>
