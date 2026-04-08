@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Home, Phone, Calendar, Clock, Shield, Repeat, FileText, TrendingUp,
   BookOpen, CalendarOff, CheckSquare, Moon, RefreshCw, Shirt, Heart,
