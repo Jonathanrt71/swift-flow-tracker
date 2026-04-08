@@ -680,30 +680,11 @@ const Compliance = () => {
 
       {/* Tabs */}
       <div style={{ padding: "12px 16px 0", background: "#F5F3EE", maxWidth: 900, margin: "0 auto" }}>
-        <h1 style={{ fontSize: 22, fontWeight: 600, color: "#2D3748", marginBottom: 16 }}>ACGME Handbook</h1>
+        <h1 style={{ fontSize: 22, fontWeight: 600, color: "#2D3748", marginBottom: 12, textAlign: "left" }}>ACGME Handbook</h1>
 
-        {/* Stats bar */}
-        <div style={{
-          display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 14, alignItems: "center",
-          padding: "10px 12px", background: "#fff", borderRadius: 8,
-          border: "1px solid #E7EBEF",
-        }}>
-          <div style={{ fontSize: 12, color: "#555" }}>
-            <strong>{stats.total}</strong> total
-          </div>
-          <div style={{ width: 1, background: "#E7EBEF" }} />
-          <div style={{ fontSize: 12, color: STATUS_CONFIG.compliant.color }}>
-            <strong>{stats.met}</strong> met
-          </div>
-          <div style={{ fontSize: 12, color: STATUS_CONFIG.partially_compliant.color }}>
-            <strong>{stats.partial}</strong> partial
-          </div>
-          <div style={{ fontSize: 12, color: STATUS_CONFIG.non_compliant.color }}>
-            <strong>{stats.notMet}</strong> not met
-          </div>
-          <div style={{ fontSize: 12, color: "#999" }}>
-            <strong>{stats.unreviewed}</strong> unreviewed
-          </div>
+        {/* Stats summary */}
+        <div style={{ fontSize: 12, color: "#999", marginBottom: 14 }}>
+          {stats.total} total · <span style={{ color: STATUS_CONFIG.compliant.color }}>{stats.met} met</span> · <span style={{ color: STATUS_CONFIG.partially_compliant.color }}>{stats.partial} partial</span> · <span style={{ color: STATUS_CONFIG.non_compliant.color }}>{stats.notMet} not met</span> · {stats.unreviewed} unreviewed
         </div>
       </div>
 
@@ -780,10 +761,6 @@ const Compliance = () => {
             >
               <BookOpen style={{ width: 15, height: 15 }} /> Narrative
             </button>
-          </div>
-
-          <div style={{ fontSize: 12, color: "#999", marginBottom: 8 }}>
-            Showing {filtered.length} of {requirements?.length || 0} requirements
           </div>
 
           {/* Grouped requirements */}
