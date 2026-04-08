@@ -234,13 +234,30 @@ const Handbook = () => {
     setTocOpen(false);
   };
 
-  const startEditing = (s: HandbookSection) => {
-    setEditTitle(s.title);
-    editContentRef.current = s.content || "";
-    setEditingId(s.id);
+  const preserveScroll = (fn: () => void) => {
+    const container = contentRef.current;
+    const scrollPos = container ? container.scrollTop : 0;
+    fn();
+    requestAnimationFrame(() => {
+      if (container) container.scrollTop = scrollPos;
+    });
   };
 
-  const cancelEditing = () => { setEditingId(null); setEditTitle(""); editContentRef.current = ""; };
+  const startEditing = (s: HandbookSection) => {
+    preserveScroll(() => {
+      setEditTitle(s.title);
+      editContentRef.current = s.content || "";
+      setEditingId(s.id);
+    });
+  };
+
+  const cancelEditing = () => {
+    preserveScroll(() => {
+      setEditingId(null);
+      setEditTitle("");
+      editContentRef.current = "";
+    });
+  };
 
   const handleSave = (id: string) => {
     const container = contentRef.current;
