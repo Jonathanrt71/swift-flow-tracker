@@ -681,11 +681,6 @@ const Compliance = () => {
       {/* Tabs */}
       <div style={{ padding: "12px 16px 0", background: "#F5F3EE", maxWidth: 900, margin: "0 auto" }}>
         <h1 style={{ fontSize: 22, fontWeight: 600, color: "#2D3748", marginBottom: 12, textAlign: "left" }}>ACGME Handbook</h1>
-
-        {/* Stats summary */}
-        <div style={{ fontSize: 12, color: "#999", marginBottom: 14 }}>
-          {stats.total} total · <span style={{ color: STATUS_CONFIG.compliant.color }}>{stats.met} met</span> · <span style={{ color: STATUS_CONFIG.partially_compliant.color }}>{stats.partial} partial</span> · <span style={{ color: STATUS_CONFIG.non_compliant.color }}>{stats.notMet} not met</span> · {stats.unreviewed} unreviewed
-        </div>
       </div>
 
       {/* ── TAB: Requirements Table ─────────────────────────────────────── */}
@@ -761,6 +756,10 @@ const Compliance = () => {
             >
               <BookOpen style={{ width: 15, height: 15 }} /> Narrative
             </button>
+          </div>
+
+          <div style={{ fontSize: 12, color: "#999", marginBottom: 12 }}>
+            {stats.total} total · <span style={{ color: STATUS_CONFIG.compliant.color }}>{stats.met} met</span> · <span style={{ color: STATUS_CONFIG.partially_compliant.color }}>{stats.partial} partial</span> · <span style={{ color: STATUS_CONFIG.non_compliant.color }}>{stats.notMet} not met</span> · {stats.unreviewed} unreviewed
           </div>
 
           {/* Grouped requirements */}
