@@ -236,11 +236,20 @@ const Handbook = () => {
 
   const preserveScroll = (fn: () => void) => {
     const container = contentRef.current;
-    const scrollPos = container ? container.scrollTop : 0;
+    if (!container) { fn(); return; }
+    const scrollPos = container.scrollTop;
+    // Lock scroll during re-render
+    container.style.overflow = "hidden";
     fn();
-    requestAnimationFrame(() => {
-      if (container) container.scrollTop = scrollPos;
-    });
+    // Restore after TipTap mounts (multiple frames)
+    const restore = () => {
+      container.scrollTop = scrollPos;
+      container.style.overflow = "";
+    };
+    // Try at 0ms, 50ms, 150ms to catch TipTap mount
+    setTimeout(restore, 0);
+    setTimeout(restore, 50);
+    setTimeout(restore, 150);
   };
 
   const startEditing = (s: HandbookSection) => {
@@ -266,11 +275,15 @@ const Handbook = () => {
       { id, title: editTitle.trim(), content: editContentRef.current, userId: user?.id || "" },
       {
         onSuccess: () => {
+          if (container) container.style.overflow = "hidden";
           cancelEditing();
           toast({ title: "Section saved" });
-          requestAnimationFrame(() => {
-            if (container) container.scrollTop = scrollPos;
-          });
+          const restore = () => {
+            if (container) { container.scrollTop = scrollPos; container.style.overflow = ""; }
+          };
+          setTimeout(restore, 0);
+          setTimeout(restore, 50);
+          setTimeout(restore, 150);
         },
         onError: (e: any) => toast({ title: "Error saving", description: e.message, variant: "destructive" }),
       }
