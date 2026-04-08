@@ -130,10 +130,8 @@ const EditPriorityDialog = ({ priority, open, onOpenChange, onUpdate, onDelete }
                   createLabel="task"
                   onSelect={(id) => updateTask.mutate({ id, priority_id: priority.id })}
                   onCreate={async (title) => {
-                    await createTask.mutateAsync({ title, assigned_to: priority.assigned_to || undefined });
-                    // New task will appear in allTasks on refresh; need to link it
-                    // For now, user can search and select after creation
-                  }}
+                    await createTask.mutateAsync({ title, assigned_to: priority.assigned_to || undefined, priority_id: priority.id });
+                  }}}
                 />
               </div>
             </div>
