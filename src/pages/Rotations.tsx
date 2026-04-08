@@ -303,10 +303,10 @@ const Rotations = () => {
               <EditableMetaCard label="Duration" value={selected.duration || ""} field="duration" rotationId={selected.id} canEdit={canEdit} icon={Calendar} />
               <EditableMetaCard label="Attire" value={selected.attire || ""} field="attire" rotationId={selected.id} canEdit={canEdit} icon={Shirt} />
               <PgyCard value={selected.pgy_levels} rotationId={selected.id} canEdit={canEdit} />
-              <VacationCard value={selected.vacation_eligible} rotationId={selected.id} canEdit={canEdit} />
               <EditableMetaCard label="Rotation director" value={selected.rotation_director || ""} field="rotation_director" rotationId={selected.id} canEdit={canEdit} icon={User} />
               <EditableMetaCard label="Contact" value={selected.contact_info || ""} field="contact_info" rotationId={selected.id} canEdit={canEdit} icon={Phone} />
               <TypeCard value={selected.rotation_type} rotationId={selected.id} canEdit={canEdit} />
+              <VacationCard value={selected.vacation_eligible} rotationId={selected.id} canEdit={canEdit} />
             </div>
             {narrativeSections.map(({ label, field }) => (
               <EditableSection key={field} label={label} field={field} value={(selected[field] as string) || ""} rotationId={selected.id} canEdit={canEdit} />
