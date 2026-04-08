@@ -629,6 +629,9 @@ const RoleAccessSection = () => {
       { action: "View page", key: "meetings.view" },
       { action: "Create / edit / delete", key: "meetings.edit" },
     ]},
+    { name: "Milestones", rows: [
+      { action: "View page", key: "milestones.view" },
+    ]},
     { name: "Priorities", rows: [
       { action: "View page", key: "priorities.view" },
       { action: "Create / edit / delete", key: "priorities.edit" },
@@ -639,6 +642,9 @@ const RoleAccessSection = () => {
     { name: "Program Handbook", rows: [
       { action: "View page", key: "handbook.view" },
       { action: "Edit sections", key: "handbook.edit" },
+    ]},
+    { name: "Resident Summary", rows: [
+      { action: "View page", key: "resident_summary.view" },
     ]},
     { name: "Rotations", rows: [
       { action: "View page", key: "rotations.view" },

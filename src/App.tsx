@@ -54,7 +54,7 @@ const App = () => (
               <Route path="/feedback" element={<RoleRoute permissionKey="feedback.view"><Feedback /></RoleRoute>} />
               <Route path="/tasks" element={<RoleRoute permissionKey="tasks.view"><Index /></RoleRoute>} />
               <Route path="/cbme" element={<RoleRoute permissionKey="cbme.view"><CBME /></RoleRoute>} />
-              <Route path="/milestones" element={<RoleRoute permissionKey="cbme.view"><Milestones /></RoleRoute>} />
+              <Route path="/milestones" element={<RoleRoute permissionKey="milestones.view"><Milestones /></RoleRoute>} />
               <Route path="/handbook" element={<RoleRoute permissionKey="handbook.view"><Handbook /></RoleRoute>} />
               <Route path="/gme-handbook" element={<RoleRoute permissionKey="gme_handbook.view"><GMEHandbook /></RoleRoute>} />
               <Route path="/rotations" element={<ProtectedRoute><Rotations /></ProtectedRoute>} />
