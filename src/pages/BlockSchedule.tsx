@@ -117,11 +117,19 @@ const BlockSchedule = () => {
     return entries.filter(e => e.academic_year === activeYear);
   }, [entries, activeYear]);
 
-  // Unique residents (from year-filtered)
+  // Unique residents (from year-filtered) with display labels
   const residents = useMemo(() => {
     const set = new Set<string>();
     yearEntries.forEach(e => set.add(e.resident_name));
-    return Array.from(set).sort();
+    return Array.from(set)
+      .map(name => {
+        const parts = name.split(",").map(s => s.trim());
+        const last = parts[0] || name;
+        const first = parts[1] || "";
+        const initial = first ? first.charAt(0) + "." : "";
+        return { value: name, label: initial ? `${last}, ${initial}` : last };
+      })
+      .sort((a, b) => a.label.localeCompare(b.label));
   }, [yearEntries]);
 
   // Unique PGY levels (from year-filtered)
@@ -144,13 +152,11 @@ const BlockSchedule = () => {
       .map(([num, dates]) => ({ num, ...dates }));
   }, [yearEntries]);
 
-  // Filter and group in one pass to avoid stale memo references
+  // Filter and group in one pass
   const grouped = useMemo(() => {
     let data = yearEntries;
-    console.log("[schedule] memo run — filterResident:", filterResident, "filterPgy:", filterPgy, "entries:", yearEntries.length);
     if (filterResident !== "all") {
       data = data.filter(e => e.resident_name === filterResident);
-      console.log("[schedule] after resident filter:", data.length);
     }
     if (filterPgy !== "all") {
       data = data.filter(e => e.pgy_level === parseInt(filterPgy, 10));
@@ -349,8 +355,8 @@ const BlockSchedule = () => {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All residents</SelectItem>
-              {residents.map(name => (
-                <SelectItem key={name} value={name}>{name}</SelectItem>
+              {residents.map(r => (
+                <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -404,7 +410,6 @@ const BlockSchedule = () => {
         </div>
 
         {/* Schedule grid */}
-        {(() => { console.log("[schedule] rendering with grouped:", grouped.length, "residents"); return null; })()}
         {scheduleQuery.isLoading ? (
           <div style={{ display: "flex", justifyContent: "center", padding: 48 }}>
             <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
