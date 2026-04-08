@@ -118,12 +118,13 @@ function EditableMetaCard({ label, value, field, rotationId, canEdit, icon: Icon
               <h3 style={{ fontSize: 15, fontWeight: 600, color: "#2D3748", margin: 0 }}>{label}</h3>
               <button onClick={() => setEditing(false)} style={{ background: "transparent", border: "none", cursor: "pointer", padding: 2, color: "#aaa" }}><X style={{ width: 16, height: 16 }} /></button>
             </div>
-            <input
+            <textarea
               autoFocus
+              rows={4}
               value={draft}
               onChange={e => setDraft(e.target.value)}
-              onKeyDown={e => { if (e.key === "Enter") save.mutate(); if (e.key === "Escape") setEditing(false); }}
-              style={{ width: "100%", padding: "9px 12px", fontSize: 14, border: "1px solid #C9CED4", borderRadius: 6, outline: "none", background: "#fff", boxSizing: "border-box" }}
+              onKeyDown={e => { if (e.key === "Escape") setEditing(false); }}
+              style={{ width: "100%", padding: "9px 12px", fontSize: 14, border: "1px solid #C9CED4", borderRadius: 6, outline: "none", background: "#fff", boxSizing: "border-box", resize: "vertical" }}
             />
             <button
               onClick={() => save.mutate()}
