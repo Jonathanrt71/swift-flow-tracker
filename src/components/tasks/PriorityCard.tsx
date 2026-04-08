@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { ArrowUp, ArrowDown, Pencil, X, Plus } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -38,18 +39,18 @@ interface PriorityCardProps {
   onUnlinkTask: (taskId: string) => void;
   onLinkTask: (taskId: string) => void;
   onCreateTask: (title: string) => void;
-  onTaskClick?: (task: Task) => void;
 }
 
 const PriorityCard = ({
   priority, rank, secondaryRank, secondaryLabel, teamMembers,
   linkedTasks, unlinkableTasks,
   showArrows = true, isFirst, isLast, onMoveUp, onMoveDown,
-  onUpdate, onDelete, onToggleTaskComplete, onUnlinkTask, onLinkTask, onCreateTask, onTaskClick,
+  onUpdate, onDelete, onToggleTaskComplete, onUnlinkTask, onLinkTask, onCreateTask,
 }: PriorityCardProps) => {
   const [editOpen, setEditOpen] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [showLinkInput, setShowLinkInput] = useState(false);
+  const navigate = useNavigate();
   const member = teamMembers.find((m) => m.id === priority.assigned_to);
   const assignedName = priority.assigned_name || (member ? [member.first_name, member.last_name].filter(Boolean).join(" ") : null);
 
@@ -148,11 +149,11 @@ const PriorityCard = ({
                   )}
                 </div>
                 <span
-                  onClick={(e) => { if (onTaskClick) { e.stopPropagation(); onTaskClick(t); } }}
+                  onClick={(e) => { e.stopPropagation(); navigate(`/tasks?tab=my-tasks&highlight=${t.id}`); }}
                   style={{
-                    fontSize: 12, color: t.completed ? "#8A9AAB" : "#2D3748", flex: 1,
+                    fontSize: 12, color: t.completed ? "#8A9AAB" : "#415162", flex: 1,
                     textDecoration: t.completed ? "line-through" : "none",
-                    cursor: onTaskClick ? "pointer" : "default",
+                    cursor: "pointer",
                   }}
                 >
                   {t.title}

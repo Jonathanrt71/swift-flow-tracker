@@ -53,7 +53,7 @@ const Index = () => {
   const [activeTab, setActiveTab] = useState("priorities");
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [programCollapsed, setProgramCollapsed] = useState(true);
-  const [highlightPriority, setHighlightPriority] = useState<string | null>(null);
+  const [highlightId, setHighlightId] = useState<string | null>(null);
   const [searchParams, setSearchParams] = useSearchParams();
 
   // Handle ?tab= and ?highlight= query params
@@ -62,9 +62,8 @@ const Index = () => {
     const highlight = searchParams.get("highlight");
     if (tab) setActiveTab(tab);
     if (highlight) {
-      setHighlightPriority(highlight);
-      setTimeout(() => setHighlightPriority(null), 2000);
-      // Clear params
+      setHighlightId(highlight);
+      setTimeout(() => setHighlightId(null), 2000);
       setSearchParams({}, { replace: true });
     }
   }, [searchParams]);
@@ -217,17 +216,22 @@ const Index = () => {
       }
       prevMonth = monthKey;
       elements.push(
-        <TaskCard
-          key={task.id}
-          task={task}
-          isOverdue={isOverdue(task)}
-          teamMembers={teamMembers || []}
-          priorityName={(task as any).priority_id ? priorityNameMap.get((task as any).priority_id) || null : null}
-          sectionName={(task as any).operations_section_id ? sectionNameMap.get((task as any).operations_section_id) || null : null}
-          onToggleComplete={(d) => toggleComplete.mutate(d)}
-          onToggleStar={(d) => toggleStar.mutate(d)}
-          onCardClick={(t) => setSelectedTask(t)}
-        />
+        <div key={task.id} style={{
+          borderRadius: 8,
+          boxShadow: highlightId === task.id ? "0 0 0 2px #415162" : "none",
+          transition: "box-shadow 0.3s ease",
+        }}>
+          <TaskCard
+            task={task}
+            isOverdue={isOverdue(task)}
+            teamMembers={teamMembers || []}
+            priorityName={(task as any).priority_id ? priorityNameMap.get((task as any).priority_id) || null : null}
+            sectionName={(task as any).operations_section_id ? sectionNameMap.get((task as any).operations_section_id) || null : null}
+            onToggleComplete={(d) => toggleComplete.mutate(d)}
+            onToggleStar={(d) => toggleStar.mutate(d)}
+            onCardClick={(t) => setSelectedTask(t)}
+          />
+        </div>
       );
     });
 
@@ -251,17 +255,22 @@ const Index = () => {
       );
     }
     return taskList.map((task) => (
-      <TaskCard
-        key={task.id}
-        task={task}
-        isOverdue={isOverdue(task)}
-        teamMembers={teamMembers || []}
-        priorityName={(task as any).priority_id ? priorityNameMap.get((task as any).priority_id) || null : null}
-        sectionName={(task as any).operations_section_id ? sectionNameMap.get((task as any).operations_section_id) || null : null}
-        onToggleComplete={(d) => toggleComplete.mutate(d)}
-        onToggleStar={(d) => toggleStar.mutate(d)}
-        onCardClick={(t) => setSelectedTask(t)}
-      />
+      <div key={task.id} style={{
+        borderRadius: 8,
+        boxShadow: highlightId === task.id ? "0 0 0 2px #415162" : "none",
+        transition: "box-shadow 0.3s ease",
+      }}>
+        <TaskCard
+          task={task}
+          isOverdue={isOverdue(task)}
+          teamMembers={teamMembers || []}
+          priorityName={(task as any).priority_id ? priorityNameMap.get((task as any).priority_id) || null : null}
+          sectionName={(task as any).operations_section_id ? sectionNameMap.get((task as any).operations_section_id) || null : null}
+          onToggleComplete={(d) => toggleComplete.mutate(d)}
+          onToggleStar={(d) => toggleStar.mutate(d)}
+          onCardClick={(t) => setSelectedTask(t)}
+        />
+      </div>
     ));
   };
 
@@ -360,7 +369,7 @@ const Index = () => {
                         return (
                           <div key={p.id} style={{
                             borderRadius: 8,
-                            boxShadow: highlightPriority === p.id ? "0 0 0 2px #415162" : "none",
+                            boxShadow: highlightId === p.id ? "0 0 0 2px #415162" : "none",
                             transition: "box-shadow 0.3s ease",
                           }}>
                               <PriorityCard
@@ -390,7 +399,6 @@ const Index = () => {
                                 onUnlinkTask={(id) => updateTask.mutate({ id, priority_id: null })}
                                 onLinkTask={(id) => updateTask.mutate({ id, priority_id: p.id })}
                                 onCreateTask={(title) => createTask.mutate({ title, assigned_to: p.assigned_to || undefined, priority_id: p.id })}
-                                onTaskClick={(t) => setSelectedTask(t)}
                               />
                           </div>
                         );
@@ -433,7 +441,7 @@ const Index = () => {
                       return (
                         <div key={p.id} className="mb-1.5" style={{
                           borderRadius: 8,
-                          boxShadow: highlightPriority === p.id ? "0 0 0 2px #415162" : "none",
+                          boxShadow: highlightId === p.id ? "0 0 0 2px #415162" : "none",
                           transition: "box-shadow 0.3s ease",
                         }}>
                             <PriorityCard
@@ -463,7 +471,6 @@ const Index = () => {
                               onUnlinkTask={(id) => updateTask.mutate({ id, priority_id: null })}
                               onLinkTask={(id) => updateTask.mutate({ id, priority_id: p.id })}
                               onCreateTask={(title) => createTask.mutate({ title, assigned_to: p.assigned_to || undefined, priority_id: p.id })}
-                              onTaskClick={(t) => setSelectedTask(t)}
                             />
                         </div>
                       );
