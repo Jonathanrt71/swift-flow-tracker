@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   Home, Phone, Calendar, Clock, Shield, Repeat, FileText, TrendingUp,
   BookOpen, CalendarOff, CheckSquare, Moon, RefreshCw, Shirt, Heart,
   ShieldCheck, Globe, Coffee, AlertTriangle, MessageSquare, Layers,
   Users, AlertCircle, Monitor, Pencil, X, Save,
-  Menu, ChevronDown, ChevronRight, Plus, Trash2, Search,
+  Menu, ChevronDown, ChevronRight, Plus, Trash2, Search, ArrowUp, ArrowDown,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
@@ -31,6 +32,7 @@ const iconMap: Record<string, React.FC<{ className?: string; style?: React.CSSPr
 
 const Handbook = () => {
   const { user, signOut } = useAuth();
+  const queryClient = useQueryClient();
   const { isAdmin } = useAdmin();
   const { has: hasPerm } = usePermissions();
   const hasEditPerm = hasPerm("handbook.edit");
@@ -133,12 +135,31 @@ const Handbook = () => {
     catch { return ""; }
   };
 
+  const handleReorder = async (sectionId: string, direction: "up" | "down") => {
+    const section = allSections?.find(s => s.id === sectionId);
+    if (!section) return;
+    const siblings = section.parent_id ? getSubsections(section.parent_id) : topSections;
+    const idx = siblings.findIndex(s => s.id === sectionId);
+    const swapIdx = direction === "up" ? idx - 1 : idx + 1;
+    if (swapIdx < 0 || swapIdx >= siblings.length) return;
+    const other = siblings[swapIdx];
+    try {
+      await (supabase as any).from("handbook_sections").update({ display_order: other.display_order }).eq("id", section.id);
+      await (supabase as any).from("handbook_sections").update({ display_order: section.display_order }).eq("id", other.id);
+      queryClient.invalidateQueries({ queryKey: ["handbook-sections"] });
+    } catch (e: any) {
+      toast({ title: "Reorder failed", description: e.message, variant: "destructive" });
+    }
+  };
+
   // ── TOC Item ─────────────────────────────────────────────────────────
   const TocItem = ({ section, depth = 0 }: { section: HandbookSection; depth?: number }) => {
     const Icon = iconMap[section.icon] || FileText;
     const subs = getSubsections(section.id);
     const isActive = activeSectionId === section.id || subs.some(s => s.id === activeSectionId);
     const isCollapsed = collapsedToc[section.id];
+    const siblings = section.parent_id ? getSubsections(section.parent_id) : topSections;
+    const idx = siblings.findIndex(s => s.id === section.id);
 
     return (
       <div>
@@ -167,6 +188,24 @@ const Handbook = () => {
           >
             <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", minWidth: 0, flex: 1 }}>{section.title}</span>
           </button>
+          {canEdit && depth === 0 && (
+            <div style={{ display: "flex", flexDirection: "column", marginRight: 4 }}>
+              <button
+                onClick={() => handleReorder(section.id, "up")}
+                disabled={idx === 0}
+                style={{ background: "transparent", border: "none", cursor: idx === 0 ? "default" : "pointer", padding: 1, color: idx === 0 ? "#ddd" : "#999", display: "flex" }}
+              >
+                <ArrowUp style={{ width: 11, height: 11 }} />
+              </button>
+              <button
+                onClick={() => handleReorder(section.id, "down")}
+                disabled={idx === siblings.length - 1}
+                style={{ background: "transparent", border: "none", cursor: idx === siblings.length - 1 ? "default" : "pointer", padding: 1, color: idx === siblings.length - 1 ? "#ddd" : "#999", display: "flex" }}
+              >
+                <ArrowDown style={{ width: 11, height: 11 }} />
+              </button>
+            </div>
+          )}
         </div>
         {!isCollapsed && subs.map(sub => <TocItem key={sub.id} section={sub} depth={1} />)}
       </div>
