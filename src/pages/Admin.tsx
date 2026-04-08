@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/select";
 import { Plus, Shield, Pencil, Check, X, Tag, Trash2, BookOpen, RefreshCw, Settings } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { compressImage } from "@/lib/compressImage";
 import { useMeetingTags } from "@/hooks/useMeetingTags";
 import { useMeetingTagLinks } from "@/hooks/useMeetingTags";
 import { useCompetencyCategories } from "@/hooks/useCompetencyCategories";
@@ -738,6 +739,8 @@ const Admin = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [defaultReportEmail, setDefaultReportEmail] = useState("");
   const [navImageUploading, setNavImageUploading] = useState(false);
+  const [compressingAvatars, setCompressingAvatars] = useState(false);
+  const [compressProgress, setCompressProgress] = useState("");
   const [pgyMaxLevels, setPgyMaxLevels] = useState<Record<string, string>>({
     pgy_max_level_1: "2",
     pgy_max_level_2: "3",
@@ -1463,6 +1466,57 @@ const Admin = () => {
                     </div>
                   );
                 })}
+              </div>
+
+              {/* Compress avatars */}
+              <div className="pt-2">
+                <label className="text-xs text-muted-foreground font-medium">Avatar compression</label>
+                <div className="flex items-center gap-2 mt-1.5">
+                  <button
+                    onClick={async () => {
+                      setCompressingAvatars(true);
+                      setCompressProgress("Fetching profiles…");
+                      try {
+                        const { data: profiles } = await (supabase as any).from("profiles").select("id, avatar_url").not("avatar_url", "is", null);
+                        const withAvatars = (profiles || []).filter((p: any) => p.avatar_url);
+                        let done = 0;
+                        for (const p of withAvatars) {
+                          setCompressProgress(`${done + 1} of ${withAvatars.length}`);
+                          try {
+                            const url = p.avatar_url.split("?")[0];
+                            const resp = await fetch(url);
+                            if (!resp.ok) continue;
+                            const blob = await resp.blob();
+                            if (blob.type === "image/jpeg" && blob.size < 50000) { done++; continue; }
+                            const file = new File([blob], "avatar.jpg", { type: blob.type });
+                            const compressed = await compressImage(file, 256, 0.8);
+                            const path = `${p.id}/avatar.jpg`;
+                            await supabase.storage.from("avatars").upload(path, compressed, { upsert: true, contentType: "image/jpeg" });
+                            const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(path);
+                            const newUrl = `${urlData.publicUrl}?t=${Date.now()}`;
+                            await (supabase as any).from("profiles").update({ avatar_url: newUrl }).eq("id", p.id);
+                          } catch (e) { console.error("Failed to compress avatar for", p.id, e); }
+                          done++;
+                        }
+                        setCompressProgress("");
+                        toast({ title: "Avatars compressed", description: `${withAvatars.length} processed` });
+                      } catch (e: any) {
+                        toast({ title: "Error", description: e.message, variant: "destructive" });
+                      }
+                      setCompressingAvatars(false);
+                    }}
+                    disabled={compressingAvatars}
+                    style={{
+                      display: "flex", alignItems: "center", gap: 6, fontSize: 12, padding: "6px 14px",
+                      background: "#E7EBEF", border: "0.5px solid #C9CED4", borderRadius: 6,
+                      cursor: compressingAvatars ? "not-allowed" : "pointer", color: "#415162", fontWeight: 500,
+                    }}
+                  >
+                    <RefreshCw style={{ width: 13, height: 13 }} />
+                    {compressingAvatars ? compressProgress || "Compressing…" : "Compress all avatars"}
+                  </button>
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">Resizes all profile images to 256px JPEG (~20-30 KB each)</p>
               </div>
             </div>
           )}

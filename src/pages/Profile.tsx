@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import { Camera, Loader2, Check, User, X } from "lucide-react";
+import { compressImage } from "@/lib/compressImage";
 
 const Profile = () => {
   const { user, signOut } = useAuth();
@@ -98,41 +99,33 @@ const Profile = () => {
       toast({ title: "Invalid file", description: "Please select an image file.", variant: "destructive" });
       return;
     }
-    if (file.size > 2 * 1024 * 1024) {
-      toast({ title: "File too large", description: "Max 2MB allowed.", variant: "destructive" });
-      return;
-    }
 
     setUploading(true);
-    const ext = file.name.split(".").pop();
-    const path = `${user.id}/avatar.${ext}`;
+    try {
+      const compressed = await compressImage(file, 256, 0.8);
+      const path = `${user.id}/avatar.jpg`;
 
-    const { error: uploadErr } = await supabase.storage
-      .from("avatars")
-      .upload(path, file, { upsert: true });
+      const { error: uploadErr } = await supabase.storage
+        .from("avatars")
+        .upload(path, compressed, { upsert: true, contentType: "image/jpeg" });
 
-    if (uploadErr) {
-      setUploading(false);
-      toast({ title: "Upload failed", description: uploadErr.message, variant: "destructive" });
-      return;
-    }
+      if (uploadErr) throw uploadErr;
 
-    const { data: { publicUrl } } = supabase.storage.from("avatars").getPublicUrl(path);
-    const url = `${publicUrl}?t=${Date.now()}`;
+      const { data: { publicUrl } } = supabase.storage.from("avatars").getPublicUrl(path);
+      const url = `${publicUrl}?t=${Date.now()}`;
 
-    const { error: updateErr } = await (supabase as any)
-      .from("profiles")
-      .update({ avatar_url: url })
-      .eq("id", user.id);
+      const { error: updateErr } = await (supabase as any)
+        .from("profiles")
+        .update({ avatar_url: url })
+        .eq("id", user.id);
 
-    setUploading(false);
-
-    if (updateErr) {
-      toast({ title: "Error", description: updateErr.message, variant: "destructive" });
-    } else {
+      if (updateErr) throw updateErr;
       setAvatarUrl(url);
-      toast({ title: "Avatar updated" });
+      toast({ title: "Avatar updated", description: `Compressed to ${(compressed.size / 1024).toFixed(0)} KB` });
+    } catch (e: any) {
+      toast({ title: "Upload failed", description: e.message, variant: "destructive" });
     }
+    setUploading(false);
   };
 
   const initials = (displayName || user?.email || "?")
