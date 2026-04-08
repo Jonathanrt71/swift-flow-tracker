@@ -131,7 +131,7 @@ const EditPriorityDialog = ({ priority, open, onOpenChange, onUpdate, onDelete }
                   onSelect={(id) => updateTask.mutate({ id, priority_id: priority.id })}
                   onCreate={async (title) => {
                     await createTask.mutateAsync({ title, assigned_to: priority.assigned_to || undefined, priority_id: priority.id });
-                  }}}
+                  }}
                 />
               </div>
             </div>
