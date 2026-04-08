@@ -234,56 +234,51 @@ const Handbook = () => {
     setTocOpen(false);
   };
 
-  const preserveScroll = (fn: () => void) => {
+  const scrollLockRef = useRef(false);
+  const scrollPosRef = useRef(0);
+
+  // Intercept any scroll while transitioning edit states
+  useEffect(() => {
     const container = contentRef.current;
-    if (!container) { fn(); return; }
-    const scrollPos = container.scrollTop;
-    // Lock scroll during re-render
-    container.style.overflow = "hidden";
-    fn();
-    // Restore after TipTap mounts (multiple frames)
-    const restore = () => {
-      container.scrollTop = scrollPos;
-      container.style.overflow = "";
+    if (!container) return;
+    const onScroll = () => {
+      if (scrollLockRef.current) {
+        container.scrollTop = scrollPosRef.current;
+      }
     };
-    // Try at 0ms, 50ms, 150ms to catch TipTap mount
-    setTimeout(restore, 0);
-    setTimeout(restore, 50);
-    setTimeout(restore, 150);
+    container.addEventListener("scroll", onScroll);
+    return () => container.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const lockScroll = () => {
+    const container = contentRef.current;
+    if (container) scrollPosRef.current = container.scrollTop;
+    scrollLockRef.current = true;
+    setTimeout(() => { scrollLockRef.current = false; }, 300);
   };
 
   const startEditing = (s: HandbookSection) => {
-    preserveScroll(() => {
-      setEditTitle(s.title);
-      editContentRef.current = s.content || "";
-      setEditingId(s.id);
-    });
+    lockScroll();
+    setEditTitle(s.title);
+    editContentRef.current = s.content || "";
+    setEditingId(s.id);
   };
 
   const cancelEditing = () => {
-    preserveScroll(() => {
-      setEditingId(null);
-      setEditTitle("");
-      editContentRef.current = "";
-    });
+    lockScroll();
+    setEditingId(null);
+    setEditTitle("");
+    editContentRef.current = "";
   };
 
   const handleSave = (id: string) => {
-    const container = contentRef.current;
-    const scrollPos = container ? container.scrollTop : 0;
     updateSection.mutate(
       { id, title: editTitle.trim(), content: editContentRef.current, userId: user?.id || "" },
       {
         onSuccess: () => {
-          if (container) container.style.overflow = "hidden";
+          lockScroll();
           cancelEditing();
           toast({ title: "Section saved" });
-          const restore = () => {
-            if (container) { container.scrollTop = scrollPos; container.style.overflow = ""; }
-          };
-          setTimeout(restore, 0);
-          setTimeout(restore, 50);
-          setTimeout(restore, 150);
         },
         onError: (e: any) => toast({ title: "Error saving", description: e.message, variant: "destructive" }),
       }
