@@ -189,6 +189,25 @@ const Profile = () => {
           className="hidden"
           onChange={handleAvatarUpload}
         />
+        {avatarUrl && (
+          <button
+            type="button"
+            onClick={async () => {
+              try {
+                const path = `${user!.id}/avatar.jpg`;
+                await supabase.storage.from("avatars").remove([path]);
+                await (supabase as any).from("profiles").update({ avatar_url: null }).eq("id", user!.id);
+                setAvatarUrl(null);
+                toast({ title: "Photo removed" });
+              } catch (e: any) {
+                toast({ title: "Error", description: e.message, variant: "destructive" });
+              }
+            }}
+            style={{ fontSize: 12, color: "#c44", background: "transparent", border: "none", cursor: "pointer", marginTop: -16 }}
+          >
+            Remove photo
+          </button>
+        )}
 
         {/* Form fields */}
         <div className="w-full flex flex-col gap-4">

@@ -195,6 +195,26 @@ const EditUserDialog = ({
                 e.target.value = "";
               }} />
             </label>
+            {u.avatar_url && (
+              <button
+                type="button"
+                onClick={async () => {
+                  try {
+                    const path = `${u.id}/avatar.jpg`;
+                    await supabase.storage.from("avatars").remove([path]);
+                    await (supabase as any).from("profiles").update({ avatar_url: null }).eq("id", u.id);
+                    queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+                    queryClient.invalidateQueries({ queryKey: ["team-members"] });
+                    toast({ title: "Photo removed" });
+                  } catch (err: any) {
+                    toast({ title: "Error", description: err.message, variant: "destructive" });
+                  }
+                }}
+                style={{ fontSize: 12, color: "#c44", background: "transparent", border: "none", cursor: "pointer", padding: "5px 8px" }}
+              >
+                Remove
+              </button>
+            )}
           </div>
           <div className="space-y-1.5">
             <Label className="text-xs text-muted-foreground">Email</Label>
