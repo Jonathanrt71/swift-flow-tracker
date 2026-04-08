@@ -216,11 +216,7 @@ const Index = () => {
       }
       prevMonth = monthKey;
       elements.push(
-        <div key={task.id} style={{
-          borderRadius: 8,
-          boxShadow: highlightId === task.id ? "0 0 0 2px #415162" : "none",
-          transition: "box-shadow 0.3s ease",
-        }}>
+        <div key={task.id} className={highlightId === task.id ? "highlight-pulse" : undefined} style={{ borderRadius: 8 }}>
           <TaskCard
             task={task}
             isOverdue={isOverdue(task)}
@@ -255,11 +251,7 @@ const Index = () => {
       );
     }
     return taskList.map((task) => (
-      <div key={task.id} style={{
-        borderRadius: 8,
-        boxShadow: highlightId === task.id ? "0 0 0 2px #415162" : "none",
-        transition: "box-shadow 0.3s ease",
-      }}>
+      <div key={task.id} className={highlightId === task.id ? "highlight-pulse" : undefined} style={{ borderRadius: 8 }}>
         <TaskCard
           task={task}
           isOverdue={isOverdue(task)}
@@ -276,6 +268,13 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background pb-20">
+      <style>{`
+        @keyframes highlightPulse {
+          0% { background-color: rgba(212, 160, 23, 0.2); }
+          100% { background-color: transparent; }
+        }
+        .highlight-pulse { animation: highlightPulse 1.5s ease-out forwards; border-radius: 8px; }
+      `}</style>
       <header className="bg-[#415162] sticky top-0 z-40">
         <div className="flex items-center h-14 px-4">
           <HeaderLogo isAdmin={isAdmin} onSignOut={signOut}>
@@ -367,11 +366,7 @@ const Index = () => {
                       {localMyPriorities.map((p, idx) => {
                         const programRank = priorities.indexOf(p) + 1;
                         return (
-                          <div key={p.id} style={{
-                            borderRadius: 8,
-                            boxShadow: highlightId === p.id ? "0 0 0 2px #415162" : "none",
-                            transition: "box-shadow 0.3s ease",
-                          }}>
+                          <div key={p.id} className={highlightId === p.id ? "highlight-pulse" : undefined} style={{ borderRadius: 8 }}>
                               <PriorityCard
                                 priority={p}
                                 rank={idx + 1}
@@ -439,11 +434,7 @@ const Index = () => {
                         </div>
                       );
                       return (
-                        <div key={p.id} className="mb-1.5" style={{
-                          borderRadius: 8,
-                          boxShadow: highlightId === p.id ? "0 0 0 2px #415162" : "none",
-                          transition: "box-shadow 0.3s ease",
-                        }}>
+                        <div key={p.id} className={`mb-1.5 ${highlightId === p.id ? "highlight-pulse" : ""}`} style={{ borderRadius: 8 }}>
                             <PriorityCard
                               priority={p}
                               rank={idx + 1}

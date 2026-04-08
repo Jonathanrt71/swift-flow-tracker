@@ -183,11 +183,15 @@ const Handbook = () => {
     return () => container.removeEventListener("scroll", handleScroll);
   }, [allSections]);
 
+  const [highlightSectionId, setHighlightSectionId] = useState<string | null>(null);
+
   // Scroll to section if ?section= param is present
   useEffect(() => {
     const sectionId = searchParams.get("section");
     if (sectionId && allSections?.length) {
       setTimeout(() => scrollTo(sectionId), 200);
+      setHighlightSectionId(sectionId);
+      setTimeout(() => setHighlightSectionId(null), 2000);
     }
   }, [searchParams, allSections]);
 
@@ -379,7 +383,7 @@ const Handbook = () => {
               }}
             />
           ) : (
-            <h1 style={{ fontSize: depth === 0 ? 20 : 16, fontWeight: 600, color: "#333", margin: 0, flex: 1 }}>{section.title}</h1>
+            <h1 className={highlightSectionId === section.id ? "highlight-pulse" : undefined} style={{ fontSize: depth === 0 ? 20 : 16, fontWeight: 600, color: "#333", margin: 0, flex: 1, borderRadius: 4, padding: "2px 6px", marginLeft: -6 }}>{section.title}</h1>
           )}
           {canEdit && !isEditing && (
             <div style={{ display: "flex", gap: 4, flexShrink: 0, marginTop: 2 }}>
@@ -568,6 +572,13 @@ const Handbook = () => {
 
   return (
     <div style={{ minHeight: "100vh", background: "#F5F3EE" }}>
+      <style>{`
+        @keyframes highlightPulse {
+          0% { background-color: rgba(212, 160, 23, 0.2); }
+          100% { background-color: transparent; }
+        }
+        .highlight-pulse { animation: highlightPulse 1.5s ease-out forwards; }
+      `}</style>
       <header style={{ position: "sticky", top: 0, zIndex: 40, background: "#415162" }}>
         <div style={{ display: "flex", alignItems: "center", height: 56, padding: "0 16px" }}>
           <HeaderLogo isAdmin={isAdmin} onSignOut={signOut}>
