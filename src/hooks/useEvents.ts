@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { useCategoryUserIds } from "@/hooks/useCategoryUserIds";
 
 export type EventCategory =
   | "program"
@@ -89,10 +90,11 @@ export function useEvents() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { categoryUserIds, activeCategory } = useCategoryUserIds();
 
   const events = useQuery({
-    queryKey: ["events"],
-    enabled: !!user,
+    queryKey: ["events", activeCategory],
+    enabled: !!user && categoryUserIds.size > 0,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("events")
@@ -101,7 +103,7 @@ export function useEvents() {
         .order("event_date", { ascending: true })
         .order("start_time", { ascending: true, nullsFirst: false });
       if (error) throw error;
-      return (data || []) as ProgramEvent[];
+      return ((data || []) as ProgramEvent[]).filter(e => e.created_by && categoryUserIds.has(e.created_by));
     },
   });
 

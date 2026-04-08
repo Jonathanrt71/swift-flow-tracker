@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { createNotification } from "@/hooks/useNotifications";
+import { useCategoryUserIds } from "@/hooks/useCategoryUserIds";
 
 export interface Task {
   id: string;
@@ -45,18 +46,20 @@ export function useTasks() {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { categoryUserIds, activeCategory } = useCategoryUserIds();
 
   const tasksQuery = useQuery({
-    queryKey: ["tasks"],
+    queryKey: ["tasks", activeCategory],
     queryFn: async () => {
       const { data: allTasks, error } = await supabase
         .from("tasks")
         .select("*")
         .order("position", { ascending: true });
       if (error) throw error;
-      return buildTree(allTasks || []);
+      const filtered = (allTasks || []).filter((t: any) => categoryUserIds.has(t.created_by));
+      return buildTree(filtered);
     },
-    enabled: !!user,
+    enabled: !!user && categoryUserIds.size > 0,
   });
 
   const createTask = useMutation({

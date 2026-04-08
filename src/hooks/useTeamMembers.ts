@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { formatPersonName } from "@/lib/dateFormat";
+import { useUserCategory } from "@/contexts/UserCategoryContext";
 
 export interface TeamMember {
   id: string;
@@ -12,12 +13,15 @@ export interface TeamMember {
 }
 
 export function useTeamMembers() {
+  const { activeCategory } = useUserCategory();
+
   return useQuery({
-    queryKey: ["team-members"],
+    queryKey: ["team-members", activeCategory],
     queryFn: async () => {
       const { data: profiles, error: pe } = await (supabase as any)
-        .from("profiles_public")
-        .select("id, display_name, first_name, last_name, avatar_url");
+        .from("profiles")
+        .select("id, display_name, first_name, last_name, avatar_url, user_category")
+        .eq("user_category", activeCategory);
       if (pe) throw pe;
 
       const { data: roles, error: re } = await (supabase as any)

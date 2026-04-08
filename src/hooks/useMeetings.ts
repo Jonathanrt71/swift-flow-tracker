@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { useCategoryUserIds } from "@/hooks/useCategoryUserIds";
 
 export interface Meeting {
   id: string;
@@ -19,10 +20,11 @@ export function useMeetings() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { categoryUserIds, activeCategory } = useCategoryUserIds();
 
   const meetings = useQuery({
-    queryKey: ["meetings"],
-    enabled: !!user,
+    queryKey: ["meetings", activeCategory],
+    enabled: !!user && categoryUserIds.size > 0,
     queryFn: async () => {
       // Get all meetings where user is creator or attendee
       const { data: myMeetings, error: mErr } = await (supabase as any)
@@ -48,7 +50,7 @@ export function useMeetings() {
         attendeeMap.set(a.meeting_id, list);
       });
 
-      // Filter: only show meetings where user is creator or attendee
+      // Filter by category, then by user involvement
       return (myMeetings || [])
         .map((m: any) => ({
           ...m,
@@ -56,7 +58,8 @@ export function useMeetings() {
         }))
         .filter(
           (m: Meeting) =>
-            m.created_by === user!.id || m.attendees.includes(user!.id)
+            categoryUserIds.has(m.created_by) &&
+            (m.created_by === user!.id || m.attendees.includes(user!.id))
         ) as Meeting[];
     },
   });

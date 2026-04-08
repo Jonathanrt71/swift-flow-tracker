@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCategoryUserIds } from "@/hooks/useCategoryUserIds";
 
 export interface Priority {
   id: string;
@@ -17,23 +18,26 @@ export interface Priority {
 export function usePriorities() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const { categoryUserIds, activeCategory } = useCategoryUserIds();
 
   const query = useQuery({
-    queryKey: ["priorities"],
+    queryKey: ["priorities", activeCategory],
     queryFn: async () => {
       const { data, error } = await (supabase
         .from("priorities" as any)
         .select("*, profiles!priorities_assigned_to_fkey(first_name, last_name, email)")
         .order("display_order", { ascending: true }) as any);
       if (error) throw error;
-      return ((data || []) as any[]).map((p: any) => ({
-        ...p,
-        assigned_name: p.profiles
-          ? [p.profiles.first_name, p.profiles.last_name].filter(Boolean).join(" ") || p.profiles.email
-          : null,
-      })) as Priority[];
+      return ((data || []) as any[])
+        .filter((p: any) => p.created_by && categoryUserIds.has(p.created_by))
+        .map((p: any) => ({
+          ...p,
+          assigned_name: p.profiles
+            ? [p.profiles.first_name, p.profiles.last_name].filter(Boolean).join(" ") || p.profiles.email
+            : null,
+        })) as Priority[];
     },
-    enabled: !!user,
+    enabled: !!user && categoryUserIds.size > 0,
   });
 
   const createPriority = useMutation({

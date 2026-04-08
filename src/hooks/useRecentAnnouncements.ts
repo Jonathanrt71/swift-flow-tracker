@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCategoryUserIds } from "@/hooks/useCategoryUserIds";
 
 /**
  * Lightweight hook for the Home dashboard widget.
@@ -13,25 +14,27 @@ export interface RecentAnnouncement {
   title: string;
   body: string;
   created_at: string;
+  created_by: string;
 }
 
 export function useRecentAnnouncements() {
   const { user } = useAuth();
+  const { categoryUserIds, activeCategory } = useCategoryUserIds();
 
   const query = useQuery({
-    queryKey: ["recent-announcements"],
+    queryKey: ["recent-announcements", activeCategory],
     queryFn: async () => {
       const { data, error } = await (supabase
         .from("announcements" as any)
-        .select("id, title, body, created_at")
+        .select("id, title, body, created_at, created_by")
         .order("is_pinned", { ascending: false })
         .order("created_at", { ascending: false })
-        .limit(3) as any);
+        .limit(10) as any);
       if (error) throw error;
-      return (data || []) as RecentAnnouncement[];
+      return ((data || []) as RecentAnnouncement[]).filter((a) => categoryUserIds.has(a.created_by)).slice(0, 3);
     },
-    enabled: !!user,
-    staleTime: 60_000, // cache for 1 minute — home page doesn't need instant updates
+    enabled: !!user && categoryUserIds.size > 0,
+    staleTime: 60_000,
   });
 
   return {

@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import type { MilestoneSuggestion, EvalDomainSuggestion } from "@/hooks/useCompetencySuggestion";
+import { useCategoryUserIds } from "@/hooks/useCategoryUserIds";
 
 export interface FeedbackMilestone {
   id: string;
@@ -41,17 +42,18 @@ export function useFeedback() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { categoryUserIds, activeCategory } = useCategoryUserIds();
 
   const feedbackQuery = useQuery({
-    queryKey: ["feedback"],
-    enabled: !!user,
+    queryKey: ["feedback", activeCategory],
+    enabled: !!user && categoryUserIds.size > 0,
     queryFn: async () => {
       const { data, error } = await (supabase as any)
         .from("feedback")
         .select("*, feedback_milestones(*), feedback_eval_domains(*)")
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return (data || []) as Feedback[];
+      return ((data || []) as Feedback[]).filter(fb => categoryUserIds.has(fb.faculty_id));
     },
   });
 

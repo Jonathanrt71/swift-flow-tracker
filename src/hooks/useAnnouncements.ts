@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEffect } from "react";
+import { useCategoryUserIds } from "@/hooks/useCategoryUserIds";
 
 export type AnnouncementCategory = "general" | "schedule_change" | "deadline" | "event" | "policy_update";
 export type AnnouncementAudience = "all" | "faculty" | "residents" | "pgy1" | "pgy2" | "pgy3";
@@ -72,10 +73,11 @@ export const CATEGORY_COLORS: Record<AnnouncementCategory, { bg: string; text: s
 export function useAnnouncements() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const { categoryUserIds, activeCategory } = useCategoryUserIds();
 
   // Fetch all announcements with counts
   const query = useQuery({
-    queryKey: ["announcements"],
+    queryKey: ["announcements", activeCategory],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("announcements_with_counts" as any)
@@ -83,9 +85,9 @@ export function useAnnouncements() {
         .order("is_pinned", { ascending: false })
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return (data || []) as unknown as Announcement[];
+      return ((data || []) as unknown as Announcement[]).filter(a => categoryUserIds.has(a.created_by));
     },
-    enabled: !!user,
+    enabled: !!user && categoryUserIds.size > 0,
   });
 
   // Realtime subscription for new announcements
