@@ -416,6 +416,7 @@ const BlockSchedule = () => {
         ) : (viewMode === "table" || viewMode === "evals") ? (
           // Table view — frozen headers and first column, solid color backgrounds
           <div
+            key={`${filterResident}::${filterPgy}::${searchQuery}`}
             style={{
               overflow: "auto",
               border: "0.5px solid #C9CED4",
