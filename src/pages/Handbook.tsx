@@ -378,7 +378,7 @@ const Handbook = () => {
           overflowY: "auto", transform: tocOpen ? "translateX(0)" : "translateX(-100%)", transition: "transform 0.2s ease",
         }}>
           <div style={{ padding: "14px 16px 10px", borderBottom: "1px solid #E7EBEF" }}>
-            <div style={{ fontSize: 11, fontWeight: 600, color: "#415162", textTransform: "uppercase", letterSpacing: 0.8 }}>Resident Handbook</div>
+            <div style={{ fontSize: 11, fontWeight: 600, color: "#415162", textTransform: "uppercase", letterSpacing: 0.8 }}>Program Handbook</div>
           </div>
           <nav style={{ padding: "6px 0" }}>
             {isLoading && <div style={{ padding: "16px", fontSize: 13, color: "#999" }}>Loading…</div>}
@@ -420,7 +420,7 @@ const Handbook = () => {
             >
               <Menu style={{ width: 20, height: 20 }} />
             </button>
-            <h1 style={{ fontSize: 22, fontWeight: 600, color: "#2D3748", margin: 0 }}>Resident Handbook</h1>
+            <h1 style={{ fontSize: 22, fontWeight: 600, color: "#2D3748", margin: 0 }}>Program Handbook</h1>
           </div>
 
           {/* Top bar: Read/Edit toggle */}

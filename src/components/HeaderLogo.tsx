@@ -28,7 +28,7 @@ const allNavItems: NavEntry[] = [
   { path: "/meetings",    label: "Meetings",     icon: Users,         permissionKey: "meetings.view" },
   { path: "/tasks",       label: "Priorities & Tasks", icon: CheckSquare,   permissionKey: "tasks.view" },
   { path: "/gme-handbook",label: "GME Handbook", icon: FileText,      permissionKey: "gme_handbook.view" },
-  { path: "/handbook",    label: "Resident Handbook", icon: BookMarked, permissionKey: "handbook.view" },
+  { path: "/handbook",    label: "Program Handbook", icon: BookMarked, permissionKey: "handbook.view" },
   { path: "/rotations",   label: "Rotations",    icon: Stethoscope,   permissionKey: "rotations.view" },
   { path: "/milestones",  label: "Milestones",   icon: BarChart2,     permissionKey: "cbme.view" },
 ];
