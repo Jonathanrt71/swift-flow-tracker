@@ -66,7 +66,6 @@ const EditEventDialog = ({ event, open, onOpenChange, clinicalTopics, onCreateTo
   const [description, setDescription] = useState(event.description || "");
   const [category, setCategory] = useState<EventCategory>(event.category as EventCategory);
   const [assignedTo, setAssignedTo] = useState(event.assigned_to || "unassigned");
-  const [recurrencePattern, setRecurrencePattern] = useState<RecurrencePattern>(event.recurrence_pattern || "none");
   const { data: members } = useTeamMembers();
   const { categories } = useEventCategories();
   const [topicId, setTopicId] = useState<string | null>((event as any).topic_id || null);
@@ -83,7 +82,6 @@ const EditEventDialog = ({ event, open, onOpenChange, clinicalTopics, onCreateTo
       setDescription(event.description || "");
       setCategory(event.category as EventCategory);
       setAssignedTo(event.assigned_to || "unassigned");
-      setRecurrencePattern(event.recurrence_pattern || "none");
       setTopicId((event as any).topic_id || null);
     }
     onOpenChange(isOpen);
@@ -101,7 +99,6 @@ const EditEventDialog = ({ event, open, onOpenChange, clinicalTopics, onCreateTo
       description: description.trim() || null,
       category,
       assigned_to: assignedTo === "unassigned" ? null : assignedTo,
-      recurrence_pattern: recurrencePattern,
       topic_id: category === "didactic" ? topicId : null,
     });
     onOpenChange(false);
@@ -272,21 +269,6 @@ const EditEventDialog = ({ event, open, onOpenChange, clinicalTopics, onCreateTo
                 <SelectItem value="unassigned">Unassigned</SelectItem>
                 {members?.map((m) => (
                   <SelectItem key={m.id} value={m.id}>{formatPersonName(m)}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Recurrence */}
-          <div className="mb-4">
-            <label className="text-xs block mb-1.5" style={{ color: "#5F7285" }}>Recurrence</label>
-            <Select value={recurrencePattern} onValueChange={(v) => setRecurrencePattern(v as RecurrencePattern)}>
-              <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0" style={{ borderColor: "#C9CED4", background: "#fff" }}>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.entries(RECURRENCE_LABELS).map(([k, label]) => (
-                  <SelectItem key={k} value={k}>{label}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
