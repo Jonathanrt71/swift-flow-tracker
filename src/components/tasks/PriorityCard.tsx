@@ -78,7 +78,14 @@ const PriorityCard = ({ priority, rank, secondaryRank, secondaryLabel, teamMembe
           )}
 
           <div className="shrink-0">
-            {assignedName ? (
+            {member?.avatar_url ? (
+              <img
+                src={member.avatar_url}
+                alt={assignedName || ""}
+                className="w-7 h-7 rounded-full object-cover shrink-0"
+                title={assignedName || ""}
+              />
+            ) : assignedName ? (
               <div
                 className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-semibold text-white"
                 style={{ background: getAvatarColor(assignedName) }}
