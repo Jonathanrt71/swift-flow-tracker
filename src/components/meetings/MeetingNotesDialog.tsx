@@ -2,56 +2,89 @@ import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
-  DialogTrigger,
 } from "@/components/ui/dialog";
-import { X, Check, Tag } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { CalendarIcon, X, Trash2, Tag } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { cn } from "@/lib/utils";
+import { format, parseISO } from "date-fns";
 import RichTextEditor from "@/components/tasks/RichTextEditor";
 import type { Meeting } from "@/hooks/useMeetings";
 import type { TeamMember } from "@/hooks/useTeamMembers";
+import { formatPersonName } from "@/lib/dateFormat";
 import { useMeetingTags, useMeetingTagLinks } from "@/hooks/useMeetingTags";
-import { format, parseISO } from "date-fns";
+import { useMeetingCategories } from "@/hooks/useMeetingCategories";
 
-interface MeetingNotesDialogProps {
+interface EditMeetingDialogProps {
   meeting: Meeting;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   teamMembers: TeamMember[];
-  onUpdate: (data: { id: string; notes?: string | null }) => void;
-  children: React.ReactNode;
+  onUpdate: (data: {
+    id: string;
+    title?: string;
+    meeting_date?: string;
+    notes?: string | null;
+    attendee_ids?: string[];
+    category_id?: string | null;
+  }) => void;
+  onDelete: (id: string) => void;
 }
 
-const getInitials = (name: string | null): string => {
-  if (!name) return "?";
-  return name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2);
-};
-
-const getColor = (name: string | null): string => {
-  const cols = ["#378ADD", "#1D9E75", "#D85A30", "#534AB7", "#993556"];
-  let h = 0;
-  if (name) for (let i = 0; i < name.length; i++) h = name.charCodeAt(i) + ((h << 5) - h);
-  return cols[Math.abs(h) % cols.length];
-};
-
-const MeetingNotesDialog = ({
+const EditMeetingDialog = ({
   meeting,
+  open,
+  onOpenChange,
   teamMembers,
   onUpdate,
-  children,
-}: MeetingNotesDialogProps) => {
-  const [open, setOpen] = useState(false);
+  onDelete,
+}: EditMeetingDialogProps) => {
+  const [title, setTitle] = useState(meeting.title);
+  const [meetingDate, setMeetingDate] = useState(meeting.meeting_date);
   const [notes, setNotes] = useState(meeting.notes || "");
+  const [attendeeIds, setAttendeeIds] = useState<string[]>(meeting.attendees || []);
+  const [categoryId, setCategoryId] = useState<string>(meeting.category_id || "none");
+
   const { tags } = useMeetingTags();
   const { links, setTagsForMeeting } = useMeetingTagLinks();
+  const { categories: meetingCategories } = useMeetingCategories();
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
 
   const meetingTagIds = (links.data || [])
     .filter((l) => l.meeting_id === meeting.id)
     .map((l) => l.tag_id);
 
+  const selectedDate = meetingDate ? parseISO(meetingDate) : undefined;
+
   const handleOpenChange = (isOpen: boolean) => {
     if (isOpen) {
+      setTitle(meeting.title);
+      setMeetingDate(meeting.meeting_date);
       setNotes(meeting.notes || "");
+      setAttendeeIds(meeting.attendees || []);
+      setCategoryId(meeting.category_id || "none");
       setSelectedTagIds(meetingTagIds);
     }
-    setOpen(isOpen);
+    onOpenChange(isOpen);
   };
 
   useEffect(() => {
@@ -66,148 +99,188 @@ const MeetingNotesDialog = ({
     );
   };
 
-  const handleSave = () => {
-    onUpdate({ id: meeting.id, notes: notes.trim() || null });
-    setTagsForMeeting.mutate({ meetingId: meeting.id, tagIds: selectedTagIds });
-    setOpen(false);
+  const toggleAttendee = (memberId: string) => {
+    setAttendeeIds((prev) =>
+      prev.includes(memberId) ? prev.filter((id) => id !== memberId) : [...prev, memberId]
+    );
   };
 
-  const creator = teamMembers.find((m) => m.id === meeting.created_by);
-  const creatorName = creator?.display_name || "Unknown";
-  const attendeeMembers = teamMembers.filter((m) =>
-    meeting.attendees.includes(m.id)
-  );
-
-  const formattedDate = (() => {
-    try {
-      return format(parseISO(meeting.meeting_date), "MMM d, yyyy");
-    } catch {
-      return meeting.meeting_date;
-    }
-  })();
+  const handleSave = () => {
+    if (!title.trim() || !meetingDate) return;
+    onUpdate({
+      id: meeting.id,
+      title: title.trim(),
+      meeting_date: meetingDate,
+      notes: notes.trim() || null,
+      attendee_ids: attendeeIds,
+      category_id: categoryId === "none" ? null : categoryId,
+    });
+    setTagsForMeeting.mutate({ meetingId: meeting.id, tagIds: selectedTagIds });
+    onOpenChange(false);
+  };
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent
-        className="w-[calc(100%-2rem)] max-w-md sm:max-w-lg md:max-w-2xl max-h-[85vh] overflow-y-auto bg-muted border-border rounded-xl p-0 [&>button[class*='absolute']]:hidden"
+        className="rounded-lg p-5 max-w-[calc(100vw-2rem)] w-full sm:max-w-md overflow-hidden"
+        style={{ background: "#F5F3EE", border: "1px solid #C9CED4", boxShadow: "0 8px 32px rgba(0,0,0,0.22)" }}
         overlayClassName="bg-[rgba(65,81,98,0.45)] backdrop-blur-sm"
+        onCloseAutoFocus={(e) => e.preventDefault()}
       >
-        {/* Header: creator avatar + title + date + close */}
-        <div className="flex items-start gap-3 px-5 pt-4 pb-2">
-          {creator?.avatar_url ? (
-            <img
-              src={creator.avatar_url}
-              className="w-9 h-9 rounded-full object-cover shrink-0 mt-0.5"
-              alt=""
-            />
-          ) : (
-            <div
-              className="w-9 h-9 rounded-full flex items-center justify-center text-white shrink-0 mt-0.5"
-              style={{
-                fontSize: 13,
-                fontWeight: 500,
-                background: getColor(creatorName),
-              }}
-            >
-              {getInitials(creatorName)}
-            </div>
-          )}
-          <div className="flex-1 min-w-0">
-            <div className="text-sm font-medium text-foreground truncate">
-              {meeting.title}
-            </div>
-            <div className="text-xs text-muted-foreground">{formattedDate}</div>
-          </div>
-          <button
-            onClick={() => setOpen(false)}
-            className="flex items-center justify-center w-9 h-9 bg-transparent border-none cursor-pointer shrink-0"
-          >
-            <X className="h-4 w-4 text-foreground" />
-          </button>
-        </div>
-
-        {/* Attendees */}
-        <div className="px-5 pb-3 flex items-center gap-0">
-          {attendeeMembers.slice(0, 6).map((m, i) =>
-            m.avatar_url ? (
-              <img
-                key={m.id}
-                src={m.avatar_url}
-                className="w-6 h-6 rounded-full object-cover border-[1.5px] border-muted"
-                style={{ marginLeft: i > 0 ? -4 : 0 }}
-                alt=""
-              />
-            ) : (
-              <div
-                key={m.id}
-                className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[8px] font-medium border-[1.5px] border-muted"
-                style={{
-                  background: getColor(m.display_name),
-                  marginLeft: i > 0 ? -4 : 0,
-                }}
-              >
-                {getInitials(m.display_name)}
-              </div>
-            )
-          )}
-          {attendeeMembers.length > 6 && (
-            <span className="text-[11px] text-muted-foreground ml-1.5">
-              +{attendeeMembers.length - 6}
+        <div className="overflow-y-auto max-h-[80vh] overflow-x-hidden">
+          <div className="flex items-center justify-between mb-5">
+            <span className="text-base font-semibold" style={{ color: "#2D3748" }}>
+              Edit meeting
             </span>
-          )}
-          <span className="text-[11px] text-muted-foreground ml-2">
-            {attendeeMembers.length} attendee{attendeeMembers.length !== 1 ? "s" : ""}
-          </span>
-        </div>
-
-        {/* Separator */}
-        <div className="mx-5 h-px bg-border" />
-
-        {/* Notes editor */}
-        <div className="px-5 py-3">
-          <div className="[&_.rounded-md]:rounded-lg [&_.rounded-md]:border-border">
-            <RichTextEditor content={notes} onChange={setNotes} />
           </div>
-        </div>
 
-        {/* Tags */}
-        {(tags.data?.length ?? 0) > 0 && (
-          <div className="px-5 pb-3">
-            <div className="flex items-center gap-1.5 mb-2">
-              <Tag className="h-3 w-3 text-muted-foreground" />
-              <span className="text-[11px] text-muted-foreground">Tags</span>
+          {/* Title */}
+          <div className="mb-4">
+            <label className="text-xs block mb-1.5" style={{ color: "#5F7285" }}>Title</label>
+            <Input
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Meeting title"
+              className="rounded-lg focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none"
+              style={{ borderColor: "#C9CED4", background: "#fff", boxShadow: "none" }}
+            />
+          </div>
+
+          {/* Date */}
+          <div className="mb-4">
+            <label className="text-xs block mb-1.5" style={{ color: "#5F7285" }}>Date</label>
+            <div className="flex items-center gap-2">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button
+                    type="button"
+                    className={cn("flex-1 flex items-center text-left text-sm rounded-lg px-3 py-2", !meetingDate && "opacity-60")}
+                    style={{ border: "1px solid #C9CED4", background: "#fff", color: "#2D3748" }}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" style={{ color: "#5F7285" }} />
+                    {meetingDate ? format(selectedDate!, "PPP") : "Select date"}
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={(d) => { if (d) setMeetingDate(format(d, "yyyy-MM-dd")); }}
+                    initialFocus
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
-            <div className="flex flex-wrap gap-1.5">
-              {tags.data?.map((tag) => (
+          </div>
+
+          {/* Category */}
+          {(meetingCategories.data?.length ?? 0) > 0 && (
+            <div className="mb-4">
+              <label className="text-xs block mb-1.5" style={{ color: "#5F7285" }}>Category</label>
+              <Select value={categoryId} onValueChange={setCategoryId}>
+                <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0" style={{ borderColor: "#C9CED4", background: "#fff" }}>
+                  <SelectValue placeholder="No category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">No category</SelectItem>
+                  {meetingCategories.data?.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          {/* Attendees */}
+          <div className="mb-4">
+            <label className="text-xs block mb-1.5" style={{ color: "#5F7285" }}>Attendees</label>
+            <div className="flex flex-wrap gap-1.5 p-2 rounded-lg" style={{ background: "#fff", border: "1px solid #C9CED4", minHeight: 38 }}>
+              {teamMembers.map((m) => (
                 <button
-                  key={tag.id}
-                  onClick={() => toggleTag(tag.id)}
-                  className={`text-[11px] px-2.5 py-1 rounded-full border cursor-pointer transition-colors ${
-                    selectedTagIds.includes(tag.id)
-                      ? "bg-primary text-primary-foreground border-primary"
-                      : "bg-background text-muted-foreground border-border hover:border-foreground/30"
-                  }`}
+                  key={m.id}
+                  type="button"
+                  onClick={() => toggleAttendee(m.id)}
+                  className="text-[11px] px-2.5 py-1 rounded-full border cursor-pointer transition-colors"
+                  style={attendeeIds.includes(m.id) ? {
+                    background: "#415162", color: "#fff", borderColor: "#415162",
+                  } : {
+                    background: "transparent", color: "#5F7285", borderColor: "#C9CED4",
+                  }}
                 >
-                  {tag.name}
+                  {formatPersonName(m)}
                 </button>
               ))}
             </div>
           </div>
-        )}
 
-        {/* Save */}
-        <div className="px-5 pb-4 flex items-center justify-end">
+          {/* Notes */}
+          <div className="mb-4">
+            <label className="text-xs block mb-1.5" style={{ color: "#5F7285" }}>Notes</label>
+            <div className="[&_.ProseMirror]:min-h-[80px] [&_.rounded-md]:bg-white [&_.ProseMirror]:bg-white" style={{ background: "#fff", borderRadius: 8 }}>
+              <RichTextEditor content={notes} onChange={setNotes} />
+            </div>
+          </div>
+
+          {/* Tags */}
+          {(tags.data?.length ?? 0) > 0 && (
+            <div className="mb-4">
+              <label className="text-xs flex items-center gap-1.5 mb-1.5" style={{ color: "#5F7285" }}>
+                <Tag className="h-3 w-3" /> Tags
+              </label>
+              <div className="flex flex-wrap gap-1.5">
+                {tags.data?.map((tag) => (
+                  <button
+                    key={tag.id}
+                    onClick={() => toggleTag(tag.id)}
+                    className="text-[11px] px-2.5 py-1 rounded-full border cursor-pointer transition-colors"
+                    style={selectedTagIds.includes(tag.id) ? {
+                      background: "#415162", color: "#fff", borderColor: "#415162",
+                    } : {
+                      background: "#fff", color: "#5F7285", borderColor: "#C9CED4",
+                    }}
+                  >
+                    {tag.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Save */}
           <button
             onClick={handleSave}
-            className="flex items-center justify-center w-11 h-11 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+            disabled={!title.trim() || !meetingDate}
+            className="w-full rounded-lg py-3 text-sm font-medium text-white disabled:opacity-50"
+            style={{ background: "#415162" }}
           >
-            <Check className="h-4 w-4" />
+            Save meeting
           </button>
+
+          {/* Delete */}
+          <div className="mt-4 flex justify-center">
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <button className="flex items-center gap-1.5 text-xs text-destructive hover:underline bg-transparent border-none cursor-pointer">
+                  <Trash2 className="h-3.5 w-3.5" /> Delete this meeting
+                </button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete meeting?</AlertDialogTitle>
+                  <AlertDialogDescription>This will permanently delete "{meeting.title}" and all its notes.</AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={() => { onDelete(meeting.id); onOpenChange(false); }} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
   );
 };
 
-export default MeetingNotesDialog;
+export default EditMeetingDialog;

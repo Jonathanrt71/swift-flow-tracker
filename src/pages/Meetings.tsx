@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { cn } from "@/lib/utils";
 import { useMeetings } from "@/hooks/useMeetings";
 import { useTasks } from "@/hooks/useTasks";
 import type { Task } from "@/hooks/useTasks";
@@ -8,30 +7,13 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Shield, User, LogOut, Search, Pencil, X as XIcon, Trash2, Plus } from "lucide-react";
+import { Shield, User, LogOut, Search, X as XIcon } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { DetailReadOnly } from "@/components/cbme/DetailField";
 import { formatCardDate, formatPersonName } from "@/lib/dateFormat";
 import HeaderLogo from "@/components/HeaderLogo";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import CreateMeetingDialog from "@/components/meetings/CreateMeetingDialog";
-import MeetingNotesDialog from "@/components/meetings/MeetingNotesDialog";
-import CreateTaskDialog from "@/components/tasks/CreateTaskDialog";
+import EditMeetingDialog from "@/components/meetings/MeetingNotesDialog";
 import { useMeetingTags, useMeetingTagLinks } from "@/hooks/useMeetingTags";
 import NotificationBell from "@/components/NotificationBell";
 import type { Meeting } from "@/hooks/useMeetings";
@@ -57,6 +39,7 @@ const MeetingCard = ({
   categoryName,
   onUpdate,
   onDelete,
+  onEdit,
   onCreateTask,
 }: {
   meeting: Meeting;
@@ -66,6 +49,7 @@ const MeetingCard = ({
   categoryName?: string;
   onUpdate: (data: { id: string; notes?: string | null }) => void;
   onDelete: (id: string) => void;
+  onEdit?: (meeting: Meeting) => void;
   onCreateTask: (data: {
     title: string;
     description?: string;
@@ -75,7 +59,6 @@ const MeetingCard = ({
     meeting_id?: string;
   }) => void;
 }) => {
-  const [expanded, setExpanded] = useState(false);
   const members = teamMembers || [];
   const creator = members.find((m) => m.id === meeting.created_by);
   const creatorName = creator?.display_name || "Unknown";
@@ -91,10 +74,10 @@ const MeetingCard = ({
 
   return (
     <div className="bg-muted border border-border rounded-[10px] overflow-hidden transition-all">
-      {/* Top row — tap to expand */}
+      {/* Top row — tap to open edit */}
       <div
         className="flex items-center min-h-[48px] px-2 cursor-pointer"
-        onClick={() => setExpanded(!expanded)}
+        onClick={() => onEdit?.(meeting)}
       >
         {/* Title + category */}
         <div className="flex-1 min-w-0 pl-2 pr-1" style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -166,127 +149,22 @@ const MeetingCard = ({
         </div>
       </div>
 
-      {/* Expanded: date + actions + linked tasks */}
-      {expanded && (
+
+      {/* Tags row */}
+      {meetingTagNames.length > 0 && (
+        <div className="px-3 pb-1.5 flex flex-wrap gap-1">
+          {meetingTagNames.map((t) => (
+            <span key={t} style={{ fontSize: 9, padding: "1px 6px", borderRadius: 10, background: "#D5DAE0", color: "#415162", fontWeight: 500 }}>{t}</span>
+          ))}
+        </div>
+      )}
+
+      {/* Notes preview */}
+      {meeting.notes && meeting.notes !== "<p></p>" && meeting.notes.trim() !== "" && (
         <div className="pb-2 pl-3 pr-3">
-          {/* Date left, actions right: pencil, add task, delete */}
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[11px] text-muted-foreground">{formattedDate}</span>
-            <div className="flex items-center gap-0.5">
-              {/* Pencil — opens notes */}
-              <MeetingNotesDialog
-                meeting={meeting}
-                teamMembers={members}
-                onUpdate={onUpdate}
-              >
-                <button
-                  className="flex items-center justify-center w-8 h-8 bg-transparent border-none cursor-pointer text-muted-foreground hover:text-foreground transition-colors"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <Pencil className="h-3.5 w-3.5" />
-                </button>
-              </MeetingNotesDialog>
-              {/* Add task */}
-              <CreateTaskDialog
-                onSubmit={onCreateTask}
-                meetingId={meeting.id}
-              >
-                <button
-                  className="flex items-center justify-center w-8 h-8 bg-transparent border-none cursor-pointer text-muted-foreground hover:text-foreground transition-colors"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <Plus className="h-3.5 w-3.5" />
-                </button>
-              </CreateTaskDialog>
-              {/* Delete */}
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <button
-                    className="flex items-center justify-center w-8 h-8 bg-transparent border-none cursor-pointer text-destructive hover:text-destructive/80 transition-colors"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
-                </AlertDialogTrigger>
-                <AlertDialogContent onClick={(e) => e.stopPropagation()}>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Delete meeting?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This will permanently delete "{meeting.title}" and all its notes. This action cannot be undone.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={() => onDelete(meeting.id)}
-                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                    >
-                      Delete
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </div>
+          <div className="px-1">
+            <DetailReadOnly html={meeting.notes} />
           </div>
-
-          {/* Notes preview (read-only) */}
-          {meeting.notes && meeting.notes !== "<p></p>" && meeting.notes.trim() !== "" && (
-            <div className="mb-2 px-1" onClick={(e) => e.stopPropagation()}>
-              <DetailReadOnly html={meeting.notes} />
-            </div>
-          )}
-
-          {/* Linked tasks */}
-          {linkedTasks.length > 0 && (
-            <>
-              {linkedTasks.map((t) => {
-                const assignee = members.find((m) => m.id === t.assigned_to);
-                return (
-                  <div
-                    key={t.id}
-                    className="flex items-center gap-1.5 px-2 py-1.5 mb-1 bg-[#D5DAE0] rounded-md"
-                  >
-                    <div
-                      className={cn(
-                        "w-3 h-3 rounded-sm border shrink-0",
-                        t.completed
-                          ? "bg-muted-foreground border-muted-foreground"
-                          : "bg-background border-muted-foreground/40"
-                      )}
-                    />
-                    <span
-                      className={cn(
-                        "text-xs flex-1 min-w-0 truncate",
-                        t.completed && "line-through text-muted-foreground"
-                      )}
-                    >
-                      {t.title}
-                    </span>
-                    {assignee && (
-                      assignee.avatar_url ? (
-                        <img
-                          src={assignee.avatar_url}
-                          className="w-[18px] h-[18px] rounded-full object-cover shrink-0"
-                          alt=""
-                        />
-                      ) : (
-                        <div
-                          className="w-[18px] h-[18px] rounded-full flex items-center justify-center text-white shrink-0"
-                          style={{
-                            fontSize: 7,
-                            fontWeight: 500,
-                            background: getColor(assignee.display_name),
-                          }}
-                        >
-                          {getInitials(assignee.display_name)}
-                        </div>
-                      )
-                    )}
-                  </div>
-                );
-              })}
-            </>
-          )}
         </div>
       )}
     </div>
@@ -299,6 +177,7 @@ const Meetings = () => {
   const { meetings, createMeeting, updateMeeting, deleteMeeting } = useMeetings();
   const { tasks, createTask } = useTasks();
   const { data: teamMembers } = useTeamMembers();
+  const [editingMeeting, setEditingMeeting] = useState<Meeting | null>(null);
 
   // Build a map of meeting_id -> linked tasks (flatten parent + subtasks)
   const allTasks: Task[] = [];
@@ -474,6 +353,7 @@ const Meetings = () => {
                     categoryName={(meeting as any).category_id ? categoryNameMap.get((meeting as any).category_id) : undefined}
                     onUpdate={(data) => updateMeeting.mutate(data)}
                     onDelete={(id) => deleteMeeting.mutate(id)}
+                    onEdit={(m) => setEditingMeeting(m)}
                     onCreateTask={(data) => createTask.mutate(data)}
                   />
                 );
@@ -484,6 +364,17 @@ const Meetings = () => {
           )}
         </div>
       </main>
+
+      {editingMeeting && (
+        <EditMeetingDialog
+          meeting={editingMeeting}
+          open={!!editingMeeting}
+          onOpenChange={(open) => { if (!open) setEditingMeeting(null); }}
+          teamMembers={teamMembers || []}
+          onUpdate={(data) => { updateMeeting.mutate(data); setEditingMeeting(null); }}
+          onDelete={(id) => { deleteMeeting.mutate(id); setEditingMeeting(null); }}
+        />
+      )}
 
     </div>
   );
