@@ -694,9 +694,10 @@ const Compliance = () => {
       {activeTab === "table" && (
         <div style={{ flex: 1, padding: "12px 16px 100px", maxWidth: 900, margin: "0 auto" }}>
           {/* Filters */}
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
+          <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" as any, marginBottom: 12 }}>
+            <div style={{ display: "flex", gap: 8, minWidth: "max-content" }}>
             <Select value={filterSection?.toString() ?? "all"} onValueChange={v => setFilterSection(v === "all" ? null : Number(v))}>
-              <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0" style={{ borderColor: "#C9CED4", background: "#fff", flex: 1, minWidth: 0, maxWidth: 180, fontSize: 12 }}>
+              <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0" style={{ borderColor: "#C9CED4", background: "#fff", fontSize: 12 }}>
                 <SelectValue placeholder="All Sections" />
               </SelectTrigger>
               <SelectContent>
@@ -707,7 +708,7 @@ const Compliance = () => {
               </SelectContent>
             </Select>
             <Select value={filterStatus ?? "all"} onValueChange={v => setFilterStatus(v === "all" ? null : v as ComplianceStatus)}>
-              <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0" style={{ borderColor: "#C9CED4", background: "#fff", flex: 1, minWidth: 0, maxWidth: 140, fontSize: 12 }}>
+              <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0" style={{ borderColor: "#C9CED4", background: "#fff", fontSize: 12 }}>
                 <SelectValue placeholder="All Status" />
               </SelectTrigger>
               <SelectContent>
@@ -718,7 +719,7 @@ const Compliance = () => {
               </SelectContent>
             </Select>
             <Select value={filterType ?? "all"} onValueChange={v => setFilterType(v === "all" ? null : v)}>
-              <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0" style={{ borderColor: "#C9CED4", background: "#fff", flex: 1, minWidth: 0, maxWidth: 130, fontSize: 12 }}>
+              <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0" style={{ borderColor: "#C9CED4", background: "#fff", fontSize: 12 }}>
                 <SelectValue placeholder="All Types" />
               </SelectTrigger>
               <SelectContent>
@@ -729,7 +730,7 @@ const Compliance = () => {
               </SelectContent>
             </Select>
             <Select value={filterSource ?? "all"} onValueChange={v => setFilterSource(v === "all" ? null : v)}>
-              <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0" style={{ borderColor: "#C9CED4", background: "#fff", flex: 1, minWidth: 0, maxWidth: 140, fontSize: 12 }}>
+              <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0" style={{ borderColor: "#C9CED4", background: "#fff", fontSize: 12 }}>
                 <SelectValue placeholder="All Sources" />
               </SelectTrigger>
               <SelectContent>
@@ -739,6 +740,7 @@ const Compliance = () => {
                 <SelectItem value="both">Both</SelectItem>
               </SelectContent>
             </Select>
+            </div>
           </div>
 
           {/* Tab bar */}
