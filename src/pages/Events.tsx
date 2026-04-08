@@ -12,18 +12,7 @@ import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Calendar, Search, X, Trash2, List, ClipboardCheck, ArrowLeft } from "lucide-react";
+import { Calendar, Search, X, List, ClipboardCheck, ArrowLeft } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { formatCardDate, ordinalSuffix } from "@/lib/dateFormat";
 import CreateEventDialog from "@/components/events/CreateEventDialog";
@@ -88,6 +77,7 @@ const EventCard = ({
   onCreateTopic,
   onUpdate,
   onDelete,
+  onEdit,
   onConfirmRecurrence,
   onSkipRecurrence,
 }: {
@@ -112,6 +102,7 @@ const EventCard = ({
     topic_id?: string | null;
   }) => void;
   onDelete: (id: string) => void;
+  onEdit: (event: ProgramEvent) => void;
   onConfirmRecurrence: (event: ProgramEvent, nextDate: string) => void;
   onSkipRecurrence: (id: string) => void;
 }) => {
@@ -169,7 +160,7 @@ const EventCard = ({
       style={{ background: "#E7EBEF", borderColor: "#D5DAE0" }}
       onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = "#DFE3E8"}
       onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = "#E7EBEF"}
-      onClick={() => setExpanded(!expanded)}
+      onClick={() => canEdit ? onEdit(event) : setExpanded(!expanded)}
     >
       <div className="flex items-center min-h-[48px] px-2">
         <div className="flex-1 min-w-0 pl-2 pr-1 flex items-center gap-2">
@@ -268,38 +259,6 @@ const EventCard = ({
               )}
             </div>
             <div className="flex items-center gap-0.5 shrink-0">
-              {canEdit && (
-                <>
-                  <EditEventDialog event={event} clinicalTopics={clinicalTopics} onCreateTopic={onCreateTopic} onUpdate={onUpdate} />
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <button
-                        className="flex items-center justify-center w-8 h-8 rounded-md bg-transparent text-destructive hover:bg-destructive/10 transition-colors"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent onClick={(e) => e.stopPropagation()}>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Delete event?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          This will permanently delete "{event.title}". This action cannot be undone.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction
-                          onClick={() => onDelete(event.id)}
-                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                        >
-                          Delete
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </>
-              )}
             </div>
           </div>
 
@@ -384,6 +343,7 @@ const GroupedEventList = ({
   onCreateTopic,
   onUpdate,
   onDelete,
+  onEdit,
   onConfirmRecurrence,
   onSkipRecurrence,
   emptyMessage,
@@ -409,6 +369,7 @@ const GroupedEventList = ({
     recurrence_pattern?: RecurrencePattern;
   }) => void;
   onDelete: (id: string) => void;
+  onEdit: (event: ProgramEvent) => void;
   onConfirmRecurrence: (event: ProgramEvent, nextDate: string) => void;
   onSkipRecurrence: (id: string) => void;
   emptyMessage: string;
@@ -464,6 +425,7 @@ const GroupedEventList = ({
               onCreateTopic={onCreateTopic}
               onUpdate={onUpdate}
               onDelete={onDelete}
+              onEdit={onEdit}
               onConfirmRecurrence={onConfirmRecurrence}
               onSkipRecurrence={onSkipRecurrence}
             />
@@ -491,6 +453,7 @@ const Events = () => {
   const { topics: topicsQuery, createTopic } = useClinicalTopics();
   const clinicalTopicsData = topicsQuery.data || [];
   const handleCreateTopic = async (title: string) => { await createTopic.mutateAsync({ title }); };
+  const [editingEvent, setEditingEvent] = useState<ProgramEvent | null>(null);
 
   // Query evaluation status for current user (which events they've evaluated)
   const { data: evaluationStatus } = useQuery({
@@ -749,12 +712,25 @@ const Events = () => {
             onCreateTopic={handleCreateTopic}
             onUpdate={(data) => { if (canEditEvents) updateEvent.mutate(data); }}
             onDelete={(id) => { if (canEditEvents) deleteEvent.mutate(id); }}
+            onEdit={(event) => setEditingEvent(event)}
             onConfirmRecurrence={(event, nextDate) => { if (canEditEvents) confirmRecurrence.mutate({ event, nextDate }); }}
             onSkipRecurrence={(id) => { if (canEditEvents) skipRecurrence.mutate(id); }}
             emptyMessage={isAllSelected ? "No events" : `No events in selected categories`}
           />
         )}
       </main>
+
+      {editingEvent && (
+        <EditEventDialog
+          event={editingEvent}
+          open={!!editingEvent}
+          onOpenChange={(open) => { if (!open) setEditingEvent(null); }}
+          clinicalTopics={clinicalTopicsData}
+          onCreateTopic={handleCreateTopic}
+          onUpdate={(data) => { updateEvent.mutate(data); setEditingEvent(null); }}
+          onDelete={(id) => { deleteEvent.mutate(id); setEditingEvent(null); }}
+        />
+      )}
 
     </div>
   );
