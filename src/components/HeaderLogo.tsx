@@ -4,6 +4,7 @@ import { CheckSquare, Users, Calendar, BookOpen, MessageSquare, Shield, User, Lo
 import { usePermissions } from "@/hooks/usePermissions";
 import { useAppSettings } from "@/hooks/useAppSettings";
 import { useAuth } from "@/contexts/AuthContext";
+import { useUserCategory } from "@/contexts/UserCategoryContext";
 import { supabase } from "@/integrations/supabase/client";
 
 interface NavEntry {
@@ -99,6 +100,7 @@ const HeaderLogo = ({
   const navigate = useNavigate();
   const { has: hasPerm } = usePermissions();
   const { settings } = useAppSettings();
+  const { activeCategory } = useUserCategory();
   const navImageUrl = settings.nav_image_url || "/yosemite-header.png";
   const { userName, userInitials, avatarUrl } = useUserProfile();
 
@@ -195,6 +197,15 @@ const HeaderLogo = ({
         <span style={{ fontSize: 16, fontWeight: 500, color: "#fff", whiteSpace: "nowrap" }}>
           {currentItem?.label || "FM App"}
         </span>
+        {isAdmin && (
+          <span style={{
+            fontSize: 9, fontWeight: 600, color: "rgba(255,255,255,0.5)",
+            background: "rgba(255,255,255,0.12)", borderRadius: 3,
+            padding: "1px 4px", marginLeft: 2, letterSpacing: "0.02em",
+          }}>
+            {activeCategory === "FM" ? "F" : "G"}
+          </span>
+        )}
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <polyline points="6 9 12 15 18 9" />
         </svg>
