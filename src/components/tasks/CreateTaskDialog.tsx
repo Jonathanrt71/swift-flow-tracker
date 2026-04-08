@@ -27,19 +27,24 @@ import { Button } from "@/components/ui/button";
 import RichTextEditor from "./RichTextEditor";
 
 interface CreateTaskDialogProps {
-  onSubmit: (data: { title: string; description?: string; due_date?: string; parent_id?: string; assigned_to?: string; owed_to?: string; meeting_id?: string }) => void;
+  onSubmit: (data: { title: string; description?: string; due_date?: string; parent_id?: string; assigned_to?: string; owed_to?: string; meeting_id?: string; operations_section_id?: string }) => void;
   parentId?: string;
   meetingId?: string;
+  operationsSectionId?: string;
   loading?: boolean;
   iconOnly?: boolean;
   inlineIcon?: boolean;
   iconTrigger?: boolean;
   onTriggerOpen?: () => void;
   children?: React.ReactNode;
+  externalOpen?: boolean;
+  onExternalOpenChange?: (open: boolean) => void;
 }
 
-const CreateTaskDialog = ({ onSubmit, parentId, meetingId, loading, iconOnly, inlineIcon, iconTrigger, onTriggerOpen, children }: CreateTaskDialogProps) => {
-  const [open, setOpen] = useState(false);
+const CreateTaskDialog = ({ onSubmit, parentId, meetingId, operationsSectionId, loading, iconOnly, inlineIcon, iconTrigger, onTriggerOpen, children, externalOpen, onExternalOpenChange }: CreateTaskDialogProps) => {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = externalOpen !== undefined ? externalOpen : internalOpen;
+  const setOpen = (v: boolean) => { if (onExternalOpenChange) onExternalOpenChange(v); else setInternalOpen(v); };
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [dueDate, setDueDate] = useState("");
@@ -57,6 +62,7 @@ const CreateTaskDialog = ({ onSubmit, parentId, meetingId, loading, iconOnly, in
       parent_id: parentId,
       assigned_to: assignedTo === "unassigned" ? undefined : assignedTo,
       meeting_id: meetingId,
+      operations_section_id: operationsSectionId,
     });
     setTitle("");
     setDescription("");
@@ -78,20 +84,22 @@ const CreateTaskDialog = ({ onSubmit, parentId, meetingId, loading, iconOnly, in
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>
-        {children ? (
-          children
-        ) : iconTrigger ? (
-          <button data-no-swipe className="flex items-center justify-center w-8 h-8 bg-transparent border-none cursor-pointer rounded-md hover:bg-black/5 transition-colors" aria-label="Add subtask">
-            <Plus className="h-4 w-4 text-foreground" />
-          </button>
-        ) : (
-          <Button variant={inlineIcon ? "ghost" : parentId ? "ghost" : "default"} size={inlineIcon ? "icon" : iconOnly ? "icon" : parentId ? "sm" : "default"} className={inlineIcon ? "h-8 w-8 p-0" : iconOnly ? "min-w-[44px] min-h-[44px] rounded text-muted-foreground hover:text-foreground transition-colors" : ""}>
-            <Plus className="h-4 w-4" />
-            {!inlineIcon && !iconOnly && (parentId ? "Add subtask" : "New task")}
-          </Button>
-        )}
-      </DialogTrigger>
+      {externalOpen === undefined && (
+        <DialogTrigger asChild>
+          {children ? (
+            children
+          ) : iconTrigger ? (
+            <button data-no-swipe className="flex items-center justify-center w-8 h-8 bg-transparent border-none cursor-pointer rounded-md hover:bg-black/5 transition-colors" aria-label="Add subtask">
+              <Plus className="h-4 w-4 text-foreground" />
+            </button>
+          ) : (
+            <Button variant={inlineIcon ? "ghost" : parentId ? "ghost" : "default"} size={inlineIcon ? "icon" : iconOnly ? "icon" : parentId ? "sm" : "default"} className={inlineIcon ? "h-8 w-8 p-0" : iconOnly ? "min-w-[44px] min-h-[44px] rounded text-muted-foreground hover:text-foreground transition-colors" : ""}>
+              <Plus className="h-4 w-4" />
+              {!inlineIcon && !iconOnly && (parentId ? "Add subtask" : "New task")}
+            </Button>
+          )}
+        </DialogTrigger>
+      )}
       <DialogContent
         className="rounded-lg p-5 max-w-[calc(100vw-2rem)] w-full sm:max-w-md overflow-hidden"
         style={{ background: "#F5F3EE", border: "1px solid #C9CED4", boxShadow: "0 8px 32px rgba(0,0,0,0.22)" }}

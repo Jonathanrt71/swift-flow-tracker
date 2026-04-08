@@ -23,6 +23,10 @@ import DocumentSearchBar from "@/components/shared/DocumentSearchBar";
 import { usePermissions } from "@/hooks/usePermissions";
 import { EVENT_CATEGORY_LABELS } from "@/hooks/useEvents";
 import type { EventCategory } from "@/hooks/useEvents";
+import CreateEventDialog from "@/components/events/CreateEventDialog";
+import CreateTaskDialog from "@/components/tasks/CreateTaskDialog";
+import { useEvents } from "@/hooks/useEvents";
+import { useTasks } from "@/hooks/useTasks";
 
 const iconMap: Record<string, React.FC<{ className?: string; style?: React.CSSProperties }>> = {
   home: Home, phone: Phone, calendar: Calendar, clock: Clock, shield: Shield,
@@ -71,15 +75,12 @@ const Handbook = () => {
   const [linkedTasks, setLinkedTasks] = useState<Record<string, any[]>>({});
   const [linkedFiles, setLinkedFiles] = useState<Record<string, any[]>>({});
   const [linkedRefresh, setLinkedRefresh] = useState(0);
-  const [createEventForSection, setCreateEventForSection] = useState<HandbookSection | null>(null);
-  const [eventTitle, setEventTitle] = useState("");
-  const [eventDate, setEventDate] = useState("");
-  const [eventCategory, setEventCategory] = useState("program");
-  const [createTaskForSection, setCreateTaskForSection] = useState<HandbookSection | null>(null);
-  const [taskTitle, setTaskTitle] = useState("");
-  const [taskDescription, setTaskDescription] = useState("");
+  const [createEventForSectionId, setCreateEventForSectionId] = useState<string | null>(null);
+  const [createTaskForSectionId, setCreateTaskForSectionId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadingSectionId, setUploadingSectionId] = useState<string | null>(null);
+  const { createEvent } = useEvents();
+  const { createTask } = useTasks();
 
   useEffect(() => {
     if (!allSections?.length) return;
@@ -155,47 +156,6 @@ const Handbook = () => {
   const getFileUrl = (filePath: string) => {
     const { data } = supabase.storage.from("handbook-attachments").getPublicUrl(filePath);
     return data?.publicUrl || "";
-  };
-
-  const handleCreateEvent = async () => {
-    if (!eventTitle.trim() || !createEventForSection) return;
-    try {
-      const { error: err } = await (supabase as any).from("events").insert({
-        title: eventTitle.trim(),
-        event_date: eventDate || new Date().toISOString().split("T")[0],
-        category: eventCategory,
-        operations_section_id: createEventForSection.id,
-        created_by: user?.id,
-        archived: false,
-      });
-      if (err) throw err;
-      toast({ title: "Event added", description: `"${eventTitle.trim()}" linked to ${createEventForSection.title}` });
-      setLinkedRefresh(r => r + 1);
-      setCreateEventForSection(null);
-      setEventTitle(""); setEventDate(""); setEventCategory("program");
-    } catch (e: any) {
-      toast({ title: "Error", description: e.message, variant: "destructive" });
-    }
-  };
-
-  const handleCreateTask = async () => {
-    if (!taskTitle.trim() || !createTaskForSection) return;
-    try {
-      const { error: err } = await (supabase as any).from("tasks").insert({
-        title: taskTitle.trim(),
-        description: taskDescription.trim() || null,
-        created_by: user?.id,
-        operations_section_id: createTaskForSection.id,
-        completed: false,
-      });
-      if (err) throw err;
-      toast({ title: "Task added", description: `"${taskTitle.trim()}" linked to ${createTaskForSection.title}` });
-      setLinkedRefresh(r => r + 1);
-      setCreateTaskForSection(null);
-      setTaskTitle(""); setTaskDescription("");
-    } catch (e: any) {
-      toast({ title: "Error", description: e.message, variant: "destructive" });
-    }
   };
 
   const formatDateShort = (d: string) => {
@@ -468,13 +428,13 @@ const Handbook = () => {
             {/* Add event / task / attach file buttons */}
             <div style={{ display: "flex", gap: 6, marginTop: 10 }}>
               <button
-                onClick={() => { setCreateEventForSection(section); setEventTitle(section.title); setEventDate(new Date().toISOString().split("T")[0]); setEventCategory("program"); }}
+                onClick={() => setCreateEventForSectionId(section.id)}
                 style={{ display: "flex", alignItems: "center", gap: 4, padding: "4px 8px", fontSize: 11, color: "#415162", background: "#fff", border: "0.5px solid #C9CED4", borderRadius: 4, cursor: "pointer" }}
               >
                 <CalendarPlus style={{ width: 11, height: 11 }} /> Add event
               </button>
               <button
-                onClick={() => { setCreateTaskForSection(section); setTaskTitle(""); setTaskDescription(""); }}
+                onClick={() => setCreateTaskForSectionId(section.id)}
                 style={{ display: "flex", alignItems: "center", gap: 4, padding: "4px 8px", fontSize: 11, color: "#415162", background: "#fff", border: "0.5px solid #C9CED4", borderRadius: 4, cursor: "pointer" }}
               >
                 <CheckSquare style={{ width: 11, height: 11 }} /> Add task
@@ -747,74 +707,35 @@ const Handbook = () => {
         onChange={(e) => { if (uploadingSectionId) handleFileUpload(uploadingSectionId, e.target.files); }}
       />
 
-      {/* Add Event dialog */}
-      {createEventForSection && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 100, background: "rgba(65,81,98,0.45)", backdropFilter: "blur(2px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
-          <div style={{ background: "#F5F3EE", borderRadius: 10, padding: 20, maxWidth: 400, width: "100%", border: "1px solid #C9CED4" }}>
-            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 4 }}>
-              <h3 style={{ fontSize: 15, fontWeight: 600, color: "#2D3748", margin: 0 }}>Add event</h3>
-              <button onClick={() => setCreateEventForSection(null)} style={{ background: "transparent", border: "none", cursor: "pointer", padding: 2, color: "#aaa" }}><X style={{ width: 16, height: 16 }} /></button>
-            </div>
-            <p style={{ fontSize: 12, color: "#5F7285", marginBottom: 16 }}>Linked to: {createEventForSection.title}</p>
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              <div>
-                <label style={{ fontSize: 12, color: "#5F7285", display: "block", marginBottom: 4 }}>Title</label>
-                <input value={eventTitle} onChange={e => setEventTitle(e.target.value)}
-                  style={{ width: "100%", padding: "7px 10px", fontSize: 13, border: "1px solid #C9CED4", borderRadius: 6, outline: "none", background: "#fff", boxSizing: "border-box" }} />
-              </div>
-              <div>
-                <label style={{ fontSize: 12, color: "#5F7285", display: "block", marginBottom: 4 }}>Date</label>
-                <input type="date" value={eventDate} onChange={e => setEventDate(e.target.value)}
-                  style={{ width: "100%", padding: "7px 10px", fontSize: 13, border: "1px solid #C9CED4", borderRadius: 6, outline: "none", background: "#fff", boxSizing: "border-box" }} />
-              </div>
-              <div>
-                <label style={{ fontSize: 12, color: "#5F7285", display: "block", marginBottom: 4 }}>Category</label>
-                <select value={eventCategory} onChange={e => setEventCategory(e.target.value)}
-                  style={{ width: "100%", padding: "7px 10px", fontSize: 13, border: "1px solid #C9CED4", borderRadius: 6, outline: "none", background: "#fff", boxSizing: "border-box" }}>
-                  <option value="program">Program</option>
-                  <option value="didactic">Didactic</option>
-                </select>
-              </div>
-            </div>
-            <button onClick={handleCreateEvent} disabled={!eventTitle.trim()}
-              className="w-full rounded-lg py-3 text-sm font-medium text-white disabled:opacity-50"
-              style={{ background: "#415162", marginTop: 16 }}>
-              Save event
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Add Event dialog — reuses the real CreateEventDialog */}
+      <CreateEventDialog
+        externalOpen={!!createEventForSectionId}
+        onExternalOpenChange={(open) => { if (!open) setCreateEventForSectionId(null); }}
+        operationsSectionId={createEventForSectionId || undefined}
+        onSubmit={(data) => {
+          createEvent.mutate(data, {
+            onSuccess: () => {
+              setLinkedRefresh(r => r + 1);
+              setCreateEventForSectionId(null);
+            },
+          });
+        }}
+      />
 
-      {/* Add Task dialog */}
-      {createTaskForSection && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 100, background: "rgba(65,81,98,0.45)", backdropFilter: "blur(2px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
-          <div style={{ background: "#F5F3EE", borderRadius: 10, padding: 20, maxWidth: 400, width: "100%", border: "1px solid #C9CED4" }}>
-            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 4 }}>
-              <h3 style={{ fontSize: 15, fontWeight: 600, color: "#2D3748", margin: 0 }}>Add task</h3>
-              <button onClick={() => setCreateTaskForSection(null)} style={{ background: "transparent", border: "none", cursor: "pointer", padding: 2, color: "#aaa" }}><X style={{ width: 16, height: 16 }} /></button>
-            </div>
-            <p style={{ fontSize: 12, color: "#5F7285", marginBottom: 16 }}>Linked to: {createTaskForSection.title}</p>
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              <div>
-                <label style={{ fontSize: 12, color: "#5F7285", display: "block", marginBottom: 4 }}>Title</label>
-                <input autoFocus value={taskTitle} onChange={e => setTaskTitle(e.target.value)}
-                  onKeyDown={e => { if (e.key === "Enter" && taskTitle.trim()) handleCreateTask(); }}
-                  style={{ width: "100%", padding: "7px 10px", fontSize: 13, border: "1px solid #C9CED4", borderRadius: 6, outline: "none", background: "#fff", boxSizing: "border-box" }} />
-              </div>
-              <div>
-                <label style={{ fontSize: 12, color: "#5F7285", display: "block", marginBottom: 4 }}>Description (optional)</label>
-                <textarea value={taskDescription} onChange={e => setTaskDescription(e.target.value)} rows={3}
-                  style={{ width: "100%", padding: "7px 10px", fontSize: 13, border: "1px solid #C9CED4", borderRadius: 6, outline: "none", background: "#fff", resize: "vertical", boxSizing: "border-box" }} />
-              </div>
-            </div>
-            <button onClick={handleCreateTask} disabled={!taskTitle.trim()}
-              className="w-full rounded-lg py-3 text-sm font-medium text-white disabled:opacity-50"
-              style={{ background: "#415162", marginTop: 16 }}>
-              Save task
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Add Task dialog — reuses the real CreateTaskDialog */}
+      <CreateTaskDialog
+        externalOpen={!!createTaskForSectionId}
+        onExternalOpenChange={(open) => { if (!open) setCreateTaskForSectionId(null); }}
+        operationsSectionId={createTaskForSectionId || undefined}
+        onSubmit={(data) => {
+          createTask.mutate(data, {
+            onSuccess: () => {
+              setLinkedRefresh(r => r + 1);
+              setCreateTaskForSectionId(null);
+            },
+          });
+        }}
+      />
 
     </div>
   );

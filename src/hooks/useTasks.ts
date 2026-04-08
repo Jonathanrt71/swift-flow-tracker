@@ -64,7 +64,7 @@ export function useTasks() {
   });
 
   const createTask = useMutation({
-    mutationFn: async (data: { title: string; description?: string; due_date?: string; parent_id?: string; assigned_to?: string; owed_to?: string; meeting_id?: string; priority_id?: string }) => {
+    mutationFn: async (data: { title: string; description?: string; due_date?: string; parent_id?: string; assigned_to?: string; owed_to?: string; meeting_id?: string; priority_id?: string; operations_section_id?: string }) => {
       const { error } = await supabase.from("tasks").insert({
         title: data.title,
         description: data.description || null,
@@ -74,6 +74,7 @@ export function useTasks() {
         owed_to: data.owed_to || null,
         meeting_id: data.meeting_id || null,
         priority_id: data.priority_id || null,
+        operations_section_id: data.operations_section_id || null,
         created_by: user!.id,
       } as any);
       if (error) throw error;

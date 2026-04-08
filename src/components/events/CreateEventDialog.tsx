@@ -39,13 +39,19 @@ interface CreateEventDialogProps {
     assigned_to?: string;
     recurrence_pattern?: RecurrencePattern;
     topic_id?: string;
+    operations_section_id?: string;
   }) => void;
   defaultCategory?: EventCategory;
+  operationsSectionId?: string;
+  externalOpen?: boolean;
+  onExternalOpenChange?: (open: boolean) => void;
 }
 
-const CreateEventDialog = ({ onSubmit, defaultCategory }: CreateEventDialogProps) => {
+const CreateEventDialog = ({ onSubmit, defaultCategory, operationsSectionId, externalOpen, onExternalOpenChange }: CreateEventDialogProps) => {
   const { user } = useAuth();
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = externalOpen !== undefined ? externalOpen : internalOpen;
+  const setOpen = (v: boolean) => { if (onExternalOpenChange) onExternalOpenChange(v); else setInternalOpen(v); };
   const [title, setTitle] = useState("");
   const [eventDate, setEventDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -90,17 +96,20 @@ const CreateEventDialog = ({ onSubmit, defaultCategory }: CreateEventDialogProps
       assigned_to: assignedTo === "unassigned" ? undefined : assignedTo,
       recurrence_pattern: recurrencePattern,
       topic_id: topicId || undefined,
+      operations_section_id: operationsSectionId,
     });
     setOpen(false);
   };
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>
-        <button className="flex items-center justify-center w-8 h-8 mt-0.5 bg-transparent border-none cursor-pointer text-muted-foreground">
-          <Plus className="h-[18px] w-[18px]" />
-        </button>
-      </DialogTrigger>
+      {externalOpen === undefined && (
+        <DialogTrigger asChild>
+          <button className="flex items-center justify-center w-8 h-8 mt-0.5 bg-transparent border-none cursor-pointer text-muted-foreground">
+            <Plus className="h-[18px] w-[18px]" />
+          </button>
+        </DialogTrigger>
+      )}
       <DialogContent
         className="rounded-lg p-5 max-w-[calc(100vw-2rem)] w-full sm:max-w-md overflow-hidden"
         style={{ background: "#F5F3EE", border: "1px solid #C9CED4", boxShadow: "0 8px 32px rgba(0,0,0,0.22)" }}
