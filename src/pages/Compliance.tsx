@@ -685,14 +685,10 @@ const Compliance = () => {
         </div>
       )}
 
-      {/* Tabs */}
-      <div style={{ padding: "12px 16px 0", background: "#F5F3EE", maxWidth: 900, margin: "0 auto" }}>
-        <h1 style={{ fontSize: 22, fontWeight: 600, color: "#2D3748", margin: "0 0 12px 0" }}>ACGME Handbook</h1>
-      </div>
-
       {/* ── TAB: Requirements Table ─────────────────────────────────────── */}
       {activeTab === "table" && (
         <div style={{ flex: 1, padding: "12px 16px 100px", maxWidth: 900, margin: "0 auto" }}>
+          <h1 style={{ fontSize: 22, fontWeight: 600, color: "#2D3748", margin: "0 0 12px 0" }}>ACGME Handbook</h1>
           {/* Filters */}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 8, marginBottom: 12 }}>
             <Select value={filterSection?.toString() ?? "all"} onValueChange={v => setFilterSection(v === "all" ? null : Number(v))}>
@@ -832,6 +828,7 @@ const Compliance = () => {
       {/* ── TAB: Narrative Document ─────────────────────────────────────── */}
       {activeTab === "narrative" && (
         <div style={{ flex: 1, padding: "16px 16px 100px", maxWidth: 900, margin: "0 auto" }}>
+          <h1 style={{ fontSize: 22, fontWeight: 600, color: "#2D3748", margin: "0 0 12px 0" }}>ACGME Handbook</h1>
           {/* Tab bar */}
           <div style={{ display: "flex", gap: 0, borderBottom: "2px solid #E7EBEF", marginBottom: 12 }}>
             <button
