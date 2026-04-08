@@ -138,14 +138,17 @@ const Handbook = () => {
   const handleReorder = async (sectionId: string, direction: "up" | "down") => {
     const section = allSections?.find(s => s.id === sectionId);
     if (!section) return;
-    const siblings = section.parent_id ? getSubsections(section.parent_id) : topSections;
+    const siblings = [...(section.parent_id ? getSubsections(section.parent_id) : topSections)];
     const idx = siblings.findIndex(s => s.id === sectionId);
     const swapIdx = direction === "up" ? idx - 1 : idx + 1;
     if (swapIdx < 0 || swapIdx >= siblings.length) return;
-    const other = siblings[swapIdx];
+    // Swap in array
+    [siblings[idx], siblings[swapIdx]] = [siblings[swapIdx], siblings[idx]];
+    // Renumber all siblings
     try {
-      await (supabase as any).from("handbook_sections").update({ display_order: other.display_order }).eq("id", section.id);
-      await (supabase as any).from("handbook_sections").update({ display_order: section.display_order }).eq("id", other.id);
+      await Promise.all(siblings.map((s, i) =>
+        (supabase as any).from("handbook_sections").update({ display_order: i * 10 }).eq("id", s.id)
+      ));
       queryClient.invalidateQueries({ queryKey: ["handbook-sections"] });
     } catch (e: any) {
       toast({ title: "Reorder failed", description: e.message, variant: "destructive" });
@@ -189,20 +192,20 @@ const Handbook = () => {
             <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", minWidth: 0, flex: 1 }}>{section.title}</span>
           </button>
           {canEdit && depth === 0 && (
-            <div style={{ display: "flex", flexDirection: "column", marginRight: 4 }}>
+            <div style={{ display: "flex", gap: 2, marginRight: 4 }}>
               <button
                 onClick={() => handleReorder(section.id, "up")}
                 disabled={idx === 0}
-                style={{ background: "transparent", border: "none", cursor: idx === 0 ? "default" : "pointer", padding: 1, color: idx === 0 ? "#ddd" : "#999", display: "flex" }}
+                style={{ background: "transparent", border: "none", cursor: idx === 0 ? "default" : "pointer", padding: 2, color: idx === 0 ? "#ddd" : "#999", display: "flex" }}
               >
-                <ArrowUp style={{ width: 11, height: 11 }} />
+                <ArrowUp style={{ width: 12, height: 12 }} />
               </button>
               <button
                 onClick={() => handleReorder(section.id, "down")}
                 disabled={idx === siblings.length - 1}
-                style={{ background: "transparent", border: "none", cursor: idx === siblings.length - 1 ? "default" : "pointer", padding: 1, color: idx === siblings.length - 1 ? "#ddd" : "#999", display: "flex" }}
+                style={{ background: "transparent", border: "none", cursor: idx === siblings.length - 1 ? "default" : "pointer", padding: 2, color: idx === siblings.length - 1 ? "#ddd" : "#999", display: "flex" }}
               >
-                <ArrowDown style={{ width: 11, height: 11 }} />
+                <ArrowDown style={{ width: 12, height: 12 }} />
               </button>
             </div>
           )}
