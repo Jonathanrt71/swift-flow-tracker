@@ -95,9 +95,9 @@ const ResidentSummary = () => {
         .in("id", ids as string[]);
       if (error) throw error;
       return ((data || []) as ResidentProfile[]).sort((a, b) => {
-        const nameA = a.display_name || `${a.first_name} ${a.last_name}`;
-        const nameB = b.display_name || `${b.first_name} ${b.last_name}`;
-        return nameA.localeCompare(nameB);
+        const lastA = (a.last_name || "").toLowerCase();
+        const lastB = (b.last_name || "").toLowerCase();
+        return lastA.localeCompare(lastB);
       });
     },
   });
@@ -333,11 +333,14 @@ const ResidentSummary = () => {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="none" disabled>Select a resident</SelectItem>
-              {(residentsQuery.data || []).map(r => (
-                <SelectItem key={r.id} value={r.id}>
-                  {r.display_name || `${r.first_name} ${r.last_name}`}
-                </SelectItem>
-              ))}
+              {(residentsQuery.data || []).map(r => {
+                const last = r.last_name || "";
+                const firstInitial = r.first_name ? r.first_name.charAt(0) + "." : "";
+                const label = last && firstInitial ? `${last}, ${firstInitial}` : r.display_name || `${r.first_name || ""} ${last}`;
+                return (
+                  <SelectItem key={r.id} value={r.id}>{label}</SelectItem>
+                );
+              })}
             </SelectContent>
           </Select>
         </div>
