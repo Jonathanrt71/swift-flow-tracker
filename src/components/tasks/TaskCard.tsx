@@ -1,6 +1,5 @@
-import { Checkbox } from "@/components/ui/checkbox";
+import { Star, Pencil } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatCardDate } from "@/lib/dateFormat";
 import type { Task } from "@/hooks/useTasks";
@@ -16,7 +15,6 @@ interface TaskCardProps {
   onCardClick: (task: Task) => void;
 }
 
-/* ── Avatar helpers ── */
 const getInitials = (name: string | null): string => {
   if (!name) return "?";
   return name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2);
@@ -29,48 +27,6 @@ const getAvatarColor = (name: string | null): string => {
   return cols[Math.abs(h) % cols.length];
 };
 
-const AssigneeAvatar = ({
-  assignedTo,
-  teamMembers,
-  size = 28,
-}: {
-  assignedTo: string | null;
-  teamMembers: TeamMember[];
-  size?: number;
-}) => {
-  if (!assignedTo) return null;
-  const member = teamMembers.find((m) => m.id === assignedTo);
-  const name = member?.display_name || "?";
-  const avatarUrl = member?.avatar_url;
-
-  if (avatarUrl) {
-    return (
-      <img
-        src={avatarUrl}
-        alt={name}
-        className="rounded-full object-cover shrink-0"
-        style={{ width: size, height: size }}
-      />
-    );
-  }
-
-  return (
-    <div
-      className="rounded-full flex items-center justify-center text-white shrink-0"
-      style={{
-        width: size,
-        height: size,
-        fontSize: size * 0.36,
-        fontWeight: 500,
-        background: getAvatarColor(name),
-      }}
-    >
-      {getInitials(name)}
-    </div>
-  );
-};
-
-/* ── Main TaskCard ── */
 const TaskCard = ({
   task,
   isOverdue,
@@ -80,32 +36,47 @@ const TaskCard = ({
   onToggleStar,
   onCardClick,
 }: TaskCardProps) => {
+  const member = teamMembers.find((m) => m.id === (task.assigned_to || task.created_by));
+  const assignedName = member ? [member.first_name, member.last_name].filter(Boolean).join(" ") || member.display_name : null;
+  const dd = formatCardDate(task.due_date);
+
   return (
     <Card
-      className="transition-all overflow-hidden border cursor-pointer bg-muted border-border"
-      onClick={(e) => {
-        const target = e.target as HTMLElement;
-        if (target.closest("button, input, .checkbox-area")) return;
-        onCardClick(task);
-      }}
+      className={cn("border-border select-none overflow-hidden")}
+      style={{ WebkitTouchCallout: "none", WebkitUserSelect: "none" }}
     >
-      <div className="flex min-h-[48px] px-1.5 items-center">
-        <div className="checkbox-area flex items-center justify-center min-w-[32px] min-h-[44px]">
-          <Checkbox
-            checked={task.completed}
-            onCheckedChange={(checked) =>
-              onToggleComplete({ id: task.id, completed: !!checked })
-            }
-          />
+      <div
+        className="flex items-center gap-3 px-3 py-2.5 cursor-pointer"
+        onClick={(e) => {
+          const target = e.target as HTMLElement;
+          if (target.closest("button, .checkbox-hit")) return;
+          onCardClick(task);
+        }}
+      >
+        {/* Checkbox */}
+        <div
+          className="checkbox-hit"
+          onClick={(e) => { e.stopPropagation(); onToggleComplete({ id: task.id, completed: !task.completed }); }}
+          style={{
+            width: 20, height: 20, borderRadius: 4, flexShrink: 0, cursor: "pointer",
+            border: task.completed ? "none" : "1.5px solid #C9CED4",
+            background: task.completed ? "#4A846C" : "transparent",
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}
+        >
+          {task.completed && (
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12" /></svg>
+          )}
         </div>
 
-        <div
-          className={cn(
-            "flex-1 min-w-0 text-left min-h-[44px] flex flex-col justify-center px-1",
-            task.completed && "line-through text-muted-foreground"
-          )}
-        >
-          <span className="font-medium text-sm truncate">{task.title}</span>
+        {/* Title + priority link */}
+        <div className="flex-1 min-w-0 flex flex-col justify-center">
+          <span
+            className="text-sm font-medium truncate"
+            style={{ color: task.completed ? "#8A9AAB" : "#2D3748", textDecoration: task.completed ? "line-through" : "none" }}
+          >
+            {task.title}
+          </span>
           {priorityName && (
             <div style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 1 }}>
               <svg style={{ width: 12, height: 12, color: "#8A9AAB", flexShrink: 0 }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 3h7v7H3z"/><path d="M14 3h7v7h-7z"/><path d="M14 14h7v7h-7z"/><path d="M3 14h7v7H3z"/></svg>
@@ -114,26 +85,38 @@ const TaskCard = ({
           )}
         </div>
 
-        <div className="flex items-center shrink-0">
-          {(() => {
-            const dd = formatCardDate(task.due_date);
-            return dd ? (
-              <span className={cn("text-[11px] whitespace-nowrap mr-1.5", dd.urgent ? "text-destructive" : "text-muted-foreground")}>
-                {dd.text}
-              </span>
-            ) : null;
-          })()}
-          <div className="mr-1.5 flex items-center">
-            {task.starred && (
-              <Star className="h-3.5 w-3.5 fill-[#9F2929] text-[#9F2929] shrink-0 mr-2" />
-            )}
-            <AssigneeAvatar
-              assignedTo={task.assigned_to || task.created_by}
-              teamMembers={teamMembers}
-              size={28}
-            />
-          </div>
+        {/* Due date */}
+        {dd && (
+          <span style={{ fontSize: 11, color: dd.urgent ? "#9F2929" : "#8A9AAB", whiteSpace: "nowrap", flexShrink: 0 }}>
+            {dd.text}
+          </span>
+        )}
+
+        {/* Star */}
+        {task.starred && (
+          <Star style={{ width: 14, height: 14, fill: "#9F2929", color: "#9F2929", flexShrink: 0 }} />
+        )}
+
+        {/* Assignee avatar */}
+        <div className="shrink-0">
+          {member?.avatar_url ? (
+            <img src={member.avatar_url} alt={assignedName || ""} className="w-7 h-7 rounded-full object-cover shrink-0" title={assignedName || ""} />
+          ) : assignedName ? (
+            <div className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-semibold text-white" style={{ background: getAvatarColor(assignedName) }} title={assignedName}>
+              {getInitials(assignedName)}
+            </div>
+          ) : (
+            <div className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-semibold border" style={{ color: "#A0AEC0", borderColor: "#CBD5E0" }}>?</div>
+          )}
         </div>
+
+        {/* Edit pencil */}
+        <button
+          onClick={(e) => { e.stopPropagation(); onCardClick(task); }}
+          style={{ padding: 4, background: "transparent", border: "none", cursor: "pointer", color: "#8A9AAB", display: "flex", flexShrink: 0 }}
+        >
+          <Pencil style={{ width: 14, height: 14 }} />
+        </button>
       </div>
     </Card>
   );
