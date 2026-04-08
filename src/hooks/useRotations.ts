@@ -15,12 +15,14 @@ export interface Rotation {
   rotation_director: string | null;
   contact_info: string | null;
   overview: string;
+  goals_objectives: string;
   preparation: string;
   schedule_details: string;
   attendings_notes: string;
+  patient_care: string;
   procedures: string;
-  learning_goals: string;
   emr_notes: string;
+  evaluation_methods: string;
   logistics: string;
   display_order: number;
   updated_at: string;
