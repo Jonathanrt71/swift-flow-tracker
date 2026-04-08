@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { GripVertical } from "lucide-react";
+import { ArrowUp, ArrowDown } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import type { Priority } from "@/hooks/usePriorities";
@@ -26,12 +26,16 @@ interface PriorityCardProps {
   linkedTaskCount?: number;
   linkedTasksDone?: number;
   suppressClick?: boolean;
-  showGrip?: boolean;
+  showArrows?: boolean;
+  isFirst?: boolean;
+  isLast?: boolean;
+  onMoveUp?: () => void;
+  onMoveDown?: () => void;
   onUpdate: (data: { id: string; title?: string; notes?: string; assigned_to?: string | null }) => void;
   onDelete: (id: string) => void;
 }
 
-const PriorityCard = ({ priority, rank, secondaryRank, secondaryLabel, teamMembers, linkedTaskCount = 0, linkedTasksDone = 0, suppressClick, showGrip = true, onUpdate, onDelete }: PriorityCardProps) => {
+const PriorityCard = ({ priority, rank, secondaryRank, secondaryLabel, teamMembers, linkedTaskCount = 0, linkedTasksDone = 0, suppressClick, showArrows = true, isFirst, isLast, onMoveUp, onMoveDown, onUpdate, onDelete }: PriorityCardProps) => {
   const [editOpen, setEditOpen] = useState(false);
   const member = teamMembers.find((m) => m.id === priority.assigned_to);
   const assignedName = priority.assigned_name || (member ? [member.first_name, member.last_name].filter(Boolean).join(" ") : null);
@@ -44,9 +48,22 @@ const PriorityCard = ({ priority, rank, secondaryRank, secondaryLabel, teamMembe
         onClick={() => { if (!suppressClick) setEditOpen(true); }}
       >
         <div className="flex items-center gap-3 px-3 py-2.5">
-          {showGrip && (
-            <div className="cursor-grab active:cursor-grabbing text-muted-foreground" onClick={(e) => e.stopPropagation()}>
-              <GripVertical className="h-4 w-4" />
+          {showArrows && (
+            <div className="flex flex-col gap-0" onClick={(e) => e.stopPropagation()}>
+              <button
+                onClick={() => onMoveUp?.()}
+                disabled={isFirst}
+                style={{ padding: 2, background: "transparent", border: "none", cursor: isFirst ? "default" : "pointer", color: isFirst ? "#D5DAE0" : "#8A9AAB", display: "flex" }}
+              >
+                <ArrowUp style={{ width: 14, height: 14 }} />
+              </button>
+              <button
+                onClick={() => onMoveDown?.()}
+                disabled={isLast}
+                style={{ padding: 2, background: "transparent", border: "none", cursor: isLast ? "default" : "pointer", color: isLast ? "#D5DAE0" : "#8A9AAB", display: "flex" }}
+              >
+                <ArrowDown style={{ width: 14, height: 14 }} />
+              </button>
             </div>
           )}
 

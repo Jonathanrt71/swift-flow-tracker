@@ -1,5 +1,5 @@
 // force rebuild v5
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { format, parseISO } from "date-fns";
 import { useTasks } from "@/hooks/useTasks";
 import { useAuth } from "@/contexts/AuthContext";
@@ -45,127 +45,6 @@ const Index = () => {
   const { has: hasPerm } = usePermissions();
   const canEditPriorities = hasPerm("priorities.edit");
 
-  const [dragIdx, setDragIdx] = useState<number | null>(null);
-  const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
-  const [localPriorities, setLocalPriorities] = useState(priorities);
-  const [localMyPriorities, setLocalMyPriorities] = useState<typeof priorities>([]);
-  const [activeTab, setActiveTab] = useState("priorities");
-  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
-  const [programCollapsed, setProgramCollapsed] = useState(true);
-
-  // Touch long-press reorder
-  const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const touchActive = useRef(false);
-  const touchStartY = useRef(0);
-  const [isDragging, setIsDragging] = useState(false);
-  const isDraggingRef = useRef(false);
-  const dragIdxRef = useRef<number | null>(null);
-  const dragOverIdxRef = useRef<number | null>(null);
-  const listRef = useRef<HTMLDivElement>(null);
-  const activeListRef = useRef<"program" | "my">("program");
-
-  const clearLongPress = () => {
-    if (longPressTimer.current) {
-      clearTimeout(longPressTimer.current);
-      longPressTimer.current = null;
-    }
-  };
-
-  // Native touchmove with passive:false to actually prevent scroll on iOS
-  useEffect(() => {
-    const handler = (e: TouchEvent) => {
-      if (!isDraggingRef.current || dragIdxRef.current === null) {
-        // Check if we should cancel long press (user scrolling before activation)
-        if (touchActive.current) {
-          const dy = Math.abs(e.touches[0].clientY - touchStartY.current);
-          if (dy > 8) {
-            clearLongPress();
-            touchActive.current = false;
-          }
-        }
-        return;
-      }
-
-      // PREVENT SCROLL — this is the key line, only works with passive:false
-      e.preventDefault();
-
-      const touchY = e.touches[0].clientY;
-      for (let i = 0; i < itemRefs.current.length; i++) {
-        const el = itemRefs.current[i];
-        if (!el) continue;
-        const rect = el.getBoundingClientRect();
-        const midY = rect.top + rect.height / 2;
-        if (touchY < midY) {
-          if (i !== dragOverIdxRef.current) {
-            dragOverIdxRef.current = i;
-            setDragOverIdx(i);
-          }
-          return;
-        }
-      }
-      // Past the last item
-      const lastIdx = itemRefs.current.length - 1;
-      if (lastIdx >= 0 && lastIdx !== dragOverIdxRef.current) {
-        dragOverIdxRef.current = lastIdx;
-        setDragOverIdx(lastIdx);
-      }
-    };
-
-    document.addEventListener("touchmove", handler, { passive: false });
-    return () => document.removeEventListener("touchmove", handler);
-  }, []);
-
-  const handleTouchStart = (idx: number, e: React.TouchEvent, list: "program" | "my") => {
-    touchActive.current = true;
-    touchStartY.current = e.touches[0].clientY;
-    activeListRef.current = list;
-
-    longPressTimer.current = setTimeout(() => {
-      if (!touchActive.current) return;
-      setDragIdx(idx);
-      dragIdxRef.current = idx;
-      dragOverIdxRef.current = idx;
-      setIsDragging(true);
-      isDraggingRef.current = true;
-      if (navigator.vibrate) navigator.vibrate(30);
-    }, 400);
-  };
-
-  const finishDrag = (reorderFn: (from: number, to: number) => void) => {
-    clearLongPress();
-    touchActive.current = false;
-
-    if (isDraggingRef.current && dragIdxRef.current !== null && dragOverIdxRef.current !== null && dragIdxRef.current !== dragOverIdxRef.current) {
-      reorderFn(dragIdxRef.current, dragOverIdxRef.current);
-    }
-
-    dragIdxRef.current = null;
-    dragOverIdxRef.current = null;
-    setDragIdx(null);
-    setDragOverIdx(null);
-    setTimeout(() => { setIsDragging(false); isDraggingRef.current = false; }, 50);
-  };
-
-  const handleTouchEndProgram = () => {
-    finishDrag((from, to) => {
-      const reordered = [...localPriorities];
-      const [moved] = reordered.splice(from, 1);
-      reordered.splice(to, 0, moved);
-      setLocalPriorities(reordered);
-      reorderPriorities.mutate(reordered.map(r => r.id));
-    });
-  };
-
-  const handleTouchEndMy = () => {
-    finishDrag((from, to) => {
-      const reordered = [...localMyPriorities];
-      const [moved] = reordered.splice(from, 1);
-      reordered.splice(to, 0, moved);
-      setLocalMyPriorities(reordered);
-      reorderUserPriorities.mutate(reordered.map(r => r.id));
-    });
-  };
 
   useEffect(() => {
     setLocalPriorities(priorities);
@@ -433,32 +312,11 @@ const Index = () => {
                     <div style={{ fontSize: 11, fontWeight: 600, color: "#8A9AAB", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8 }}>
                       My Priorities
                     </div>
-                    <div className="space-y-3" style={{ marginBottom: 20 }}>
+                    <div className="space-y-1.5" style={{ marginBottom: 20 }}>
                       {localMyPriorities.map((p, idx) => {
                         const programRank = priorities.indexOf(p) + 1;
-                        const showGapBefore = dragOverIdx === idx && dragIdx !== null && dragIdx > idx && activeListRef.current === "my";
-                        const showGapAfter = dragOverIdx === idx && dragIdx !== null && dragIdx < idx && activeListRef.current === "my";
-                        const dropGap = (
-                          <div style={{ marginTop: -12 }}>
-                            <div style={{ height: 36, display: "flex", alignItems: "center" }}>
-                              <div style={{ height: 4, background: "#415162", borderRadius: 2, width: "100%" }} />
-                            </div>
-                          </div>
-                        );
                         return (
                           <div key={p.id}>
-                            {showGapBefore && dropGap}
-                            <div
-                              ref={(el) => { itemRefs.current[idx] = el; }}
-                              onTouchStart={(e) => handleTouchStart(idx, e, "my")}
-                              onTouchEnd={handleTouchEndMy}
-                              style={{
-                                opacity: isDragging && dragIdx === idx && activeListRef.current === "my" ? 0.4 : 1,
-                                transform: isDragging && dragIdx === idx && activeListRef.current === "my" ? "scale(1.03)" : undefined,
-                                transition: isDragging && dragIdx === idx ? "none" : "opacity 0.15s, transform 0.15s",
-                                touchAction: isDragging ? "none" : "auto",
-                              }}
-                            >
                               <PriorityCard
                                 priority={p}
                                 rank={idx + 1}
@@ -467,12 +325,24 @@ const Index = () => {
                                 teamMembers={teamMembers || []}
                                 linkedTaskCount={priorityTaskCounts.get(p.id)?.total || 0}
                                 linkedTasksDone={priorityTaskCounts.get(p.id)?.done || 0}
-                                suppressClick={isDragging}
+                                showArrows
+                                isFirst={idx === 0}
+                                isLast={idx === localMyPriorities.length - 1}
+                                onMoveUp={() => {
+                                  const reordered = [...localMyPriorities];
+                                  [reordered[idx - 1], reordered[idx]] = [reordered[idx], reordered[idx - 1]];
+                                  setLocalMyPriorities(reordered);
+                                  reorderUserPriorities.mutate(reordered.map(r => r.id));
+                                }}
+                                onMoveDown={() => {
+                                  const reordered = [...localMyPriorities];
+                                  [reordered[idx], reordered[idx + 1]] = [reordered[idx + 1], reordered[idx]];
+                                  setLocalMyPriorities(reordered);
+                                  reorderUserPriorities.mutate(reordered.map(r => r.id));
+                                }}
                                 onUpdate={(data) => updatePriority.mutate(data)}
                                 onDelete={(id) => deletePriority.mutate(id)}
                               />
-                            </div>
-                            {showGapAfter && dropGap}
                           </div>
                         );
                       })}
@@ -512,46 +382,31 @@ const Index = () => {
                         </div>
                       );
                       return (
-                        <div key={p.id}>
-                          {showGapBefore && dropGap}
-                          <div
-                            ref={(el) => { itemRefs.current[idx] = el; }}
-                            draggable={!isDragging && canEditPriorities}
-                            onDragStart={() => { setDragIdx(idx); activeListRef.current = "program"; }}
-                            onDragOver={(e) => { e.preventDefault(); setDragOverIdx(idx); }}
-                            onDragEnd={() => {
-                              if (dragIdx !== null && dragOverIdx !== null && dragIdx !== dragOverIdx) {
-                                const reordered = [...localPriorities];
-                                const [moved] = reordered.splice(dragIdx, 1);
-                                reordered.splice(dragOverIdx, 0, moved);
-                                setLocalPriorities(reordered);
-                                reorderPriorities.mutate(reordered.map((r) => r.id));
-                              }
-                              setDragIdx(null);
-                              setDragOverIdx(null);
-                            }}
-                            onTouchStart={canEditPriorities ? (e) => handleTouchStart(idx, e, "program") : undefined}
-                            onTouchEnd={canEditPriorities ? handleTouchEndProgram : undefined}
-                            style={{
-                              opacity: isDragging && dragIdx === idx && activeListRef.current === "program" ? 0.4 : 1,
-                              transform: isDragging && dragIdx === idx && activeListRef.current === "program" ? "scale(1.03)" : undefined,
-                              transition: isDragging && dragIdx === idx ? "none" : "opacity 0.15s, transform 0.15s",
-                              touchAction: isDragging ? "none" : "auto",
-                            }}
-                          >
+                        <div key={p.id} className="mb-1.5">
                             <PriorityCard
                               priority={p}
                               rank={idx + 1}
                               teamMembers={teamMembers || []}
                               linkedTaskCount={priorityTaskCounts.get(p.id)?.total || 0}
                               linkedTasksDone={priorityTaskCounts.get(p.id)?.done || 0}
-                              suppressClick={isDragging}
-                              showGrip={canEditPriorities}
+                              showArrows={canEditPriorities}
+                              isFirst={idx === 0}
+                              isLast={idx === localPriorities.length - 1}
+                              onMoveUp={() => {
+                                const reordered = [...localPriorities];
+                                [reordered[idx - 1], reordered[idx]] = [reordered[idx], reordered[idx - 1]];
+                                setLocalPriorities(reordered);
+                                reorderPriorities.mutate(reordered.map((r) => r.id));
+                              }}
+                              onMoveDown={() => {
+                                const reordered = [...localPriorities];
+                                [reordered[idx], reordered[idx + 1]] = [reordered[idx + 1], reordered[idx]];
+                                setLocalPriorities(reordered);
+                                reorderPriorities.mutate(reordered.map((r) => r.id));
+                              }}
                               onUpdate={(data) => updatePriority.mutate(data)}
                               onDelete={(id) => deletePriority.mutate(id)}
                             />
-                          </div>
-                          {showGapAfter && dropGap}
                         </div>
                       );
                     })}
