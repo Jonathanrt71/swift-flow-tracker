@@ -687,7 +687,7 @@ const Compliance = () => {
 
       {/* Tabs */}
       <div style={{ padding: "12px 16px 0", background: "#F5F3EE", maxWidth: 900, margin: "0 auto" }}>
-        <h1 style={{ fontSize: 22, fontWeight: 600, color: "#2D3748", marginBottom: 12, textAlign: "left" }}>ACGME Handbook</h1>
+        <h1 style={{ fontSize: 22, fontWeight: 600, color: "#2D3748", margin: "0 0 12px 0" }}>ACGME Handbook</h1>
       </div>
 
       {/* ── TAB: Requirements Table ─────────────────────────────────────── */}
