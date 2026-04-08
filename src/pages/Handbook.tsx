@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -8,6 +8,7 @@ import {
   ShieldCheck, Globe, Coffee, AlertTriangle, MessageSquare, Layers,
   Users, AlertCircle, Monitor, Pencil, X, Save,
   Menu, ChevronDown, ChevronRight, Plus, Trash2, Search, ArrowUp, ArrowDown,
+  CalendarPlus,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
@@ -20,6 +21,9 @@ import SectionTipTapEditor from "@/components/shared/SectionTipTapEditor";
 import { useDocumentSearch } from "@/hooks/useDocumentSearch";
 import DocumentSearchBar from "@/components/shared/DocumentSearchBar";
 import { usePermissions } from "@/hooks/usePermissions";
+import CreateTaskDialog from "@/components/tasks/CreateTaskDialog";
+import { EVENT_CATEGORY_LABELS } from "@/hooks/useEvents";
+import type { EventCategory } from "@/hooks/useEvents";
 
 const iconMap: Record<string, React.FC<{ className?: string; style?: React.CSSProperties }>> = {
   home: Home, phone: Phone, calendar: Calendar, clock: Clock, shield: Shield,
@@ -34,6 +38,7 @@ const iconMap: Record<string, React.FC<{ className?: string; style?: React.CSSPr
 const Handbook = () => {
   const { user, signOut } = useAuth();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const { isAdmin } = useAdmin();
   const { has: hasPerm } = usePermissions();
   const hasEditPerm = hasPerm("handbook.edit");
@@ -60,6 +65,64 @@ const Handbook = () => {
   const [addingParentId, setAddingParentId] = useState<string | null | undefined>(undefined);
   const [newSectionTitle, setNewSectionTitle] = useState("");
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+
+  // Linked events & tasks
+  const [linkedEvents, setLinkedEvents] = useState<Record<string, any[]>>({});
+  const [linkedTasks, setLinkedTasks] = useState<Record<string, any[]>>({});
+  const [linkedRefresh, setLinkedRefresh] = useState(0);
+  const [createEventForSection, setCreateEventForSection] = useState<HandbookSection | null>(null);
+  const [eventTitle, setEventTitle] = useState("");
+  const [eventDate, setEventDate] = useState("");
+  const [eventCategory, setEventCategory] = useState("program");
+
+  useEffect(() => {
+    if (!allSections?.length) return;
+    const sectionIds = allSections.map(s => s.id);
+    (supabase.from("events").select("id, title, event_date, category, operations_section_id") as any)
+      .in("operations_section_id", sectionIds)
+      .eq("archived", false)
+      .order("event_date", { ascending: true })
+      .then(({ data, error: err }: { data: any[]; error: any }) => {
+        if (err) return;
+        const grouped: Record<string, any[]> = {};
+        (data || []).forEach((e: any) => { const sid = e.operations_section_id; if (sid) { if (!grouped[sid]) grouped[sid] = []; grouped[sid].push(e); } });
+        setLinkedEvents(grouped);
+      });
+    (supabase.from("tasks").select("id, title, completed, due_date, operations_section_id") as any)
+      .in("operations_section_id", sectionIds)
+      .then(({ data, error: err }: { data: any[]; error: any }) => {
+        if (err) return;
+        const grouped: Record<string, any[]> = {};
+        (data || []).forEach((t: any) => { const sid = t.operations_section_id; if (sid) { if (!grouped[sid]) grouped[sid] = []; grouped[sid].push(t); } });
+        setLinkedTasks(grouped);
+      });
+  }, [allSections, linkedRefresh]);
+
+  const handleCreateEvent = async () => {
+    if (!eventTitle.trim() || !createEventForSection) return;
+    try {
+      const { error: err } = await (supabase as any).from("events").insert({
+        title: eventTitle.trim(),
+        event_date: eventDate || new Date().toISOString().split("T")[0],
+        category: eventCategory,
+        operations_section_id: createEventForSection.id,
+        created_by: user?.id,
+        archived: false,
+      });
+      if (err) throw err;
+      toast({ title: "Event created", description: `"${eventTitle.trim()}" linked to ${createEventForSection.title}` });
+      setLinkedRefresh(r => r + 1);
+      setCreateEventForSection(null);
+      setEventTitle(""); setEventDate(""); setEventCategory("program");
+    } catch (e: any) {
+      toast({ title: "Error", description: e.message, variant: "destructive" });
+    }
+  };
+
+  const formatDateShort = (d: string) => {
+    try { return new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }); }
+    catch { return ""; }
+  };
 
   const contentRef = useRef<HTMLDivElement>(null);
   const sectionRefs = useRef<Map<string, HTMLElement>>(new Map());
@@ -289,6 +352,33 @@ const Handbook = () => {
                 <Save style={{ width: 12, height: 12 }} /> {updateSection.isPending ? "Saving…" : "Save"}
               </button>
             </div>
+            {/* Create event / task buttons */}
+            <div style={{ display: "flex", gap: 6, marginTop: 10 }}>
+              <button
+                onClick={() => { setCreateEventForSection(section); setEventTitle(section.title); setEventDate(new Date().toISOString().split("T")[0]); setEventCategory("program"); }}
+                style={{ display: "flex", alignItems: "center", gap: 4, padding: "4px 8px", fontSize: 11, color: "#415162", background: "#fff", border: "0.5px solid #C9CED4", borderRadius: 4, cursor: "pointer" }}
+              >
+                <CalendarPlus style={{ width: 11, height: 11 }} /> Create event
+              </button>
+              <CreateTaskDialog
+                onSubmit={async (data) => {
+                  try {
+                    const { error: err } = await (supabase as any).from("tasks").insert({
+                      title: data.title, description: data.description || null,
+                      due_date: data.due_date || null, assigned_to: data.assigned_to || null,
+                      owed_to: data.owed_to || null, created_by: user?.id,
+                      operations_section_id: section.id, completed: false,
+                    });
+                    if (err) throw err;
+                    toast({ title: "Task created", description: `"${data.title}" linked to ${section.title}` });
+                    setLinkedRefresh(r => r + 1);
+                  } catch (e: any) {
+                    toast({ title: "Error", description: e.message, variant: "destructive" });
+                  }
+                }}
+                iconTrigger
+              />
+            </div>
           </>
         ) : (
           <>
@@ -299,6 +389,52 @@ const Handbook = () => {
             )}
           </>
         )}
+
+        {/* Linked events & tasks — visible in edit mode even when section is not being edited */}
+        {canEdit && !isEditing && (() => {
+          const sectionEvents = linkedEvents[section.id] || [];
+          const sectionTasks = linkedTasks[section.id] || [];
+          if (sectionEvents.length === 0 && sectionTasks.length === 0) return null;
+          return (
+            <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 6 }}>
+              {sectionEvents.length > 0 && (
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: "#8a9baa", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 6 }}>Linked events</div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                    {sectionEvents.map((ev: any) => (
+                      <div key={ev.id} onClick={() => navigate("/events")}
+                        style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 10px", background: "#fff", border: "0.5px solid #D5DAE0", borderRadius: 5, cursor: "pointer", fontSize: 12 }}>
+                        <Calendar style={{ width: 12, height: 12, color: "#415162", flexShrink: 0 }} />
+                        <span style={{ flex: 1, color: "#333", fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{ev.title}</span>
+                        {ev.category && (
+                          <span style={{ fontSize: 10, padding: "1px 5px", borderRadius: 3, background: "#F5F3EE", color: "#52657A", flexShrink: 0 }}>
+                            {EVENT_CATEGORY_LABELS[ev.category as EventCategory] || ev.category}
+                          </span>
+                        )}
+                        <span style={{ fontSize: 11, color: "#999", flexShrink: 0 }}>{formatDateShort(ev.event_date)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {sectionTasks.length > 0 && (
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: "#8a9baa", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 6 }}>Linked tasks</div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                    {sectionTasks.map((t: any) => (
+                      <div key={t.id} onClick={() => navigate("/tasks")}
+                        style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 10px", background: "#fff", border: "0.5px solid #D5DAE0", borderRadius: 5, cursor: "pointer", fontSize: 12 }}>
+                        <CheckSquare style={{ width: 12, height: 12, color: t.completed ? "#4A846C" : "#415162", flexShrink: 0 }} />
+                        <span style={{ flex: 1, color: t.completed ? "#999" : "#333", fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", textDecoration: t.completed ? "line-through" : "none" }}>{t.title}</span>
+                        {t.due_date && <span style={{ fontSize: 11, color: "#999", flexShrink: 0 }}>{formatDateShort(t.due_date)}</span>}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })()}
 
         {/* Subsections */}
         {depth === 0 && subs.length > 0 && (
@@ -467,6 +603,44 @@ const Handbook = () => {
               <button onClick={() => setConfirmDeleteId(null)} style={{ padding: "8px 16px", fontSize: 13, color: "#777", background: "transparent", border: "1px solid #C9CED4", borderRadius: 6, cursor: "pointer" }}>Cancel</button>
               <button onClick={() => handleDelete(confirmDeleteId)} style={{ padding: "8px 16px", fontSize: 13, color: "#fff", background: "#c44444", border: "none", borderRadius: 6, cursor: "pointer" }}>Delete</button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Create Event dialog */}
+      {createEventForSection && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 100, background: "rgba(65,81,98,0.45)", backdropFilter: "blur(2px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
+          <div style={{ background: "#F5F3EE", borderRadius: 10, padding: 20, maxWidth: 400, width: "100%", border: "1px solid #C9CED4" }}>
+            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 4 }}>
+              <h3 style={{ fontSize: 15, fontWeight: 600, color: "#2D3748", margin: 0 }}>Create event</h3>
+              <button onClick={() => setCreateEventForSection(null)} style={{ background: "transparent", border: "none", cursor: "pointer", padding: 2, color: "#aaa" }}><X style={{ width: 16, height: 16 }} /></button>
+            </div>
+            <p style={{ fontSize: 12, color: "#5F7285", marginBottom: 16 }}>Linked to: {createEventForSection.title}</p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              <div>
+                <label style={{ fontSize: 12, color: "#5F7285", display: "block", marginBottom: 4 }}>Title</label>
+                <input value={eventTitle} onChange={e => setEventTitle(e.target.value)}
+                  style={{ width: "100%", padding: "7px 10px", fontSize: 13, border: "1px solid #C9CED4", borderRadius: 6, outline: "none", background: "#fff", boxSizing: "border-box" }} />
+              </div>
+              <div>
+                <label style={{ fontSize: 12, color: "#5F7285", display: "block", marginBottom: 4 }}>Date</label>
+                <input type="date" value={eventDate} onChange={e => setEventDate(e.target.value)}
+                  style={{ width: "100%", padding: "7px 10px", fontSize: 13, border: "1px solid #C9CED4", borderRadius: 6, outline: "none", background: "#fff", boxSizing: "border-box" }} />
+              </div>
+              <div>
+                <label style={{ fontSize: 12, color: "#5F7285", display: "block", marginBottom: 4 }}>Category</label>
+                <select value={eventCategory} onChange={e => setEventCategory(e.target.value)}
+                  style={{ width: "100%", padding: "7px 10px", fontSize: 13, border: "1px solid #C9CED4", borderRadius: 6, outline: "none", background: "#fff", boxSizing: "border-box" }}>
+                  <option value="program">Program</option>
+                  <option value="didactic">Didactic</option>
+                </select>
+              </div>
+            </div>
+            <button onClick={handleCreateEvent} disabled={!eventTitle.trim()}
+              className="w-full rounded-lg py-3 text-sm font-medium text-white disabled:opacity-50"
+              style={{ background: "#415162", marginTop: 16 }}>
+              Save event
+            </button>
           </div>
         </div>
       )}
