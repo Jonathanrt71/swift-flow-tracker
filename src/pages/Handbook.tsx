@@ -234,41 +234,28 @@ const Handbook = () => {
     setTocOpen(false);
   };
 
-  const scrollLockRef = useRef(false);
-  const scrollPosRef = useRef(0);
-
-  // Intercept any scroll while transitioning edit states
-  useEffect(() => {
-    const container = contentRef.current;
-    if (!container) return;
-    const onScroll = () => {
-      if (scrollLockRef.current) {
-        container.scrollTop = scrollPosRef.current;
-      }
-    };
-    container.addEventListener("scroll", onScroll);
-    return () => container.removeEventListener("scroll", onScroll);
-  }, []);
-
-  const lockScroll = () => {
-    const container = contentRef.current;
-    if (container) scrollPosRef.current = container.scrollTop;
-    scrollLockRef.current = true;
-    setTimeout(() => { scrollLockRef.current = false; }, 300);
-  };
-
   const startEditing = (s: HandbookSection) => {
-    lockScroll();
     setEditTitle(s.title);
     editContentRef.current = s.content || "";
     setEditingId(s.id);
+    // After TipTap mounts, scroll the section back into view
+    setTimeout(() => {
+      const el = sectionRefs.current.get(s.id);
+      if (el) el.scrollIntoView({ block: "start", behavior: "instant" });
+    }, 100);
   };
 
   const cancelEditing = () => {
-    lockScroll();
+    const prevId = editingId;
     setEditingId(null);
     setEditTitle("");
     editContentRef.current = "";
+    if (prevId) {
+      setTimeout(() => {
+        const el = sectionRefs.current.get(prevId);
+        if (el) el.scrollIntoView({ block: "start", behavior: "instant" });
+      }, 50);
+    }
   };
 
   const handleSave = (id: string) => {
@@ -276,9 +263,14 @@ const Handbook = () => {
       { id, title: editTitle.trim(), content: editContentRef.current, userId: user?.id || "" },
       {
         onSuccess: () => {
-          lockScroll();
-          cancelEditing();
+          setEditingId(null);
+          setEditTitle("");
+          editContentRef.current = "";
           toast({ title: "Section saved" });
+          setTimeout(() => {
+            const el = sectionRefs.current.get(id);
+            if (el) el.scrollIntoView({ block: "start", behavior: "instant" });
+          }, 100);
         },
         onError: (e: any) => toast({ title: "Error saving", description: e.message, variant: "destructive" }),
       }
