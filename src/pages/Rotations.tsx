@@ -103,8 +103,8 @@ function EditableMetaCard({ label, value, field, rotationId, canEdit, icon: Icon
         onClick={() => { if (canEdit) { setDraft(value || ""); setEditing(true); } }}
         style={{ background: "#E7EBEF", borderRadius: 8, padding: "10px 12px", cursor: canEdit ? "pointer" : "default", minHeight: 52 }}
       >
-        <div style={{ fontSize: 11, color: "#5F7285", marginBottom: 2, display: "flex", alignItems: "center", gap: 4 }}>
-          {Icon && <Icon style={{ width: 11, height: 11 }} />}
+        <div style={{ fontSize: 11, color: "#5F7285", marginBottom: 2, display: "flex", alignItems: "flex-start", gap: 4 }}>
+          {Icon && <Icon style={{ width: 14, height: 14, flexShrink: 0 }} />}
           {label}
         </div>
         <div style={{ fontSize: 13, color: value ? "#333" : "#bbb", fontWeight: 500, fontStyle: value ? "normal" : "italic" }}>
@@ -336,8 +336,8 @@ const Rotations = () => {
                     </span>
                   </div>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 10 }}>
-                    {r.location && <span style={{ fontSize: 11, color: "#888", display: "flex", alignItems: "center", gap: 3 }}><MapPin style={{ width: 12, height: 12, color: "#aaa" }} />{r.location.split(",")[0].split("\n")[0]}</span>}
-                    {r.hours && <span style={{ fontSize: 11, color: "#888", display: "flex", alignItems: "center", gap: 3 }}><Clock style={{ width: 12, height: 12, color: "#aaa" }} />{r.hours.length > 30 ? r.hours.slice(0, 30) + "…" : r.hours}</span>}
+                    {r.location && <span style={{ fontSize: 11, color: "#888", display: "flex", alignItems: "flex-start", gap: 4 }}><MapPin style={{ width: 14, height: 14, color: "#aaa", flexShrink: 0, marginTop: 1 }} />{r.location.split(",")[0].split("\n")[0]}</span>}
+                    {r.hours && <span style={{ fontSize: 11, color: "#888", display: "flex", alignItems: "flex-start", gap: 4 }}><Clock style={{ width: 14, height: 14, color: "#aaa", flexShrink: 0, marginTop: 1 }} />{r.hours.length > 30 ? r.hours.slice(0, 30) + "…" : r.hours}</span>}
                   </div>
                 </div>
               ))}
