@@ -55,27 +55,46 @@ const ResidentSummary = () => {
     setLogbookUploading(true);
     setLogbookUploadMsg(null);
     try {
+      // Resize image to reduce payload size
       const base64 = await new Promise<string>((res, rej) => {
-        const reader = new FileReader();
-        reader.onload = () => res((reader.result as string).split(",")[1]);
-        reader.onerror = () => rej(new Error("Failed to read file"));
-        reader.readAsDataURL(file);
+        const img = new Image();
+        img.onload = () => {
+          const maxW = 1600;
+          const scale = img.width > maxW ? maxW / img.width : 1;
+          const canvas = document.createElement("canvas");
+          canvas.width = img.width * scale;
+          canvas.height = img.height * scale;
+          const ctx = canvas.getContext("2d")!;
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          const dataUrl = canvas.toDataURL("image/jpeg", 0.8);
+          res(dataUrl.split(",")[1]);
+        };
+        img.onerror = () => rej(new Error("Failed to load image"));
+        img.src = URL.createObjectURL(file);
       });
+
       const { data: { session } } = await supabase.auth.getSession();
       const res = await supabase.functions.invoke("extract-logbook-counts", {
         body: {
           imageBase64: base64,
-          mediaType: file.type || "image/png",
+          mediaType: "image/jpeg",
           profileId: selectedResident,
         },
         headers: { Authorization: `Bearer ${session?.access_token}` },
       });
-      if (res.error) throw new Error(res.error.message || "Upload failed");
+      console.log("Edge function response:", res);
+      if (res.error) {
+        const msg = typeof res.error === "object" && "message" in res.error
+          ? res.error.message
+          : String(res.error);
+        throw new Error(msg || "Upload failed");
+      }
       const result = res.data;
       if (result?.error) throw new Error(result.error);
       setLogbookUploadMsg(result.message || `Saved ${result.rows?.length || 0} entries`);
       queryClient.invalidateQueries({ queryKey: ["summary_logbook", selectedResident] });
     } catch (e: any) {
+      console.error("Logbook upload error:", e);
       setLogbookUploadMsg(`Error: ${e.message}`);
     } finally {
       setLogbookUploading(false);
