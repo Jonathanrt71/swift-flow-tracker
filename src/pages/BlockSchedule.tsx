@@ -329,7 +329,7 @@ const BlockSchedule = () => {
         )}
       </header>
 
-      <main style={{ flex: 1, padding: "12px 24px 0", display: "flex", flexDirection: "column", overflow: "hidden", minHeight: 0 }}>
+      <main style={{ flex: 1, padding: "12px 24px 0", paddingBottom: "env(safe-area-inset-bottom, 4px)", display: "flex", flexDirection: "column", overflow: "hidden", minHeight: 0 }}>
 
         {/* Filters */}
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12, flexWrap: "wrap", flexShrink: 0 }}>
