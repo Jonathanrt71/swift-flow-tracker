@@ -12,7 +12,7 @@ import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Calendar, Search, X, List, ClipboardCheck, ArrowLeft } from "lucide-react";
+import { Calendar, Search, X, List, ClipboardCheck, ArrowLeft, Pencil, BookMarked } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { formatCardDate, ordinalSuffix } from "@/lib/dateFormat";
 import CreateEventDialog from "@/components/events/CreateEventDialog";
@@ -22,7 +22,6 @@ import EventsGantt from "@/components/events/EventsGantt";
 import EventsVerticalTimeline from "@/components/events/EventsVerticalTimeline";
 import NotificationBell from "@/components/NotificationBell";
 import HeaderLogo from "@/components/HeaderLogo";
-import OperationsLinkPill from "@/components/shared/OperationsLinkPill";
 import { useClinicalTopics } from "@/hooks/useClinicalTopics";
 
 const VerticalTimelineIcon = ({ className }: { className?: string }) => (
@@ -105,10 +104,12 @@ const EventCard = ({
   onEdit: (event: ProgramEvent) => void;
   onConfirmRecurrence: (event: ProgramEvent, nextDate: string) => void;
   onSkipRecurrence: (id: string) => void;
+  sectionName?: string | null;
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [evalDialogOpen, setEvalDialogOpen] = useState(false);
   const [confirmingRecurrence, setConfirmingRecurrence] = useState(false);
+  const navigate = useNavigate();
   const members = teamMembers || [];
   const assignee = members.find((m) => m.id === event.assigned_to);
   const assigneeName = assignee?.display_name || null;
@@ -154,16 +155,22 @@ const EventCard = ({
     return end ? `${start} — ${end}` : start;
   })();
 
+  const hasDetails = !!sectionName || !!event.description || (isFacultyOrAdmin && event.category === "didactic") || (canEdit && hasRecurrence && (isRecurrenceOverdue || isRecurrenceSoon) && !event.recurrence_confirmed);
+
   return (
     <div
-      className="border rounded-[10px] overflow-hidden transition-all mb-2 cursor-pointer"
-      style={{ background: "#E7EBEF", borderColor: "#D5DAE0" }}
-      onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = "#DFE3E8"}
-      onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = "#E7EBEF"}
-      onClick={() => canEdit ? onEdit(event) : setExpanded(!expanded)}
+      className="border rounded-[10px] overflow-hidden transition-all mb-2 select-none"
+      style={{ background: "#E7EBEF", borderColor: "#D5DAE0", WebkitTouchCallout: "none", WebkitUserSelect: "none" }}
     >
-      <div className="flex items-center min-h-[48px] px-2">
-        <div className="flex-1 min-w-0 pl-2 pr-1 flex items-center gap-2">
+      <div
+        className="flex items-center gap-3 px-3 py-2.5 cursor-pointer"
+        onClick={(e) => {
+          const target = e.target as HTMLElement;
+          if (target.closest("button")) return;
+          if (hasDetails) setExpanded(!expanded);
+        }}
+      >
+        <div className="flex-1 min-w-0 flex items-center gap-2">
           <span className="font-medium text-sm truncate">{event.title}</span>
           {/* Recurrence status badge */}
           {isRecurrenceOverdue && (
@@ -202,7 +209,7 @@ const EventCard = ({
             );
           })()}
         </div>
-        <div className="flex items-center shrink-0 gap-1.5 pr-1">
+        <div className="shrink-0">
           {assignee ? (
             assignee.avatar_url ? (
               <img src={assignee.avatar_url} className="w-7 h-7 rounded-full object-cover shrink-0" alt="" />
@@ -215,52 +222,54 @@ const EventCard = ({
               </div>
             )
           ) : (
-            <div className="w-7 h-7 rounded-full bg-border/50 shrink-0" />
+            <div className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-semibold border" style={{ color: "#A0AEC0", borderColor: "#CBD5E0" }}>?</div>
           )}
         </div>
+        {canEdit && (
+          <button
+            onClick={(e) => { e.stopPropagation(); onEdit(event); }}
+            style={{ padding: 4, background: "transparent", border: "none", cursor: "pointer", color: "#8A9AAB", display: "flex", flexShrink: 0 }}
+          >
+            <Pencil style={{ width: 14, height: 14 }} />
+          </button>
+        )}
       </div>
 
       {expanded && (
-        <div style={{ background: "#D5DAE0", padding: "8px 12px 10px" }} onClick={(e) => e.stopPropagation()}>
-          <div className="text-[11px] text-muted-foreground" style={{ marginBottom: 8 }}>
-            {formattedDate}{timeRange ? ` · ${timeRange}` : ""}
-            {event.description && <> · {event.description}</>}
-          </div>
-          <OperationsLinkPill sectionId={(event as any).operations_section_id} />
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              {isFacultyOrAdmin && event.category === "didactic" && (
-                <button
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: 5,
-                    padding: "4px 10px",
-                    fontSize: 11,
-                    fontWeight: 500,
-                    color: hasEvaluated ? "#5E9E82" : "#415162",
-                    background: "#E7EBEF",
-                    border: "0.5px solid #C9CED4",
-                    borderRadius: 6,
-                    cursor: "pointer",
-                  }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setEvalDialogOpen(true);
-                  }}
-                  title="Evaluate session"
-                >
-                  <ClipboardCheck
-                    className="h-3.5 w-3.5"
-                    style={{ color: hasEvaluated ? "#5E9E82" : "#415162" }}
-                  />
-                  {hasEvaluated ? "Evaluated" : "Evaluate"}
-                </button>
-              )}
+        <div style={{ padding: "0 12px 10px 12px", display: "flex", flexDirection: "column", gap: 6 }}>
+          {sectionName && (
+            <div
+              onClick={(e) => { e.stopPropagation(); navigate(`/handbook?section=${(event as any).operations_section_id}`); }}
+              style={{ display: "flex", alignItems: "center", gap: 6, padding: "5px 8px", background: "#F5F3EE", borderRadius: 6, cursor: "pointer" }}
+            >
+              <BookMarked style={{ width: 14, height: 14, color: "#415162", flexShrink: 0 }} />
+              <span style={{ fontSize: 12, color: "#415162", fontWeight: 500, textDecoration: "underline", textDecorationColor: "#C9CED4" }}>{sectionName}</span>
             </div>
-            <div className="flex items-center gap-0.5 shrink-0">
+          )}
+
+          {(event.description || timeRange) && (
+            <div style={{ fontSize: 12, color: "#5F7285", lineHeight: 1.5, padding: "2px 8px" }}>
+              {formattedDate}{timeRange ? ` · ${timeRange}` : ""}
+              {event.description && <> · {event.description}</>}
             </div>
-          </div>
+          )}
+
+          {isFacultyOrAdmin && event.category === "didactic" && (
+            <div style={{ padding: "2px 8px" }}>
+              <button
+                style={{
+                  display: "inline-flex", alignItems: "center", gap: 5,
+                  padding: "4px 10px", fontSize: 11, fontWeight: 500,
+                  color: hasEvaluated ? "#5E9E82" : "#415162",
+                  background: "#F5F3EE", border: "0.5px solid #C9CED4", borderRadius: 6, cursor: "pointer",
+                }}
+                onClick={(e) => { e.stopPropagation(); setEvalDialogOpen(true); }}
+              >
+                <ClipboardCheck className="h-3.5 w-3.5" style={{ color: hasEvaluated ? "#5E9E82" : "#415162" }} />
+                {hasEvaluated ? "Evaluated" : "Evaluate"}
+              </button>
+            </div>
+          )}
 
           {/* Recurrence confirm/skip row — shown when overdue or soon */}
           {canEdit && hasRecurrence && (isRecurrenceOverdue || isRecurrenceSoon) && !event.recurrence_confirmed && (
@@ -346,6 +355,7 @@ const GroupedEventList = ({
   onEdit,
   onConfirmRecurrence,
   onSkipRecurrence,
+  sectionNameMap,
   emptyMessage,
 }: {
   events: ProgramEvent[];
@@ -372,6 +382,7 @@ const GroupedEventList = ({
   onEdit: (event: ProgramEvent) => void;
   onConfirmRecurrence: (event: ProgramEvent, nextDate: string) => void;
   onSkipRecurrence: (id: string) => void;
+  sectionNameMap: Map<string, string>;
   emptyMessage: string;
 }) => {
   if (events.length === 0) {
@@ -428,6 +439,7 @@ const GroupedEventList = ({
               onEdit={onEdit}
               onConfirmRecurrence={onConfirmRecurrence}
               onSkipRecurrence={onSkipRecurrence}
+              sectionName={(ev as any).operations_section_id ? sectionNameMap.get((ev as any).operations_section_id) || null : null}
             />
           ))}
         </div>
@@ -469,6 +481,23 @@ const Events = () => {
     },
     enabled: !!user && isFacultyOrAdmin,
   });
+
+  // Fetch handbook section names for events with operations_section_id
+  const eventSectionIds = [...new Set((events.data || []).map(e => (e as any).operations_section_id).filter(Boolean))] as string[];
+  const { data: eventSectionNameMap } = useQuery({
+    queryKey: ["event-section-names", eventSectionIds.join(",")],
+    enabled: eventSectionIds.length > 0,
+    queryFn: async () => {
+      const { data } = await (supabase as any)
+        .from("handbook_sections")
+        .select("id, title")
+        .in("id", eventSectionIds);
+      const map = new Map<string, string>();
+      (data || []).forEach((s: any) => map.set(s.id, s.title));
+      return map;
+    },
+  });
+  const sectionNameMap = eventSectionNameMap || new Map<string, string>();
 
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -715,6 +744,7 @@ const Events = () => {
             onEdit={(event) => setEditingEvent(event)}
             onConfirmRecurrence={(event, nextDate) => { if (canEditEvents) confirmRecurrence.mutate({ event, nextDate }); }}
             onSkipRecurrence={(id) => { if (canEditEvents) skipRecurrence.mutate(id); }}
+            sectionNameMap={sectionNameMap}
             emptyMessage={isAllSelected ? "No events" : `No events in selected categories`}
           />
         )}
