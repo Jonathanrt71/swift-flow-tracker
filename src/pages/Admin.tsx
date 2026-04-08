@@ -28,6 +28,7 @@ import {
 import { Plus, Shield, Pencil, Check, X, Tag, Trash2, BookOpen, RefreshCw, Settings } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { compressImage } from "@/lib/compressImage";
+import { useUserCategory } from "@/contexts/UserCategoryContext";
 import { useMeetingTags } from "@/hooks/useMeetingTags";
 import { useMeetingTagLinks } from "@/hooks/useMeetingTags";
 import { useCompetencyCategories } from "@/hooks/useCompetencyCategories";
@@ -793,6 +794,7 @@ const Admin = () => {
   } = useEventCategories();
 
   const { settings, updateSetting } = useAppSettings();
+  const { activeCategory, setActiveCategory } = useUserCategory();
 
   const [newTagName, setNewTagName] = useState("");
   const [newCategoryName, setNewCategoryName] = useState("");
@@ -916,6 +918,26 @@ const Admin = () => {
       </header>
 
       <main className="px-4 py-4 space-y-2" style={{ maxWidth: 900, margin: "0 auto" }}>
+
+        {/* Category toggle */}
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
+          <span style={{ fontSize: 11, fontWeight: 500, color: "#8A9AAB", textTransform: "uppercase", letterSpacing: "0.04em" }}>Category</span>
+          <div style={{ display: "flex", borderRadius: 6, overflow: "hidden", border: "0.5px solid #C9CED4" }}>
+            {(["FM", "GME"] as const).map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setActiveCategory(cat)}
+                style={{
+                  padding: "5px 14px", fontSize: 12, fontWeight: 600, border: "none", cursor: "pointer",
+                  background: activeCategory === cat ? "#415162" : "#fff",
+                  color: activeCategory === cat ? "#fff" : "#5F7285",
+                }}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+        </div>
 
         {/* Team Members */}
         <div
