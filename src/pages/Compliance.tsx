@@ -12,6 +12,13 @@ import { supabase } from "@/integrations/supabase/client";
 import HeaderLogo from "@/components/HeaderLogo";
 import NotificationBell from "@/components/NotificationBell";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   useRequirements, useRequirementsMutations,
   useComplianceNarrative, useComplianceNarrativeMutations,
   ProgramRequirement, ComplianceNarrativeSection,
@@ -687,47 +694,51 @@ const Compliance = () => {
       {activeTab === "table" && (
         <div style={{ flex: 1, padding: "12px 16px 100px", maxWidth: 900, margin: "0 auto" }}>
           {/* Filters */}
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12, justifyContent: "center" }}>
-            <select
-              value={filterSection ?? ""}
-              onChange={e => setFilterSection(e.target.value ? Number(e.target.value) : null)}
-              style={{ fontSize: 12, padding: "7px 28px 7px 12px", border: "1px solid #C9CED4", borderRadius: 6, background: "#fff", color: "#333" }}
-            >
-              <option value="">All Sections</option>
-              {Object.entries(SECTION_NAMES).map(([num, name]) => (
-                <option key={num} value={num}>Sec {num}: {name}</option>
-              ))}
-            </select>
-            <select
-              value={filterStatus ?? ""}
-              onChange={e => setFilterStatus(e.target.value as ComplianceStatus || null)}
-              style={{ fontSize: 12, padding: "7px 28px 7px 12px", border: "1px solid #C9CED4", borderRadius: 6, background: "#fff", color: "#333" }}
-            >
-              <option value="">All Status</option>
-              {(Object.entries(STATUS_CONFIG) as [ComplianceStatus, { label: string }][]).map(([key, cfg]) => (
-                <option key={key} value={key}>{cfg.label}</option>
-              ))}
-            </select>
-            <select
-              value={filterType ?? ""}
-              onChange={e => setFilterType(e.target.value || null)}
-              style={{ fontSize: 12, padding: "7px 28px 7px 12px", border: "1px solid #C9CED4", borderRadius: 6, background: "#fff", color: "#333" }}
-            >
-              <option value="">All Types</option>
-              <option value="core">Core</option>
-              <option value="detail">Detail</option>
-              <option value="outcome">Outcome</option>
-            </select>
-            <select
-              value={filterSource ?? ""}
-              onChange={e => setFilterSource(e.target.value || null)}
-              style={{ fontSize: 12, padding: "7px 28px 7px 12px", border: "1px solid #C9CED4", borderRadius: 6, background: "#fff", color: "#333" }}
-            >
-              <option value="">All Sources</option>
-              <option value="common">Common (CPR)</option>
-              <option value="specialty">FM-Specific</option>
-              <option value="both">Both</option>
-            </select>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
+            <Select value={filterSection?.toString() ?? "all"} onValueChange={v => setFilterSection(v === "all" ? null : Number(v))}>
+              <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0" style={{ borderColor: "#C9CED4", background: "#fff", flex: 1, minWidth: 0, maxWidth: 180, fontSize: 12 }}>
+                <SelectValue placeholder="All Sections" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Sections</SelectItem>
+                {Object.entries(SECTION_NAMES).map(([num, name]) => (
+                  <SelectItem key={num} value={num}>Sec {num}: {name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={filterStatus ?? "all"} onValueChange={v => setFilterStatus(v === "all" ? null : v as ComplianceStatus)}>
+              <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0" style={{ borderColor: "#C9CED4", background: "#fff", flex: 1, minWidth: 0, maxWidth: 140, fontSize: 12 }}>
+                <SelectValue placeholder="All Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Status</SelectItem>
+                {(Object.entries(STATUS_CONFIG) as [ComplianceStatus, { label: string }][]).map(([key, cfg]) => (
+                  <SelectItem key={key} value={key}>{cfg.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={filterType ?? "all"} onValueChange={v => setFilterType(v === "all" ? null : v)}>
+              <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0" style={{ borderColor: "#C9CED4", background: "#fff", flex: 1, minWidth: 0, maxWidth: 130, fontSize: 12 }}>
+                <SelectValue placeholder="All Types" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Types</SelectItem>
+                <SelectItem value="core">Core</SelectItem>
+                <SelectItem value="detail">Detail</SelectItem>
+                <SelectItem value="outcome">Outcome</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={filterSource ?? "all"} onValueChange={v => setFilterSource(v === "all" ? null : v)}>
+              <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0" style={{ borderColor: "#C9CED4", background: "#fff", flex: 1, minWidth: 0, maxWidth: 140, fontSize: 12 }}>
+                <SelectValue placeholder="All Sources" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Sources</SelectItem>
+                <SelectItem value="common">Common (CPR)</SelectItem>
+                <SelectItem value="specialty">FM-Specific</SelectItem>
+                <SelectItem value="both">Both</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Tab bar */}
