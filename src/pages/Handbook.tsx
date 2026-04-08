@@ -43,8 +43,8 @@ const Handbook = () => {
   const { toast } = useToast();
   const { results: searchResults, isSearching, query: searchQuery, search: doSearch, clear: clearSearch } = useDocumentSearch();
 
-  const topSections = (allSections || []).filter(s => !s.parent_id);
-  const getSubsections = (parentId: string) => (allSections || []).filter(s => s.parent_id === parentId);
+  const topSections = (allSections || []).filter(s => !s.parent_id).sort((a, b) => a.display_order - b.display_order);
+  const getSubsections = (parentId: string) => (allSections || []).filter(s => s.parent_id === parentId).sort((a, b) => a.display_order - b.display_order);
 
   const sectionTitles: Record<string, string> = {};
   (allSections || []).forEach(s => { sectionTitles[s.id] = s.title; });
