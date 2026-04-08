@@ -195,21 +195,23 @@ const Handbook = () => {
             <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", minWidth: 0, flex: 1 }}>{section.title}</span>
           </button>
           {canEdit && depth === 0 && (
-            <div style={{ display: "flex", gap: 2, marginRight: 4 }} onClick={e => e.stopPropagation()}>
-              <button
-                onClick={(e) => { e.stopPropagation(); e.preventDefault(); handleReorder(section.id, "up"); }}
-                disabled={idx === 0}
-                style={{ background: "transparent", border: "none", cursor: idx === 0 ? "default" : "pointer", padding: 4, color: idx === 0 ? "#ddd" : "#999", display: "flex", WebkitTapHighlightColor: "transparent" }}
-              >
-                <ArrowUp style={{ width: 14, height: 14 }} />
-              </button>
-              <button
-                onClick={(e) => { e.stopPropagation(); e.preventDefault(); handleReorder(section.id, "down"); }}
-                disabled={idx === siblings.length - 1}
-                style={{ background: "transparent", border: "none", cursor: idx === siblings.length - 1 ? "default" : "pointer", padding: 4, color: idx === siblings.length - 1 ? "#ddd" : "#999", display: "flex", WebkitTapHighlightColor: "transparent" }}
-              >
-                <ArrowDown style={{ width: 14, height: 14 }} />
-              </button>
+            <div style={{ display: "flex", gap: 2, marginRight: 4, zIndex: 50 }} onClick={e => e.stopPropagation()}>
+              {idx > 0 && (
+                <div
+                  onPointerDown={(e) => { e.stopPropagation(); console.log("UP clicked", section.title); handleReorder(section.id, "up"); }}
+                  style={{ padding: 4, color: "#999", display: "flex", cursor: "pointer", WebkitTapHighlightColor: "transparent", userSelect: "none" }}
+                >
+                  <ArrowUp style={{ width: 14, height: 14 }} />
+                </div>
+              )}
+              {idx < siblings.length - 1 && (
+                <div
+                  onPointerDown={(e) => { e.stopPropagation(); console.log("DOWN clicked", section.title); handleReorder(section.id, "down"); }}
+                  style={{ padding: 4, color: "#999", display: "flex", cursor: "pointer", WebkitTapHighlightColor: "transparent", userSelect: "none" }}
+                >
+                  <ArrowDown style={{ width: 14, height: 14 }} />
+                </div>
+              )}
             </div>
           )}
         </div>
