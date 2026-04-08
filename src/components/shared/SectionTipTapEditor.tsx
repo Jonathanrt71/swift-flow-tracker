@@ -13,6 +13,7 @@ interface SectionTipTapEditorProps {
   onChange: (html: string) => void;
   readOnly?: boolean;
   minHeight?: number;
+  hideHeadings?: boolean;
 }
 
 const btnStyle = (active: boolean): React.CSSProperties => ({
@@ -39,8 +40,8 @@ const ReadOnlySection = ({ content }: { content: string }) => (
 
 /* ── Editable TipTap editor ──────────────────────────────────────────
    Only mounted when a section is being actively edited. */
-const EditableEditor = ({ content, onChange, minHeight = 320 }: {
-  content: string; onChange: (html: string) => void; minHeight?: number;
+const EditableEditor = ({ content, onChange, minHeight = 320, hideHeadings = false }: {
+  content: string; onChange: (html: string) => void; minHeight?: number; hideHeadings?: boolean;
 }) => {
   const editor = useEditor({
     extensions: [
@@ -69,22 +70,26 @@ const EditableEditor = ({ content, onChange, minHeight = 320 }: {
         border: "1px solid #C9CED4", borderBottom: "none",
         borderRadius: "6px 6px 0 0",
       }}>
-        <button style={btnStyle(editor.isActive("heading", { level: 1 }))}
-          onClick={() => (editor.chain().focus() as any).toggleHeading({ level: 1 }).run()}
-          title="Heading 1" type="button">
-          <Heading1 style={{ width: 15, height: 15 }} />
-        </button>
-        <button style={btnStyle(editor.isActive("heading", { level: 2 }))}
-          onClick={() => (editor.chain().focus() as any).toggleHeading({ level: 2 }).run()}
-          title="Heading 2" type="button">
-          <Heading2 style={{ width: 15, height: 15 }} />
-        </button>
-        <button style={btnStyle(editor.isActive("heading", { level: 3 }))}
-          onClick={() => (editor.chain().focus() as any).toggleHeading({ level: 3 }).run()}
-          title="Heading 3" type="button">
-          <Heading3 style={{ width: 15, height: 15 }} />
-        </button>
-        <div style={{ width: 1, height: 20, background: "#C9CED4", margin: "0 4px" }} />
+        {!hideHeadings && (
+          <>
+            <button style={btnStyle(editor.isActive("heading", { level: 1 }))}
+              onClick={() => (editor.chain().focus() as any).toggleHeading({ level: 1 }).run()}
+              title="Heading 1" type="button">
+              <Heading1 style={{ width: 15, height: 15 }} />
+            </button>
+            <button style={btnStyle(editor.isActive("heading", { level: 2 }))}
+              onClick={() => (editor.chain().focus() as any).toggleHeading({ level: 2 }).run()}
+              title="Heading 2" type="button">
+              <Heading2 style={{ width: 15, height: 15 }} />
+            </button>
+            <button style={btnStyle(editor.isActive("heading", { level: 3 }))}
+              onClick={() => (editor.chain().focus() as any).toggleHeading({ level: 3 }).run()}
+              title="Heading 3" type="button">
+              <Heading3 style={{ width: 15, height: 15 }} />
+            </button>
+            <div style={{ width: 1, height: 20, background: "#C9CED4", margin: "0 4px" }} />
+          </>
+        )}
         <button style={btnStyle(editor.isActive("bold"))}
           onClick={() => (editor.chain().focus() as any).toggleBold().run()}
           title="Bold" type="button">
@@ -151,11 +156,11 @@ const EditableEditor = ({ content, onChange, minHeight = 320 }: {
 
 /* ── Main export ─────────────────────────────────────────────────────
    Routes to lightweight HTML display or full TipTap editor. */
-const SectionTipTapEditor = ({ content, onChange, readOnly = false, minHeight = 320 }: SectionTipTapEditorProps) => {
+const SectionTipTapEditor = ({ content, onChange, readOnly = false, minHeight = 320, hideHeadings = false }: SectionTipTapEditorProps) => {
   if (readOnly) {
     return <ReadOnlySection content={content} />;
   }
-  return <EditableEditor content={content} onChange={onChange} minHeight={minHeight} />;
+  return <EditableEditor content={content} onChange={onChange} minHeight={minHeight} hideHeadings={hideHeadings} />;
 };
 
 /* ── Styles ──────────────────────────────────────────────────────────── */

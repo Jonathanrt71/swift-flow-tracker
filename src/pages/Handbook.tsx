@@ -224,7 +224,6 @@ const Handbook = () => {
 
   // ── TOC Item ─────────────────────────────────────────────────────────
   const TocItem = ({ section, depth = 0 }: { section: HandbookSection; depth?: number }) => {
-    const Icon = iconMap[section.icon] || FileText;
     const subs = getSubsections(section.id);
     const isActive = activeSectionId === section.id || subs.some(s => s.id === activeSectionId);
     const isCollapsed = collapsedToc[section.id];
@@ -233,36 +232,37 @@ const Handbook = () => {
 
     return (
       <div>
-        <div style={{ display: "flex", alignItems: "center", gap: 0 }}>
-          {subs.length > 0 && (
-            <button
-              onClick={() => setCollapsedToc(p => ({ ...p, [section.id]: !p[section.id] }))}
-              style={{ background: "transparent", border: "none", cursor: "pointer", padding: "0 2px", color: "#aaa", display: "flex", alignItems: "center" }}
-            >
-              {isCollapsed ? <ChevronRight style={{ width: 13, height: 13 }} /> : <ChevronDown style={{ width: 13, height: 13 }} />}
-            </button>
-          )}
+        <div style={{ display: "flex", alignItems: "center" }}>
           <button
-            onClick={() => scrollTo(section.id)}
+            onClick={() => { if (subs.length > 0) setCollapsedToc(p => ({ ...p, [section.id]: !p[section.id] })); else scrollTo(section.id); }}
             style={{
-              flex: 1, display: "flex", alignItems: "center", gap: 8, overflow: "hidden", minWidth: 0,
-              padding: depth === 0 ? "5px 12px 5px 16px" : "4px 12px 4px 36px",
+              flex: 1, display: "flex", alignItems: "center", overflow: "hidden", minWidth: 0,
+              padding: depth === 0 ? "6px 14px" : "4px 14px 4px 34px",
               fontSize: depth === 0 ? 13 : 12,
               color: isActive ? "#415162" : "#777",
               fontWeight: isActive ? 600 : 400,
               background: isActive ? "#F0F2F4" : "transparent",
-              borderLeft: isActive ? "3px solid #415162" : "3px solid transparent",
+              borderLeft: isActive && depth === 0 ? "3px solid #415162" : "3px solid transparent",
               border: "none", borderRight: "none", borderTop: "none", borderBottom: "none",
               cursor: "pointer", textAlign: "left",
             }}
           >
-            <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", minWidth: 0, flex: 1 }}>{section.title}</span>
+            {depth === 0 && (
+              subs.length > 0 ? (
+                isCollapsed
+                  ? <ChevronRight style={{ width: 13, height: 13, flexShrink: 0, marginRight: 6, color: "#aaa" }} />
+                  : <ChevronDown style={{ width: 13, height: 13, flexShrink: 0, marginRight: 6, color: "#aaa" }} />
+              ) : (
+                <div style={{ width: 13, flexShrink: 0, marginRight: 6 }} />
+              )
+            )}
+            <span onClick={(e) => { e.stopPropagation(); scrollTo(section.id); }} style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", minWidth: 0, flex: 1 }}>{section.title}</span>
           </button>
           {canEdit && depth === 0 && (
             <div style={{ display: "flex", gap: 2, marginRight: 4, zIndex: 50 }} onClick={e => e.stopPropagation()}>
               {idx > 0 && (
                 <div
-                  onPointerDown={(e) => { e.stopPropagation(); console.log("UP clicked", section.title); handleReorder(section.id, "up"); }}
+                  onPointerDown={(e) => { e.stopPropagation(); handleReorder(section.id, "up"); }}
                   style={{ padding: 4, color: "#999", display: "flex", cursor: "pointer", WebkitTapHighlightColor: "transparent", userSelect: "none" }}
                 >
                   <ArrowUp style={{ width: 14, height: 14 }} />
@@ -270,7 +270,7 @@ const Handbook = () => {
               )}
               {idx < siblings.length - 1 && (
                 <div
-                  onPointerDown={(e) => { e.stopPropagation(); console.log("DOWN clicked", section.title); handleReorder(section.id, "down"); }}
+                  onPointerDown={(e) => { e.stopPropagation(); handleReorder(section.id, "down"); }}
                   style={{ padding: 4, color: "#999", display: "flex", cursor: "pointer", WebkitTapHighlightColor: "transparent", userSelect: "none" }}
                 >
                   <ArrowDown style={{ width: 14, height: 14 }} />
@@ -339,6 +339,7 @@ const Handbook = () => {
               content={editContentRef.current}
               onChange={(html) => { editContentRef.current = html; }}
               minHeight={320}
+              hideHeadings
             />
             <div style={{ display: "flex", gap: 6, justifyContent: "flex-end", marginTop: 10 }}>
               <button onClick={cancelEditing} style={{ display: "flex", alignItems: "center", gap: 4, padding: "6px 14px", fontSize: 12, color: "#777", background: "transparent", border: "1px solid #C9CED4", borderRadius: 5, cursor: "pointer" }}>
