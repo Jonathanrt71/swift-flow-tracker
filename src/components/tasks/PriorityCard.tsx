@@ -149,7 +149,7 @@ const PriorityCard = ({
                   )}
                 </div>
                 <span
-                  onClick={(e) => { e.stopPropagation(); navigate(`/tasks?tab=my-tasks&highlight=${t.id}`); }}
+                  onClick={(e) => { e.stopPropagation(); navigate(`/tasks?tab=myTasks&highlight=${t.id}`); }}
                   style={{
                     fontSize: 12, color: t.completed ? "#8A9AAB" : "#415162", flex: 1,
                     textDecoration: t.completed ? "line-through" : "none",
