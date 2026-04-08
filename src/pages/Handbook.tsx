@@ -237,7 +237,7 @@ const Handbook = () => {
             onClick={() => { if (subs.length > 0) setCollapsedToc(p => ({ ...p, [section.id]: !p[section.id] })); else scrollTo(section.id); }}
             style={{
               flex: 1, display: "flex", alignItems: "center", overflow: "hidden", minWidth: 0,
-              padding: depth === 0 ? "6px 14px" : "4px 14px 4px 34px",
+              padding: depth === 0 ? "6px 14px" : "4px 14px 4px 44px",
               fontSize: depth === 0 ? 13 : 12,
               color: isActive ? "#415162" : "#777",
               fontWeight: isActive ? 600 : 400,
