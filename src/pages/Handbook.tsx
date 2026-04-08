@@ -243,10 +243,18 @@ const Handbook = () => {
   const cancelEditing = () => { setEditingId(null); setEditTitle(""); editContentRef.current = ""; };
 
   const handleSave = (id: string) => {
+    const container = contentRef.current;
+    const scrollPos = container ? container.scrollTop : 0;
     updateSection.mutate(
       { id, title: editTitle.trim(), content: editContentRef.current, userId: user?.id || "" },
       {
-        onSuccess: () => { cancelEditing(); toast({ title: "Section saved" }); },
+        onSuccess: () => {
+          cancelEditing();
+          toast({ title: "Section saved" });
+          requestAnimationFrame(() => {
+            if (container) container.scrollTop = scrollPos;
+          });
+        },
         onError: (e: any) => toast({ title: "Error saving", description: e.message, variant: "destructive" }),
       }
     );
