@@ -398,10 +398,6 @@ const Index = () => {
                 <ListTodo className="h-4 w-4" />
                 <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase" }}>Tasks</span>
               </TabsTrigger>
-              <TabsTrigger value="starred" className="flex flex-col items-center gap-0.5 h-auto px-2 py-1 data-[state=active]:bg-[#D5DAE0] data-[state=active]:text-[#415162] data-[state=active]:shadow-none data-[state=inactive]:text-[#8A9AAB]" title="Starred">
-                <Star className="h-4 w-4" />
-                <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase" }}>Starred</span>
-              </TabsTrigger>
               <TabsTrigger value="completed" className="flex flex-col items-center gap-0.5 h-auto px-2 py-1 data-[state=active]:bg-[#D5DAE0] data-[state=active]:text-[#415162] data-[state=active]:shadow-none data-[state=inactive]:text-[#8A9AAB]" title="Completed">
                 <CheckCircle2 className="h-4 w-4" />
                 <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase" }}>Done</span>
@@ -571,14 +567,6 @@ const Index = () => {
               myTasks,
               <ListTodo className="h-10 w-10 mx-auto" />,
               "No active tasks. Create one to get started!"
-            )}
-          </TabsContent>
-
-          <TabsContent value="starred" className="space-y-3 mt-0">
-            {renderGroupedTaskList(
-              starredTasks,
-              <Star className="h-10 w-10 mx-auto" />,
-              "No starred tasks. Star a task to pin it here."
             )}
           </TabsContent>
 

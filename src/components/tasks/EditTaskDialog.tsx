@@ -61,9 +61,6 @@ const EditTaskDialog = ({ task, open, onOpenChange, teamMembers, meetingNames, o
             <span className="text-base font-semibold" style={{ color: "#2D3748" }}>
               Edit task
             </span>
-            <button onClick={() => onToggleStar({ id: task.id, starred: !task.starred })} className="flex items-center justify-center w-8 h-8 bg-transparent border-none cursor-pointer rounded-md hover:bg-black/5">
-              <Star className={cn("h-4 w-4", task.starred ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground")} />
-            </button>
           </div>
 
           {/* Title */}
