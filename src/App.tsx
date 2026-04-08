@@ -18,7 +18,6 @@ import Feedback from "./pages/Feedback.tsx";
 import Handbook from "./pages/Handbook.tsx";
 import GMEHandbook from "./pages/GMEHandbook.tsx";
 import Rotations from "./pages/Rotations.tsx";
-import Operations from "./pages/Operations.tsx";
 import Compliance from "./pages/Compliance.tsx";
 import Topics from "./pages/Topics.tsx";
 import Announcements from "./pages/Announcements.tsx";
@@ -57,7 +56,6 @@ const App = () => (
               <Route path="/handbook" element={<RoleRoute permissionKey="handbook.view"><Handbook /></RoleRoute>} />
               <Route path="/gme-handbook" element={<RoleRoute permissionKey="gme_handbook.view"><GMEHandbook /></RoleRoute>} />
               <Route path="/rotations" element={<ProtectedRoute><Rotations /></ProtectedRoute>} />
-              <Route path="/operations" element={<RoleRoute permissionKey="operations.view"><Operations /></RoleRoute>} />
               <Route path="/compliance" element={<RoleRoute permissionKey="compliance.view"><Compliance /></RoleRoute>} />
               <Route path="/topics" element={<RoleRoute permissionKey="topics.view"><Topics /></RoleRoute>} />
               <Route path="/announcements" element={<RoleRoute permissionKey="announcements.view"><Announcements /></RoleRoute>} />

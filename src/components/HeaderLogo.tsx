@@ -26,7 +26,6 @@ const allNavItems: NavEntry[] = [
   { path: "/schedule",    label: "Block Matrix",  icon: CalendarDays,  permissionKey: "schedule.view" },
   { path: "/announcements", label: "Announcements", icon: Megaphone, permissionKey: "announcements.view" },
   { path: "/meetings",    label: "Meetings",     icon: Users,         permissionKey: "meetings.view" },
-  { path: "/operations",  label: "Program Handbook", icon: ClipboardList, permissionKey: "operations.view" },
   { path: "/tasks",       label: "Priorities & Tasks", icon: CheckSquare,   permissionKey: "tasks.view" },
   { path: "/gme-handbook",label: "GME Handbook", icon: FileText,      permissionKey: "gme_handbook.view" },
   { path: "/handbook",    label: "Resident Handbook", icon: BookMarked, permissionKey: "handbook.view" },
@@ -39,7 +38,7 @@ const navSections: NavSection[] = [
   { label: "Curriculum", paths: ["/rotations", "/topics"] },
   { label: "Evaluation", paths: ["/cbme", "/evaluations", "/feedback", "/milestones", "/procedure-logs", "/resident-summary"] },
   { label: "Program",    paths: ["/events", "/schedule", "/announcements", "/meetings", "/tasks"] },
-  { label: "Reference",  paths: ["/compliance", "/gme-handbook", "/handbook", "/operations"] },
+  { label: "Reference",  paths: ["/compliance", "/gme-handbook", "/handbook"] },
 ];
 
 // Kill every possible browser highlight on interactive elements
