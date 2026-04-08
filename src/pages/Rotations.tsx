@@ -260,16 +260,16 @@ const Rotations = () => {
   const selected = selectedSlug ? rotations?.find((r) => r.slug === selectedSlug) : null;
 
   const narrativeSections: { label: string; field: keyof Rotation }[] = [
-    { label: "ROTATION OVERVIEW", field: "overview" },
-    { label: "GOALS & OBJECTIVES", field: "goals_objectives" },
-    { label: "DAILY SCHEDULE & EXPECTATIONS", field: "schedule_details" },
-    { label: "CLINICAL TEAM & SUPERVISION", field: "attendings_notes" },
-    { label: "PATIENT CARE RESPONSIBILITIES", field: "patient_care" },
-    { label: "PROCEDURES & LOGGING", field: "procedures" },
-    { label: "EMR & DOCUMENTATION", field: "emr_notes" },
-    { label: "EVALUATION METHODS", field: "evaluation_methods" },
-    { label: "PRE-ROTATION PREPARATION", field: "preparation" },
-    { label: "LOGISTICS & TIPS", field: "logistics" },
+    { label: "Rotation Overview", field: "overview" },
+    { label: "Goals & Objectives", field: "goals_objectives" },
+    { label: "Daily Schedule & Expectations", field: "schedule_details" },
+    { label: "Clinical Team & Supervision", field: "attendings_notes" },
+    { label: "Patient Care Responsibilities", field: "patient_care" },
+    { label: "Procedures & Logging", field: "procedures" },
+    { label: "EMR & Documentation", field: "emr_notes" },
+    { label: "Evaluation Methods", field: "evaluation_methods" },
+    { label: "Pre-Rotation Preparation", field: "preparation" },
+    { label: "Logistics & Tips", field: "logistics" },
   ];
 
   return (
