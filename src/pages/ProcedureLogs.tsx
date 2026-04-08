@@ -63,7 +63,7 @@ const ProcedureLogs = () => {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [viewMode, setViewMode] = useState<"list" | "summary">("list");
+  const [viewMode, setViewMode] = useState<"list" | "summary">("summary");
 
   const logsQuery = useQuery({
     queryKey: ["procedure_logs"],
@@ -223,8 +223,8 @@ const ProcedureLogs = () => {
           {/* View toggle */}
           <div style={{ display: "flex", gap: 0, borderRadius: 8, overflow: "hidden", border: "0.5px solid #C9CED4" }}>
             {([
-              { mode: "list" as const, label: "List" },
               { mode: "summary" as const, label: "Summary" },
+              { mode: "list" as const, label: "List" },
             ]).map(opt => (
               <button
                 key={opt.mode}
