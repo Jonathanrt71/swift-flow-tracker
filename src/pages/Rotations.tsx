@@ -107,21 +107,19 @@ function EditableMetaCard({ label, value, field, rotationId, canEdit, icon: Icon
         {label}
       </div>
       {editing ? (
-        <div style={{ display: "flex", gap: 4, marginTop: 2 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 4, marginTop: 2 }}>
           <input
             autoFocus
             value={draft}
             onChange={e => setDraft(e.target.value)}
             onKeyDown={e => { if (e.key === "Enter") save.mutate(); if (e.key === "Escape") setEditing(false); }}
             onClick={e => e.stopPropagation()}
-            style={{ flex: 1, padding: "3px 6px", fontSize: 13, border: "1px solid #C9CED4", borderRadius: 4, outline: "none", background: "#fff" }}
+            style={{ width: "100%", padding: "5px 8px", fontSize: 13, border: "1px solid #C9CED4", borderRadius: 4, outline: "none", background: "#fff", boxSizing: "border-box" }}
           />
-          <button onClick={(e) => { e.stopPropagation(); save.mutate(); }} style={{ padding: "3px 8px", fontSize: 11, color: "#fff", background: "#415162", border: "none", borderRadius: 4, cursor: "pointer" }}>
-            <Save style={{ width: 10, height: 10 }} />
-          </button>
-          <button onClick={(e) => { e.stopPropagation(); setEditing(false); }} style={{ padding: "3px 6px", fontSize: 11, color: "#777", background: "#fff", border: "1px solid #C9CED4", borderRadius: 4, cursor: "pointer" }}>
-            <X style={{ width: 10, height: 10 }} />
-          </button>
+          <div style={{ display: "flex", gap: 4, justifyContent: "flex-end" }}>
+            <button onClick={(e) => { e.stopPropagation(); setEditing(false); }} style={{ padding: "3px 8px", fontSize: 11, color: "#777", background: "#fff", border: "1px solid #C9CED4", borderRadius: 4, cursor: "pointer" }}>Cancel</button>
+            <button onClick={(e) => { e.stopPropagation(); save.mutate(); }} style={{ padding: "3px 10px", fontSize: 11, color: "#fff", background: "#415162", border: "none", borderRadius: 4, cursor: "pointer" }}>Save</button>
+          </div>
         </div>
       ) : (
         <div style={{ fontSize: 13, color: value ? "#333" : "#bbb", fontWeight: 500, fontStyle: value ? "normal" : "italic" }}>
