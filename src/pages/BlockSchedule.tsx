@@ -303,8 +303,8 @@ const BlockSchedule = () => {
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "#F5F3EE", width: "100vw", marginLeft: "calc(-50vw + 50%)", position: "relative" }}>
-      <header style={{ position: "sticky", top: 0, zIndex: 40, background: "#415162" }}>
+    <div style={{ height: "100vh", background: "#F5F3EE", width: "100vw", marginLeft: "calc(-50vw + 50%)", position: "relative", display: "flex", flexDirection: "column", overflow: "hidden" }}>
+      <header style={{ flexShrink: 0, zIndex: 40, background: "#415162" }}>
         <div style={{ display: "flex", alignItems: "center", height: 56, padding: "0 16px" }}>
           <HeaderLogo isAdmin={isAdmin} onSignOut={signOut}>
             <button
@@ -329,10 +329,10 @@ const BlockSchedule = () => {
         )}
       </header>
 
-      <main style={{ padding: "12px 24px 100px" }}>
+      <main style={{ flex: 1, padding: "12px 24px 0", display: "flex", flexDirection: "column", overflow: "hidden", minHeight: 0 }}>
 
         {/* Filters */}
-        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12, flexWrap: "wrap" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12, flexWrap: "wrap", flexShrink: 0 }}>
           {academicYears.length > 1 && (
             <Select value={filterYear === "latest" ? activeYear : filterYear} onValueChange={(v) => { setFilterYear(v); setFilterResident("all"); setFilterPgy("all"); }}>
               <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0" style={{ borderColor: "#C9CED4", background: "#fff", maxWidth: 160 }}>
@@ -421,7 +421,8 @@ const BlockSchedule = () => {
               overflow: "auto",
               border: "0.5px solid #C9CED4",
               borderRadius: 8,
-              maxHeight: "calc(100vh - 160px)",
+              flex: 1,
+              minHeight: 0,
               overscrollBehaviorX: "contain",
             }}
           >
