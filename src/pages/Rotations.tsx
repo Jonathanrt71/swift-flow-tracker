@@ -328,9 +328,6 @@ const Rotations = () => {
                     {r.location && <span style={{ fontSize: 11, color: "#888", display: "flex", alignItems: "center", gap: 3 }}><MapPin style={{ width: 12, height: 12, color: "#aaa" }} />{r.location.split(",")[0].split("\n")[0]}</span>}
                     {r.hours && <span style={{ fontSize: 11, color: "#888", display: "flex", alignItems: "center", gap: 3 }}><Clock style={{ width: 12, height: 12, color: "#aaa" }} />{r.hours.length > 30 ? r.hours.slice(0, 30) + "…" : r.hours}</span>}
                   </div>
-                  <div style={{ fontSize: 13, color: "#777", lineHeight: 1.5, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" as const, overflow: "hidden" }}>
-                    {r.overview ? r.overview.replace(/<[^>]*>/g, "").slice(0, 120) : "Details pending."}
-                  </div>
                 </div>
               ))}
             </div>
