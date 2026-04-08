@@ -1,5 +1,5 @@
-import { useState, useMemo, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useState, useMemo, useEffect, useRef } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
 import { supabase } from "@/integrations/supabase/client";
@@ -45,8 +45,49 @@ const ResidentSummary = () => {
   const { user, signOut } = useAuth();
   const { isAdmin } = useAdmin();
   const [selectedResident, setSelectedResident] = useState<string>("none");
+  const [logbookUploading, setLogbookUploading] = useState(false);
+  const [logbookUploadMsg, setLogbookUploadMsg] = useState<string | null>(null);
+  const logbookFileRef = useRef<HTMLInputElement>(null);
+  const queryClient = useQueryClient();
 
-  // Fetch residents with milestone data
+  const handleLogbookUpload = async (file: File) => {
+    if (!selectedResident || selectedResident === "none") return;
+    setLogbookUploading(true);
+    setLogbookUploadMsg(null);
+    try {
+      const base64 = await new Promise<string>((res, rej) => {
+        const reader = new FileReader();
+        reader.onload = () => res((reader.result as string).split(",")[1]);
+        reader.onerror = () => rej(new Error("Failed to read file"));
+        reader.readAsDataURL(file);
+      });
+      const { data: { session } } = await supabase.auth.getSession();
+      const resp = await fetch(
+        `https://mutqwziuksuonnkjjkmp.supabase.co/functions/v1/extract-logbook-counts`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session?.access_token}`,
+          },
+          body: JSON.stringify({
+            imageBase64: base64,
+            mediaType: file.type || "image/png",
+            profileId: selectedResident,
+          }),
+        }
+      );
+      const result = await resp.json();
+      if (!resp.ok) throw new Error(result.error || "Upload failed");
+      setLogbookUploadMsg(result.message || `Saved ${result.rows?.length || 0} entries`);
+      queryClient.invalidateQueries({ queryKey: ["summary_logbook", selectedResident] });
+    } catch (e: any) {
+      setLogbookUploadMsg(`Error: ${e.message}`);
+    } finally {
+      setLogbookUploading(false);
+      if (logbookFileRef.current) logbookFileRef.current.value = "";
+    }
+  };
   const residentsQuery = useQuery({
     queryKey: ["summary_residents"],
     enabled: !!user,
@@ -473,27 +514,65 @@ const ResidentSummary = () => {
             )}
 
             {/* Log book counts */}
-            {logbookList.length > 0 && (
+            {(logbookList.length > 0 || isAdmin) && (
               <div style={secStyle}>
-                <div style={secTitle}>Log book counts</div>
-                <div style={{ overflowX: "auto" }}>
-                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
-                    <thead>
-                      <tr>
-                        <th style={{ textAlign: "left", padding: "4px 6px", fontSize: 11, color: "#8A9AAB", fontWeight: 500, borderBottom: "1px solid #D5DAE0" }}>Encounter type</th>
-                        <th style={{ textAlign: "center", padding: "4px 6px", fontSize: 11, color: "#8A9AAB", fontWeight: 500, borderBottom: "1px solid #D5DAE0", width: 50 }}>Total</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {logbookList.map((row, i) => (
-                        <tr key={row.encounter_type} style={{ background: i % 2 === 0 ? "transparent" : "rgba(0,0,0,0.03)" }}>
-                          <td style={{ padding: "4px 6px", color: "#2D3748", fontWeight: 500 }}>{row.encounter_type}</td>
-                          <td style={{ textAlign: "center", padding: "4px 6px", color: "#2D3748", fontWeight: 500 }}>{row.total}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+                  <div style={secTitle as any}>Log book counts</div>
+                  {isAdmin && (
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      {logbookUploadMsg && (
+                        <span style={{ fontSize: 11, color: logbookUploadMsg.startsWith("Error") ? "#9F2929" : "#4A846C" }}>
+                          {logbookUploadMsg}
+                        </span>
+                      )}
+                      <input
+                        ref={logbookFileRef}
+                        type="file"
+                        accept="image/*"
+                        style={{ display: "none" }}
+                        onChange={(e) => {
+                          const f = e.target.files?.[0];
+                          if (f) handleLogbookUpload(f);
+                        }}
+                      />
+                      <button
+                        onClick={() => logbookFileRef.current?.click()}
+                        disabled={logbookUploading}
+                        style={{
+                          fontSize: 11, fontWeight: 500, color: "#fff", background: "#415162",
+                          border: "none", borderRadius: 6, padding: "5px 12px", cursor: "pointer",
+                          opacity: logbookUploading ? 0.6 : 1,
+                        }}
+                      >
+                        {logbookUploading ? "Extracting..." : "Upload screenshot"}
+                      </button>
+                    </div>
+                  )}
                 </div>
+                {logbookList.length > 0 ? (
+                  <div style={{ overflowX: "auto" }}>
+                    <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
+                      <thead>
+                        <tr>
+                          <th style={{ textAlign: "left", padding: "4px 6px", fontSize: 11, color: "#8A9AAB", fontWeight: 500, borderBottom: "1px solid #D5DAE0" }}>Encounter type</th>
+                          <th style={{ textAlign: "center", padding: "4px 6px", fontSize: 11, color: "#8A9AAB", fontWeight: 500, borderBottom: "1px solid #D5DAE0", width: 50 }}>Total</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {logbookList.map((row, i) => (
+                          <tr key={row.encounter_type} style={{ background: i % 2 === 0 ? "transparent" : "rgba(0,0,0,0.03)" }}>
+                            <td style={{ padding: "4px 6px", color: "#2D3748", fontWeight: 500 }}>{row.encounter_type}</td>
+                            <td style={{ textAlign: "center", padding: "4px 6px", color: "#2D3748", fontWeight: 500 }}>{row.total}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <div style={{ fontSize: 12, color: "#8A9AAB", padding: "8px 0" }}>
+                    No log book data yet. Upload a screenshot from New Innovations to populate.
+                  </div>
+                )}
               </div>
             )}
           </>
