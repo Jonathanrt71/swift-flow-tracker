@@ -262,10 +262,6 @@ const HeaderLogo = ({
           }}
         >
             <div style={{ flex: 1, overflowY: "scroll", WebkitOverflowScrolling: "touch" }}>
-              <Link to="/" onClick={() => setMenuOpen(false)} style={navLink(location.pathname === "/")}>
-                <Home style={{ width: 16, height: 16 }} /> FM App
-              </Link>
-              <div style={{ height: 0.5, background: "rgba(255,255,255,0.15)" }} />
 
               {navSections.map((section, si) => {
                 const items = section.paths
