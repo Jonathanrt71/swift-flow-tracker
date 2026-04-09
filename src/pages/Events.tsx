@@ -14,7 +14,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Calendar, Search, X, ClipboardCheck, Pencil, BookMarked } from "lucide-react";
 import { format, parseISO } from "date-fns";
-import { formatCardDate, ordinalSuffix } , getInitials } from "@/lib/dateFormat";
+import { formatCardDate, ordinalSuffix , getInitials } from "@/lib/dateFormat";
 import CreateEventDialog from "@/components/events/CreateEventDialog";
 import EditEventDialog from "@/components/events/EditEventDialog";
 import EvaluationDialog from "@/components/events/EvaluationDialog";

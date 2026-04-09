@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { Competency, Assessment } from "@/hooks/useCompetencies";
-import { formatLastFirst } , getInitials } from "@/lib/dateFormat";
+import { formatLastFirst , getInitials } from "@/lib/dateFormat";
 
 
 const getColor = (name: string | null): string => {

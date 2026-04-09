@@ -11,7 +11,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { format, parseISO } from "date-fns";
-import { formatPersonName } , getInitials } from "@/lib/dateFormat";
+import { formatPersonName , getInitials } from "@/lib/dateFormat";
 import { useMeetingCategories } from "@/hooks/useMeetingCategories";
 import ComboSearch from "@/components/shared/ComboSearch";
 

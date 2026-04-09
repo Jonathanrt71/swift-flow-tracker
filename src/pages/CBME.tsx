@@ -33,7 +33,7 @@ import MilestoneLevelsGrid from "@/components/cbme/MilestoneLevelsGrid";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import HeaderLogo from "@/components/HeaderLogo";
 import { format, parseISO } from "date-fns";
-import { formatCardDate, formatPersonName } , getInitials } from "@/lib/dateFormat";
+import { formatCardDate, formatPersonName , getInitials } from "@/lib/dateFormat";
 import { cn } from "@/lib/utils";
 
 const CreateCompetencyDialog = ({

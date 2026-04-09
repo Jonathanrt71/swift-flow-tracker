@@ -5,7 +5,7 @@ import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { DetailReadOnly, detailPreviewText } from "./DetailField";
-import { formatLastFirst } , getInitials } from "@/lib/dateFormat";
+import { formatLastFirst , getInitials } from "@/lib/dateFormat";
 import { useQuery } from "@tanstack/react-query";
 import type { Competency } from "@/hooks/useCompetencies";
 

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Star, Pencil, BookMarked } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { formatCardDate } , getInitials } from "@/lib/dateFormat";
+import { formatCardDate , getInitials } from "@/lib/dateFormat";
 import type { Task } from "@/hooks/useTasks";
 import type { TeamMember } from "@/hooks/useTeamMembers";
 
