@@ -332,7 +332,7 @@ const PatientSatisfaction = () => {
           <select
             value={monthFilter}
             onChange={(e) => setMonthFilter(e.target.value)}
-            style={{ fontSize: 13, padding: "5px 10px", border: "1px solid #C9CED4", borderRadius: 6, background: "#fff", color: "#333", outline: "none", maxWidth: 160, height: 32, boxSizing: "border-box", verticalAlign: "middle" }}
+            style={{ fontSize: 13, padding: "6px 28px 6px 10px", border: "1px solid #C9CED4", borderRadius: 6, background: "#fff url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E\") no-repeat right 8px center", color: "#333", outline: "none", maxWidth: 160, WebkitAppearance: "none", MozAppearance: "none", appearance: "none" } as any}
           >
             <option value="all">All months</option>
             {months.map((m) => (
@@ -342,7 +342,7 @@ const PatientSatisfaction = () => {
           <select
             value={providerFilter}
             onChange={(e) => setProviderFilter(e.target.value)}
-            style={{ fontSize: 13, padding: "5px 10px", border: "1px solid #C9CED4", borderRadius: 6, background: "#fff", color: "#333", outline: "none", maxWidth: 200, height: 32, boxSizing: "border-box", verticalAlign: "middle" }}
+            style={{ fontSize: 13, padding: "6px 28px 6px 10px", border: "1px solid #C9CED4", borderRadius: 6, background: "#fff url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E\") no-repeat right 8px center", color: "#333", outline: "none", maxWidth: 200, WebkitAppearance: "none", MozAppearance: "none", appearance: "none" } as any}
           >
             <option value="all">All providers</option>
             {providers.map((p) => (
