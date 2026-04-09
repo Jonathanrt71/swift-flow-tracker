@@ -118,16 +118,18 @@ const profColor = (val: number | null): string => {
 };
 
 const rotRatingLabel = (val: number | null): string => {
-  if (val === 1) return "Disagree";
-  if (val === 2) return "Neutral";
-  if (val === 3) return "Agree";
+  if (val === 1) return "Needs Improvement";
+  if (val === 2) return "Meets Expectation";
+  if (val === 3) return "Exceeds Expectation";
+  if (val === 4) return "N/A";
   return "—";
 };
 
 const rotRatingColor = (val: number | null): string => {
   if (val === 1) return "#D4A017";
-  if (val === 2) return "#8A9AAB";
-  if (val === 3) return "#4A846C";
+  if (val === 2) return "#4A846C";
+  if (val === 3) return "#52657A";
+  if (val === 4) return "#8A9AAB";
   return "#8A9AAB";
 };
 
