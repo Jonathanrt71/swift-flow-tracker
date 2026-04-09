@@ -76,6 +76,7 @@ const PatientSatisfaction = () => {
   const queryClient = useQueryClient();
   const fileRef = useRef<HTMLInputElement>(null);
 
+  const [viewMode, setViewMode] = useState<"surveys" | "summary">("surveys");
   const [monthFilter, setMonthFilter] = useState("all");
   const [providerFilter, setProviderFilter] = useState("all");
   const [importing, setImporting] = useState(false);
@@ -169,6 +170,30 @@ const PatientSatisfaction = () => {
     const neg = filtered.filter((c) => c.rating === "negative").length;
     return { total, pos, neu, neg };
   }, [filtered]);
+
+  // Summary data: per-resident stats
+  const summaryData = useMemo(() => {
+    const map = new Map<string, { name: string; barcodes: Set<string>; pos: number; neg: number; total: number }>();
+    nonFacultyComments.forEach((c) => {
+      const key = c.profile_id || c.provider_name;
+      if (!map.has(key)) {
+        map.set(key, { name: displayName(c, profileMap), barcodes: new Set(), pos: 0, neg: 0, total: 0 });
+      }
+      const entry = map.get(key)!;
+      entry.barcodes.add(c.survey_barcode);
+      entry.total++;
+      if (c.rating === "positive") entry.pos++;
+      if (c.rating === "negative") entry.neg++;
+    });
+    return Array.from(map.values())
+      .map((e) => ({
+        name: e.name,
+        surveys: e.barcodes.size,
+        posPct: e.total > 0 ? Math.round((e.pos / e.total) * 100) : 0,
+        negPct: e.total > 0 ? Math.round((e.neg / e.total) * 100) : 0,
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [nonFacultyComments, profileMap]);
 
   // Import handler
   const handleImport = async (file: File) => {
@@ -271,134 +296,191 @@ const PatientSatisfaction = () => {
       </header>
 
       <main style={{ maxWidth: 900, margin: "0 auto", padding: "12px 24px 100px" }}>
-        {/* Summary pills */}
-        {!isLoading && filtered.length > 0 && (
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginBottom: 12 }}>
-            <div style={{ background: "#E7EBEF", borderRadius: 8, padding: "8px 14px" }}>
-              <div style={{ fontSize: 11, color: "#5F7285" }}>Comments</div>
-              <div style={{ fontSize: 15, fontWeight: 600, color: "#415162" }}>{stats.total}</div>
-            </div>
-            <div style={{ background: "#E4F0EB", borderRadius: 8, padding: "8px 14px" }}>
-              <div style={{ fontSize: 11, color: "#3B6D11" }}>Positive</div>
-              <div style={{ fontSize: 15, fontWeight: 600, color: "#27500A" }}>
-                {stats.pos} {stats.total > 0 && <span style={{ fontWeight: 400, fontSize: 12 }}>({Math.round(stats.pos / stats.total * 100)}%)</span>}
-              </div>
-            </div>
-            {stats.neu > 0 && (
-              <div style={{ background: "#D6DEE6", borderRadius: 8, padding: "8px 14px" }}>
-                <div style={{ fontSize: 11, color: "#52657A" }}>Neutral</div>
-                <div style={{ fontSize: 15, fontWeight: 600, color: "#415162" }}>
-                  {stats.neu} {stats.total > 0 && <span style={{ fontWeight: 400, fontSize: 12 }}>({Math.round(stats.neu / stats.total * 100)}%)</span>}
-                </div>
-              </div>
-            )}
-            {stats.neg > 0 && (
-              <div style={{ background: "#FBF3E0", borderRadius: 8, padding: "8px 14px" }}>
-                <div style={{ fontSize: 11, color: "#854F0B" }}>Negative</div>
-                <div style={{ fontSize: 15, fontWeight: 600, color: "#854F0B" }}>
-                  {stats.neg} {stats.total > 0 && <span style={{ fontWeight: 400, fontSize: 12 }}>({Math.round(stats.neg / stats.total * 100)}%)</span>}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Toolbar */}
-        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8, marginBottom: 12 }}>
-          {canEdit && (
-            <>
-              <input
-                ref={fileRef}
-                type="file"
-                accept=".pdf"
-                style={{ display: "none" }}
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) handleImport(file);
-                }}
-              />
-              <span
-                onClick={() => !importing && fileRef.current?.click()}
-                style={{
-                  fontSize: 13, fontWeight: 600, color: "#415162", background: "#E7EBEF",
-                  padding: "4px 12px", borderRadius: 6, cursor: importing ? "wait" : "pointer",
-                  userSelect: "none", opacity: importing ? 0.6 : 1,
-                }}
-              >
-                {importing ? "Importing..." : "Import"}
-              </span>
-            </>
-          )}
-          <select
-            value={monthFilter}
-            onChange={(e) => setMonthFilter(e.target.value)}
-            style={{ fontSize: 13, padding: "6px 28px 6px 10px", border: "1px solid #C9CED4", borderRadius: 6, background: "#fff url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E\") no-repeat right 8px center", color: "#333", outline: "none", maxWidth: 160, WebkitAppearance: "none", MozAppearance: "none", appearance: "none" } as any}
-          >
-            <option value="all">All months</option>
-            {months.map((m) => (
-              <option key={m} value={m}>{m}</option>
-            ))}
-          </select>
-          <select
-            value={providerFilter}
-            onChange={(e) => setProviderFilter(e.target.value)}
-            style={{ fontSize: 13, padding: "6px 28px 6px 10px", border: "1px solid #C9CED4", borderRadius: 6, background: "#fff url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E\") no-repeat right 8px center", color: "#333", outline: "none", maxWidth: 200, WebkitAppearance: "none", MozAppearance: "none", appearance: "none" } as any}
-          >
-            <option value="all">All providers</option>
-            {providers.map((p) => (
-              <option key={p.key} value={p.key}>{p.label}</option>
-            ))}
-          </select>
+        {/* View mode tabs */}
+        <div style={{ display: "flex", gap: 16, marginBottom: 16 }}>
+          {(["surveys", "summary"] as const).map((mode) => (
+            <span
+              key={mode}
+              onClick={() => setViewMode(mode)}
+              style={{
+                fontSize: 13, fontWeight: 500, cursor: "pointer",
+                color: viewMode === mode ? "#415162" : "#8A9AAB",
+                borderBottom: viewMode === mode ? "2px solid #415162" : "2px solid transparent",
+                paddingBottom: 2,
+              }}
+            >
+              {mode === "surveys" ? "Surveys" : "Summary"}
+            </span>
+          ))}
         </div>
 
-        {/* Import status */}
-        {importStatus && (
-          <div style={{
-            fontSize: 12, padding: "8px 12px", marginBottom: 12, borderRadius: 6,
-            background: importStatus.startsWith("Error") ? "#FBF3E0" : "#E4F0EB",
-            color: importStatus.startsWith("Error") ? "#854F0B" : "#27500A",
-            display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8,
-          }}>
-            <span>{importStatus}</span>
-            <button onClick={() => setImportStatus(null)} style={{ background: "transparent", border: "none", cursor: "pointer", color: "inherit", fontSize: 16, padding: "0 2px", lineHeight: 1 }}>×</button>
-          </div>
-        )}
-
-        {/* Comments list */}
-        {isLoading ? (
-          <div style={{ padding: 40, textAlign: "center" }}>
-            <div style={{ width: 20, height: 20, border: "2px solid #C9CED4", borderTopColor: "#415162", borderRadius: "50%", animation: "spin 0.7s linear infinite", margin: "0 auto" }} />
-            <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-          </div>
-        ) : filtered.length === 0 ? (
-          <div style={{ textAlign: "center", padding: 48, color: "#6B7280", fontSize: 14 }}>
-            {comments.length === 0 ? "No comments yet. Import a Press Ganey PDF to get started." : "No comments match the current filters."}
-          </div>
-        ) : (
-          <div>
-            {filtered.map((c) => {
-              const rs = RATING_STYLE[c.rating] || RATING_STYLE.open;
-              return (
-                <div key={c.id} style={{ padding: "10px 0", borderBottom: "1px solid #E7EBEF" }}>
-                  <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "4px 10px", marginBottom: 3 }}>
-                    <span style={{ fontSize: 13, fontWeight: 600, color: "#415162" }}>
-                      {displayName(c, profileMap)}
-                    </span>
-                    <span style={{ fontSize: 11, color: "#8A9AAB" }}>{formatDate(c.received_date)}</span>
-                    <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 10, background: "#E7EBEF", color: "#5F7285", fontWeight: 500 }}>
-                      {c.survey_section}
-                    </span>
-                    <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 10, background: rs.bg, color: rs.color, fontWeight: 500 }}>
-                      {c.rating.charAt(0).toUpperCase() + c.rating.slice(1)}
-                    </span>
-                  </div>
-                  {c.comment && (
-                    <div style={{ fontSize: 13, color: "#2D3748", lineHeight: 1.5 }}>{c.comment}</div>
-                  )}
+        {viewMode === "surveys" ? (
+          <>
+            {/* Summary pills */}
+            {!isLoading && filtered.length > 0 && (
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginBottom: 12 }}>
+                <div style={{ background: "#E7EBEF", borderRadius: 8, padding: "8px 14px" }}>
+                  <div style={{ fontSize: 11, color: "#5F7285" }}>Comments</div>
+                  <div style={{ fontSize: 15, fontWeight: 600, color: "#415162" }}>{stats.total}</div>
                 </div>
-              );
-            })}
-          </div>
+                <div style={{ background: "#E4F0EB", borderRadius: 8, padding: "8px 14px" }}>
+                  <div style={{ fontSize: 11, color: "#3B6D11" }}>Positive</div>
+                  <div style={{ fontSize: 15, fontWeight: 600, color: "#27500A" }}>
+                    {stats.pos} {stats.total > 0 && <span style={{ fontWeight: 400, fontSize: 12 }}>({Math.round(stats.pos / stats.total * 100)}%)</span>}
+                  </div>
+                </div>
+                {stats.neu > 0 && (
+                  <div style={{ background: "#D6DEE6", borderRadius: 8, padding: "8px 14px" }}>
+                    <div style={{ fontSize: 11, color: "#52657A" }}>Neutral</div>
+                    <div style={{ fontSize: 15, fontWeight: 600, color: "#415162" }}>
+                      {stats.neu} {stats.total > 0 && <span style={{ fontWeight: 400, fontSize: 12 }}>({Math.round(stats.neu / stats.total * 100)}%)</span>}
+                    </div>
+                  </div>
+                )}
+                {stats.neg > 0 && (
+                  <div style={{ background: "#FBF3E0", borderRadius: 8, padding: "8px 14px" }}>
+                    <div style={{ fontSize: 11, color: "#854F0B" }}>Negative</div>
+                    <div style={{ fontSize: 15, fontWeight: 600, color: "#854F0B" }}>
+                      {stats.neg} {stats.total > 0 && <span style={{ fontWeight: 400, fontSize: 12 }}>({Math.round(stats.neg / stats.total * 100)}%)</span>}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Toolbar */}
+            <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8, marginBottom: 12 }}>
+              {canEdit && (
+                <>
+                  <input
+                    ref={fileRef}
+                    type="file"
+                    accept=".pdf"
+                    style={{ display: "none" }}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleImport(file);
+                    }}
+                  />
+                  <span
+                    onClick={() => !importing && fileRef.current?.click()}
+                    style={{
+                      fontSize: 13, fontWeight: 600, color: "#415162", background: "#E7EBEF",
+                      padding: "4px 12px", borderRadius: 6, cursor: importing ? "wait" : "pointer",
+                      userSelect: "none", opacity: importing ? 0.6 : 1,
+                    }}
+                  >
+                    {importing ? "Importing..." : "Import"}
+                  </span>
+                </>
+              )}
+              <select
+                value={monthFilter}
+                onChange={(e) => setMonthFilter(e.target.value)}
+                style={{ fontSize: 13, padding: "6px 28px 6px 10px", border: "1px solid #C9CED4", borderRadius: 6, background: "#fff url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E\") no-repeat right 8px center", color: "#333", outline: "none", maxWidth: 160, WebkitAppearance: "none", MozAppearance: "none", appearance: "none" } as any}
+              >
+                <option value="all">All months</option>
+                {months.map((m) => (
+                  <option key={m} value={m}>{m}</option>
+                ))}
+              </select>
+              <select
+                value={providerFilter}
+                onChange={(e) => setProviderFilter(e.target.value)}
+                style={{ fontSize: 13, padding: "6px 28px 6px 10px", border: "1px solid #C9CED4", borderRadius: 6, background: "#fff url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E\") no-repeat right 8px center", color: "#333", outline: "none", maxWidth: 200, WebkitAppearance: "none", MozAppearance: "none", appearance: "none" } as any}
+              >
+                <option value="all">All providers</option>
+                {providers.map((p) => (
+                  <option key={p.key} value={p.key}>{p.label}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Import status */}
+            {importStatus && (
+              <div style={{
+                fontSize: 12, padding: "8px 12px", marginBottom: 12, borderRadius: 6,
+                background: importStatus.startsWith("Error") ? "#FBF3E0" : "#E4F0EB",
+                color: importStatus.startsWith("Error") ? "#854F0B" : "#27500A",
+                display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8,
+              }}>
+                <span>{importStatus}</span>
+                <button onClick={() => setImportStatus(null)} style={{ background: "transparent", border: "none", cursor: "pointer", color: "inherit", fontSize: 16, padding: "0 2px", lineHeight: 1 }}>×</button>
+              </div>
+            )}
+
+            {/* Comments list */}
+            {isLoading ? (
+              <div style={{ padding: 40, textAlign: "center" }}>
+                <div style={{ width: 20, height: 20, border: "2px solid #C9CED4", borderTopColor: "#415162", borderRadius: "50%", animation: "spin 0.7s linear infinite", margin: "0 auto" }} />
+                <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+              </div>
+            ) : filtered.length === 0 ? (
+              <div style={{ textAlign: "center", padding: 48, color: "#6B7280", fontSize: 14 }}>
+                {comments.length === 0 ? "No comments yet. Import a Press Ganey PDF to get started." : "No comments match the current filters."}
+              </div>
+            ) : (
+              <div>
+                {filtered.map((c) => {
+                  const rs = RATING_STYLE[c.rating] || RATING_STYLE.open;
+                  return (
+                    <div key={c.id} style={{ padding: "10px 0", borderBottom: "1px solid #E7EBEF" }}>
+                      <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "4px 10px", marginBottom: 3 }}>
+                        <span style={{ fontSize: 13, fontWeight: 600, color: "#415162" }}>
+                          {displayName(c, profileMap)}
+                        </span>
+                        <span style={{ fontSize: 11, color: "#8A9AAB" }}>{formatDate(c.received_date)}</span>
+                        <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 10, background: "#E7EBEF", color: "#5F7285", fontWeight: 500 }}>
+                          {c.survey_section}
+                        </span>
+                        <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 10, background: rs.bg, color: rs.color, fontWeight: 500 }}>
+                          {c.rating.charAt(0).toUpperCase() + c.rating.slice(1)}
+                        </span>
+                      </div>
+                      {c.comment && (
+                        <div style={{ fontSize: 13, color: "#2D3748", lineHeight: 1.5 }}>{c.comment}</div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </>
+        ) : (
+          /* Summary view */
+          isLoading ? (
+            <div style={{ padding: 40, textAlign: "center" }}>
+              <div style={{ width: 20, height: 20, border: "2px solid #C9CED4", borderTopColor: "#415162", borderRadius: "50%", animation: "spin 0.7s linear infinite", margin: "0 auto" }} />
+              <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+            </div>
+          ) : summaryData.length === 0 ? (
+            <div style={{ textAlign: "center", padding: 48, color: "#6B7280", fontSize: 14 }}>
+              No survey data yet.
+            </div>
+          ) : (
+            <div style={{ background: "#fff", border: "1px solid #D5DAE0", borderRadius: 10, padding: "4px 0", maxWidth: 520 }}>
+              <table style={{ borderCollapse: "collapse", fontSize: 13, width: "100%" }}>
+                <thead>
+                  <tr style={{ borderBottom: "1px solid #D5DAE0" }}>
+                    <th style={{ textAlign: "left", padding: "10px 20px", color: "#5F7285", fontWeight: 500 }}>Resident</th>
+                    <th style={{ textAlign: "left", padding: "10px 20px", color: "#5F7285", fontWeight: 500 }}>Surveys</th>
+                    <th style={{ textAlign: "left", padding: "10px 20px", color: "#5F7285", fontWeight: 500 }}>Positive</th>
+                    <th style={{ textAlign: "left", padding: "10px 20px", color: "#5F7285", fontWeight: 500 }}>Negative</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {summaryData.map((r, i) => (
+                    <tr key={r.name} style={{ borderBottom: "1px solid #E7EBEF", background: i % 2 === 0 ? "transparent" : "#FAFAF8" }}>
+                      <td style={{ padding: "10px 20px", color: "#2D3748", fontWeight: 500 }}>{r.name}</td>
+                      <td style={{ padding: "10px 20px", color: "#5F7285" }}>{r.surveys}</td>
+                      <td style={{ padding: "10px 20px", color: "#27500A", fontWeight: 600 }}>{r.posPct}%</td>
+                      <td style={{ padding: "10px 20px", color: "#854F0B", fontWeight: 600 }}>{r.negPct}%</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )
         )}
       </main>
     </div>
