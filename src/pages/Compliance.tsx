@@ -231,7 +231,7 @@ function RequirementRow({
 
       {/* Expanded detail panel */}
       {expanded && (
-        <div style={{ padding: `0 14px 14px ${14 + indent + 22}px` }}>
+        <div style={{ padding: `0 14px 14px ${14 + indent + 22}px`, maxWidth: "100%", boxSizing: "border-box" as const, overflow: "hidden" }}>
           {/* Status + Responsible row */}
           <div style={{ display: "flex", gap: 12, alignItems: "flex-start", flexWrap: "wrap", marginBottom: 12 }}>
             <div>
@@ -295,6 +295,7 @@ function RequirementRow({
                     width: "100%", minHeight: 80, fontSize: 13, padding: "8px 10px",
                     border: "1px solid #C9CED4", borderRadius: 6, background: "#fff",
                     color: "#333", lineHeight: 1.6, resize: "vertical", fontFamily: "inherit",
+                    boxSizing: "border-box" as const,
                   }}
                 />
                 <div style={{ display: "flex", gap: 6, marginTop: 6 }}>
@@ -994,6 +995,7 @@ const Compliance = () => {
                       width: "100%", minHeight: 200, fontSize: 13, padding: "10px 12px",
                       border: "1px solid #C9CED4", borderRadius: 6, background: "#FAFBFC",
                       color: "#333", lineHeight: 1.7, resize: "vertical", fontFamily: "inherit",
+                      boxSizing: "border-box" as const,
                     }}
                   />
                 ) : (
@@ -1053,7 +1055,7 @@ const Compliance = () => {
                 <Plus style={{ width: 14, height: 14 }} /> Add Narrative Section
               </button>
             )
-          )}
+          ))}
         </div>
       )}
 
