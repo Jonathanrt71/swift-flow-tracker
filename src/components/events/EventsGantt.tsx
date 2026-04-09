@@ -60,37 +60,20 @@ const EventsGantt = ({ events }: EventsGanttProps) => {
     return rows;
   }, [events]);
 
-  // Compute month range: current month → one month after latest event
+  // Compute month range: current month → 2 calendar years forward
   const months = useMemo(() => {
-    let latest = new Date();
-    rows.forEach(row => {
-      row.occurrences.forEach(o => {
-        if (o.endDate > latest) latest = o.endDate;
-      });
-    });
-
-    let endM = latest.getMonth() + 1;
-    let endY = latest.getFullYear();
-    if (endM > 11) { endM = 0; endY++; }
-
     const result: { month: number; year: number; days: number; label: string; isCurrent: boolean }[] = [];
     let cm = now.getMonth();
     let cy = now.getFullYear();
+    const endY = cy + 2;
+    const endM = cm;
     while (cy < endY || (cy === endY && cm <= endM)) {
       const isCurrent = cm === now.getMonth() && cy === now.getFullYear();
-      result.push({ month: cm, year: cy, days: getDaysInMonth(new Date(cy, cm)), label: MONTH_ABBRS[cm], isCurrent });
+      const shortYear = String(cy).slice(-2);
+      result.push({ month: cm, year: cy, days: getDaysInMonth(new Date(cy, cm)), label: `${MONTH_ABBRS[cm]} ${shortYear}`, isCurrent });
       cm++;
       if (cm > 11) { cm = 0; cy++; }
     }
-
-    // Minimum 6 months shown
-    while (result.length < 6) {
-      const isCurrent = cm === now.getMonth() && cy === now.getFullYear();
-      result.push({ month: cm, year: cy, days: getDaysInMonth(new Date(cy, cm)), label: MONTH_ABBRS[cm], isCurrent });
-      cm++;
-      if (cm > 11) { cm = 0; cy++; }
-    }
-
     return result;
   }, [rows]);
 
