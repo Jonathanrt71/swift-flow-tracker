@@ -312,17 +312,17 @@ const Index = () => {
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <div className="flex items-center justify-between mb-4">
             <TabsList className="gap-1 h-auto p-1 bg-transparent">
-              <TabsTrigger value="priorities" className="flex flex-col items-center gap-0.5 h-auto py-2 data-[state=active]:bg-[#D5DAE0] data-[state=active]:text-[#415162] data-[state=active]:shadow-none data-[state=inactive]:text-[#8A9AAB]" style={{ paddingLeft: 12, paddingRight: 12 }} title="Priorities">
+              <TabsTrigger value="priorities" className="flex flex-col items-center gap-1 h-auto py-1.5 data-[state=active]:bg-[#D5DAE0] data-[state=active]:text-[#415162] data-[state=active]:shadow-none data-[state=inactive]:text-[#8A9AAB]" style={{ paddingLeft: 12, paddingRight: 12 }} title="Priorities">
                 <Hash className="h-4 w-4" />
-                <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase" }}>Priorities</span>
+                <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase" as const, lineHeight: 1 }}>Priorities</span>
               </TabsTrigger>
-              <TabsTrigger value="myTasks" className="flex flex-col items-center gap-0.5 h-auto py-2 data-[state=active]:bg-[#D5DAE0] data-[state=active]:text-[#415162] data-[state=active]:shadow-none data-[state=inactive]:text-[#8A9AAB]" style={{ paddingLeft: 12, paddingRight: 12 }} title="My Tasks">
+              <TabsTrigger value="myTasks" className="flex flex-col items-center gap-1 h-auto py-1.5 data-[state=active]:bg-[#D5DAE0] data-[state=active]:text-[#415162] data-[state=active]:shadow-none data-[state=inactive]:text-[#8A9AAB]" style={{ paddingLeft: 12, paddingRight: 12 }} title="My Tasks">
                 <ListTodo className="h-4 w-4" />
-                <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase" }}>Tasks</span>
+                <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase" as const, lineHeight: 1 }}>Tasks</span>
               </TabsTrigger>
-              <TabsTrigger value="completed" className="flex flex-col items-center gap-0.5 h-auto py-2 data-[state=active]:bg-[#D5DAE0] data-[state=active]:text-[#415162] data-[state=active]:shadow-none data-[state=inactive]:text-[#8A9AAB]" style={{ paddingLeft: 12, paddingRight: 12 }} title="Completed">
+              <TabsTrigger value="completed" className="flex flex-col items-center gap-1 h-auto py-1.5 data-[state=active]:bg-[#D5DAE0] data-[state=active]:text-[#415162] data-[state=active]:shadow-none data-[state=inactive]:text-[#8A9AAB]" style={{ paddingLeft: 12, paddingRight: 12 }} title="Completed">
                 <CheckCircle2 className="h-4 w-4" />
-                <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase" }}>Done</span>
+                <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase" as const, lineHeight: 1 }}>Done</span>
               </TabsTrigger>
             </TabsList>
             <div className="flex items-center self-center">
