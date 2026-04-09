@@ -70,7 +70,10 @@ const PLATracking = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {agreements.map((a, i) => (
+                  {agreements.map((a, i) => {
+                    const endYear = a.end_date ? new Date(a.end_date + "T00:00:00").getFullYear() : null;
+                    const isExpiringSoon = endYear === new Date().getFullYear();
+                    return (
                     <tr key={a.id} style={{ background: i % 2 === 0 ? "transparent" : "rgba(0,0,0,0.03)" }}>
                       <td style={{ padding: "8px 10px", color: "#2D3748", fontWeight: 500 }}>{a.rotation}</td>
                       <td style={{ padding: "8px 10px", color: "#5F7285" }}>{a.program}</td>
@@ -78,9 +81,10 @@ const PLATracking = () => {
                       <td style={{ padding: "8px 10px", color: "#5F7285", fontSize: 11 }}>{a.supervisor_email || "—"}</td>
                       <td style={{ padding: "8px 10px", color: "#5F7285", whiteSpace: "nowrap" }}>{a.contact_number || "—"}</td>
                       <td style={{ padding: "8px 10px", color: "#5F7285", textAlign: "center", whiteSpace: "nowrap" }}>{formatDate(a.start_date)}</td>
-                      <td style={{ padding: "8px 10px", color: "#5F7285", textAlign: "center", whiteSpace: "nowrap" }}>{formatDate(a.end_date)}</td>
+                      <td style={{ padding: "8px 10px", textAlign: "center", whiteSpace: "nowrap", color: isExpiringSoon ? "#854F0B" : "#5F7285", fontWeight: isExpiringSoon ? 600 : 400, background: isExpiringSoon ? "#FAEEDA" : undefined, borderRadius: isExpiringSoon ? 4 : 0 }}>{formatDate(a.end_date)}</td>
                     </tr>
-                  ))}
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
