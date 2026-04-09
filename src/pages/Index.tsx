@@ -268,6 +268,10 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background pb-20">
+      <style>{`
+        .underline-tab[data-state="active"] { color: #415162 !important; border-bottom: 2px solid #415162 !important; }
+        .underline-tab[data-state="inactive"] { color: #8A9AAB !important; border-bottom: 2px solid transparent !important; }
+      `}</style>
       <header className="bg-[#415162] sticky top-0 z-40">
         <div className="flex items-center h-14 px-4">
           <HeaderLogo isAdmin={isAdmin} onSignOut={signOut}>
@@ -311,18 +315,15 @@ const Index = () => {
       <main className="px-4 py-6" style={{ maxWidth: 900, margin: "0 auto" }}>
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <div className="flex items-center justify-between mb-4">
-            <TabsList className="gap-1 h-auto p-1 bg-transparent">
-              <TabsTrigger value="priorities" className="flex flex-col items-center gap-1 h-auto py-1.5 data-[state=active]:bg-[#D5DAE0] data-[state=active]:text-[#415162] data-[state=active]:shadow-none data-[state=inactive]:text-[#8A9AAB]" style={{ paddingLeft: 12, paddingRight: 12 }} title="Priorities">
-                <Hash className="h-4 w-4" />
-                <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase" as const, lineHeight: 1 }}>Priorities</span>
+            <TabsList className="gap-4 h-auto p-0 bg-transparent" style={{ borderBottom: "0.5px solid #D5DAE0", paddingBottom: 8, borderRadius: 0 }}>
+              <TabsTrigger value="priorities" className="underline-tab p-0 h-auto bg-transparent shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none" style={{ paddingBottom: 8, marginBottom: -8.5, fontSize: 13, fontWeight: 500, borderRadius: 0 }}>
+                Priorities
               </TabsTrigger>
-              <TabsTrigger value="myTasks" className="flex flex-col items-center gap-1 h-auto py-1.5 data-[state=active]:bg-[#D5DAE0] data-[state=active]:text-[#415162] data-[state=active]:shadow-none data-[state=inactive]:text-[#8A9AAB]" style={{ paddingLeft: 12, paddingRight: 12 }} title="My Tasks">
-                <ListTodo className="h-4 w-4" />
-                <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase" as const, lineHeight: 1 }}>Tasks</span>
+              <TabsTrigger value="myTasks" className="underline-tab p-0 h-auto bg-transparent shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none" style={{ paddingBottom: 8, marginBottom: -8.5, fontSize: 13, fontWeight: 500, borderRadius: 0 }}>
+                Tasks
               </TabsTrigger>
-              <TabsTrigger value="completed" className="flex flex-col items-center gap-1 h-auto py-1.5 data-[state=active]:bg-[#D5DAE0] data-[state=active]:text-[#415162] data-[state=active]:shadow-none data-[state=inactive]:text-[#8A9AAB]" style={{ paddingLeft: 12, paddingRight: 12 }} title="Completed">
-                <CheckCircle2 className="h-4 w-4" />
-                <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase" as const, lineHeight: 1 }}>Done</span>
+              <TabsTrigger value="completed" className="underline-tab p-0 h-auto bg-transparent shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none" style={{ paddingBottom: 8, marginBottom: -8.5, fontSize: 13, fontWeight: 500, borderRadius: 0 }}>
+                Done
               </TabsTrigger>
             </TabsList>
             <div className="flex items-center self-center">
