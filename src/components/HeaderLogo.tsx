@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { CheckSquare, Users, Calendar, BookOpen, MessageSquare, Shield, User, LogOut, BookMarked, Stethoscope, ClipboardList, BookOpenCheck, Home, ShieldCheck, FileText, Megaphone, FileCheck, CalendarDays, Activity, UserCheck, BarChart2, Clock } from "lucide-react";
+import { CheckSquare, Users, Calendar, BookOpen, MessageSquare, Shield, User, LogOut, BookMarked, Stethoscope, ClipboardList, BookOpenCheck, Home, ShieldCheck, FileText, Megaphone, FileCheck, CalendarDays, Activity, UserCheck, BarChart2, Clock, Heart } from "lucide-react";
 import { usePermissions } from "@/hooks/usePermissions";
 import { useAppSettings } from "@/hooks/useAppSettings";
 import { useAuth } from "@/contexts/AuthContext";
@@ -33,13 +33,14 @@ const allNavItems: NavEntry[] = [
   { path: "/rotations",   label: "Rotations",    icon: Stethoscope,   permissionKey: "rotations.view" },
   { path: "/milestones",  label: "Milestones",   icon: BarChart2,     permissionKey: "cbme.view" },
   { path: "/visit-duration", label: "Visit Duration", icon: Clock, permissionKey: "visit_duration.view" },
+  { path: "/patient-satisfaction", label: "Patient Satisfaction", icon: Heart, permissionKey: "patient_satisfaction.view" },
 ];
 
 interface NavSection { label: string; paths: string[]; }
 const navSections: NavSection[] = [
   { label: "Curriculum", paths: ["/rotations", "/topics"] },
   { label: "Evaluation", paths: ["/cbme", "/evaluations", "/feedback", "/milestones", "/procedure-logs", "/resident-summary"] },
-  { label: "Program",    paths: ["/events", "/schedule", "/announcements", "/meetings", "/visit-duration"] },
+  { label: "Program",    paths: ["/events", "/schedule", "/announcements", "/meetings", "/visit-duration", "/patient-satisfaction"] },
   { label: "Reference",  paths: ["/compliance", "/gme-handbook", "/handbook"] },
 ];
 

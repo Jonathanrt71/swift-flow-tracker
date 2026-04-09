@@ -680,6 +680,10 @@ const RoleAccessSection = () => {
       { action: "View page", key: "visit_duration.view" },
       { action: "Add / edit data", key: "visit_duration.edit" },
     ]},
+    { name: "Patient Satisfaction", rows: [
+      { action: "View page", key: "patient_satisfaction.view" },
+      { action: "Import / edit", key: "patient_satisfaction.edit" },
+    ]},
   ];
 
   const handleToggle = (role: string, key: string) => {
