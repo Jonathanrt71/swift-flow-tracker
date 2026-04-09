@@ -15,7 +15,7 @@ interface NavEntry {
 }
 
 const allNavItems: NavEntry[] = [
-  { path: "/",            label: "FM App",       icon: Home },
+  { path: "/",            label: "The App",       icon: Home },
   { path: "/cbme",        label: "Competencies",  icon: BookOpen,      permissionKey: "cbme.view" },
   { path: "/events",      label: "Events",       icon: Calendar,      permissionKey: "events.view" },
   { path: "/feedback",    label: "Feedback",     icon: MessageSquare, permissionKey: "feedback.view" },
@@ -195,7 +195,7 @@ const HeaderLogo = ({
         style={{ ...noFlash, display: "flex", alignItems: "center", gap: 4 }}
       >
         <span style={{ fontSize: 16, fontWeight: 500, color: "#fff", whiteSpace: "nowrap" }}>
-          {currentItem?.label || "FM App"}
+          {currentItem?.label || "The App"}
         </span>
         {isAdmin && (
           <span style={{
