@@ -147,6 +147,19 @@ const Feedback = () => {
     },
   });
 
+  // Fetch user IDs with the 'faculty' role
+  const { data: facultyRoles } = useQuery({
+    queryKey: ["faculty-role-ids"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("user_roles")
+        .select("user_id")
+        .in("role", ["faculty", "admin"]);
+      if (error) throw error;
+      return (data || []).map((r) => r.user_id);
+    },
+  });
+
   // Fetch graduation years for residents
   const { data: graduationYears } = useQuery({
     queryKey: ["resident-graduation-years"],
@@ -644,7 +657,7 @@ const Feedback = () => {
       <main className="px-4 pt-2 pb-6" style={{ maxWidth: 900, margin: "0 auto" }}>
         <Tabs defaultValue="list" onValueChange={(v) => setViewMode(v as any)}>
         {/* Toolbar */}
-        <div className="flex items-start justify-between pb-2.5">
+        <div className="flex items-center justify-between pb-2.5">
           <div className="flex gap-2 items-center">
             <TabsList className="gap-4 h-auto p-0 bg-transparent" style={{ borderRadius: 0, background: "transparent" }}>
               <TabsTrigger value="list" className="underline-tab p-0 h-auto bg-transparent shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none" style={{ paddingBottom: 2, fontSize: 13, fontWeight: 500, borderRadius: 0 }}>
@@ -682,48 +695,58 @@ const Feedback = () => {
         <TabsContent value="lastFeedback" className="mt-0">
           {(() => {
             const feedbackList = feedbackQuery.data || [];
-            const lastByResident = new Map<string, string>();
+            // Last feedback by anyone per resident
+            const lastAllByResident = new Map<string, string>();
             feedbackList.forEach(f => {
-              const prev = lastByResident.get(f.resident_id);
-              if (!prev || f.created_at > prev) lastByResident.set(f.resident_id, f.created_at);
+              const prev = lastAllByResident.get(f.resident_id);
+              if (!prev || f.created_at > prev) lastAllByResident.set(f.resident_id, f.created_at);
+            });
+            // Last feedback by current user per resident
+            const lastMeByResident = new Map<string, string>();
+            feedbackList.filter(f => f.faculty_id === user?.id).forEach(f => {
+              const prev = lastMeByResident.get(f.resident_id);
+              if (!prev || f.created_at > prev) lastMeByResident.set(f.resident_id, f.created_at);
             });
             const rows = residents
               .map(r => ({
                 id: r.id,
                 name: formatPersonName(r),
-                lastDate: lastByResident.get(r.id) || null,
+                lastMe: lastMeByResident.get(r.id) || null,
+                lastAll: lastAllByResident.get(r.id) || null,
               }))
-              .sort((a, b) => {
-                if (!a.lastDate && !b.lastDate) return a.name.localeCompare(b.name);
-                if (!a.lastDate) return 1;
-                if (!b.lastDate) return -1;
-                return b.lastDate.localeCompare(a.lastDate);
-              });
+              .sort((a, b) => a.name.localeCompare(b.name));
             const now = new Date();
             const daysBetween = (dateStr: string) => {
               const d = new Date(dateStr);
               return Math.floor((now.getTime() - d.getTime()) / (1000 * 60 * 60 * 24));
             };
+            const dateCell = (dateStr: string | null) => {
+              const days = dateStr ? daysBetween(dateStr) : null;
+              const color = days === null ? "#C9CED4" : days > 30 ? "#D4A017" : "#4A846C";
+              const text = dateStr ? (formatCardDate(dateStr)?.text || new Date(dateStr).toLocaleDateString("en-US", { month: "short", day: "numeric" })) : "—";
+              return <span style={{ fontSize: 12, fontWeight: 600, color }}>{text}</span>;
+            };
             return rows.length === 0 ? (
               <div style={{ fontSize: 13, color: "#8A9AAB", padding: "20px 0", textAlign: "center" }}>No residents found.</div>
             ) : (
               <div>
-                {rows.map((r, i) => {
-                  const days = r.lastDate ? daysBetween(r.lastDate) : null;
-                  const dateColor = days === null ? "#C9CED4" : days > 30 ? "#D4A017" : "#4A846C";
-                  return (
-                    <div key={r.id} style={{
-                      display: "flex", alignItems: "center", justifyContent: "space-between",
-                      padding: "10px 12px", background: i % 2 === 0 ? "#E7EBEF" : "#F5F3EE",
-                      borderRadius: i === 0 ? "8px 8px 0 0" : i === rows.length - 1 ? "0 0 8px 8px" : 0,
-                    }}>
-                      <span style={{ fontSize: 13, fontWeight: 500, color: "#2D3748" }}>{r.name}</span>
-                      <span style={{ fontSize: 12, fontWeight: 600, color: dateColor }}>
-                        {r.lastDate ? (formatCardDate(r.lastDate)?.text || new Date(r.lastDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })) : "No feedback"}
-                      </span>
-                    </div>
-                  );
-                })}
+                {/* Header */}
+                <div style={{ display: "flex", alignItems: "center", padding: "8px 12px", background: "#415162", borderRadius: "8px 8px 0 0" }}>
+                  <span style={{ flex: 1, fontSize: 11, fontWeight: 600, color: "#fff" }}>Resident</span>
+                  <span style={{ width: 80, fontSize: 11, fontWeight: 600, color: "#fff", textAlign: "center" }}>Me</span>
+                  <span style={{ width: 80, fontSize: 11, fontWeight: 600, color: "#fff", textAlign: "center" }}>All</span>
+                </div>
+                {rows.map((r, i) => (
+                  <div key={r.id} style={{
+                    display: "flex", alignItems: "center",
+                    padding: "9px 12px", background: i % 2 === 0 ? "#E7EBEF" : "#F5F3EE",
+                    borderRadius: i === rows.length - 1 ? "0 0 8px 8px" : 0,
+                  }}>
+                    <span style={{ flex: 1, fontSize: 13, fontWeight: 500, color: "#2D3748", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.name}</span>
+                    <span style={{ width: 80, textAlign: "center" }}>{dateCell(r.lastMe)}</span>
+                    <span style={{ width: 80, textAlign: "center" }}>{dateCell(r.lastAll)}</span>
+                  </div>
+                ))}
               </div>
             );
           })()}
@@ -736,6 +759,7 @@ const Feedback = () => {
             const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
             const startOfYear = new Date(now.getFullYear(), 0, 1);
 
+            // Build counts per faculty from all feedback
             const countsMap = new Map<string, { total: number; month: number; year: number }>();
             feedbackList.forEach(f => {
               if (!countsMap.has(f.faculty_id)) countsMap.set(f.faculty_id, { total: 0, month: 0, year: 0 });
@@ -746,23 +770,26 @@ const Feedback = () => {
               if (d >= startOfYear) c.year++;
             });
 
-            const rows = Array.from(countsMap.entries())
-              .map(([uid, counts]) => ({
+            // Build rows for ALL faculty, defaulting to zero
+            const facultyIds = new Set(facultyRoles || []);
+            const rows = Array.from(facultyIds)
+              .map(uid => ({
                 id: uid,
                 name: nameMap.get(uid) || "Unknown",
-                ...counts,
+                ...(countsMap.get(uid) || { total: 0, month: 0, year: 0 }),
               }))
-              .sort((a, b) => b.total - a.total);
+              .sort((a, b) => a.name.localeCompare(b.name));
 
+            // Program-wide totals (all faculty combined)
             const totalAll = rows.reduce((s, r) => s + r.total, 0);
             const totalMonth = rows.reduce((s, r) => s + r.month, 0);
             const totalYear = rows.reduce((s, r) => s + r.year, 0);
 
             return rows.length === 0 ? (
-              <div style={{ fontSize: 13, color: "#8A9AAB", padding: "20px 0", textAlign: "center" }}>No faculty data found.</div>
+              <div style={{ fontSize: 13, color: "#8A9AAB", padding: "20px 0", textAlign: "center" }}>No faculty found.</div>
             ) : (
               <div>
-                {/* Summary row */}
+                {/* Summary row — program totals */}
                 <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
                   <div style={{ flex: 1, background: "#E7EBEF", borderRadius: 8, padding: "10px 12px", textAlign: "center" }}>
                     <div style={{ fontSize: 20, fontWeight: 600, color: "#415162" }}>{totalMonth}</div>
@@ -785,20 +812,23 @@ const Feedback = () => {
                   <span style={{ width: 50, fontSize: 11, fontWeight: 600, color: "#fff", textAlign: "center" }}>Total</span>
                 </div>
                 {/* Rows */}
-                {rows.map((r, i) => (
-                  <div key={r.id} style={{
-                    display: "flex", alignItems: "center", padding: "9px 12px",
-                    background: i % 2 === 0 ? "#E7EBEF" : "#F5F3EE",
-                    borderRadius: i === rows.length - 1 ? "0 0 8px 8px" : 0,
-                  }}>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <span style={{ fontSize: 13, fontWeight: 500, color: "#2D3748" }}>{r.name}</span>
+                {rows.map((r, i) => {
+                  const isMe = r.id === user?.id;
+                  return (
+                    <div key={r.id} style={{
+                      display: "flex", alignItems: "center", padding: "9px 12px",
+                      background: isMe ? "rgba(55,138,221,0.08)" : i % 2 === 0 ? "#E7EBEF" : "#F5F3EE",
+                      borderRadius: i === rows.length - 1 ? "0 0 8px 8px" : 0,
+                    }}>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <span style={{ fontSize: 13, fontWeight: isMe ? 600 : 500, color: "#2D3748" }}>{r.name}</span>
+                      </div>
+                      <span style={{ width: 50, fontSize: 13, fontWeight: 600, color: r.month > 0 ? "#415162" : "#C9CED4", textAlign: "center" }}>{r.month}</span>
+                      <span style={{ width: 50, fontSize: 13, fontWeight: 600, color: r.year > 0 ? "#415162" : "#C9CED4", textAlign: "center" }}>{r.year}</span>
+                      <span style={{ width: 50, fontSize: 13, fontWeight: 600, color: r.total > 0 ? "#415162" : "#C9CED4", textAlign: "center" }}>{r.total}</span>
                     </div>
-                    <span style={{ width: 50, fontSize: 13, fontWeight: 600, color: r.month > 0 ? "#415162" : "#C9CED4", textAlign: "center" }}>{r.month}</span>
-                    <span style={{ width: 50, fontSize: 13, fontWeight: 600, color: r.year > 0 ? "#415162" : "#C9CED4", textAlign: "center" }}>{r.year}</span>
-                    <span style={{ width: 50, fontSize: 13, fontWeight: 600, color: r.total > 0 ? "#415162" : "#C9CED4", textAlign: "center" }}>{r.total}</span>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             );
           })()}
