@@ -63,7 +63,7 @@ const EditUserDialog = ({
   u: ManagedUser;
   isSelf: boolean;
   onUpdateRole: (data: { user_id: string; role: UserRole }) => void;
-  onUpdateProfile: (data: { id: string; display_name?: string; first_name?: string; last_name?: string; graduation_year?: number | null; ni_names?: string; user_category?: string }) => void;
+  onUpdateProfile: (data: { id: string; display_name?: string; first_name?: string; last_name?: string; graduation_year?: number | null; ni_names?: string; user_category?: string; can_upload_logbook?: boolean }) => void;
   onUpdateUser: (data: { user_id: string; email?: string; password?: string }) => void;
   onUpdatePermissions: (data: { user_id: string; can_edit_handbook: boolean; can_edit_operations: boolean }) => void;
   externalOpen?: boolean;
@@ -87,6 +87,7 @@ const EditUserDialog = ({
   const [userCategory, setUserCategory] = useState(u.user_category || "FM");
   const [canEditHandbook, setCanEditHandbook] = useState(u.can_edit_handbook);
   const [canEditOperations, setCanEditOperations] = useState(u.can_edit_operations);
+  const [canUploadLogbook, setCanUploadLogbook] = useState(u.can_upload_logbook);
 
   const handleOpen = (isOpen: boolean) => {
     if (isOpen) {
@@ -100,6 +101,7 @@ const EditUserDialog = ({
       setUserCategory(u.user_category || "FM");
       setCanEditHandbook(u.can_edit_handbook);
       setCanEditOperations(u.can_edit_operations);
+      setCanUploadLogbook(u.can_upload_logbook);
     }
     setOpen(isOpen);
   };
@@ -130,6 +132,7 @@ const EditUserDialog = ({
       parsedYear !== (u.graduation_year ?? null) ||
       niNames !== (u.ni_names || "") ||
       categoryChanged ||
+      canUploadLogbook !== u.can_upload_logbook ||
       emailChanged;
     if (profileChanged) {
       onUpdateProfile({
@@ -140,6 +143,7 @@ const EditUserDialog = ({
         graduation_year: parsedYear,
         ni_names: niNames || undefined,
         user_category: userCategory,
+        can_upload_logbook: canUploadLogbook,
         ...(emailChanged ? { email } : {}),
       });
     }
@@ -332,6 +336,15 @@ const EditUserDialog = ({
                   style={{ width: 16, height: 16, accentColor: "#415162", cursor: "pointer" }}
                 />
                 <span className="text-sm">Can edit Operations Manual</span>
+              </label>
+              <label className="flex items-center gap-2.5 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={canUploadLogbook}
+                  onChange={(e) => setCanUploadLogbook(e.target.checked)}
+                  style={{ width: 16, height: 16, accentColor: "#415162", cursor: "pointer" }}
+                />
+                <span className="text-sm">Can upload logbook screenshots</span>
               </label>
             </div>
           )}
