@@ -773,6 +773,7 @@ const Feedback = () => {
             // Build rows for ALL faculty, defaulting to zero
             const facultyIds = new Set(facultyRoles || []);
             const rows = Array.from(facultyIds)
+              .filter(uid => nameMap.has(uid))
               .map(uid => ({
                 id: uid,
                 name: nameMap.get(uid) || "Unknown",
