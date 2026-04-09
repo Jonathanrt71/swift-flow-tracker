@@ -69,7 +69,7 @@ const Index = () => {
 
   useEffect(() => {
     setLocalPriorities(priorities);
-  }, [priorities]);
+  }, [JSON.stringify(priorities)]);
 
   const now = new Date();
 
