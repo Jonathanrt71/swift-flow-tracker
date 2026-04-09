@@ -470,7 +470,7 @@ const PatientSatisfaction = () => {
                 </thead>
                 <tbody>
                   {summaryData.map((r, i) => (
-                    <tr key={r.name} style={{ borderBottom: "1px solid #E7EBEF", background: i % 2 === 0 ? "transparent" : "#FAFAF8" }}>
+                    <tr key={r.name} style={{ borderBottom: "1px solid #E7EBEF", background: i % 2 === 0 ? "#fff" : "#E7EBEF" }}>
                       <td style={{ padding: "10px 20px", color: "#2D3748", fontWeight: 500 }}>{r.name}</td>
                       <td style={{ padding: "10px 20px", color: "#5F7285" }}>{r.surveys}</td>
                       <td style={{ padding: "10px 20px", color: "#27500A", fontWeight: 600 }}>{r.posPct}%</td>

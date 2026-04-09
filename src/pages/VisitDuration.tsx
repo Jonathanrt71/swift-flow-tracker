@@ -295,7 +295,7 @@ const VisitDuration = () => {
                 </thead>
                 <tbody>
                   {[...rows].reverse().slice(0, 10).map((r, i) => (
-                    <tr key={r.id} style={{ borderBottom: "1px solid #E7EBEF", background: i % 2 === 0 ? "transparent" : "#FAFAF8" }}>
+                    <tr key={r.id} style={{ borderBottom: "1px solid #E7EBEF", background: i % 2 === 0 ? "#fff" : "#E7EBEF" }}>
                       <td style={{ padding: "10px 20px", color: "#2D3748" }}>{r.week_label}</td>
                       <td style={{ padding: "10px 20px", color: "#2D3748", fontWeight: 600 }}>{r.median_minutes}</td>
                       <td style={{ padding: "10px 20px" }}>
