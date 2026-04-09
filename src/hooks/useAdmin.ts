@@ -156,11 +156,26 @@ export function useAdmin() {
         headers: { Authorization: `Bearer ${session.access_token}` },
       });
       if (res.error) {
-        // Try to extract message from FunctionsHttpError response body
-        const msg = typeof res.error === "object" && "message" in res.error
-          ? res.error.message
-          : String(res.error);
-        throw new Error(msg || "Failed to delete user");
+        // Extract the actual error message from the edge function response
+        let msg = "Failed to delete user";
+        try {
+          if (res.error instanceof Error && "context" in (res.error as any)) {
+            const ctx = (res.error as any).context;
+            if (ctx?.body) {
+              const body = await ctx.json?.() || ctx.body;
+              msg = body?.error || body?.message || msg;
+            }
+          } else if (typeof res.error === "object" && "message" in res.error) {
+            msg = res.error.message;
+          } else {
+            msg = String(res.error);
+          }
+        } catch {
+          msg = typeof res.error === "object" && "message" in res.error
+            ? res.error.message
+            : String(res.error);
+        }
+        throw new Error(msg);
       }
       if (res.data?.error) throw new Error(res.data.error);
       return res.data;
