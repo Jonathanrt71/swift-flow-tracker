@@ -475,7 +475,7 @@ const Handbook = () => {
                   <div style={{ fontSize: 11, fontWeight: 600, color: "#8a9baa", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 6 }}>Linked events</div>
                   <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
                     {sectionEvents.map((ev: any) => (
-                      <div key={ev.id} onClick={() => navigate("/events")}
+                      <div key={ev.id} onClick={() => navigate(`/events?highlight=${ev.id}`)}
                         style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 10px", background: "#fff", border: "0.5px solid #D5DAE0", borderRadius: 5, cursor: "pointer", fontSize: 12 }}>
                         <Calendar style={{ width: 12, height: 12, color: "#415162", flexShrink: 0 }} />
                         <span style={{ flex: 1, color: "#333", fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{ev.title}</span>
@@ -495,7 +495,7 @@ const Handbook = () => {
                   <div style={{ fontSize: 11, fontWeight: 600, color: "#8a9baa", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 6 }}>Linked tasks</div>
                   <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
                     {sectionTasks.map((t: any) => (
-                      <div key={t.id} onClick={() => navigate("/tasks")}
+                      <div key={t.id} onClick={() => navigate(`/tasks?highlight=${t.id}`)}
                         style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 10px", background: "#fff", border: "0.5px solid #D5DAE0", borderRadius: 5, cursor: "pointer", fontSize: 12 }}>
                         <CheckSquare style={{ width: 12, height: 12, color: t.completed ? "#4A846C" : "#415162", flexShrink: 0 }} />
                         <span style={{ flex: 1, color: t.completed ? "#999" : "#333", fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", textDecoration: t.completed ? "line-through" : "none" }}>{t.title}</span>

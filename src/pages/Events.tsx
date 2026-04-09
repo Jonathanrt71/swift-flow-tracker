@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useEvents, calcNextOccurrence, RECURRENCE_LABELS } from "@/hooks/useEvents";
 import type { ProgramEvent, EventCategory, RecurrencePattern } from "@/hooks/useEvents";
@@ -358,6 +358,7 @@ const GroupedEventList = ({
   onSkipRecurrence,
   sectionNameMap,
   emptyMessage,
+  highlightId,
 }: {
   events: ProgramEvent[];
   teamMembers: ReturnType<typeof useTeamMembers>["data"];
@@ -385,6 +386,7 @@ const GroupedEventList = ({
   onSkipRecurrence: (id: string) => void;
   sectionNameMap: Map<string, string>;
   emptyMessage: string;
+  highlightId?: string | null;
 }) => {
   if (events.length === 0) {
     return (
@@ -426,6 +428,7 @@ const GroupedEventList = ({
             {g.month}
           </div>
           {g.items.map((ev) => (
+            <div key={ev.id} style={{ borderRadius: 8, boxShadow: highlightId === ev.id ? "0 0 0 2px #D4A017" : "none", transition: "box-shadow 0.3s ease" }}>
             <EventCard
               key={ev.id}
               event={ev}
@@ -442,6 +445,7 @@ const GroupedEventList = ({
               onSkipRecurrence={onSkipRecurrence}
               sectionName={(ev as any).operations_section_id ? sectionNameMap.get((ev as any).operations_section_id) || null : null}
             />
+            </div>
           ))}
         </div>
       ))}
@@ -506,6 +510,17 @@ const Events = () => {
   const [viewMode, setViewMode] = useState<"list" | "vertical" | "gantt">("list");
   const [showPast, setShowPast] = useState(false);
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [highlightId, setHighlightId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const highlight = searchParams.get("highlight");
+    if (highlight) {
+      setHighlightId(highlight);
+      setTimeout(() => setHighlightId(null), 2000);
+      setSearchParams({}, { replace: true });
+    }
+  }, [searchParams]);
 
   const { categories, categoryLabels } = useEventCategories();
 
@@ -747,6 +762,7 @@ const Events = () => {
             onSkipRecurrence={(id) => { if (canEditEvents) skipRecurrence.mutate(id); }}
             sectionNameMap={sectionNameMap}
             emptyMessage={isAllSelected ? "No events" : `No events in selected categories`}
+            highlightId={highlightId}
           />
         )}
       </main>
