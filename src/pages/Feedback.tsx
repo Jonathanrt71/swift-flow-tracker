@@ -739,7 +739,7 @@ const Feedback = () => {
                 {rows.map((r, i) => (
                   <div key={r.id} style={{
                     display: "flex", alignItems: "center",
-                    padding: "9px 12px", background: i % 2 === 0 ? "#E7EBEF" : "#F5F3EE",
+                    padding: "9px 12px", background: i % 2 === 0 ? "#E7EBEF" : "#fff",
                     borderRadius: i === rows.length - 1 ? "0 0 8px 8px" : 0,
                   }}>
                     <span style={{ flex: 1, fontSize: 13, fontWeight: 500, color: "#2D3748", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.name}</span>
@@ -817,7 +817,7 @@ const Feedback = () => {
                   return (
                     <div key={r.id} style={{
                       display: "flex", alignItems: "center", padding: "9px 12px",
-                      background: isMe ? "rgba(55,138,221,0.08)" : i % 2 === 0 ? "#E7EBEF" : "#F5F3EE",
+                      background: isMe ? "rgba(55,138,221,0.08)" : i % 2 === 0 ? "#E7EBEF" : "#fff",
                       borderRadius: i === rows.length - 1 ? "0 0 8px 8px" : 0,
                     }}>
                       <div style={{ flex: 1, minWidth: 0 }}>
