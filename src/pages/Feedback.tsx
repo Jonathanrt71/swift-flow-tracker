@@ -1,6 +1,7 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { format, parseISO } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
+import { useSearchParams } from "react-router-dom";
 import { List, PieChart, FileText, BookOpen, Pencil, Trash2, X as XIcon, Search, ExternalLink, CalendarDays, Users } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/AuthContext";
@@ -131,8 +132,14 @@ const Feedback = () => {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [viewMode, setViewMode] = useState<"list" | "summary" | "report" | "milestones">("list");
+  const [viewMode, setViewMode] = useState<string>("list");
   const [viewSubcategoryId, setViewSubcategoryId] = useState<string | null>(null);
+  const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (tab) setViewMode(tab);
+  }, [searchParams]);
 
   // Fetch user IDs with the 'resident' role
   const { data: residentRoles } = useQuery({
@@ -655,7 +662,7 @@ const Feedback = () => {
       </header>
 
       <main className="px-4 pt-2 pb-6" style={{ maxWidth: 900, margin: "0 auto" }}>
-        <Tabs defaultValue="list" onValueChange={(v) => setViewMode(v as any)}>
+        <Tabs value={viewMode} onValueChange={(v) => setViewMode(v)}>
         {/* Toolbar */}
         <div className="flex items-center justify-between pb-2.5">
           <div className="flex gap-2 items-center">

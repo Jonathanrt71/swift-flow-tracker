@@ -360,7 +360,7 @@ const Home = () => {
           <Card
             icon={<CalendarDays size={16} strokeWidth={2.2} color="#415162" />}
             title="Feedback Dates"
-            action={() => navigate("/feedback")}
+            action={() => navigate("/feedback?tab=lastFeedback")}
           >
             {feedbackQuery.isLoading ? <Spinner /> : lastFeedbackRows.length === 0 ? (
               <div style={{ fontSize: 13, color: "#8A9AAB", padding: "8px 0" }}>No residents found.</div>
