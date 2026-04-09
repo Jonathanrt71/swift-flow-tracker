@@ -87,9 +87,12 @@ const CreateMeetingDialog = ({ onSubmit }: CreateMeetingDialogProps) => {
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <button className="flex items-center justify-center w-8 h-8 bg-transparent border-none cursor-pointer text-muted-foreground">
-          <Plus className="h-[18px] w-[18px]" />
-        </button>
+        <span style={{
+          fontSize: 13, fontWeight: 600, color: "#415162", background: "#E7EBEF",
+          padding: "4px 12px", borderRadius: 6, cursor: "pointer", userSelect: "none",
+        }}>
+          Add
+        </span>
       </DialogTrigger>
       <DialogContent
         className="rounded-lg p-5 max-w-[calc(100vw-2rem)] w-full sm:max-w-md overflow-hidden"

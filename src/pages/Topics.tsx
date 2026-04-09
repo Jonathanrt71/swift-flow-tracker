@@ -456,27 +456,25 @@ const Topics = () => {
       </header>
 
       <main style={{ maxWidth: 900, margin: "0 auto", padding: "20px 16px 120px" }}>
-        {/* Domain filter dropdown */}
-        <div style={{ marginBottom: 14 }}>
-          <select
-            value={filterTagId || "all"}
-            onChange={(e) => setFilterTagId(e.target.value === "all" ? null : e.target.value)}
-            style={{
-              fontSize: 13, padding: "6px 28px 6px 10px", border: "1px solid #C9CED4", borderRadius: 6,
-              background: "#fff url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E\") no-repeat right 8px center",
-              color: "#333", outline: "none", WebkitAppearance: "none", MozAppearance: "none", appearance: "none",
-            } as any}
-          >
-            <option value="all">All categories</option>
-            {domainTags.map(tag => (
-              <option key={tag.id} value={tag.id}>{tag.name}</option>
-            ))}
-          </select>
-        </div>
-
-        {/* Topic count + add button */}
-        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "6px 16px", marginBottom: 10, justifyContent: "space-between" }}>
-          <span style={{ fontSize: 12, color: "#aaa" }}>{filtered.length} topic{filtered.length !== 1 ? "s" : ""}</span>
+        {/* Domain filter dropdown + add button */}
+        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: "8px 16px", marginBottom: 14 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <select
+              value={filterTagId || "all"}
+              onChange={(e) => setFilterTagId(e.target.value === "all" ? null : e.target.value)}
+              style={{
+                fontSize: 13, padding: "6px 28px 6px 10px", border: "1px solid #C9CED4", borderRadius: 6,
+                background: "#fff url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E\") no-repeat right 8px center",
+                color: "#333", outline: "none", WebkitAppearance: "none", MozAppearance: "none", appearance: "none",
+              } as any}
+            >
+              <option value="all">All categories</option>
+              {domainTags.map(tag => (
+                <option key={tag.id} value={tag.id}>{tag.name}</option>
+              ))}
+            </select>
+            <span style={{ fontSize: 12, color: "#aaa" }}>{filtered.length} topic{filtered.length !== 1 ? "s" : ""}</span>
+          </div>
           {canEdit && !showAddForm && (
             <span onClick={() => setShowAddForm(true)}
               style={{

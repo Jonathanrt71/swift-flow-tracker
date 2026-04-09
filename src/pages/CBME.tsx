@@ -61,9 +61,12 @@ const CreateCompetencyDialog = ({
   return (
     <Dialog open={open} onOpenChange={handleOpen}>
       <DialogTrigger asChild>
-        <button className="flex items-center justify-center w-8 h-8 bg-transparent border-none cursor-pointer text-muted-foreground">
-          <Plus className="h-[18px] w-[18px]" />
-        </button>
+        <span style={{
+          fontSize: 13, fontWeight: 600, color: "#415162", background: "#E7EBEF",
+          padding: "4px 12px", borderRadius: 6, cursor: "pointer", userSelect: "none",
+        }}>
+          Add
+        </span>
       </DialogTrigger>
       <DialogContent
         className="w-[calc(100%-2rem)] max-w-sm overflow-y-auto border-none rounded-xl p-0 [&>button[class*='absolute']]:hidden"
@@ -256,22 +259,46 @@ const CBME = () => {
 
       <main className="px-4 pt-2 pb-6" style={{ maxWidth: 900, margin: "0 auto" }}>
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <div className="flex items-center pb-2.5">
-            <TabsList className="gap-1 h-auto p-1 bg-transparent">
-              <TabsTrigger value="list" className="h-8 w-8 p-0 data-[state=active]:bg-[#D5DAE0] data-[state=active]:text-[#415162] data-[state=active]:shadow-none data-[state=inactive]:text-[#8A9AAB]" title="Competency List">
-                <ListTodo className="h-4 w-4" />
-              </TabsTrigger>
+          <div className="flex items-center pb-2.5" style={{ justifyContent: "space-between" }}>
+            <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
+              <span
+                onClick={() => setActiveTab("list")}
+                style={{
+                  fontSize: 13, fontWeight: 500, cursor: "pointer",
+                  color: activeTab === "list" ? "#415162" : "#8A9AAB",
+                  borderBottom: activeTab === "list" ? "2px solid #415162" : "2px solid transparent",
+                  paddingBottom: 2,
+                }}
+              >
+                List
+              </span>
               {canCreate && (
-                <TabsTrigger value="dashboard" className="h-8 w-8 p-0 data-[state=active]:bg-[#D5DAE0] data-[state=active]:text-[#415162] data-[state=active]:shadow-none data-[state=inactive]:text-[#8A9AAB]" title="Dashboard">
-                  <BarChart2 className="h-4 w-4" />
-                </TabsTrigger>
+                <span
+                  onClick={() => setActiveTab("dashboard")}
+                  style={{
+                    fontSize: 13, fontWeight: 500, cursor: "pointer",
+                    color: activeTab === "dashboard" ? "#415162" : "#8A9AAB",
+                    borderBottom: activeTab === "dashboard" ? "2px solid #415162" : "2px solid transparent",
+                    paddingBottom: 2,
+                  }}
+                >
+                  Assessments
+                </span>
               )}
-              <TabsTrigger value="history" className="h-8 w-8 p-0 data-[state=active]:bg-[#D5DAE0] data-[state=active]:text-[#415162] data-[state=active]:shadow-none data-[state=inactive]:text-[#8A9AAB]" title="Assessment History">
-                <ClipboardList className="h-4 w-4" />
-              </TabsTrigger>
-            </TabsList>
+              <span
+                onClick={() => setActiveTab("history")}
+                style={{
+                  fontSize: 13, fontWeight: 500, cursor: "pointer",
+                  color: activeTab === "history" ? "#415162" : "#8A9AAB",
+                  borderBottom: activeTab === "history" ? "2px solid #415162" : "2px solid transparent",
+                  paddingBottom: 2,
+                }}
+              >
+                Reports
+              </span>
+            </div>
             {activeTab === "list" && canCreate && (
-              <div className="ml-auto">
+              <div>
                 <CreateCompetencyDialog
                   onSubmit={(data) => createCompetency.mutate(data)}
                   categories={categories.data || []}
