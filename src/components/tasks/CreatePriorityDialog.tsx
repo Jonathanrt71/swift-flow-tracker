@@ -42,7 +42,7 @@ const CreatePriorityDialog = ({ onSubmit, loading, inlineIcon }: CreatePriorityD
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button variant={inlineIcon ? "ghost" : "default"} size={inlineIcon ? "icon" : "default"} className={inlineIcon ? "h-8 w-8 p-0" : ""}>
+        <Button variant={inlineIcon ? "ghost" : "default"} size={inlineIcon ? "icon" : "default"} className={inlineIcon ? "h-5 w-5 p-0" : ""}>
           <Plus className="h-4 w-4" />
           {!inlineIcon && "Add priority"}
         </Button>

@@ -93,7 +93,7 @@ const CreateTaskDialog = ({ onSubmit, parentId, meetingId, operationsSectionId, 
               <Plus className="h-4 w-4 text-foreground" />
             </button>
           ) : (
-            <Button variant={inlineIcon ? "ghost" : parentId ? "ghost" : "default"} size={inlineIcon ? "icon" : iconOnly ? "icon" : parentId ? "sm" : "default"} className={inlineIcon ? "h-8 w-8 p-0" : iconOnly ? "min-w-[44px] min-h-[44px] rounded text-muted-foreground hover:text-foreground transition-colors" : ""}>
+            <Button variant={inlineIcon ? "ghost" : parentId ? "ghost" : "default"} size={inlineIcon ? "icon" : iconOnly ? "icon" : parentId ? "sm" : "default"} className={inlineIcon ? "h-5 w-5 p-0" : iconOnly ? "min-w-[44px] min-h-[44px] rounded text-muted-foreground hover:text-foreground transition-colors" : ""}>
               <Plus className="h-4 w-4" />
               {!inlineIcon && !iconOnly && (parentId ? "Add subtask" : "New task")}
             </Button>
