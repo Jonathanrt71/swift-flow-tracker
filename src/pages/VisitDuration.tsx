@@ -286,16 +286,16 @@ const VisitDuration = () => {
             <div style={{ background: "#fff", border: "1px solid #D5DAE0", borderRadius: 10, padding: 0, maxWidth: 520, overflow: "hidden" }}>
               <table style={{ borderCollapse: "collapse", fontSize: 13, width: "100%" }}>
                 <thead>
-                  <tr style={{ background: "#C9CED4", borderBottom: "1px solid #B8BFC7" }}>
-                    <th style={{ textAlign: "left", padding: "10px 20px", color: "#415162", fontWeight: 500 }}>Week</th>
-                    <th style={{ textAlign: "left", padding: "10px 20px", color: "#415162", fontWeight: 500 }}>Median</th>
-                    <th style={{ textAlign: "left", padding: "10px 20px", color: "#415162", fontWeight: 500 }}>Phase</th>
+                  <tr style={{ background: "#415162" }}>
+                    <th style={{ textAlign: "left", padding: "10px 20px", color: "#fff", fontWeight: 500 }}>Week</th>
+                    <th style={{ textAlign: "left", padding: "10px 20px", color: "#fff", fontWeight: 500 }}>Median</th>
+                    <th style={{ textAlign: "left", padding: "10px 20px", color: "#fff", fontWeight: 500 }}>Phase</th>
                     {canEdit && <th style={{ padding: "10px 12px", width: 36 }} />}
                   </tr>
                 </thead>
                 <tbody>
                   {[...rows].reverse().slice(0, 10).map((r, i) => (
-                    <tr key={r.id} style={{ borderBottom: "1px solid #E7EBEF", background: i % 2 === 0 ? "#fff" : "#E7EBEF" }}>
+                    <tr key={r.id} style={{ borderBottom: "1px solid #E7EBEF", background: i % 2 === 0 ? "#E7EBEF" : "#fff" }}>
                       <td style={{ padding: "10px 20px", color: "#2D3748" }}>{r.week_label}</td>
                       <td style={{ padding: "10px 20px", color: "#2D3748", fontWeight: 600 }}>{r.median_minutes}</td>
                       <td style={{ padding: "10px 20px" }}>
