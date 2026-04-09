@@ -655,18 +655,62 @@ const Events = () => {
               })}
             </div>
           ) : (
-            /* List/Timeline mode: category tabs + view toggles */
+            /* List/Timeline mode: view tabs + category pills */
             <>
-              {/* Row 1: Category tabs */}
-              <div className="flex items-center" style={{ borderBottom: "1px solid #D5DAE0" }}>
+              {/* Row 1: View tabs + Add button */}
+              <div className="flex items-start justify-between" style={{ paddingTop: 8, paddingBottom: 8 }}>
+                <div style={{ display: "flex", gap: 16 }}>
+                  {([
+                    { mode: "list" as const, label: "List" },
+                    { mode: "vertical" as const, label: "Timeline" },
+                    { mode: "gantt" as const, label: "Gantt" },
+                  ] as { mode: "list" | "vertical" | "gantt"; label: string }[]).map(({ mode, label }) => (
+                    <span
+                      key={mode}
+                      onClick={() => setViewMode(mode)}
+                      style={{
+                        fontSize: 13, fontWeight: 500, cursor: "pointer",
+                        color: viewMode === mode ? "#415162" : "#8A9AAB",
+                        borderBottom: viewMode === mode ? "2px solid #415162" : "2px solid transparent",
+                        paddingBottom: 2,
+                      }}
+                    >
+                      {label}
+                    </span>
+                  ))}
+                  {(viewMode === "list" || viewMode === "vertical") && (
+                    <span
+                      onClick={() => setShowPast(!showPast)}
+                      style={{
+                        fontSize: 13, fontWeight: 500, cursor: "pointer",
+                        color: showPast ? "#415162" : "#8A9AAB",
+                        borderBottom: showPast ? "2px solid #415162" : "2px solid transparent",
+                        paddingBottom: 2,
+                      }}
+                    >
+                      {showPast ? "Hide past" : "Show past"}
+                    </span>
+                  )}
+                </div>
+
+                {canEditEvents && (
+                  <CreateEventDialog
+                    onSubmit={(data) => createEvent.mutate(data)}
+                    defaultCategory={activeCategories.size === 1 ? (Array.from(activeCategories)[0] as EventCategory) : "program"}
+                  />
+                )}
+              </div>
+
+              {/* Row 2: Category pills */}
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6, paddingBottom: 10 }}>
                 <button
                   onClick={handleAllClick}
                   style={{
-                    padding: "6px 0", marginRight: 20, border: "none",
-                    borderBottom: isAllSelected ? "2px solid #415162" : "2px solid transparent",
-                    cursor: "pointer", fontSize: 13, fontWeight: isAllSelected ? 700 : 500,
-                    background: "transparent", color: isAllSelected ? "#415162" : "#8A9AAB",
-                    transition: "all 0.15s",
+                    fontSize: 12, fontWeight: 500, padding: "4px 12px", borderRadius: 20,
+                    border: isAllSelected ? "none" : "0.5px solid #C9CED4",
+                    background: isAllSelected ? "#415162" : "transparent",
+                    color: isAllSelected ? "#fff" : "#8A9AAB",
+                    cursor: "pointer",
                   }}
                 >
                   All
@@ -678,64 +722,17 @@ const Events = () => {
                       key={cat.name}
                       onClick={() => handleCategoryToggle(cat.name)}
                       style={{
-                        padding: "6px 0", marginRight: 20, border: "none",
-                        borderBottom: isActive ? "2px solid #415162" : "2px solid transparent",
-                        cursor: "pointer", fontSize: 13, fontWeight: isActive ? 700 : 500,
-                        background: "transparent", color: isActive ? "#415162" : "#8A9AAB",
-                        transition: "all 0.15s",
+                        fontSize: 12, fontWeight: 500, padding: "4px 12px", borderRadius: 20,
+                        border: isActive ? "none" : "0.5px solid #C9CED4",
+                        background: isActive ? "#415162" : "transparent",
+                        color: isActive ? "#fff" : "#8A9AAB",
+                        cursor: "pointer",
                       }}
                     >
                       {cat.label}
                     </button>
                   );
                 })}
-              </div>
-
-              {/* Row 2: View pills + Add button */}
-              <div className="flex items-center justify-between py-2.5">
-                <div className="flex items-center gap-0.5">
-                  {([
-                    { mode: "list" as const, label: "List" },
-                    { mode: "vertical" as const, label: "Timeline" },
-                    { mode: "gantt" as const, label: "Gantt" },
-                  ] as { mode: "list" | "vertical" | "gantt"; label: string }[]).map(({ mode, label }) => (
-                    <button
-                      key={mode}
-                      onClick={() => setViewMode(mode)}
-                      style={{
-                        padding: "4px 10px", borderRadius: 5, border: "none",
-                        background: viewMode === mode ? "#E7EBEF" : "transparent",
-                        fontSize: 11, fontWeight: 500, cursor: "pointer",
-                        color: viewMode === mode ? "#415162" : "#8A9AAB",
-                      }}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                  {(viewMode === "list" || viewMode === "vertical") && (
-                    <>
-                      <div style={{ width: 1, height: 14, background: "#D5DAE0", margin: "0 4px" }} />
-                      <button
-                        onClick={() => setShowPast(!showPast)}
-                        style={{
-                          padding: "4px 10px", borderRadius: 5, border: "none",
-                          background: showPast ? "#E7EBEF" : "transparent",
-                          fontSize: 11, fontWeight: 500, cursor: "pointer",
-                          color: showPast ? "#415162" : "#8A9AAB",
-                        }}
-                      >
-                        {showPast ? "Hide past" : "Past"}
-                      </button>
-                    </>
-                  )}
-                </div>
-
-                {canEditEvents && (
-                  <CreateEventDialog
-                    onSubmit={(data) => createEvent.mutate(data)}
-                    defaultCategory={activeCategories.size === 1 ? (Array.from(activeCategories)[0] as EventCategory) : "program"}
-                  />
-                )}
               </div>
             </>
           )}
