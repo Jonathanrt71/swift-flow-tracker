@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useACGMECompetencies } from "@/hooks/useACGMECompetencies";
 import HeaderLogo from "@/components/HeaderLogo";
 import NotificationBell from "@/components/NotificationBell";
+import ABFMCompetencies from "@/components/ABFMCompetencies";
 import {
   Select,
   SelectContent,
@@ -608,6 +609,11 @@ const ResidentSummary = () => {
               </div>
             )}
           </>
+        )}
+
+        {/* ABFM Core Competencies */}
+        {selectedResident && selectedResident !== "none" && (
+          <ABFMCompetencies profileId={selectedResident} isAdmin={!!isAdmin.data} />
         )}
       </main>
     </div>
