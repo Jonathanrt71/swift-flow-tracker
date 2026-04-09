@@ -490,7 +490,7 @@ const Home = () => {
                     color: "#fff", fontSize: 11, fontWeight: 700,
                     display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
                   }}>
-                    {p.display_order + 1}
+                    {i + 1}
                   </div>
                   <div style={{ fontSize: 13, fontWeight: 600, color: "#3D3D3A", flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
                     {p.title}
