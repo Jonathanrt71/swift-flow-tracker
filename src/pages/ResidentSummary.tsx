@@ -7,6 +7,7 @@ import { useACGMECompetencies } from "@/hooks/useACGMECompetencies";
 import HeaderLogo from "@/components/HeaderLogo";
 import NotificationBell from "@/components/NotificationBell";
 import ABFMCompetencies from "@/components/ABFMCompetencies";
+import ABFMProcedures from "@/components/ABFMProcedures";
 import {
   Select,
   SelectContent,
@@ -544,6 +545,11 @@ const ResidentSummary = () => {
                   </table>
                 </div>
               </div>
+            )}
+
+            {/* ABFM Required Procedures */}
+            {selectedResident && selectedResident !== "none" && (
+              <ABFMProcedures profileId={selectedResident} isAdmin={!!isAdmin.data} />
             )}
 
             {/* Log book counts */}
