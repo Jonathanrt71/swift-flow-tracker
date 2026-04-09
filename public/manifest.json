@@ -1,6 +1,6 @@
 {
-  "name": "FM Tasks",
-  "short_name": "Tasks",
+  "name": "The App",
+  "short_name": "The App",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#F5F3EE",
