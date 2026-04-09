@@ -185,7 +185,7 @@ const PriorityCard = ({
                 onClick={(e) => { e.stopPropagation(); setShowLinkInput(true); }}
                 style={{
                   display: "flex", alignItems: "center", gap: 6, padding: "5px 8px",
-                  border: "1px dashed #C9CED4", borderRadius: 6, background: "transparent",
+                  border: "1px dashed #C9CED4", borderRadius: 6, background: "#F5F3EE",
                   cursor: "pointer", marginTop: 2, color: "#8A9AAB", fontSize: 12,
                 }}
               >
