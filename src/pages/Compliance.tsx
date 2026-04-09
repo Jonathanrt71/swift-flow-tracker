@@ -39,52 +39,31 @@ function StatusIcon({ status, size = 16 }: { status: ComplianceStatus; size?: nu
   }
 }
 
-// ── Status Selector ──────────────────────────────────────────────────────
+// ── Status Selector (tap-to-cycle) ───────────────────────────────────────
+const STATUS_CYCLE: ComplianceStatus[] = ["not_reviewed", "compliant", "partially_compliant", "non_compliant"];
+
 function StatusSelector({ value, onChange }: { value: ComplianceStatus; onChange: (s: ComplianceStatus) => void }) {
-  const [open, setOpen] = useState(false);
   const cfg = STATUS_CONFIG[value];
+  const handleTap = () => {
+    const idx = STATUS_CYCLE.indexOf(value);
+    const next = STATUS_CYCLE[(idx + 1) % STATUS_CYCLE.length];
+    onChange(next);
+  };
 
   return (
-    <div style={{ position: "relative" }}>
-      <button
-        onClick={() => setOpen(!open)}
-        style={{
-          display: "flex", alignItems: "center", gap: 6,
-          padding: "5px 10px", fontSize: 12, fontWeight: 500,
-          color: cfg.color, background: cfg.bg,
-          border: `1px solid ${cfg.color}33`, borderRadius: 6,
-          cursor: "pointer", whiteSpace: "nowrap",
-        }}
-      >
-        <StatusIcon status={value} size={14} />
-        {cfg.label}
-        <ChevronDown style={{ width: 12, height: 12 }} />
-      </button>
-      {open && (
-        <div style={{
-          position: "absolute", top: "100%", left: 0, marginTop: 4,
-          background: "#fff", border: "1px solid #C9CED4", borderRadius: 8,
-          boxShadow: "0 4px 16px rgba(0,0,0,0.12)", zIndex: 50, minWidth: 160,
-          overflow: "hidden",
-        }}>
-          {(Object.entries(STATUS_CONFIG) as [ComplianceStatus, typeof cfg][]).map(([key, c]) => (
-            <button
-              key={key}
-              onClick={() => { onChange(key); setOpen(false); }}
-              style={{
-                display: "flex", alignItems: "center", gap: 8, width: "100%",
-                padding: "8px 12px", fontSize: 13, color: c.color,
-                background: value === key ? c.bg : "transparent",
-                border: "none", cursor: "pointer", textAlign: "left",
-              }}
-            >
-              <StatusIcon status={key} size={14} />
-              {c.label}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
+    <button
+      onClick={handleTap}
+      style={{
+        display: "flex", alignItems: "center", gap: 6,
+        padding: "5px 10px", fontSize: 12, fontWeight: 500,
+        color: cfg.color, background: cfg.bg,
+        border: `1px solid ${cfg.color}33`, borderRadius: 6,
+        cursor: "pointer", whiteSpace: "nowrap",
+      }}
+    >
+      <StatusIcon status={value} size={14} />
+      {cfg.label}
+    </button>
   );
 }
 
