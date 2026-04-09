@@ -250,10 +250,34 @@ const Evaluations = () => {
     return evals;
   }, [evaluationsQuery.data, filterResident, filterEvaluator, filterStatus, viewedSet, pendingViewId, searchQuery]);
 
-  // Unviewed count
+  // Counts based on pre-status-filtered list
+  const baseFiltered = useMemo(() => {
+    let evals = evaluationsQuery.data || [];
+    if (filterResident !== "all") {
+      evals = evals.filter(e => e.resident_name === filterResident);
+    }
+    if (filterEvaluator !== "all") {
+      evals = evals.filter(e => e.evaluator_name === filterEvaluator);
+    }
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      evals = evals.filter(e =>
+        e.resident_name.toLowerCase().includes(q) ||
+        e.evaluator_name.toLowerCase().includes(q) ||
+        (e.rotation || "").toLowerCase().includes(q) ||
+        (e.patient_care_comment || "").toLowerCase().includes(q) ||
+        (e.professionalism_comment || "").toLowerCase().includes(q)
+      );
+    }
+    return evals;
+  }, [evaluationsQuery.data, filterResident, filterEvaluator, searchQuery]);
+
   const unviewedCount = useMemo(() => {
-    return filtered.filter(e => !viewedSet.has(e.id)).length;
-  }, [filtered, viewedSet]);
+    return baseFiltered.filter(e => !viewedSet.has(e.id)).length;
+  }, [baseFiltered, viewedSet]);
+  const viewedCount = useMemo(() => {
+    return baseFiltered.filter(e => viewedSet.has(e.id)).length;
+  }, [baseFiltered, viewedSet]);
 
   // File upload handler
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -434,7 +458,7 @@ const Evaluations = () => {
             {([
               { value: "all" as const, label: "All" },
               { value: "unread" as const, label: `Unread${unviewedCount > 0 ? ` (${unviewedCount})` : ""}` },
-              { value: "read" as const, label: "Read" },
+              { value: "read" as const, label: `Read${viewedCount > 0 ? ` (${viewedCount})` : ""}` },
             ]).map(opt => (
               <button
                 key={opt.value}
