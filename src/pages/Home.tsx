@@ -504,7 +504,7 @@ const Home = () => {
           <Card
             icon={<ClipboardCheck size={16} strokeWidth={2.2} color="#415162" />}
             title="My Tasks"
-            action={() => navigate("/tasks")}
+            action={() => navigate("/tasks?tab=myTasks")}
             badge={overdueTasks.length > 0 ? (
               <span style={{
                 fontSize: 11, fontWeight: 700, background: "#FBF3E0", color: "#D4A017",
@@ -528,7 +528,7 @@ const Home = () => {
                       borderBottom: i < myTasks.length - 1 ? "1px solid #D5DAE0" : undefined,
                       cursor: "pointer",
                     }}
-                    onClick={() => navigate("/tasks")}
+                    onClick={() => navigate("/tasks?tab=myTasks")}
                   >
                     <div style={{ marginTop: 2, flexShrink: 0, color: isOverdue ? "#D4A017" : "#4A846C" }}>
                       {isOverdue ? <AlertTriangle size={16} strokeWidth={2.2} /> : <Clock size={16} strokeWidth={2.2} />}
