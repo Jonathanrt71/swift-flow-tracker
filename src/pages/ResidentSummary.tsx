@@ -546,11 +546,6 @@ const ResidentSummary = () => {
               </div>
             )}
 
-            {/* ABFM Core Competencies */}
-            {selectedResident && selectedResident !== "none" && (
-              <ABFMCompetencies profileId={selectedResident} isAdmin={!!isAdmin.data} />
-            )}
-
             {/* Log book counts */}
             {(logbookList.length > 0 || canUploadLogbook) && (
               <div style={secStyle}>
@@ -614,6 +609,11 @@ const ResidentSummary = () => {
               </div>
             )}
           </>
+        )}
+
+        {/* ABFM Core Competencies */}
+        {selectedResident && selectedResident !== "none" && (
+          <ABFMCompetencies profileId={selectedResident} isAdmin={!!isAdmin.data} />
         )}
       </main>
     </div>
