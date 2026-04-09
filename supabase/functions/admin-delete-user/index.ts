@@ -14,30 +14,35 @@ Deno.serve(async (req) => {
     if (!authHeader) throw new Error("Missing authorization header");
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
     const { createClient } = await import("https://esm.sh/@supabase/supabase-js@2");
+    const adminClient = createClient(supabaseUrl, serviceRoleKey);
 
-    const anonClient = createClient(supabaseUrl, anonKey);
-    const { data: { user: caller }, error: authError } = await anonClient.auth.getUser(
+    // Verify caller identity
+    const { data: { user: caller }, error: authError } = await adminClient.auth.getUser(
       authHeader.replace("Bearer ", "")
     );
     if (authError || !caller) throw new Error("Unauthorized");
 
-    const { data: isAdmin } = await anonClient.rpc("has_role", {
-      _user_id: caller.id,
-      _role: "admin",
-    });
-    if (!isAdmin) throw new Error("Forbidden: admin role required");
+    // Check caller is admin via direct query
+    const { data: callerRole } = await adminClient
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", caller.id)
+      .eq("role", "admin")
+      .maybeSingle();
+    if (!callerRole) throw new Error("Forbidden: admin role required");
 
     const { user_id } = await req.json();
     if (!user_id) throw new Error("user_id is required");
     if (user_id === caller.id) throw new Error("Cannot delete yourself");
 
-    const adminClient = createClient(supabaseUrl, serviceRoleKey);
+    // Clean up related data that might block deletion
+    await adminClient.from("user_roles").delete().eq("user_id", user_id);
+    await adminClient.from("profiles").delete().eq("id", user_id);
 
-    // Delete the user from auth (cascades to profiles/roles via FK)
+    // Delete the auth user
     const { error } = await adminClient.auth.admin.deleteUser(user_id);
     if (error) throw error;
 
