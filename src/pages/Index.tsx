@@ -315,14 +315,14 @@ const Index = () => {
       <main className="px-4 py-6" style={{ maxWidth: 900, margin: "0 auto" }}>
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <div className="flex items-center justify-between mb-4">
-            <TabsList className="gap-4 h-auto p-0 bg-transparent" style={{ borderBottom: "0.5px solid #D5DAE0", paddingBottom: 8, borderRadius: 0 }}>
-              <TabsTrigger value="priorities" className="underline-tab p-0 h-auto bg-transparent shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none" style={{ paddingBottom: 8, marginBottom: -8.5, fontSize: 13, fontWeight: 500, borderRadius: 0 }}>
+            <TabsList className="gap-4 h-auto p-0 bg-transparent" style={{ borderRadius: 0, background: "transparent" }}>
+              <TabsTrigger value="priorities" className="underline-tab p-0 h-auto bg-transparent shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none" style={{ paddingBottom: 2, fontSize: 13, fontWeight: 500, borderRadius: 0 }}>
                 Priorities
               </TabsTrigger>
-              <TabsTrigger value="myTasks" className="underline-tab p-0 h-auto bg-transparent shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none" style={{ paddingBottom: 8, marginBottom: -8.5, fontSize: 13, fontWeight: 500, borderRadius: 0 }}>
+              <TabsTrigger value="myTasks" className="underline-tab p-0 h-auto bg-transparent shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none" style={{ paddingBottom: 2, fontSize: 13, fontWeight: 500, borderRadius: 0 }}>
                 Tasks
               </TabsTrigger>
-              <TabsTrigger value="completed" className="underline-tab p-0 h-auto bg-transparent shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none" style={{ paddingBottom: 8, marginBottom: -8.5, fontSize: 13, fontWeight: 500, borderRadius: 0 }}>
+              <TabsTrigger value="completed" className="underline-tab p-0 h-auto bg-transparent shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none" style={{ paddingBottom: 2, fontSize: 13, fontWeight: 500, borderRadius: 0 }}>
                 Done
               </TabsTrigger>
             </TabsList>
