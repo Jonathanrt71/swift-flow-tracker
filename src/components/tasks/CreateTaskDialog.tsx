@@ -34,6 +34,7 @@ interface CreateTaskDialogProps {
   loading?: boolean;
   iconOnly?: boolean;
   inlineIcon?: boolean;
+  addPill?: boolean;
   iconTrigger?: boolean;
   onTriggerOpen?: () => void;
   children?: React.ReactNode;
@@ -41,7 +42,7 @@ interface CreateTaskDialogProps {
   onExternalOpenChange?: (open: boolean) => void;
 }
 
-const CreateTaskDialog = ({ onSubmit, parentId, meetingId, operationsSectionId, loading, iconOnly, inlineIcon, iconTrigger, onTriggerOpen, children, externalOpen, onExternalOpenChange }: CreateTaskDialogProps) => {
+const CreateTaskDialog = ({ onSubmit, parentId, meetingId, operationsSectionId, loading, iconOnly, inlineIcon, addPill, iconTrigger, onTriggerOpen, children, externalOpen, onExternalOpenChange }: CreateTaskDialogProps) => {
   const [internalOpen, setInternalOpen] = useState(false);
   const open = externalOpen !== undefined ? externalOpen : internalOpen;
   const setOpen = (v: boolean) => { if (onExternalOpenChange) onExternalOpenChange(v); else setInternalOpen(v); };
@@ -92,6 +93,13 @@ const CreateTaskDialog = ({ onSubmit, parentId, meetingId, operationsSectionId, 
             <button data-no-swipe className="flex items-center justify-center w-8 h-8 bg-transparent border-none cursor-pointer rounded-md hover:bg-black/5 transition-colors" aria-label="Add subtask">
               <Plus className="h-4 w-4 text-foreground" />
             </button>
+          ) : addPill ? (
+            <span style={{
+              fontSize: 13, fontWeight: 600, color: "#415162", background: "#E7EBEF",
+              padding: "4px 12px", borderRadius: 6, cursor: "pointer", userSelect: "none",
+            }}>
+              Add
+            </span>
           ) : (
             <Button variant={inlineIcon ? "ghost" : parentId ? "ghost" : "default"} size={inlineIcon ? "icon" : iconOnly ? "icon" : parentId ? "sm" : "default"} className={inlineIcon ? "h-5 w-5 p-0" : iconOnly ? "min-w-[44px] min-h-[44px] rounded text-muted-foreground hover:text-foreground transition-colors" : ""}>
               <Plus className="h-4 w-4" />

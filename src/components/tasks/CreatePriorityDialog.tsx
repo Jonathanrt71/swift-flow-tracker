@@ -12,9 +12,10 @@ interface CreatePriorityDialogProps {
   onSubmit: (data: { title: string; notes?: string; assigned_to?: string | null }) => void;
   loading?: boolean;
   inlineIcon?: boolean;
+  addPill?: boolean;
 }
 
-const CreatePriorityDialog = ({ onSubmit, loading, inlineIcon }: CreatePriorityDialogProps) => {
+const CreatePriorityDialog = ({ onSubmit, loading, inlineIcon, addPill }: CreatePriorityDialogProps) => {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [notes, setNotes] = useState("");
@@ -42,10 +43,19 @@ const CreatePriorityDialog = ({ onSubmit, loading, inlineIcon }: CreatePriorityD
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
+        {addPill ? (
+          <span style={{
+            fontSize: 13, fontWeight: 600, color: "#415162", background: "#E7EBEF",
+            padding: "4px 12px", borderRadius: 6, cursor: "pointer", userSelect: "none",
+          }}>
+            Add
+          </span>
+        ) : (
         <Button variant={inlineIcon ? "ghost" : "default"} size={inlineIcon ? "icon" : "default"} className={inlineIcon ? "h-5 w-5 p-0" : ""}>
           <Plus className="h-4 w-4" />
           {!inlineIcon && "Add priority"}
         </Button>
+        )}
       </DialogTrigger>
       <DialogContent
         className="rounded-lg p-5 max-w-[calc(100vw-2rem)] w-full sm:max-w-md overflow-hidden"

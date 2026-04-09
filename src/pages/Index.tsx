@@ -315,7 +315,7 @@ const Index = () => {
 
       <main className="px-4 pt-2 pb-6" style={{ maxWidth: 900, margin: "0 auto" }}>
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <div className="flex items-start justify-between mb-4">
+          <div className="flex items-center mb-4" style={{ gap: 16 }}>
             <TabsList className="gap-4 h-auto p-0 bg-transparent" style={{ borderRadius: 0, background: "transparent" }}>
               <TabsTrigger value="allPriorities" className="underline-tab p-0 h-auto bg-transparent shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none" style={{ paddingBottom: 2, fontSize: 13, fontWeight: 500, borderRadius: 0 }}>
                 All priorities
@@ -330,27 +330,25 @@ const Index = () => {
                 Done
               </TabsTrigger>
             </TabsList>
-            <div className="flex items-center self-center">
             {(activeTab === "allPriorities") && isAdmin ? (
               <CreatePriorityDialog
                 onSubmit={(data) => createPriority.mutate(data)}
                 loading={createPriority.isPending}
-                inlineIcon
+                addPill
               />
             ) : (activeTab === "myPriorities") && canEditPriorities ? (
               <CreatePriorityDialog
                 onSubmit={(data) => createPriority.mutate(data)}
                 loading={createPriority.isPending}
-                inlineIcon
+                addPill
               />
             ) : (activeTab === "myTasks" || activeTab === "completed") ? (
               <CreateTaskDialog
                 onSubmit={(data) => createTask.mutate(data)}
                 loading={createTask.isPending}
-                inlineIcon
+                addPill
               />
             ) : null}
-            </div>
           </div>
 
           <TabsContent value="allPriorities" className="mt-0">
