@@ -210,7 +210,8 @@ const VisitDuration = () => {
             </div>
 
             {/* Control chart */}
-            <div style={{ width: "100%", height: 420 }}>
+            <div style={{ width: "100%", overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
+              <div style={{ minWidth: 900, height: 420 }}>
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={chartData} margin={{ top: 20, right: 60, bottom: 30, left: 10 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#E7EBEF" />
@@ -274,6 +275,7 @@ const VisitDuration = () => {
                   />
                 </LineChart>
               </ResponsiveContainer>
+              </div>
             </div>
 
             {/* Legend */}
