@@ -615,6 +615,9 @@ const RoleAccessSection = () => {
       { action: "Create / edit / delete", key: "events.edit" },
       { action: "Evaluate didactics", key: "events.evaluate" },
     ]},
+    { name: "Evaluations", rows: [
+      { action: "View page", key: "evaluations.view" },
+    ]},
     { name: "Feedback", rows: [
       { action: "View page", key: "feedback.view" },
       { action: "Create / edit / delete", key: "feedback.edit" },
