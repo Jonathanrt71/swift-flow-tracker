@@ -296,24 +296,22 @@ const VisitDuration = () => {
             </div>
 
             {/* Data table */}
-            <div style={{ marginTop: 24, overflowX: "auto" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
+            <div style={{ marginTop: 24, maxWidth: 420 }}>
+              <table style={{ borderCollapse: "collapse", fontSize: 12 }}>
                 <thead>
                   <tr style={{ borderBottom: "1px solid #D5DAE0" }}>
-                    <th style={{ textAlign: "left", padding: "6px 10px", color: "#5F7285", fontWeight: 500 }}>Week</th>
-                    <th style={{ textAlign: "left", padding: "6px 10px", color: "#5F7285", fontWeight: 500 }}>Start</th>
-                    <th style={{ textAlign: "right", padding: "6px 10px", color: "#5F7285", fontWeight: 500 }}>Median (min)</th>
-                    <th style={{ textAlign: "center", padding: "6px 10px", color: "#5F7285", fontWeight: 500 }}>Phase</th>
-                    {canEdit && <th style={{ padding: "6px 10px", width: 40 }} />}
+                    <th style={{ textAlign: "left", padding: "5px 8px", color: "#5F7285", fontWeight: 500 }}>Week</th>
+                    <th style={{ textAlign: "left", padding: "5px 8px", color: "#5F7285", fontWeight: 500 }}>Median</th>
+                    <th style={{ textAlign: "left", padding: "5px 8px", color: "#5F7285", fontWeight: 500 }}>Phase</th>
+                    {canEdit && <th style={{ padding: "5px 4px", width: 28 }} />}
                   </tr>
                 </thead>
                 <tbody>
                   {[...rows].reverse().slice(0, 10).map((r, i) => (
                     <tr key={r.id} style={{ borderBottom: "1px solid #E7EBEF", background: i % 2 === 0 ? "transparent" : "#F9F8F5" }}>
-                      <td style={{ padding: "6px 10px", color: "#2D3748" }}>{r.week_label}</td>
-                      <td style={{ padding: "6px 10px", color: "#5F7285" }}>{r.week_start}</td>
-                      <td style={{ padding: "6px 10px", color: "#2D3748", textAlign: "right", fontWeight: 600 }}>{r.median_minutes}</td>
-                      <td style={{ padding: "6px 10px", textAlign: "center" }}>
+                      <td style={{ padding: "5px 8px", color: "#2D3748" }}>{r.week_label}</td>
+                      <td style={{ padding: "5px 8px", color: "#2D3748", fontWeight: 600 }}>{r.median_minutes}</td>
+                      <td style={{ padding: "5px 8px" }}>
                         <span style={{
                           fontSize: 10, padding: "2px 8px", borderRadius: 10, fontWeight: 500,
                           background: r.phase === 1 ? "#E7EBEF" : "#E4F0EB",
@@ -323,7 +321,7 @@ const VisitDuration = () => {
                         </span>
                       </td>
                       {canEdit && (
-                        <td style={{ padding: "6px 10px", textAlign: "center" }}>
+                        <td style={{ padding: "5px 4px", textAlign: "center" }}>
                           <button
                             onClick={() => { if (confirm("Delete this entry?")) deleteRow.mutate(r.id); }}
                             style={{ background: "transparent", border: "none", cursor: "pointer", color: "#C9CED4", fontSize: 14, padding: 2 }}
