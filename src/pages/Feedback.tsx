@@ -714,7 +714,12 @@ const Feedback = () => {
                 lastMe: lastMeByResident.get(r.id) || null,
                 lastAll: lastAllByResident.get(r.id) || null,
               }))
-              .sort((a, b) => a.name.localeCompare(b.name));
+              .sort((a, b) => {
+                if (!a.lastAll && !b.lastAll) return a.name.localeCompare(b.name);
+                if (!a.lastAll) return -1;
+                if (!b.lastAll) return 1;
+                return a.lastAll.localeCompare(b.lastAll);
+              });
             const now = new Date();
             const daysBetween = (dateStr: string) => {
               const d = new Date(dateStr);
