@@ -213,9 +213,12 @@ const PatientSatisfaction = () => {
         body: { pdfBase64: base64, monthLabel },
       });
 
-      if (resp.error) throw new Error(resp.error.message || "Edge function error");
-      const parsed = resp.data as { comments: any[]; count: number };
-
+      if (resp.error) {
+        const msg = resp.error.message || resp.error?.context?.body || JSON.stringify(resp.error);
+        throw new Error(msg);
+      }
+      const parsed = resp.data as { comments?: any[]; count?: number; error?: string };
+      if (parsed.error) throw new Error(parsed.error);
       if (!parsed.comments?.length) {
         setImportStatus("No comments found in PDF.");
         setTimeout(() => setImportStatus(null), 3000);

@@ -4,6 +4,12 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+const json = (body: unknown) =>
+  new Response(JSON.stringify(body), {
+    status: 200,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS")
     return new Response(null, { headers: corsHeaders });
@@ -11,14 +17,11 @@ Deno.serve(async (req) => {
   try {
     const { pdfBase64, monthLabel } = await req.json();
     if (!pdfBase64 || !monthLabel) {
-      return new Response(JSON.stringify({ error: "pdfBase64 and monthLabel are required" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return json({ error: "pdfBase64 and monthLabel are required" });
     }
 
     const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
-    if (!ANTHROPIC_API_KEY) throw new Error("ANTHROPIC_API_KEY is not configured");
+    if (!ANTHROPIC_API_KEY) return json({ error: "ANTHROPIC_API_KEY is not configured" });
 
     const resp = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
@@ -61,7 +64,7 @@ Return ONLY a JSON array of objects with these exact keys. No markdown, no expla
 
     if (!resp.ok) {
       const errText = await resp.text();
-      throw new Error(`Anthropic API error: ${resp.status} ${errText}`);
+      return json({ error: `Anthropic API error: ${resp.status} ${errText}` });
     }
 
     const data = await resp.json();
@@ -72,20 +75,13 @@ Return ONLY a JSON array of objects with these exact keys. No markdown, no expla
       const cleaned = text.replace(/```json|```/g, "").trim();
       comments = JSON.parse(cleaned);
     } catch {
-      return new Response(JSON.stringify({ error: "Failed to parse AI response", raw: text }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return json({ error: "Failed to parse AI response", raw: text });
     }
 
     if (!Array.isArray(comments)) {
-      return new Response(JSON.stringify({ error: "Expected array", raw: text }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return json({ error: "Expected array", raw: text });
     }
 
-    // Add month_label to each comment
     const rows = comments.map((c: any) => ({
       received_date: c.received_date || "",
       survey_section: c.survey_section || "",
@@ -97,13 +93,8 @@ Return ONLY a JSON array of objects with these exact keys. No markdown, no expla
       month_label: monthLabel,
     }));
 
-    return new Response(JSON.stringify({ comments: rows, count: rows.length }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return json({ comments: rows, count: rows.length });
   } catch (err) {
-    return new Response(JSON.stringify({ error: String(err) }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return json({ error: String(err) });
   }
 });
