@@ -458,27 +458,30 @@ const PatientSatisfaction = () => {
               No survey data yet.
             </div>
           ) : (
-            <div style={{ background: "#fff", border: "1px solid #D5DAE0", borderRadius: 10, padding: 0, maxWidth: 520, overflow: "hidden" }}>
-              <table style={{ borderCollapse: "collapse", fontSize: 13, width: "100%" }}>
+            <div style={{ background: "#E7EBEF", border: "0.5px solid #C9CED4", borderRadius: 12, padding: "14px 16px" }}>
+              <div style={{ fontSize: 14, fontWeight: 500, color: "#2D3748", marginBottom: 10 }}>Summary</div>
+              <div style={{ overflowX: "auto" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
                 <thead>
-                  <tr style={{ background: "#415162" }}>
-                    <th style={{ textAlign: "left", padding: "10px 20px", color: "#fff", fontWeight: 500 }}>Resident</th>
-                    <th style={{ textAlign: "left", padding: "10px 20px", color: "#fff", fontWeight: 500 }}>Surveys</th>
-                    <th style={{ textAlign: "left", padding: "10px 20px", color: "#fff", fontWeight: 500 }}>Positive</th>
-                    <th style={{ textAlign: "left", padding: "10px 20px", color: "#fff", fontWeight: 500 }}>Negative</th>
+                  <tr>
+                    <th style={{ textAlign: "left", padding: "6px 10px", fontSize: 11, color: "#8A9AAB", fontWeight: 500, borderBottom: "1px solid #D5DAE0" }}>Resident</th>
+                    <th style={{ textAlign: "center", padding: "6px 10px", fontSize: 11, color: "#8A9AAB", fontWeight: 500, borderBottom: "1px solid #D5DAE0" }}>Surveys</th>
+                    <th style={{ textAlign: "center", padding: "6px 10px", fontSize: 11, color: "#8A9AAB", fontWeight: 500, borderBottom: "1px solid #D5DAE0" }}>Positive</th>
+                    <th style={{ textAlign: "center", padding: "6px 10px", fontSize: 11, color: "#8A9AAB", fontWeight: 500, borderBottom: "1px solid #D5DAE0" }}>Negative</th>
                   </tr>
                 </thead>
                 <tbody>
                   {summaryData.map((r, i) => (
-                    <tr key={r.name} style={{ borderBottom: "1px solid #E7EBEF", background: i % 2 === 0 ? "#E7EBEF" : "#fff" }}>
-                      <td style={{ padding: "10px 20px", color: "#2D3748", fontWeight: 500 }}>{r.name}</td>
-                      <td style={{ padding: "10px 20px", color: "#5F7285" }}>{r.surveys}</td>
-                      <td style={{ padding: "10px 20px", color: "#27500A", fontWeight: 600 }}>{r.posPct}%</td>
-                      <td style={{ padding: "10px 20px", color: "#854F0B", fontWeight: 600 }}>{r.negPct}%</td>
+                    <tr key={r.name} style={{ background: i % 2 === 0 ? "transparent" : "rgba(0,0,0,0.03)" }}>
+                      <td style={{ padding: "8px 10px", color: "#2D3748", fontWeight: 500 }}>{r.name}</td>
+                      <td style={{ padding: "8px 10px", color: "#5F7285", textAlign: "center" }}>{r.surveys}</td>
+                      <td style={{ padding: "8px 10px", color: "#27500A", fontWeight: 500, textAlign: "center" }}>{r.posPct}%</td>
+                      <td style={{ padding: "8px 10px", color: "#854F0B", fontWeight: 500, textAlign: "center" }}>{r.negPct}%</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+              </div>
             </div>
           )
         )}

@@ -741,24 +741,27 @@ const Feedback = () => {
             return rows.length === 0 ? (
               <div style={{ fontSize: 13, color: "#8A9AAB", padding: "20px 0", textAlign: "center" }}>No residents found.</div>
             ) : (
-              <div>
-                {/* Header */}
-                <div style={{ display: "flex", alignItems: "center", padding: "8px 12px", background: "#415162", borderRadius: "8px 8px 0 0" }}>
-                  <span style={{ flex: 1, fontSize: 11, fontWeight: 600, color: "#fff" }}>Resident</span>
-                  <span style={{ width: 80, fontSize: 11, fontWeight: 600, color: "#fff", textAlign: "center" }}>Me</span>
-                  <span style={{ width: 80, fontSize: 11, fontWeight: 600, color: "#fff", textAlign: "center" }}>All</span>
+              <div style={{ background: "#E7EBEF", border: "0.5px solid #C9CED4", borderRadius: 12, padding: "14px 16px" }}>
+                <div style={{ overflowX: "auto" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
+                  <thead>
+                    <tr>
+                      <th style={{ textAlign: "left", padding: "6px 10px", fontSize: 11, color: "#8A9AAB", fontWeight: 500, borderBottom: "1px solid #D5DAE0" }}>Resident</th>
+                      <th style={{ textAlign: "center", padding: "6px 10px", fontSize: 11, color: "#8A9AAB", fontWeight: 500, borderBottom: "1px solid #D5DAE0", width: 80 }}>Me</th>
+                      <th style={{ textAlign: "center", padding: "6px 10px", fontSize: 11, color: "#8A9AAB", fontWeight: 500, borderBottom: "1px solid #D5DAE0", width: 80 }}>All</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {rows.map((r, i) => (
+                      <tr key={r.id} style={{ background: i % 2 === 0 ? "transparent" : "rgba(0,0,0,0.03)" }}>
+                        <td style={{ padding: "8px 10px", color: "#2D3748", fontWeight: 500 }}>{r.name}</td>
+                        <td style={{ padding: "8px 10px", textAlign: "center" }}>{dateCell(r.lastMe)}</td>
+                        <td style={{ padding: "8px 10px", textAlign: "center" }}>{dateCell(r.lastAll)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
                 </div>
-                {rows.map((r, i) => (
-                  <div key={r.id} style={{
-                    display: "flex", alignItems: "center",
-                    padding: "9px 12px", background: i % 2 === 0 ? "#E7EBEF" : "#fff",
-                    borderRadius: i === rows.length - 1 ? "0 0 8px 8px" : 0,
-                  }}>
-                    <span style={{ flex: 1, fontSize: 13, fontWeight: 500, color: "#2D3748", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.name}</span>
-                    <span style={{ width: 80, textAlign: "center" }}>{dateCell(r.lastMe)}</span>
-                    <span style={{ width: 80, textAlign: "center" }}>{dateCell(r.lastAll)}</span>
-                  </div>
-                ))}
               </div>
             );
           })()}
@@ -817,31 +820,33 @@ const Feedback = () => {
                     <div style={{ fontSize: 11, color: "#5F7285" }}>All time</div>
                   </div>
                 </div>
-                {/* Header */}
-                <div style={{ display: "flex", alignItems: "center", padding: "8px 12px", background: "#415162", borderRadius: "8px 8px 0 0" }}>
-                  <span style={{ flex: 1, fontSize: 11, fontWeight: 600, color: "#fff" }}>Faculty</span>
-                  <span style={{ width: 50, fontSize: 11, fontWeight: 600, color: "#fff", textAlign: "center" }}>Mo</span>
-                  <span style={{ width: 50, fontSize: 11, fontWeight: 600, color: "#fff", textAlign: "center" }}>Yr</span>
-                  <span style={{ width: 50, fontSize: 11, fontWeight: 600, color: "#fff", textAlign: "center" }}>Total</span>
+                <div style={{ background: "#E7EBEF", border: "0.5px solid #C9CED4", borderRadius: 12, padding: "14px 16px" }}>
+                  <div style={{ overflowX: "auto" }}>
+                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
+                    <thead>
+                      <tr>
+                        <th style={{ textAlign: "left", padding: "6px 10px", fontSize: 11, color: "#8A9AAB", fontWeight: 500, borderBottom: "1px solid #D5DAE0" }}>Faculty</th>
+                        <th style={{ textAlign: "center", padding: "6px 10px", fontSize: 11, color: "#8A9AAB", fontWeight: 500, borderBottom: "1px solid #D5DAE0", width: 50 }}>Mo</th>
+                        <th style={{ textAlign: "center", padding: "6px 10px", fontSize: 11, color: "#8A9AAB", fontWeight: 500, borderBottom: "1px solid #D5DAE0", width: 50 }}>Yr</th>
+                        <th style={{ textAlign: "center", padding: "6px 10px", fontSize: 11, color: "#8A9AAB", fontWeight: 500, borderBottom: "1px solid #D5DAE0", width: 50 }}>Total</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {rows.map((r, i) => {
+                        const isMe = r.id === user?.id;
+                        return (
+                          <tr key={r.id} style={{ background: isMe ? "rgba(55,138,221,0.08)" : i % 2 === 0 ? "transparent" : "rgba(0,0,0,0.03)" }}>
+                            <td style={{ padding: "8px 10px", color: "#2D3748", fontWeight: isMe ? 600 : 500 }}>{r.name}</td>
+                            <td style={{ padding: "8px 10px", fontSize: 13, fontWeight: 600, color: r.month > 0 ? "#415162" : "#C9CED4", textAlign: "center" }}>{r.month}</td>
+                            <td style={{ padding: "8px 10px", fontSize: 13, fontWeight: 600, color: r.year > 0 ? "#415162" : "#C9CED4", textAlign: "center" }}>{r.year}</td>
+                            <td style={{ padding: "8px 10px", fontSize: 13, fontWeight: 600, color: r.total > 0 ? "#415162" : "#C9CED4", textAlign: "center" }}>{r.total}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                  </div>
                 </div>
-                {/* Rows */}
-                {rows.map((r, i) => {
-                  const isMe = r.id === user?.id;
-                  return (
-                    <div key={r.id} style={{
-                      display: "flex", alignItems: "center", padding: "9px 12px",
-                      background: isMe ? "rgba(55,138,221,0.08)" : i % 2 === 0 ? "#E7EBEF" : "#fff",
-                      borderRadius: i === rows.length - 1 ? "0 0 8px 8px" : 0,
-                    }}>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <span style={{ fontSize: 13, fontWeight: isMe ? 600 : 500, color: "#2D3748" }}>{r.name}</span>
-                      </div>
-                      <span style={{ width: 50, fontSize: 13, fontWeight: 600, color: r.month > 0 ? "#415162" : "#C9CED4", textAlign: "center" }}>{r.month}</span>
-                      <span style={{ width: 50, fontSize: 13, fontWeight: 600, color: r.year > 0 ? "#415162" : "#C9CED4", textAlign: "center" }}>{r.year}</span>
-                      <span style={{ width: 50, fontSize: 13, fontWeight: 600, color: r.total > 0 ? "#415162" : "#C9CED4", textAlign: "center" }}>{r.total}</span>
-                    </div>
-                  );
-                })}
               </div>
             );
           })()}
