@@ -286,21 +286,27 @@ const VisitDuration = () => {
             <div style={{ background: "#E7EBEF", border: "0.5px solid #C9CED4", borderRadius: 12, padding: "14px 16px", maxWidth: 520 }}>
               <div style={{ fontSize: 14, fontWeight: 500, color: "#2D3748", marginBottom: 10 }}>Data</div>
               <div style={{ overflowX: "auto" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, tableLayout: "fixed" }}>
+                <colgroup>
+                  <col style={{ width: "40%" }} />
+                  <col style={{ width: "25%" }} />
+                  <col style={{ width: "25%" }} />
+                  {canEdit && <col style={{ width: "10%" }} />}
+                </colgroup>
                 <thead>
                   <tr>
-                    <th style={{ textAlign: "left", padding: "4px 6px", fontSize: 11, color: "#8A9AAB", fontWeight: 500, borderBottom: "1px solid #D5DAE0" }}>Week</th>
-                    <th style={{ textAlign: "center", padding: "4px 6px", fontSize: 11, color: "#8A9AAB", fontWeight: 500, borderBottom: "1px solid #D5DAE0", width: 60 }}>Median</th>
-                    <th style={{ textAlign: "center", padding: "4px 6px", fontSize: 11, color: "#8A9AAB", fontWeight: 500, borderBottom: "1px solid #D5DAE0", width: 70 }}>Phase</th>
-                    {canEdit && <th style={{ padding: "4px 6px", borderBottom: "1px solid #D5DAE0", width: 30 }} />}
+                    <th style={{ textAlign: "left", padding: "6px 10px", fontSize: 11, color: "#8A9AAB", fontWeight: 500, borderBottom: "1px solid #D5DAE0" }}>Week</th>
+                    <th style={{ textAlign: "center", padding: "6px 10px", fontSize: 11, color: "#8A9AAB", fontWeight: 500, borderBottom: "1px solid #D5DAE0" }}>Median</th>
+                    <th style={{ textAlign: "center", padding: "6px 10px", fontSize: 11, color: "#8A9AAB", fontWeight: 500, borderBottom: "1px solid #D5DAE0" }}>Phase</th>
+                    {canEdit && <th style={{ padding: "6px 10px", borderBottom: "1px solid #D5DAE0" }} />}
                   </tr>
                 </thead>
                 <tbody>
                   {[...rows].reverse().slice(0, 10).map((r, i) => (
                     <tr key={r.id} style={{ background: i % 2 === 0 ? "transparent" : "rgba(0,0,0,0.03)" }}>
-                      <td style={{ padding: "4px 6px", color: "#2D3748", fontWeight: 500 }}>{r.week_label}</td>
-                      <td style={{ padding: "4px 6px", color: "#2D3748", fontWeight: 500, textAlign: "center" }}>{r.median_minutes}</td>
-                      <td style={{ padding: "4px 6px", textAlign: "center" }}>
+                      <td style={{ padding: "8px 10px", color: "#2D3748", fontWeight: 500 }}>{r.week_label}</td>
+                      <td style={{ padding: "8px 10px", color: "#2D3748", fontWeight: 500, textAlign: "center" }}>{r.median_minutes}</td>
+                      <td style={{ padding: "8px 10px", textAlign: "center" }}>
                         <span style={{
                           fontSize: 10, padding: "2px 8px", borderRadius: 10, fontWeight: 500,
                           background: r.phase === 1 ? "#D6DEE6" : "#E4F0EB",
@@ -310,7 +316,7 @@ const VisitDuration = () => {
                         </span>
                       </td>
                       {canEdit && (
-                        <td style={{ padding: "4px 6px", textAlign: "center" }}>
+                        <td style={{ padding: "8px 10px", textAlign: "center" }}>
                           <button
                             onClick={() => { if (confirm("Delete this entry?")) deleteRow.mutate(r.id); }}
                             style={{ background: "transparent", border: "none", cursor: "pointer", color: "#C9CED4", fontSize: 14, padding: 2 }}
