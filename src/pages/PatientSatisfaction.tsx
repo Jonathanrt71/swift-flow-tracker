@@ -218,7 +218,7 @@ const PatientSatisfaction = () => {
         throw new Error(msg);
       }
       const parsed = resp.data as { comments?: any[]; count?: number; error?: string };
-      if (parsed.error) throw new Error(parsed.error);
+      if (parsed.error) throw new Error(parsed.raw ? `${parsed.error}\n\nRaw: ${parsed.raw.slice(0, 300)}` : parsed.error);
       if (!parsed.comments?.length) {
         setImportStatus("No comments found in PDF.");
 

@@ -72,10 +72,17 @@ Return ONLY a JSON array of objects with these exact keys. No markdown, no expla
 
     let comments;
     try {
-      const cleaned = text.replace(/```json|```/g, "").trim();
+      // Try direct parse first
+      let cleaned = text.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
+      // If there's preamble text before the array, extract just the array
+      const bracketStart = cleaned.indexOf("[");
+      const bracketEnd = cleaned.lastIndexOf("]");
+      if (bracketStart >= 0 && bracketEnd > bracketStart) {
+        cleaned = cleaned.slice(bracketStart, bracketEnd + 1);
+      }
       comments = JSON.parse(cleaned);
-    } catch {
-      return json({ error: "Failed to parse AI response", raw: text });
+    } catch (parseErr) {
+      return json({ error: "Failed to parse AI response", raw: text.slice(0, 500) });
     }
 
     if (!Array.isArray(comments)) {
