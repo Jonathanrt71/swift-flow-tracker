@@ -912,17 +912,18 @@ const Compliance = () => {
               <div key={section.id} id={`narrative-${section.id}`} style={{
                 background: "#fff", border: "1px solid #E7EBEF",
                 borderRadius: 10, padding: "18px 18px 14px", marginBottom: 16,
+                overflow: "hidden", boxSizing: "border-box" as const,
               }}>
                 {/* Section header */}
-                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8, marginBottom: 12 }}>
+                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8, marginBottom: 12, flexWrap: "wrap" as const }}>
                   {isEditing ? (
                     <input
                       value={narEditTitle}
                       onChange={e => setNarEditTitle(e.target.value)}
                       style={{
-                        flex: 1, fontSize: 17, fontWeight: 600, color: "#333",
+                        flex: 1, minWidth: 0, fontSize: 17, fontWeight: 600, color: "#333",
                         border: "1px solid #C9CED4", borderRadius: 6, padding: "3px 10px",
-                        background: "#fff",
+                        background: "#fff", boxSizing: "border-box" as const,
                       }}
                     />
                   ) : (
