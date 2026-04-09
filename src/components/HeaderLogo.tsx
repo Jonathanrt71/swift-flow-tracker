@@ -83,7 +83,7 @@ export function useUserProfile() {
 }
 
 const HeaderLogo = ({
-  isAdmin,
+  isAdmin: _isAdminProp,
   onSignOut,
   children,
 }: {
@@ -105,6 +105,19 @@ const HeaderLogo = ({
   const { activeCategory } = useUserCategory();
   const navImageUrl = settings.nav_image_url || "/yosemite-header.png";
   const { userName, userInitials, avatarUrl } = useUserProfile();
+
+  // Determine admin status from user_roles table (reliable, not JWT metadata)
+  const { user: authUser } = useAuth();
+  const { data: isAdmin = false } = useQuery({
+    queryKey: ["header-is-admin", authUser?.id],
+    queryFn: async () => {
+      if (!authUser?.id) return false;
+      const { data } = await supabase.rpc("has_role", { _user_id: authUser.id, _role: "admin" });
+      return !!data;
+    },
+    enabled: !!authUser?.id,
+    staleTime: 60_000,
+  });
 
   const currentItem = allNavItems.find((n) => n.path === location.pathname)
     || (location.pathname === "/admin" ? { path: "/admin", label: "Admin", icon: Shield, permissionKey: "admin.all" } as NavEntry : undefined)

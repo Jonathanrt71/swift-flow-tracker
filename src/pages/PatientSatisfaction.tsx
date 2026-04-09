@@ -1,6 +1,7 @@
 import { useState, useMemo, useRef } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePermissions } from "@/hooks/usePermissions";
+import { useAdmin } from "@/hooks/useAdmin";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import HeaderLogo from "@/components/HeaderLogo";
@@ -68,7 +69,8 @@ function displayName(comment: PatientComment, profileMap: Map<string, ProfileRef
 
 const PatientSatisfaction = () => {
   const { user, signOut } = useAuth();
-  const isAdmin = user?.user_metadata?.role === "admin";
+  const { isAdmin: isAdminQuery } = useAdmin();
+  const isAdmin = !!isAdminQuery.data;
   const { has: hasPerm } = usePermissions();
   const canEdit = isAdmin || hasPerm("patient_satisfaction.edit");
   const queryClient = useQueryClient();
