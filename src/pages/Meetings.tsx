@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Shield, User, LogOut, Search, X as XIcon } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { DetailReadOnly } from "@/components/cbme/DetailField";
-import { formatCardDate, formatPersonName } , getInitials } from "@/lib/dateFormat";
+import { formatCardDate, formatPersonName, getInitials } from "@/lib/dateFormat";
 import HeaderLogo from "@/components/HeaderLogo";
 import CreateMeetingDialog from "@/components/meetings/CreateMeetingDialog";
 import EditMeetingDialog from "@/components/meetings/MeetingNotesDialog";
