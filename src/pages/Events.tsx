@@ -682,7 +682,7 @@ const Events = () => {
                 </button>
               );
             })}
-          </div>}
+          </div>
 
 
         </div>
