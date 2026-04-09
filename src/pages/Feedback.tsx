@@ -643,19 +643,19 @@ const Feedback = () => {
         <div className="flex items-center justify-between pb-2.5">
           <div className="flex gap-2 items-center">
             <TabsList className="gap-1 h-auto p-1 bg-transparent">
-              <TabsTrigger value="list" className="flex flex-col items-center gap-0.5 h-auto px-2 py-1 data-[state=active]:bg-[#D5DAE0] data-[state=active]:text-[#415162] data-[state=active]:shadow-none data-[state=inactive]:text-[#8A9AAB]" title="List">
+              <TabsTrigger value="list" className="flex flex-col items-center gap-0.5 h-auto px-3 py-2 data-[state=active]:bg-[#D5DAE0] data-[state=active]:text-[#415162] data-[state=active]:shadow-none data-[state=inactive]:text-[#8A9AAB]" title="List">
                 <List className="h-4 w-4" />
                 <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase" }}>List</span>
               </TabsTrigger>
-              <TabsTrigger value="summary" className="flex flex-col items-center gap-0.5 h-auto px-2 py-1 data-[state=active]:bg-[#D5DAE0] data-[state=active]:text-[#415162] data-[state=active]:shadow-none data-[state=inactive]:text-[#8A9AAB]" title="Summary">
+              <TabsTrigger value="summary" className="flex flex-col items-center gap-0.5 h-auto px-3 py-2 data-[state=active]:bg-[#D5DAE0] data-[state=active]:text-[#415162] data-[state=active]:shadow-none data-[state=inactive]:text-[#8A9AAB]" title="Summary">
                 <PieChart className="h-4 w-4" />
                 <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase" }}>Summary</span>
               </TabsTrigger>
-              <TabsTrigger value="lastFeedback" className="flex flex-col items-center gap-0.5 h-auto px-2 py-1 data-[state=active]:bg-[#D5DAE0] data-[state=active]:text-[#415162] data-[state=active]:shadow-none data-[state=inactive]:text-[#8A9AAB]" title="Last Dates">
+              <TabsTrigger value="lastFeedback" className="flex flex-col items-center gap-0.5 h-auto px-3 py-2 data-[state=active]:bg-[#D5DAE0] data-[state=active]:text-[#415162] data-[state=active]:shadow-none data-[state=inactive]:text-[#8A9AAB]" title="Last Dates">
                 <CalendarDays className="h-4 w-4" />
                 <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase" }}>Last Dates</span>
               </TabsTrigger>
-              <TabsTrigger value="facultyCounts" className="flex flex-col items-center gap-0.5 h-auto px-2 py-1 data-[state=active]:bg-[#D5DAE0] data-[state=active]:text-[#415162] data-[state=active]:shadow-none data-[state=inactive]:text-[#8A9AAB]" title="Faculty">
+              <TabsTrigger value="facultyCounts" className="flex flex-col items-center gap-0.5 h-auto px-3 py-2 data-[state=active]:bg-[#D5DAE0] data-[state=active]:text-[#415162] data-[state=active]:shadow-none data-[state=inactive]:text-[#8A9AAB]" title="Faculty">
                 <Users className="h-4 w-4" />
                 <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase" }}>Faculty</span>
               </TabsTrigger>
