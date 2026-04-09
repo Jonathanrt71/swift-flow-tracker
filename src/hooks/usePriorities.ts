@@ -25,16 +25,28 @@ export function usePriorities() {
     queryFn: async () => {
       const { data, error } = await (supabase
         .from("priorities" as any)
-        .select("*, profiles!priorities_assigned_to_fkey(first_name, last_name, email)")
+        .select("*")
         .order("display_order", { ascending: true }) as any);
       if (error) throw error;
+
+      // Fetch assigned profile names
+      const assignedIds = [...new Set((data || []).map((p: any) => p.assigned_to).filter(Boolean))];
+      let profileMap: Record<string, string> = {};
+      if (assignedIds.length > 0) {
+        const { data: profiles } = await (supabase
+          .from("profiles")
+          .select("id, first_name, last_name, email")
+          .in("id", assignedIds) as any);
+        (profiles || []).forEach((p: any) => {
+          profileMap[p.id] = [p.first_name, p.last_name].filter(Boolean).join(" ") || p.email;
+        });
+      }
+
       return ((data || []) as any[])
         .filter((p: any) => p.created_by && categoryUserIds.has(p.created_by))
         .map((p: any) => ({
           ...p,
-          assigned_name: p.profiles
-            ? [p.profiles.first_name, p.profiles.last_name].filter(Boolean).join(" ") || p.profiles.email
-            : null,
+          assigned_name: p.assigned_to ? profileMap[p.assigned_to] || null : null,
         })) as Priority[];
     },
     enabled: !!user && categoryUserIds.size > 0,
