@@ -56,6 +56,7 @@ const PriorityCard = ({
 
   const doneCount = linkedTasks.filter(t => t.completed).length;
   const totalCount = linkedTasks.length;
+  const hasRealNotes = !!(priority.notes && priority.notes.replace(/<[^>]*>/g, "").replace(/&nbsp;/g, "").trim());
 
   return (
     <>
@@ -105,7 +106,7 @@ const PriorityCard = ({
             </span>
           )}
 
-          {(totalCount > 0 || (priority.notes && priority.notes.replace(/<[^>]*>/g, "").trim())) && (
+          {(totalCount > 0 || hasRealNotes) && (
             <div style={{ width: 7, height: 7, borderRadius: "50%", background: "#9F2929", flexShrink: 0 }} />
           )}
 

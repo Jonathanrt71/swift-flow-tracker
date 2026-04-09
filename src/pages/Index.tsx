@@ -63,22 +63,25 @@ const Index = () => {
     const highlight = searchParams.get("highlight");
     if (tab) setActiveTab(tab);
     if (highlight) {
-      // Clear params immediately but preserve nothing else
+      // Clear params
       setSearchParams({}, { replace: true });
-      // Delay highlight until tab switch and data render
-      setTimeout(() => {
-        setHighlightId(null);
-        requestAnimationFrame(() => {
-          setHighlightId(highlight);
-          setHighlightKey(k => k + 1);
-          // Wait for React to paint the highlight class, then scroll
-          requestAnimationFrame(() => {
-            const el = document.querySelector(".highlight-pulse");
-            if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
-          });
-          setTimeout(() => setHighlightId(null), 2000);
-        });
-      }, 150);
+      // Delay to let tab content render, then highlight + scroll
+      const timer = setTimeout(() => {
+        setHighlightId(highlight);
+        setHighlightKey(k => k + 1);
+        // Poll for the element (data may still be loading)
+        let attempts = 0;
+        const poll = setInterval(() => {
+          const el = document.querySelector(`[data-highlight-id="${highlight}"]`);
+          if (el) {
+            el.scrollIntoView({ behavior: "smooth", block: "center" });
+            clearInterval(poll);
+          }
+          if (++attempts > 20) clearInterval(poll);
+        }, 100);
+        setTimeout(() => setHighlightId(null), 2500);
+      }, 200);
+      return () => clearTimeout(timer);
     }
   }, [searchParams]);
 
@@ -230,7 +233,7 @@ const Index = () => {
       }
       prevMonth = monthKey;
       elements.push(
-        <div key={task.id} className={highlightId === task.id ? "highlight-pulse" : undefined} style={{ borderRadius: 8 }}>
+        <div key={task.id} data-highlight-id={task.id} className={highlightId === task.id ? "highlight-pulse" : undefined} style={{ borderRadius: 8 }}>
           <TaskCard
             task={task}
             isOverdue={isOverdue(task)}
@@ -265,7 +268,7 @@ const Index = () => {
       );
     }
     return taskList.map((task) => (
-      <div key={task.id} className={highlightId === task.id ? "highlight-pulse" : undefined} style={{ borderRadius: 8 }}>
+      <div key={task.id} data-highlight-id={task.id} className={highlightId === task.id ? "highlight-pulse" : undefined} style={{ borderRadius: 8 }}>
         <TaskCard
           task={task}
           isOverdue={isOverdue(task)}
@@ -380,7 +383,7 @@ const Index = () => {
                       {localMyPriorities.map((p, idx) => {
                         const programRank = priorities.indexOf(p) + 1;
                         return (
-                          <div key={p.id} className={highlightId === p.id ? "highlight-pulse" : undefined} style={{ borderRadius: 8 }}>
+                          <div key={p.id} data-highlight-id={p.id} className={highlightId === p.id ? "highlight-pulse" : undefined} style={{ borderRadius: 8 }}>
                               <PriorityCard
                                 priority={p}
                                 rank={idx + 1}
@@ -448,7 +451,7 @@ const Index = () => {
                         </div>
                       );
                       return (
-                        <div key={p.id} className={`mb-1.5 ${highlightId === p.id ? "highlight-pulse" : ""}`} style={{ borderRadius: 8 }}>
+                        <div key={p.id} data-highlight-id={p.id} className={`mb-1.5 ${highlightId === p.id ? "highlight-pulse" : ""}`} style={{ borderRadius: 8 }}>
                             <PriorityCard
                               priority={p}
                               rank={idx + 1}
