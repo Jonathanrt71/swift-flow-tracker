@@ -19,7 +19,7 @@ interface TimelineRow {
 
 const EventsGantt = ({ events, showPast = false }: EventsGanttProps) => {
   const isMobile = useIsMobile();
-  const labelWidth = isMobile ? 70 : 130;
+  const labelWidth = isMobile ? 100 : 130;
   const rowHeight = isMobile ? 34 : 40;
   const dotSize = isMobile ? 8 : 9;
   const now = new Date();
@@ -124,7 +124,10 @@ const EventsGantt = ({ events, showPast = false }: EventsGanttProps) => {
     return `${format(o.startDate, "MMM d, yyyy")} – ${format(o.endDate, "MMM d, yyyy")}`;
   };
 
-  const truncateLabel = (s: string) => s.length > 16 ? s.slice(0, 15) + "\u2026" : s;
+  const truncateLabel = useCallback((s: string) => {
+    const max = isMobile ? 20 : 16;
+    return s.length > max ? s.slice(0, max - 1) + "\u2026" : s;
+  }, [isMobile]);
 
   return (
     <div ref={containerRef} className="relative select-none" onClick={dismissTooltip}>
