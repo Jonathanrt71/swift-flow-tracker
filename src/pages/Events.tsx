@@ -691,35 +691,42 @@ const Events = () => {
                 })}
               </div>
 
-              {/* Row 2: View toggles + Add button */}
-              <div className="flex items-start justify-between py-2.5">
+              {/* Row 2: View pills + Add button */}
+              <div className="flex items-center justify-between py-2.5">
                 <div className="flex items-center gap-0.5">
                   {([
-                    { mode: "list" as const, icon: <List className="h-4 w-4" />, label: "List" },
-                    { mode: "vertical" as const, icon: <VerticalTimelineIcon />, label: "Timeline" },
-                    { mode: "gantt" as const, icon: <GanttIcon />, label: "Gantt" },
-                  ] as { mode: "list" | "vertical" | "gantt"; icon: React.ReactNode; label: string }[]).map(({ mode, icon, label }) => (
+                    { mode: "list" as const, label: "List" },
+                    { mode: "vertical" as const, label: "Timeline" },
+                    { mode: "gantt" as const, label: "Gantt" },
+                  ] as { mode: "list" | "vertical" | "gantt"; label: string }[]).map(({ mode, label }) => (
                     <button
                       key={mode}
                       onClick={() => setViewMode(mode)}
-                      className="flex flex-col items-center gap-0.5 px-2 py-1 rounded-md transition-colors"
-                      style={{ background: viewMode === mode ? "#D5DAE0" : "transparent" }}
+                      style={{
+                        padding: "4px 10px", borderRadius: 5, border: "none",
+                        background: viewMode === mode ? "#E7EBEF" : "transparent",
+                        fontSize: 11, fontWeight: 500, cursor: "pointer",
+                        color: viewMode === mode ? "#415162" : "#8A9AAB",
+                      }}
                     >
-                      <span style={{ color: viewMode === mode ? "#415162" : "#8A9AAB" }}>{icon}</span>
-                      <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase", color: viewMode === mode ? "#415162" : "#8A9AAB" }}>{label}</span>
+                      {label}
                     </button>
                   ))}
                   {(viewMode === "list" || viewMode === "vertical") && (
-                    <button
-                      onClick={() => setShowPast(!showPast)}
-                      className="flex flex-col items-center gap-0.5 px-2 py-1 rounded-md transition-colors"
-                      style={{ background: showPast ? "#D5DAE0" : "transparent" }}
-                    >
-                      <span style={{ color: showPast ? "#415162" : "#8A9AAB" }}>
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                      </span>
-                      <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase", color: showPast ? "#415162" : "#8A9AAB" }}>{showPast ? "Hide past" : "Show past"}</span>
-                    </button>
+                    <>
+                      <div style={{ width: 1, height: 14, background: "#D5DAE0", margin: "0 4px" }} />
+                      <button
+                        onClick={() => setShowPast(!showPast)}
+                        style={{
+                          padding: "4px 10px", borderRadius: 5, border: "none",
+                          background: showPast ? "#E7EBEF" : "transparent",
+                          fontSize: 11, fontWeight: 500, cursor: "pointer",
+                          color: showPast ? "#415162" : "#8A9AAB",
+                        }}
+                      >
+                        {showPast ? "Hide past" : "Past"}
+                      </button>
+                    </>
                   )}
                 </div>
 
