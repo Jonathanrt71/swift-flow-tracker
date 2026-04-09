@@ -122,9 +122,9 @@ const ABFMCompetencies = ({ profileId, isAdmin }: Props) => {
         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
           <thead>
             <tr>
-              <th style={{ textAlign: "left", padding: "4px 6px", fontSize: 11, color: "#8A9AAB", fontWeight: 500, borderBottom: "1px solid #D5DAE0", width: 24 }}>#</th>
-              <th style={{ textAlign: "left", padding: "4px 6px", fontSize: 11, color: "#8A9AAB", fontWeight: 500, borderBottom: "1px solid #D5DAE0" }}>Competency</th>
-              <th style={{ textAlign: "right", padding: "4px 6px", fontSize: 11, color: "#8A9AAB", fontWeight: 500, borderBottom: "1px solid #D5DAE0", width: 100 }}>Status</th>
+              <th style={{ textAlign: "left", padding: "6px 10px", fontSize: 11, color: "#8A9AAB", fontWeight: 500, borderBottom: "1px solid #D5DAE0", width: 24 }}>#</th>
+              <th style={{ textAlign: "left", padding: "6px 10px", fontSize: 11, color: "#8A9AAB", fontWeight: 500, borderBottom: "1px solid #D5DAE0" }}>Competency</th>
+              <th style={{ textAlign: "center", padding: "6px 10px", fontSize: 11, color: "#8A9AAB", fontWeight: 500, borderBottom: "1px solid #D5DAE0", width: 110 }}>Status</th>
             </tr>
           </thead>
           <tbody>
@@ -135,8 +135,8 @@ const ABFMCompetencies = ({ profileId, isAdmin }: Props) => {
 
               return (
                 <tr key={c.id} style={{ background: i % 2 === 0 ? "transparent" : "rgba(0,0,0,0.03)", cursor: "pointer" }} onClick={() => toggleExpand(c.id)}>
-                  <td style={{ padding: "4px 6px", color: "#8A9AAB", verticalAlign: "top", paddingTop: 7 }}>{c.number}</td>
-                  <td style={{ padding: "4px 6px", verticalAlign: "top" }}>
+                  <td style={{ padding: "8px 10px", color: "#8A9AAB", verticalAlign: "top", paddingTop: 10 }}>{c.number}</td>
+                  <td style={{ padding: "8px 10px", verticalAlign: "top" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                       <ChevronSVG open={isOpen} />
                       <span style={{ color: "#2D3748", fontWeight: 500 }}>{c.title}</span>
@@ -147,17 +147,18 @@ const ABFMCompetencies = ({ profileId, isAdmin }: Props) => {
                       </div>
                     )}
                   </td>
-                  <td style={{ padding: "4px 6px", textAlign: "right", verticalAlign: "top", paddingTop: 5 }}>
-                    <span
+                  <td style={{ padding: "8px 10px", textAlign: "center", verticalAlign: "top", paddingTop: 7 }}>
+                    <button
+                      type="button"
                       onClick={(e) => { e.stopPropagation(); handleCycleStatus(c.id); }}
                       style={{
                         fontSize: 11, fontWeight: 500, padding: "3px 10px", borderRadius: 10,
-                        background: statusInfo.bg, color: statusInfo.color,
+                        background: statusInfo.bg, color: statusInfo.color, border: "none",
                         cursor: isAdmin ? "pointer" : "default", userSelect: "none", whiteSpace: "nowrap",
                       }}
                     >
                       {statusInfo.label}
-                    </span>
+                    </button>
                   </td>
                 </tr>
               );
