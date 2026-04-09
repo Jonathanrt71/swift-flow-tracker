@@ -201,9 +201,9 @@ const Home = () => {
       }))
       .sort((a, b) => {
         if (!a.lastDate && !b.lastDate) return a.name.localeCompare(b.name);
-        if (!a.lastDate) return 1;
-        if (!b.lastDate) return -1;
-        return b.lastDate.localeCompare(a.lastDate);
+        if (!a.lastDate) return -1;
+        if (!b.lastDate) return 1;
+        return a.lastDate.localeCompare(b.lastDate);
       });
   })();
 
