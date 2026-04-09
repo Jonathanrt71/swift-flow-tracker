@@ -270,7 +270,7 @@ const PatientSatisfaction = () => {
         </div>
       </header>
 
-      <main style={{ maxWidth: 900, margin: "0 auto", padding: "12px 16px 100px" }}>
+      <main style={{ maxWidth: 900, margin: "0 auto", padding: "12px 24px 100px" }}>
         {/* Summary pills */}
         {!isLoading && filtered.length > 0 && (
           <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginBottom: 12 }}>
