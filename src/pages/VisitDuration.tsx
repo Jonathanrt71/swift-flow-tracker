@@ -213,9 +213,10 @@ const VisitDuration = () => {
             )}
 
             {/* Control chart */}
-            <div style={{ width: "100%", overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
-              <div style={{ minWidth: 900, height: 420 }}>
-              <ResponsiveContainer width="100%" height="100%">
+            <div style={{ background: "#fff", border: "1px solid #D5DAE0", borderRadius: 10, padding: "16px 12px 8px", marginBottom: 20 }}>
+              <div style={{ width: "100%", overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
+                <div style={{ minWidth: 900, height: 420 }}>
+                <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={chartData} margin={{ top: 20, right: 60, bottom: 30, left: 10 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#E7EBEF" />
 
@@ -278,25 +279,26 @@ const VisitDuration = () => {
                 </LineChart>
               </ResponsiveContainer>
               </div>
+              </div>
             </div>
 
             {/* Data table */}
-            <div style={{ marginTop: 24, maxWidth: 480 }}>
-              <table style={{ borderCollapse: "collapse", fontSize: 12, width: "100%" }}>
+            <div style={{ background: "#fff", border: "1px solid #D5DAE0", borderRadius: 10, padding: "4px 0", maxWidth: 520 }}>
+              <table style={{ borderCollapse: "collapse", fontSize: 13, width: "100%" }}>
                 <thead>
                   <tr style={{ borderBottom: "1px solid #D5DAE0" }}>
-                    <th style={{ textAlign: "left", padding: "6px 14px", color: "#5F7285", fontWeight: 500 }}>Week</th>
-                    <th style={{ textAlign: "left", padding: "6px 14px", color: "#5F7285", fontWeight: 500 }}>Median</th>
-                    <th style={{ textAlign: "left", padding: "6px 14px", color: "#5F7285", fontWeight: 500 }}>Phase</th>
-                    {canEdit && <th style={{ padding: "6px 8px", width: 32 }} />}
+                    <th style={{ textAlign: "left", padding: "10px 20px", color: "#5F7285", fontWeight: 500 }}>Week</th>
+                    <th style={{ textAlign: "left", padding: "10px 20px", color: "#5F7285", fontWeight: 500 }}>Median</th>
+                    <th style={{ textAlign: "left", padding: "10px 20px", color: "#5F7285", fontWeight: 500 }}>Phase</th>
+                    {canEdit && <th style={{ padding: "10px 12px", width: 36 }} />}
                   </tr>
                 </thead>
                 <tbody>
                   {[...rows].reverse().slice(0, 10).map((r, i) => (
-                    <tr key={r.id} style={{ borderBottom: "1px solid #E7EBEF", background: i % 2 === 0 ? "transparent" : "#F9F8F5" }}>
-                      <td style={{ padding: "6px 14px", color: "#2D3748" }}>{r.week_label}</td>
-                      <td style={{ padding: "6px 14px", color: "#2D3748", fontWeight: 600 }}>{r.median_minutes}</td>
-                      <td style={{ padding: "6px 14px" }}>
+                    <tr key={r.id} style={{ borderBottom: "1px solid #E7EBEF", background: i % 2 === 0 ? "transparent" : "#FAFAF8" }}>
+                      <td style={{ padding: "10px 20px", color: "#2D3748" }}>{r.week_label}</td>
+                      <td style={{ padding: "10px 20px", color: "#2D3748", fontWeight: 600 }}>{r.median_minutes}</td>
+                      <td style={{ padding: "10px 20px" }}>
                         <span style={{
                           fontSize: 10, padding: "2px 8px", borderRadius: 10, fontWeight: 500,
                           background: r.phase === 1 ? "#E7EBEF" : "#E4F0EB",
@@ -306,7 +308,7 @@ const VisitDuration = () => {
                         </span>
                       </td>
                       {canEdit && (
-                        <td style={{ padding: "6px 8px", textAlign: "center" }}>
+                        <td style={{ padding: "10px 12px", textAlign: "center" }}>
                           <button
                             onClick={() => { if (confirm("Delete this entry?")) deleteRow.mutate(r.id); }}
                             style={{ background: "transparent", border: "none", cursor: "pointer", color: "#C9CED4", fontSize: 14, padding: 2 }}
