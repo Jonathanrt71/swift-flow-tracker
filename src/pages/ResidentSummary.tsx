@@ -549,7 +549,7 @@ const ResidentSummary = () => {
 
             {/* ABFM Required Procedures */}
             {selectedResident && selectedResident !== "none" && (
-              <ABFMProcedures profileId={selectedResident} isAdmin={!!isAdmin.data} />
+              <ABFMProcedures profileId={selectedResident} isAdmin={!!isAdmin} />
             )}
 
             {/* Log book counts */}
@@ -619,7 +619,7 @@ const ResidentSummary = () => {
 
         {/* ABFM Core Competencies */}
         {selectedResident && selectedResident !== "none" && (
-          <ABFMCompetencies profileId={selectedResident} isAdmin={!!isAdmin.data} />
+          <ABFMCompetencies profileId={selectedResident} isAdmin={!!isAdmin} />
         )}
       </main>
     </div>
