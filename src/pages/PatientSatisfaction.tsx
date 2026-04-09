@@ -332,7 +332,7 @@ const PatientSatisfaction = () => {
           <select
             value={monthFilter}
             onChange={(e) => setMonthFilter(e.target.value)}
-            style={{ fontSize: 13, padding: "5px 10px", border: "1px solid #C9CED4", borderRadius: 6, background: "#fff", color: "#333", outline: "none", maxWidth: 160 }}
+            style={{ fontSize: 13, padding: "5px 10px", border: "1px solid #C9CED4", borderRadius: 6, background: "#fff", color: "#333", outline: "none", maxWidth: 160, height: 32, boxSizing: "border-box", verticalAlign: "middle" }}
           >
             <option value="all">All months</option>
             {months.map((m) => (
@@ -342,7 +342,7 @@ const PatientSatisfaction = () => {
           <select
             value={providerFilter}
             onChange={(e) => setProviderFilter(e.target.value)}
-            style={{ fontSize: 13, padding: "5px 10px", border: "1px solid #C9CED4", borderRadius: 6, background: "#fff", color: "#333", outline: "none", maxWidth: 200 }}
+            style={{ fontSize: 13, padding: "5px 10px", border: "1px solid #C9CED4", borderRadius: 6, background: "#fff", color: "#333", outline: "none", maxWidth: 200, height: 32, boxSizing: "border-box", verticalAlign: "middle" }}
           >
             <option value="all">All providers</option>
             {providers.map((p) => (
