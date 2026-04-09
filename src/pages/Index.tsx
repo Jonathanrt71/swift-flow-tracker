@@ -53,6 +53,8 @@ const Index = () => {
   const [activeTab, setActiveTab] = useState("allPriorities");
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [highlightId, setHighlightId] = useState<string | null>(null);
+  const [prioritiesExpanded, setPrioritiesExpanded] = useState(false);
+  const PRIORITIES_VISIBLE = 10;
   const [searchParams, setSearchParams] = useSearchParams();
 
   // Handle ?tab= and ?highlight= query params
@@ -329,7 +331,13 @@ const Index = () => {
               </TabsTrigger>
             </TabsList>
             <div className="flex items-center self-center">
-            {(activeTab === "allPriorities" || activeTab === "myPriorities") && canEditPriorities ? (
+            {(activeTab === "allPriorities") && isAdmin ? (
+              <CreatePriorityDialog
+                onSubmit={(data) => createPriority.mutate(data)}
+                loading={createPriority.isPending}
+                inlineIcon
+              />
+            ) : (activeTab === "myPriorities") && canEditPriorities ? (
               <CreatePriorityDialog
                 onSubmit={(data) => createPriority.mutate(data)}
                 loading={createPriority.isPending}
@@ -356,41 +364,56 @@ const Index = () => {
                 <p className="text-sm">No priorities yet. Add one to get started!</p>
               </div>
             ) : (
-              <div className="space-y-3">
-                {localPriorities.map((p, idx) => {
-                  return (
-                    <div key={p.id} className="mb-1.5" style={{ borderRadius: 8, boxShadow: highlightId === p.id ? "0 0 0 2px #D4A017" : "none", transition: "box-shadow 0.3s ease" }}>
-                        <PriorityCard
-                          priority={p}
-                          rank={idx + 1}
-                          teamMembers={teamMembers || []}
-                          linkedTasks={flatAllTasks.filter(t => (t as any).priority_id === p.id)}
-                          unlinkableTasks={flatAllTasks.filter(t => !(t as any).priority_id && !t.completed)}
-                          showArrows={canEditPriorities}
-                          isFirst={idx === 0}
-                          isLast={idx === localPriorities.length - 1}
-                          onMoveUp={() => {
-                            const reordered = [...localPriorities];
-                            [reordered[idx - 1], reordered[idx]] = [reordered[idx], reordered[idx - 1]];
-                            setLocalPriorities(reordered);
-                            reorderPriorities.mutate(reordered.map((r) => r.id));
-                          }}
-                          onMoveDown={() => {
-                            const reordered = [...localPriorities];
-                            [reordered[idx], reordered[idx + 1]] = [reordered[idx + 1], reordered[idx]];
-                            setLocalPriorities(reordered);
-                            reorderPriorities.mutate(reordered.map((r) => r.id));
-                          }}
-                          onUpdate={(data) => updatePriority.mutate(data)}
-                          onDelete={(id) => deletePriority.mutate(id)}
-                          onToggleTaskComplete={(d) => updateTask.mutate(d)}
-                          onUnlinkTask={(id) => updateTask.mutate({ id, priority_id: null })}
-                          onLinkTask={(id) => updateTask.mutate({ id, priority_id: p.id })}
-                          onCreateTask={(title) => createTask.mutate({ title, assigned_to: p.assigned_to || undefined, priority_id: p.id })}
-                        />
-                    </div>
-                  );
-                })}
+              <div>
+                <div className="space-y-3">
+                  {(prioritiesExpanded ? localPriorities : localPriorities.slice(0, PRIORITIES_VISIBLE)).map((p, idx) => {
+                    return (
+                      <div key={p.id} className="mb-1.5" style={{ borderRadius: 8, boxShadow: highlightId === p.id ? "0 0 0 2px #D4A017" : "none", transition: "box-shadow 0.3s ease" }}>
+                          <PriorityCard
+                            priority={p}
+                            rank={idx + 1}
+                            teamMembers={teamMembers || []}
+                            linkedTasks={flatAllTasks.filter(t => (t as any).priority_id === p.id)}
+                            unlinkableTasks={flatAllTasks.filter(t => !(t as any).priority_id && !t.completed)}
+                            showArrows={!!isAdmin}
+                            isFirst={idx === 0}
+                            isLast={idx === localPriorities.length - 1}
+                            onMoveUp={() => {
+                              const reordered = [...localPriorities];
+                              [reordered[idx - 1], reordered[idx]] = [reordered[idx], reordered[idx - 1]];
+                              setLocalPriorities(reordered);
+                              reorderPriorities.mutate(reordered.map((r) => r.id));
+                            }}
+                            onMoveDown={() => {
+                              const reordered = [...localPriorities];
+                              [reordered[idx], reordered[idx + 1]] = [reordered[idx + 1], reordered[idx]];
+                              setLocalPriorities(reordered);
+                              reorderPriorities.mutate(reordered.map((r) => r.id));
+                            }}
+                            onUpdate={isAdmin ? (data) => updatePriority.mutate(data) : undefined as any}
+                            onDelete={isAdmin ? (id) => deletePriority.mutate(id) : undefined as any}
+                            onToggleTaskComplete={(d) => updateTask.mutate(d)}
+                            onUnlinkTask={(id) => updateTask.mutate({ id, priority_id: null })}
+                            onLinkTask={(id) => updateTask.mutate({ id, priority_id: p.id })}
+                            onCreateTask={(title) => createTask.mutate({ title, assigned_to: p.assigned_to || undefined, priority_id: p.id })}
+                          />
+                      </div>
+                    );
+                  })}
+                </div>
+                {localPriorities.length > PRIORITIES_VISIBLE && (
+                  <div
+                    onClick={() => setPrioritiesExpanded(!prioritiesExpanded)}
+                    style={{
+                      textAlign: "center", padding: "12px 0", cursor: "pointer",
+                      fontSize: 12, fontWeight: 500, color: "#5F7285",
+                    }}
+                  >
+                    {prioritiesExpanded
+                      ? "Show top 10 only"
+                      : `Show ${localPriorities.length - PRIORITIES_VISIBLE} more`}
+                  </div>
+                )}
               </div>
             )}
           </TabsContent>

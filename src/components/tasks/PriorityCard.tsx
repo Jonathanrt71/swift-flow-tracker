@@ -30,8 +30,8 @@ interface PriorityCardProps {
   isLast?: boolean;
   onMoveUp?: () => void;
   onMoveDown?: () => void;
-  onUpdate: (data: { id: string; title?: string; notes?: string; assigned_to?: string | null }) => void;
-  onDelete: (id: string) => void;
+  onUpdate?: (data: { id: string; title?: string; notes?: string; assigned_to?: string | null }) => void;
+  onDelete?: (id: string) => void;
   onToggleTaskComplete: (data: { id: string; completed: boolean }) => void;
   onUnlinkTask: (taskId: string) => void;
   onLinkTask: (taskId: string) => void;
@@ -120,12 +120,14 @@ const PriorityCard = ({
           </div>
 
           {/* Pencil — opens edit dialog */}
+          {onUpdate && (
           <button
             onClick={(e) => { e.stopPropagation(); setEditOpen(true); }}
             style={{ padding: 4, background: "transparent", border: "none", cursor: "pointer", color: "#8A9AAB", display: "flex", flexShrink: 0 }}
           >
             <Pencil style={{ width: 14, height: 14 }} />
           </button>
+          )}
         </div>
 
         {/* Expanded: linked tasks */}
@@ -193,7 +195,9 @@ const PriorityCard = ({
           </div>
         )}
       </Card>
-      <EditPriorityDialog priority={priority} open={editOpen} onOpenChange={setEditOpen} onUpdate={onUpdate} onDelete={onDelete} />
+      {onUpdate && onDelete && (
+        <EditPriorityDialog priority={priority} open={editOpen} onOpenChange={setEditOpen} onUpdate={onUpdate} onDelete={onDelete} />
+      )}
     </>
   );
 };
