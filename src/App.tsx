@@ -28,6 +28,7 @@ import ProcedureLogs from "./pages/ProcedureLogs.tsx";
 import ResidentSummary from "./pages/ResidentSummary.tsx";
 import VisitDuration from "./pages/VisitDuration.tsx";
 import PatientSatisfaction from "./pages/PatientSatisfaction.tsx";
+import PLATracking from "./pages/PLATracking.tsx";
 import Home from "./pages/Home.tsx";
 import Milestones from "./pages/Milestones.tsx";
 import ScrollToTop from "./components/ScrollToTop";
@@ -69,6 +70,7 @@ const App = () => (
               <Route path="/resident-summary" element={<RoleRoute permissionKey="resident_summary.view"><ResidentSummary /></RoleRoute>} />
               <Route path="/visit-duration" element={<RoleRoute permissionKey="visit_duration.view"><VisitDuration /></RoleRoute>} />
               <Route path="/patient-satisfaction" element={<RoleRoute permissionKey="patient_satisfaction.view"><PatientSatisfaction /></RoleRoute>} />
+              <Route path="/pla-tracking" element={<RoleRoute permissionKey="pla_tracking.view"><PLATracking /></RoleRoute>} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
