@@ -38,7 +38,7 @@ interface NavSection { label: string; paths: string[]; }
 const navSections: NavSection[] = [
   { label: "Curriculum", paths: ["/rotations", "/topics"] },
   { label: "Evaluation", paths: ["/cbme", "/evaluations", "/feedback", "/milestones", "/procedure-logs", "/resident-summary"] },
-  { label: "Program",    paths: ["/events", "/schedule", "/announcements", "/meetings", "/tasks"] },
+  { label: "Program",    paths: ["/events", "/schedule", "/announcements", "/meetings"] },
   { label: "Reference",  paths: ["/compliance", "/gme-handbook", "/handbook"] },
 ];
 
@@ -272,6 +272,18 @@ const HeaderLogo = ({
           }}
         >
             <div style={{ flex: 1, overflowY: "scroll", WebkitOverflowScrolling: "touch" }}>
+
+              {/* Priorities & Tasks — top item, no section header */}
+              {(() => {
+                const tasksItem = allNavItems.find(n => n.path === "/tasks");
+                if (!tasksItem || (tasksItem.permissionKey && !hasPerm(tasksItem.permissionKey, "view"))) return null;
+                const I = tasksItem.icon;
+                return (
+                  <Link to={tasksItem.path} onClick={() => setMenuOpen(false)} style={navLink(location.pathname === tasksItem.path)}>
+                    <I style={{ width: 16, height: 16 }} /> {tasksItem.label}
+                  </Link>
+                );
+              })()}
 
               {navSections.map((section, si) => {
                 const items = section.paths
