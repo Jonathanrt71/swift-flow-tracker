@@ -105,7 +105,7 @@ const CreateEventDialog = ({ onSubmit, defaultCategory, operationsSectionId, ext
     <Dialog open={open} onOpenChange={handleOpenChange}>
       {externalOpen === undefined && (
         <DialogTrigger asChild>
-          <button className="flex items-center justify-center w-8 h-8 mt-0.5 bg-transparent border-none cursor-pointer text-muted-foreground">
+          <button className="flex items-center justify-center bg-transparent border-none cursor-pointer text-muted-foreground" style={{ width: 20, height: 20 }}>
             <Plus className="h-[18px] w-[18px]" />
           </button>
         </DialogTrigger>
