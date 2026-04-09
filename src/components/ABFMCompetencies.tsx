@@ -110,55 +110,60 @@ const ABFMCompetencies = ({ profileId, isAdmin }: Props) => {
   if (competencies.length === 0) return null;
 
   return (
-    <div style={{ marginTop: 24 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-        <span style={{ fontSize: 14, fontWeight: 600, color: "#415162" }}>ABFM Core Competencies</span>
+    <div style={{ background: "#E7EBEF", border: "0.5px solid #C9CED4", borderRadius: 12, padding: "14px 16px", marginBottom: 12 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+        <div style={{ fontSize: 14, fontWeight: 500, color: "#2D3748" }}>ABFM Core Competencies</div>
         <span style={{ fontSize: 11, color: "#8A9AAB" }}>
           {competentCount} / {competencies.length} competent
         </span>
       </div>
 
-      <div style={{ background: "#fff", border: "1px solid #D5DAE0", borderRadius: 10, overflow: "hidden" }}>
-        {competencies.map((c, i) => {
-          const isOpen = expandedIds.has(c.id);
-          const currentStatus = statusMap.get(c.id) || "not_assessed";
-          const statusInfo = STATUS_CYCLE.find((s) => s.key === currentStatus) || STATUS_CYCLE[0];
+      <div style={{ overflowX: "auto" }}>
+        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
+          <thead>
+            <tr>
+              <th style={{ textAlign: "left", padding: "4px 6px", fontSize: 11, color: "#8A9AAB", fontWeight: 500, borderBottom: "1px solid #D5DAE0", width: 24 }}>#</th>
+              <th style={{ textAlign: "left", padding: "4px 6px", fontSize: 11, color: "#8A9AAB", fontWeight: 500, borderBottom: "1px solid #D5DAE0" }}>Competency</th>
+              <th style={{ textAlign: "right", padding: "4px 6px", fontSize: 11, color: "#8A9AAB", fontWeight: 500, borderBottom: "1px solid #D5DAE0", width: 100 }}>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {competencies.map((c, i) => {
+              const isOpen = expandedIds.has(c.id);
+              const currentStatus = statusMap.get(c.id) || "not_assessed";
+              const statusInfo = STATUS_CYCLE.find((s) => s.key === currentStatus) || STATUS_CYCLE[0];
 
-          return (
-            <div key={c.id} style={{ borderBottom: i < competencies.length - 1 ? "1px solid #E7EBEF" : "none" }}>
-              <div
-                style={{
-                  display: "flex", alignItems: "center", gap: 8, padding: "10px 14px",
-                  cursor: "pointer", background: i % 2 === 0 ? "#E7EBEF" : "#fff",
-                }}
-                onClick={() => toggleExpand(c.id)}
-              >
-                <span style={{ fontSize: 11, color: "#8A9AAB", minWidth: 18 }}>{c.number}</span>
-                <ChevronSVG open={isOpen} />
-                <span style={{ fontSize: 13, fontWeight: 500, color: "#2D3748", flex: 1 }}>{c.title}</span>
-                <span
-                  onClick={(e) => { e.stopPropagation(); handleCycleStatus(c.id); }}
-                  style={{
-                    fontSize: 11, fontWeight: 500, padding: "3px 10px", borderRadius: 10,
-                    background: statusInfo.bg, color: statusInfo.color,
-                    cursor: isAdmin ? "pointer" : "default", userSelect: "none", whiteSpace: "nowrap",
-                  }}
-                >
-                  {statusInfo.label}
-                </span>
-              </div>
-              {isOpen && (
-                <div style={{
-                  fontSize: 12, color: "#5F7285", lineHeight: 1.5,
-                  padding: "6px 14px 12px 56px",
-                  background: i % 2 === 0 ? "#E7EBEF" : "#fff",
-                }}>
-                  {c.description}
-                </div>
-              )}
-            </div>
-          );
-        })}
+              return (
+                <tr key={c.id} style={{ background: i % 2 === 0 ? "transparent" : "rgba(0,0,0,0.03)", cursor: "pointer" }} onClick={() => toggleExpand(c.id)}>
+                  <td style={{ padding: "4px 6px", color: "#8A9AAB", verticalAlign: "top", paddingTop: 7 }}>{c.number}</td>
+                  <td style={{ padding: "4px 6px", verticalAlign: "top" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                      <ChevronSVG open={isOpen} />
+                      <span style={{ color: "#2D3748", fontWeight: 500 }}>{c.title}</span>
+                    </div>
+                    {isOpen && (
+                      <div style={{ fontSize: 11, color: "#5F7285", lineHeight: 1.5, padding: "4px 0 4px 22px" }}>
+                        {c.description}
+                      </div>
+                    )}
+                  </td>
+                  <td style={{ padding: "4px 6px", textAlign: "right", verticalAlign: "top", paddingTop: 5 }}>
+                    <span
+                      onClick={(e) => { e.stopPropagation(); handleCycleStatus(c.id); }}
+                      style={{
+                        fontSize: 11, fontWeight: 500, padding: "3px 10px", borderRadius: 10,
+                        background: statusInfo.bg, color: statusInfo.color,
+                        cursor: isAdmin ? "pointer" : "default", userSelect: "none", whiteSpace: "nowrap",
+                      }}
+                    >
+                      {statusInfo.label}
+                    </span>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
       </div>
     </div>
   );
