@@ -16,7 +16,7 @@ import {
   type AnnouncementAudience,
 } from "@/hooks/useAnnouncements";
 import { formatDistanceToNow } from "date-fns";
-import { Plus, Pin, ThumbsUp, MessageSquare, X, ChevronDown, ChevronUp, Mail, Bold, Italic, List, ListOrdered, Link2, Type } from "lucide-react";
+import { Pin, ThumbsUp, MessageSquare, X, ChevronDown, ChevronUp, Mail, Bold, Italic, List, ListOrdered, Link2, Type } from "lucide-react";
 import NotificationBell from "@/components/NotificationBell";
 import HeaderLogo from "@/components/HeaderLogo";
 import { useEditor, EditorContent } from "@tiptap/react";
@@ -584,24 +584,22 @@ const Announcements = () => {
       <header style={{ position: "sticky", top: 0, zIndex: 40, background: "#415162" }}>
         <div style={{ display: "flex", alignItems: "center", height: 56, padding: "0 16px" }}>
           <HeaderLogo isAdmin={isAdmin} onSignOut={signOut}>
-            {canEdit && (
-              <button
-                onClick={() => setShowCompose(true)}
-                style={{
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  width: 36, height: 36, background: "transparent", border: "none",
-                  borderRadius: 6, cursor: "pointer", color: "rgba(255,255,255,0.8)",
-                }}
-              >
-                <Plus style={{ width: 17, height: 17 }} />
-              </button>
-            )}
             <NotificationBell />
           </HeaderLogo>
         </div>
       </header>
 
       <main style={{ maxWidth: 900, margin: "0 auto", padding: "16px 16px 100px" }}>
+        {canEdit && (
+          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "8px 16px", marginBottom: 12 }}>
+            <span onClick={() => setShowCompose(true)} style={{
+              fontSize: 13, fontWeight: 600, color: "#415162", background: "#E7EBEF",
+              padding: "4px 12px", borderRadius: 6, cursor: "pointer", userSelect: "none",
+            }}>
+              Add
+            </span>
+          </div>
+        )}
         {isLoading ? (
           <div style={{ padding: 40, textAlign: "center" }}>
             <div style={{
