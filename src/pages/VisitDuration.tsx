@@ -135,56 +135,7 @@ const VisitDuration = () => {
         </div>
       </header>
 
-      <main style={{ padding: "12px 24px 100px" }}>
-        {/* Add row — only for editors */}
-        {canEdit && (
-          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8, marginBottom: 16 }}>
-            <span
-              onClick={() => {
-                const form = document.getElementById("add-form");
-                if (form) form.style.display = form.style.display === "none" ? "flex" : "none";
-              }}
-              style={{
-                fontSize: 13, fontWeight: 600, color: "#415162", background: "#E7EBEF",
-                padding: "4px 12px", borderRadius: 6, cursor: "pointer", userSelect: "none",
-              }}
-            >
-              Add
-            </span>
-            <div id="add-form" style={{ display: "none", flexWrap: "wrap", alignItems: "center", gap: 8 }}>
-              <input
-                type="text"
-                placeholder="Week label (e.g. 4/7 - 4/11)"
-                value={weekLabel}
-                onChange={(e) => setWeekLabel(e.target.value)}
-                style={{ fontSize: 13, padding: "5px 10px", border: "1px solid #C9CED4", borderRadius: 6, outline: "none", width: 170, background: "#fff", color: "#333" }}
-              />
-              <input
-                type="date"
-                value={weekStart}
-                onChange={(e) => setWeekStart(e.target.value)}
-                style={{ fontSize: 13, padding: "5px 10px", border: "1px solid #C9CED4", borderRadius: 6, outline: "none", background: "#fff", color: "#333" }}
-              />
-              <input
-                type="number"
-                placeholder="Median (min)"
-                value={medianMin}
-                onChange={(e) => setMedianMin(e.target.value)}
-                style={{ fontSize: 13, padding: "5px 10px", border: "1px solid #C9CED4", borderRadius: 6, outline: "none", width: 110, background: "#fff", color: "#333" }}
-              />
-              <button
-                onClick={handleAdd}
-                disabled={!weekLabel.trim() || !weekStart || !medianMin || addRow.isPending}
-                style={{
-                  fontSize: 12, fontWeight: 600, padding: "6px 16px", borderRadius: 6, border: "none",
-                  background: "#415162", color: "#fff", cursor: "pointer", opacity: (!weekLabel.trim() || !weekStart || !medianMin) ? 0.4 : 1,
-                }}
-              >
-                {addRow.isPending ? "Saving..." : "Save"}
-              </button>
-            </div>
-          </div>
-        )}
+      <main style={{ padding: "12px 24px 100px", maxWidth: 1200, margin: "0 auto" }}>
 
         {isLoading ? (
           <div style={{ padding: 40, textAlign: "center" }}>
@@ -195,8 +146,22 @@ const VisitDuration = () => {
           <div style={{ textAlign: "center", padding: 48, color: "#6B7280", fontSize: 14 }}>No data yet.</div>
         ) : (
           <>
-            {/* Summary pills */}
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginBottom: 16 }}>
+            {/* Summary pills + Add button */}
+            <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 12, marginBottom: 16 }}>
+              {canEdit && (
+                <span
+                  onClick={() => {
+                    const form = document.getElementById("add-form");
+                    if (form) form.style.display = form.style.display === "none" ? "flex" : "none";
+                  }}
+                  style={{
+                    fontSize: 13, fontWeight: 600, color: "#415162", background: "#E7EBEF",
+                    padding: "4px 12px", borderRadius: 6, cursor: "pointer", userSelect: "none",
+                  }}
+                >
+                  Add
+                </span>
+              )}
               <div style={{ background: "#E7EBEF", borderRadius: 8, padding: "10px 16px" }}>
                 <div style={{ fontSize: 11, color: "#5F7285", marginBottom: 2 }}>AY 2024-25</div>
                 <div style={{ fontSize: 14, fontWeight: 600, color: "#415162" }}>
@@ -210,6 +175,42 @@ const VisitDuration = () => {
                 </div>
               </div>
             </div>
+
+            {/* Add form (hidden by default) */}
+            {canEdit && (
+              <div id="add-form" style={{ display: "none", flexWrap: "wrap", alignItems: "center", gap: 8, marginBottom: 16 }}>
+                <input
+                  type="text"
+                  placeholder="Week label (e.g. 4/7 - 4/11)"
+                  value={weekLabel}
+                  onChange={(e) => setWeekLabel(e.target.value)}
+                  style={{ fontSize: 13, padding: "5px 10px", border: "1px solid #C9CED4", borderRadius: 6, outline: "none", width: 170, background: "#fff", color: "#333" }}
+                />
+                <input
+                  type="date"
+                  value={weekStart}
+                  onChange={(e) => setWeekStart(e.target.value)}
+                  style={{ fontSize: 13, padding: "5px 10px", border: "1px solid #C9CED4", borderRadius: 6, outline: "none", background: "#fff", color: "#333" }}
+                />
+                <input
+                  type="number"
+                  placeholder="Median (min)"
+                  value={medianMin}
+                  onChange={(e) => setMedianMin(e.target.value)}
+                  style={{ fontSize: 13, padding: "5px 10px", border: "1px solid #C9CED4", borderRadius: 6, outline: "none", width: 110, background: "#fff", color: "#333" }}
+                />
+                <button
+                  onClick={handleAdd}
+                  disabled={!weekLabel.trim() || !weekStart || !medianMin || addRow.isPending}
+                  style={{
+                    fontSize: 12, fontWeight: 600, padding: "6px 16px", borderRadius: 6, border: "none",
+                    background: "#415162", color: "#fff", cursor: "pointer", opacity: (!weekLabel.trim() || !weekStart || !medianMin) ? 0.4 : 1,
+                  }}
+                >
+                  {addRow.isPending ? "Saving..." : "Save"}
+                </button>
+              </div>
+            )}
 
             {/* Control chart */}
             <div style={{ width: "100%", overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
@@ -248,7 +249,6 @@ const VisitDuration = () => {
                     tickLine={false}
                     axisLine={{ stroke: "#D5DAE0" }}
                     tickFormatter={(v: number) => `${v}`}
-                    label={{ value: "Minutes", angle: -90, position: "insideLeft", offset: 0, style: { fontSize: 11, fill: "#8A9AAB" } }}
                   />
                   <Tooltip content={<CustomTooltip />} />
 
@@ -280,42 +280,23 @@ const VisitDuration = () => {
               </div>
             </div>
 
-            {/* Legend */}
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 16, marginTop: 8, fontSize: 11, color: "#8A9AAB" }}>
-              <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#415162" }} /> Data point
-              </span>
-              <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#A04040" }} /> Out of control
-              </span>
-              <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                <span style={{ width: 16, height: 2, background: "#415162" }} /> CL (AY 24-25)
-              </span>
-              <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                <span style={{ width: 16, height: 2, background: "#4A846C" }} /> CL (AY 25-26)
-              </span>
-              <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                <span style={{ width: 16, height: 0, borderTop: "2px dashed #A04040" }} /> UCL / LCL
-              </span>
-            </div>
-
             {/* Data table */}
-            <div style={{ marginTop: 24, maxWidth: 420 }}>
-              <table style={{ borderCollapse: "collapse", fontSize: 12 }}>
+            <div style={{ marginTop: 24, maxWidth: 480 }}>
+              <table style={{ borderCollapse: "collapse", fontSize: 12, width: "100%" }}>
                 <thead>
                   <tr style={{ borderBottom: "1px solid #D5DAE0" }}>
-                    <th style={{ textAlign: "left", padding: "5px 8px", color: "#5F7285", fontWeight: 500 }}>Week</th>
-                    <th style={{ textAlign: "left", padding: "5px 8px", color: "#5F7285", fontWeight: 500 }}>Median</th>
-                    <th style={{ textAlign: "left", padding: "5px 8px", color: "#5F7285", fontWeight: 500 }}>Phase</th>
-                    {canEdit && <th style={{ padding: "5px 4px", width: 28 }} />}
+                    <th style={{ textAlign: "left", padding: "6px 14px", color: "#5F7285", fontWeight: 500 }}>Week</th>
+                    <th style={{ textAlign: "left", padding: "6px 14px", color: "#5F7285", fontWeight: 500 }}>Median</th>
+                    <th style={{ textAlign: "left", padding: "6px 14px", color: "#5F7285", fontWeight: 500 }}>Phase</th>
+                    {canEdit && <th style={{ padding: "6px 8px", width: 32 }} />}
                   </tr>
                 </thead>
                 <tbody>
                   {[...rows].reverse().slice(0, 10).map((r, i) => (
                     <tr key={r.id} style={{ borderBottom: "1px solid #E7EBEF", background: i % 2 === 0 ? "transparent" : "#F9F8F5" }}>
-                      <td style={{ padding: "5px 8px", color: "#2D3748" }}>{r.week_label}</td>
-                      <td style={{ padding: "5px 8px", color: "#2D3748", fontWeight: 600 }}>{r.median_minutes}</td>
-                      <td style={{ padding: "5px 8px" }}>
+                      <td style={{ padding: "6px 14px", color: "#2D3748" }}>{r.week_label}</td>
+                      <td style={{ padding: "6px 14px", color: "#2D3748", fontWeight: 600 }}>{r.median_minutes}</td>
+                      <td style={{ padding: "6px 14px" }}>
                         <span style={{
                           fontSize: 10, padding: "2px 8px", borderRadius: 10, fontWeight: 500,
                           background: r.phase === 1 ? "#E7EBEF" : "#E4F0EB",
@@ -325,7 +306,7 @@ const VisitDuration = () => {
                         </span>
                       </td>
                       {canEdit && (
-                        <td style={{ padding: "5px 4px", textAlign: "center" }}>
+                        <td style={{ padding: "6px 8px", textAlign: "center" }}>
                           <button
                             onClick={() => { if (confirm("Delete this entry?")) deleteRow.mutate(r.id); }}
                             style={{ background: "transparent", border: "none", cursor: "pointer", color: "#C9CED4", fontSize: 14, padding: 2 }}
