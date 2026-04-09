@@ -475,7 +475,7 @@ const Topics = () => {
         </div>
 
         {/* Topic count + add button */}
-        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "6px 16px", marginBottom: 10 }}>
+        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "6px 16px", marginBottom: 10, justifyContent: "space-between" }}>
           <span style={{ fontSize: 12, color: "#aaa" }}>{filtered.length} topic{filtered.length !== 1 ? "s" : ""}</span>
           {canEdit && !showAddForm && (
             <span onClick={() => setShowAddForm(true)}

@@ -610,7 +610,7 @@ const Events = () => {
         <div className="sticky z-30 bg-background" style={{ top: 56 }}>
 
           {/* Row 1: View tabs + Add button */}
-          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "8px 16px", paddingTop: 8, paddingBottom: 8 }}>
+          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "8px 16px", paddingTop: 8, paddingBottom: 8, justifyContent: "space-between" }}>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 16, alignItems: "center" }}>
               {([
                 { mode: "list" as const, label: "List" },
