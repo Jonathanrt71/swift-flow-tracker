@@ -417,15 +417,6 @@ const Index = () => {
                 ) : (
                   <div className="space-y-3">
                     {localPriorities.map((p, idx) => {
-                      const showGapBefore = dragOverIdx === idx && dragIdx !== null && dragIdx > idx && activeListRef.current === "program";
-                      const showGapAfter = dragOverIdx === idx && dragIdx !== null && dragIdx < idx && activeListRef.current === "program";
-                      const dropGap = (
-                        <div style={{ marginTop: -12 }}>
-                          <div style={{ height: 36, display: "flex", alignItems: "center" }}>
-                            <div style={{ height: 4, background: "#415162", borderRadius: 2, width: "100%" }} />
-                          </div>
-                        </div>
-                      );
                       return (
                         <div key={p.id} className="mb-1.5" style={{ borderRadius: 8, boxShadow: highlightId === p.id ? "0 0 0 2px #D4A017" : "none", transition: "box-shadow 0.3s ease" }}>
                             <PriorityCard
