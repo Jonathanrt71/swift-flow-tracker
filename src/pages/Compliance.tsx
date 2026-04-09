@@ -232,7 +232,7 @@ function RequirementRow({
       {/* Expanded detail panel */}
       {expanded && (
         <div style={{ padding: `0 14px 14px ${14 + indent + 22}px`, maxWidth: "100%", boxSizing: "border-box" as const, overflow: "hidden" }}>
-          {/* Status + Responsible row */}
+          {/* Status row */}
           <div style={{ display: "flex", gap: 12, alignItems: "flex-start", flexWrap: "wrap", marginBottom: 12 }}>
             <div>
               <div style={{ fontSize: 10, fontWeight: 600, color: "#888", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 4 }}>Status</div>
@@ -245,24 +245,6 @@ function RequirementRow({
                 </div>
               )}
             </div>
-            {canEdit && (
-            <div>
-              <div style={{ fontSize: 10, fontWeight: 600, color: "#888", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 4 }}>Responsible</div>
-              <select
-                value={req.responsible_person_id || ""}
-                onChange={e => handleResponsibleChange(e.target.value)}
-                style={{
-                  fontSize: 12, padding: "5px 8px", border: "1px solid #C9CED4",
-                  borderRadius: 6, background: "#fff", color: "#333", minWidth: 140,
-                }}
-              >
-                <option value="">— Unassigned —</option>
-                {users.map(u => (
-                  <option key={u.id} value={u.id}>{u.name}</option>
-                ))}
-              </select>
-            </div>
-            )}
             {req.last_reviewed_at && (
               <div style={{ fontSize: 11, color: "#999", display: "flex", alignItems: "center", gap: 4, marginTop: 18 }}>
                 <Clock style={{ width: 11, height: 11 }} />
