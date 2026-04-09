@@ -105,8 +105,8 @@ const PriorityCard = ({
             </span>
           )}
 
-          {totalCount > 0 && (
-            <span style={{ fontSize: 11, color: "#8A9AAB", flexShrink: 0 }}>{doneCount}/{totalCount}</span>
+          {(totalCount > 0 || priority.notes) && (
+            <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#D4A017", flexShrink: 0 }} />
           )}
 
           <div className="shrink-0">

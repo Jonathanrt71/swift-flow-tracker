@@ -54,6 +54,7 @@ const Index = () => {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [programCollapsed, setProgramCollapsed] = useState(true);
   const [highlightId, setHighlightId] = useState<string | null>(null);
+  const [highlightKey, setHighlightKey] = useState(0);
   const [searchParams, setSearchParams] = useSearchParams();
 
   // Handle ?tab= and ?highlight= query params
@@ -62,8 +63,13 @@ const Index = () => {
     const highlight = searchParams.get("highlight");
     if (tab) setActiveTab(tab);
     if (highlight) {
-      setHighlightId(highlight);
-      setTimeout(() => setHighlightId(null), 2000);
+      setHighlightId(null);
+      // Force animation restart by clearing then setting on next frame
+      requestAnimationFrame(() => {
+        setHighlightId(highlight);
+        setHighlightKey(k => k + 1);
+        setTimeout(() => setHighlightId(null), 2000);
+      });
       setSearchParams({}, { replace: true });
     }
   }, [searchParams]);

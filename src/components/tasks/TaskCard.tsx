@@ -86,6 +86,11 @@ const TaskCard = ({
           {task.title}
         </span>
 
+        {/* Expandable content marker */}
+        {hasDetails && (
+          <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#D4A017", flexShrink: 0 }} />
+        )}
+
         {/* Due date */}
         {dd && (
           <span style={{ fontSize: 11, color: dd.urgent ? "#9F2929" : "#8A9AAB", whiteSpace: "nowrap", flexShrink: 0 }}>
