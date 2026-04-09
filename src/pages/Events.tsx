@@ -534,13 +534,16 @@ const Events = () => {
         )
       : byCategory;
 
-    // For list and timeline views, hide overdue events unless toggled
-    if ((viewMode === "list" || viewMode === "vertical") && !showPast) {
+    // Hide past events unless toggled; when showing past, limit to 1 year back
+    if (!showPast) {
       const todayStr = new Date().toISOString().split("T")[0];
-      return withSearch.filter((e) => e.event_date >= todayStr);
+      return withSearch.filter((e) => (e.end_date || e.event_date) >= todayStr);
+    } else {
+      const oneYearAgo = new Date();
+      oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+      const cutoffStr = oneYearAgo.toISOString().split("T")[0];
+      return withSearch.filter((e) => (e.end_date || e.event_date) >= cutoffStr);
     }
-
-    return withSearch;
   }, [events.data, activeCategories, isAllSelected, searchQuery, viewMode, showPast]);
 
   const handleCategoryToggle = (cat: string) => {
@@ -627,8 +630,7 @@ const Events = () => {
                   {label}
                 </span>
               ))}
-              {(viewMode === "list" || viewMode === "vertical") && (
-                <span
+              <span
                   onClick={() => setShowPast(!showPast)}
                   style={{
                     fontSize: 13, fontWeight: 500, cursor: "pointer",
@@ -639,7 +641,6 @@ const Events = () => {
                 >
                   {showPast ? "Hide past" : "Show past"}
                 </span>
-              )}
             </div>
 
             {canEditEvents && (
@@ -693,7 +694,7 @@ const Events = () => {
             <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
           </div>
         ) : viewMode === "gantt" ? (
-          <EventsGantt events={filteredEvents} />
+          <EventsGantt events={filteredEvents} showPast={showPast} />
         ) : viewMode === "vertical" ? (
           <EventsVerticalTimeline events={filteredEvents} />
         ) : (

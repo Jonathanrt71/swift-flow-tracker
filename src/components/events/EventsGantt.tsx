@@ -5,6 +5,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 
 interface EventsGanttProps {
   events: ProgramEvent[];
+  showPast?: boolean;
 }
 
 const MONTH_ABBRS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -16,7 +17,7 @@ interface TimelineRow {
   earliestStart: Date;
 }
 
-const EventsGantt = ({ events }: EventsGanttProps) => {
+const EventsGantt = ({ events, showPast = false }: EventsGanttProps) => {
   const isMobile = useIsMobile();
   const labelWidth = isMobile ? 70 : 130;
   const rowHeight = isMobile ? 34 : 40;
@@ -28,17 +29,12 @@ const EventsGantt = ({ events }: EventsGanttProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Build rows — filter out past occurrences (before current month)
+  // Build rows from filtered events
   const rows = useMemo(() => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
     const map = new Map<string, { startDate: Date; endDate: Date }[]>();
     events.forEach((ev) => {
       const start = parseISO(ev.event_date);
       const end = ev.end_date && ev.end_date !== ev.event_date ? parseISO(ev.end_date) : start;
-      // Skip if entirely in the past
-      if (end < today) return;
       const arr = map.get(ev.title) || [];
       arr.push({ startDate: start, endDate: end });
       map.set(ev.title, arr);
@@ -60,13 +56,16 @@ const EventsGantt = ({ events }: EventsGanttProps) => {
     return rows;
   }, [events]);
 
-  // Compute month range: current month → 2 calendar years forward
+  // Compute month range: optionally 1 year back → 2 years forward
   const months = useMemo(() => {
     const result: { month: number; year: number; days: number; label: string; isCurrent: boolean }[] = [];
     let cm = now.getMonth();
     let cy = now.getFullYear();
-    const endY = cy + 2;
-    const endM = cm;
+    if (showPast) {
+      cy -= 1;
+    }
+    const endY = now.getFullYear() + 2;
+    const endM = now.getMonth();
     while (cy < endY || (cy === endY && cm <= endM)) {
       const isCurrent = cm === now.getMonth() && cy === now.getFullYear();
       const shortYear = String(cy).slice(-2);
@@ -75,7 +74,7 @@ const EventsGantt = ({ events }: EventsGanttProps) => {
       if (cm > 11) { cm = 0; cy++; }
     }
     return result;
-  }, [rows]);
+  }, [rows, showPast]);
 
   const monthCount = months.length;
 
