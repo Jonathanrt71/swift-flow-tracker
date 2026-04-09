@@ -596,6 +596,10 @@ const Feedback = () => {
 
   return (
     <div className="min-h-screen bg-background pb-20" style={{ background: "#F5F3EE" }}>
+      <style>{`
+        .underline-tab[data-state="active"] { color: #415162 !important; border-bottom: 2px solid #415162 !important; }
+        .underline-tab[data-state="inactive"] { color: #8A9AAB !important; border-bottom: 2px solid transparent !important; }
+      `}</style>
       {/* Header */}
       <header className="sticky top-0 z-40" style={{ background: "#415162" }}>
         <div className="flex items-center h-14 px-4">
@@ -642,22 +646,18 @@ const Feedback = () => {
         {/* Toolbar */}
         <div className="flex items-center justify-between pb-2.5">
           <div className="flex gap-2 items-center">
-            <TabsList className="gap-1 h-auto p-1 bg-transparent">
-              <TabsTrigger value="list" className="flex flex-col items-center gap-1 h-auto px-3 py-1.5 data-[state=active]:bg-[#D5DAE0] data-[state=active]:text-[#415162] data-[state=active]:shadow-none data-[state=inactive]:text-[#8A9AAB]" title="List">
-                <List className="h-4 w-4" />
-                <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase" as const, lineHeight: 1 }}>List</span>
+            <TabsList className="gap-4 h-auto p-0 bg-transparent" style={{ borderBottom: "0.5px solid #D5DAE0", paddingBottom: 8, borderRadius: 0 }}>
+              <TabsTrigger value="list" className="underline-tab p-0 h-auto bg-transparent shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none" style={{ paddingBottom: 8, marginBottom: -8.5, fontSize: 13, fontWeight: 500, borderRadius: 0 }}>
+                List
               </TabsTrigger>
-              <TabsTrigger value="summary" className="flex flex-col items-center gap-1 h-auto px-3 py-1.5 data-[state=active]:bg-[#D5DAE0] data-[state=active]:text-[#415162] data-[state=active]:shadow-none data-[state=inactive]:text-[#8A9AAB]" title="Summary">
-                <PieChart className="h-4 w-4" />
-                <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase" as const, lineHeight: 1 }}>Summary</span>
+              <TabsTrigger value="summary" className="underline-tab p-0 h-auto bg-transparent shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none" style={{ paddingBottom: 8, marginBottom: -8.5, fontSize: 13, fontWeight: 500, borderRadius: 0 }}>
+                Summary
               </TabsTrigger>
-              <TabsTrigger value="lastFeedback" className="flex flex-col items-center gap-1 h-auto px-3 py-1.5 data-[state=active]:bg-[#D5DAE0] data-[state=active]:text-[#415162] data-[state=active]:shadow-none data-[state=inactive]:text-[#8A9AAB]" title="Last Dates">
-                <CalendarDays className="h-4 w-4" />
-                <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase" as const, lineHeight: 1 }}>Last Dates</span>
+              <TabsTrigger value="lastFeedback" className="underline-tab p-0 h-auto bg-transparent shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none" style={{ paddingBottom: 8, marginBottom: -8.5, fontSize: 13, fontWeight: 500, borderRadius: 0 }}>
+                Last Dates
               </TabsTrigger>
-              <TabsTrigger value="facultyCounts" className="flex flex-col items-center gap-1 h-auto px-3 py-1.5 data-[state=active]:bg-[#D5DAE0] data-[state=active]:text-[#415162] data-[state=active]:shadow-none data-[state=inactive]:text-[#8A9AAB]" title="Faculty">
-                <Users className="h-4 w-4" />
-                <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.03em", textTransform: "uppercase" as const, lineHeight: 1 }}>Faculty</span>
+              <TabsTrigger value="facultyCounts" className="underline-tab p-0 h-auto bg-transparent shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none" style={{ paddingBottom: 8, marginBottom: -8.5, fontSize: 13, fontWeight: 500, borderRadius: 0 }}>
+                Faculty
               </TabsTrigger>
             </TabsList>
           </div>
