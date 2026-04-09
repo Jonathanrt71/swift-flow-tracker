@@ -1,3 +1,4 @@
+import { getInitials } from "@/lib/dateFormat";
 import { useState, type ReactNode } from "react";
 import {
   Dialog,
@@ -22,10 +23,6 @@ interface NotesEditorDialogProps {
   dueDate?: string | null;
 }
 
-const getInitials = (name: string | null): string => {
-  if (!name) return "?";
-  return name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2);
-};
 
 const getAvatarColor = (name: string | null): string => {
   const cols = ["#378ADD", "#1D9E75", "#D85A30", "#534AB7", "#993556"];

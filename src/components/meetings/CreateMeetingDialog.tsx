@@ -11,7 +11,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { format, parseISO } from "date-fns";
-import { formatPersonName } from "@/lib/dateFormat";
+import { formatPersonName } , getInitials } from "@/lib/dateFormat";
 import { useMeetingCategories } from "@/hooks/useMeetingCategories";
 import ComboSearch from "@/components/shared/ComboSearch";
 
@@ -74,10 +74,6 @@ const CreateMeetingDialog = ({ onSubmit }: CreateMeetingDialogProps) => {
     selectedAttendees.includes(m.id)
   );
 
-  const getInitials = (name: string | null): string => {
-    if (!name) return "?";
-    return name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2);
-  };
 
   const getColor = (name: string | null): string => {
     const cols = ["#378ADD", "#1D9E75", "#D85A30", "#534AB7", "#993556"];

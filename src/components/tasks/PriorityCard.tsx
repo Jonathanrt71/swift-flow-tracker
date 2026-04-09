@@ -1,3 +1,4 @@
+import { getInitials } from "@/lib/dateFormat";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowUp, ArrowDown, Pencil, X, Plus } from "lucide-react";
@@ -9,10 +10,6 @@ import type { Task } from "@/hooks/useTasks";
 import EditPriorityDialog from "./EditPriorityDialog";
 import ComboSearch from "@/components/shared/ComboSearch";
 
-const getInitials = (name: string | null): string => {
-  if (!name) return "?";
-  return name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2);
-};
 const getAvatarColor = (name: string | null): string => {
   const cols = ["#378ADD", "#1D9E75", "#D85A30", "#534AB7", "#993556"];
   let h = 0;

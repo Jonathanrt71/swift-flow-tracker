@@ -1,11 +1,7 @@
 import { useState } from "react";
 import type { Competency, Assessment } from "@/hooks/useCompetencies";
-import { formatLastFirst } from "@/lib/dateFormat";
+import { formatLastFirst } , getInitials } from "@/lib/dateFormat";
 
-const getInitials = (name: string | null): string => {
-  if (!name) return "?";
-  return name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2);
-};
 
 const getColor = (name: string | null): string => {
   const cols = ["#378ADD", "#1D9E75", "#D85A30", "#534AB7", "#993556"];

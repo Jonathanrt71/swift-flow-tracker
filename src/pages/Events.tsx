@@ -14,7 +14,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Calendar, Search, X, List, ClipboardCheck, ArrowLeft, Pencil, BookMarked } from "lucide-react";
 import { format, parseISO } from "date-fns";
-import { formatCardDate, ordinalSuffix } from "@/lib/dateFormat";
+import { formatCardDate, ordinalSuffix } , getInitials } from "@/lib/dateFormat";
 import CreateEventDialog from "@/components/events/CreateEventDialog";
 import EditEventDialog from "@/components/events/EditEventDialog";
 import EvaluationDialog from "@/components/events/EvaluationDialog";
@@ -41,10 +41,6 @@ const GanttIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-const getInitials = (name: string | null): string => {
-  if (!name) return "?";
-  return name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2);
-};
 
 const getColor = (name: string | null): string => {
   const cols = ["#378ADD", "#1D9E75", "#D85A30", "#534AB7", "#993556"];

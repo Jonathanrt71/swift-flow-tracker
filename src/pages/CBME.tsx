@@ -33,7 +33,7 @@ import MilestoneLevelsGrid from "@/components/cbme/MilestoneLevelsGrid";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import HeaderLogo from "@/components/HeaderLogo";
 import { format, parseISO } from "date-fns";
-import { formatCardDate, formatPersonName } from "@/lib/dateFormat";
+import { formatCardDate, formatPersonName } , getInitials } from "@/lib/dateFormat";
 import { cn } from "@/lib/utils";
 
 const CreateCompetencyDialog = ({
@@ -110,10 +110,6 @@ const CreateCompetencyDialog = ({
   );
 };
 
-const getInitials = (name: string | null): string => {
-  if (!name) return "?";
-  return name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2);
-};
 
 const getColor = (name: string | null): string => {
   const cols = ["#378ADD", "#1D9E75", "#D85A30", "#534AB7", "#993556"];

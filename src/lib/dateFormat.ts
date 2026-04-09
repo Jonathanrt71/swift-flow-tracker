@@ -71,3 +71,13 @@ export const getInitialsFromParts = (
   if (l) return l[0].toUpperCase();
   return "?";
 };
+
+/** Get first-last initials from any name format (handles "Last, First" and "First Last") */
+export const getInitials = (name: string | null): string => {
+  if (!name) return "?";
+  // Handle "Last, First" format — swap to "First Last"
+  const normalized = name.includes(",")
+    ? name.split(",").map(s => s.trim()).reverse().join(" ")
+    : name;
+  return normalized.split(" ").filter(Boolean).map(w => w[0]).join("").toUpperCase().slice(0, 2);
+};

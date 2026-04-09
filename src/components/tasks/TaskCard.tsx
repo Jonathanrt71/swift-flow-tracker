@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Star, Pencil, BookMarked } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { formatCardDate } from "@/lib/dateFormat";
+import { formatCardDate } , getInitials } from "@/lib/dateFormat";
 import type { Task } from "@/hooks/useTasks";
 import type { TeamMember } from "@/hooks/useTeamMembers";
 
@@ -18,10 +18,6 @@ interface TaskCardProps {
   onCardClick: (task: Task) => void;
 }
 
-const getInitials = (name: string | null): string => {
-  if (!name) return "?";
-  return name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2);
-};
 
 const getAvatarColor = (name: string | null): string => {
   const cols = ["#378ADD", "#1D9E75", "#D85A30", "#534AB7", "#993556"];

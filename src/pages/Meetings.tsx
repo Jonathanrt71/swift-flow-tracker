@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Shield, User, LogOut, Search, X as XIcon } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { DetailReadOnly } from "@/components/cbme/DetailField";
-import { formatCardDate, formatPersonName } from "@/lib/dateFormat";
+import { formatCardDate, formatPersonName } , getInitials } from "@/lib/dateFormat";
 import HeaderLogo from "@/components/HeaderLogo";
 import CreateMeetingDialog from "@/components/meetings/CreateMeetingDialog";
 import EditMeetingDialog from "@/components/meetings/MeetingNotesDialog";
@@ -19,10 +19,6 @@ import NotificationBell from "@/components/NotificationBell";
 import type { Meeting } from "@/hooks/useMeetings";
 import { useMeetingCategories } from "@/hooks/useMeetingCategories";
 
-const getInitials = (name: string | null): string => {
-  if (!name) return "?";
-  return name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2);
-};
 
 const getColor = (name: string | null): string => {
   const cols = ["#378ADD", "#1D9E75", "#D85A30", "#534AB7", "#993556"];

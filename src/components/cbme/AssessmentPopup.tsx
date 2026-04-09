@@ -5,14 +5,10 @@ import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { DetailReadOnly, detailPreviewText } from "./DetailField";
-import { formatLastFirst } from "@/lib/dateFormat";
+import { formatLastFirst } , getInitials } from "@/lib/dateFormat";
 import { useQuery } from "@tanstack/react-query";
 import type { Competency } from "@/hooks/useCompetencies";
 
-const getInitials = (name: string | null): string => {
-  if (!name) return "?";
-  return name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2);
-};
 
 const getColor = (name: string | null): string => {
   const cols = ["#378ADD", "#1D9E75", "#D85A30", "#534AB7", "#993556"];
