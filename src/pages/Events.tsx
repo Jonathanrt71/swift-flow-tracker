@@ -707,7 +707,7 @@ const Events = () => {
                   onClick={handleAllClick}
                   style={{
                     fontSize: 12, fontWeight: 500, padding: "4px 12px", borderRadius: 20,
-                    border: isAllSelected ? "none" : "0.5px solid #C9CED4",
+                    border: isAllSelected ? "1px solid #415162" : "1px solid #C9CED4",
                     background: isAllSelected ? "#415162" : "transparent",
                     color: isAllSelected ? "#fff" : "#8A9AAB",
                     cursor: "pointer",
@@ -723,7 +723,7 @@ const Events = () => {
                       onClick={() => handleCategoryToggle(cat.name)}
                       style={{
                         fontSize: 12, fontWeight: 500, padding: "4px 12px", borderRadius: 20,
-                        border: isActive ? "none" : "0.5px solid #C9CED4",
+                        border: isActive ? "1px solid #415162" : "1px solid #C9CED4",
                         background: isActive ? "#415162" : "transparent",
                         color: isActive ? "#fff" : "#8A9AAB",
                         cursor: "pointer",
