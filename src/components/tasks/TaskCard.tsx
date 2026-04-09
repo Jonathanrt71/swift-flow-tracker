@@ -88,7 +88,7 @@ const TaskCard = ({
 
         {/* Expandable content marker */}
         {hasDetails && (
-          <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#D4A017", flexShrink: 0 }} />
+          <div style={{ width: 7, height: 7, borderRadius: "50%", background: "#9F2929", flexShrink: 0 }} />
         )}
 
         {/* Due date */}

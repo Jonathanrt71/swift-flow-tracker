@@ -105,8 +105,8 @@ const PriorityCard = ({
             </span>
           )}
 
-          {(totalCount > 0 || priority.notes) && (
-            <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#D4A017", flexShrink: 0 }} />
+          {(totalCount > 0 || (priority.notes && priority.notes.replace(/<[^>]*>/g, "").trim())) && (
+            <div style={{ width: 7, height: 7, borderRadius: "50%", background: "#9F2929", flexShrink: 0 }} />
           )}
 
           <div className="shrink-0">

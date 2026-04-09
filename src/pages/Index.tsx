@@ -63,14 +63,22 @@ const Index = () => {
     const highlight = searchParams.get("highlight");
     if (tab) setActiveTab(tab);
     if (highlight) {
-      setHighlightId(null);
-      // Force animation restart by clearing then setting on next frame
-      requestAnimationFrame(() => {
-        setHighlightId(highlight);
-        setHighlightKey(k => k + 1);
-        setTimeout(() => setHighlightId(null), 2000);
-      });
+      // Clear params immediately but preserve nothing else
       setSearchParams({}, { replace: true });
+      // Delay highlight until tab switch and data render
+      setTimeout(() => {
+        setHighlightId(null);
+        requestAnimationFrame(() => {
+          setHighlightId(highlight);
+          setHighlightKey(k => k + 1);
+          // Wait for React to paint the highlight class, then scroll
+          requestAnimationFrame(() => {
+            const el = document.querySelector(".highlight-pulse");
+            if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+          });
+          setTimeout(() => setHighlightId(null), 2000);
+        });
+      }, 150);
     }
   }, [searchParams]);
 
