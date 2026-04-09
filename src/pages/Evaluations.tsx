@@ -225,8 +225,11 @@ const Evaluations = () => {
   const [rotExpandedId, setRotExpandedId] = useState<string | null>(null);
   const [rotFilterResident, setRotFilterResident] = useState<string>("all");
   const [rotFilterRotation, setRotFilterRotation] = useState<string>("all");
+  const [rotFilterStatus, setRotFilterStatus] = useState<"all" | "unread" | "read">("unread");
   const [rotImportPreview, setRotImportPreview] = useState<any[] | null>(null);
   const [rotImporting, setRotImporting] = useState(false);
+  const [rotFlashId, setRotFlashId] = useState<string | null>(null);
+  const [rotPendingViewId, setRotPendingViewId] = useState<string | null>(null);
 
   // ═══════════════════════════════════════════════════════════════════════
   // Attending evaluations queries
@@ -434,6 +437,47 @@ const Evaluations = () => {
     },
   });
 
+  const rotViewsQuery = useQuery({
+    queryKey: ["rotation_evaluation_views", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from("rotation_evaluation_views")
+        .select("*")
+        .eq("user_id", user!.id);
+      if (error) throw error;
+      return (data || []) as EvaluationView[];
+    },
+  });
+
+  const rotViewedSet = useMemo(() => {
+    const s = new Set<string>();
+    (rotViewsQuery.data || []).forEach(v => s.add(v.evaluation_id));
+    return s;
+  }, [rotViewsQuery.data]);
+
+  const toggleRotView = async (evalId: string) => {
+    if (rotViewedSet.has(evalId)) {
+      const view = (rotViewsQuery.data || []).find(v => v.evaluation_id === evalId);
+      if (view) {
+        await (supabase as any).from("rotation_evaluation_views").delete().eq("id", view.id);
+      }
+      queryClient.invalidateQueries({ queryKey: ["rotation_evaluation_views"] });
+    } else {
+      setRotFlashId(evalId);
+      setRotPendingViewId(evalId);
+      await (supabase as any).from("rotation_evaluation_views").insert({
+        evaluation_id: evalId,
+        user_id: user!.id,
+      });
+      setTimeout(() => {
+        setRotFlashId(null);
+        setRotPendingViewId(null);
+        queryClient.invalidateQueries({ queryKey: ["rotation_evaluation_views"] });
+      }, 800);
+    }
+  };
+
   const rotResidents = useMemo(() => {
     const evals = rotEvalsQuery.data || [];
     const set = new Set<string>();
@@ -448,12 +492,22 @@ const Evaluations = () => {
     return Array.from(set).sort();
   }, [rotEvalsQuery.data]);
 
-  const rotFiltered = useMemo(() => {
+  const rotBaseFiltered = useMemo(() => {
     let evals = rotEvalsQuery.data || [];
     if (rotFilterResident !== "all") evals = evals.filter(e => e.resident_name === rotFilterResident);
     if (rotFilterRotation !== "all") evals = evals.filter(e => e.rotation === rotFilterRotation);
     return evals;
   }, [rotEvalsQuery.data, rotFilterResident, rotFilterRotation]);
+
+  const rotFiltered = useMemo(() => {
+    let evals = rotBaseFiltered;
+    if (rotFilterStatus === "unread") evals = evals.filter(e => !rotViewedSet.has(e.id) || rotPendingViewId === e.id);
+    else if (rotFilterStatus === "read") evals = evals.filter(e => rotViewedSet.has(e.id));
+    return evals;
+  }, [rotBaseFiltered, rotFilterStatus, rotViewedSet, rotPendingViewId]);
+
+  const rotUnviewedCount = useMemo(() => rotBaseFiltered.filter(e => !rotViewedSet.has(e.id)).length, [rotBaseFiltered, rotViewedSet]);
+  const rotViewedCount = useMemo(() => rotBaseFiltered.filter(e => rotViewedSet.has(e.id)).length, [rotBaseFiltered, rotViewedSet]);
 
   // ── Rotation import handler ──
   const handleRotFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -817,8 +871,7 @@ const Evaluations = () => {
                   <Upload style={{ width: 14, height: 14 }} /> Import
                   <input type="file" accept=".tab,.tsv,.txt" onChange={handleRotFileUpload} style={{ display: "none" }} />
                 </label>
-              )}
-            </div>
+              )}\n            </div>\n\n            {/* Filter bar — row 2: read/unread toggles */}\n            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>\n              <div style={{ display: "flex", gap: 0, borderRadius: 8, overflow: "hidden", border: "0.5px solid #C9CED4" }}>\n                {([\n                  { value: "all" as const, label: "All" },\n                  { value: "unread" as const, label: `Unread${rotUnviewedCount > 0 ? ` (${rotUnviewedCount})` : ""}` },\n                  { value: "read" as const, label: `Read${rotViewedCount > 0 ? ` (${rotViewedCount})` : ""}` },\n                ]).map(opt => (\n                  <button\n                    key={opt.value}\n                    onClick={() => setRotFilterStatus(opt.value)}\n                    style={{\n                      padding: "5px 10px", fontSize: 11, fontWeight: 500, border: "none", cursor: "pointer",\n                      background: rotFilterStatus === opt.value ? "#415162" : "#fff",\n                      color: rotFilterStatus === opt.value ? "#fff" : "#5F7285",\n                      whiteSpace: "nowrap",\n                    }}\n                  >\n                    {opt.label}\n                  </button>\n                ))}\n              </div>\n            </div>
 
             {/* Import preview */}
             {rotImportPreview && (
@@ -872,9 +925,10 @@ const Evaluations = () => {
                       <div style={{ fontSize: 11, fontWeight: 500, color: "#8A9AAB", textTransform: "uppercase", letterSpacing: "0.05em", padding: "12px 0 4px" }}>{g.month}</div>
                       {g.items.map(ev => {
                         const isExpanded = rotExpandedId === ev.id;
+                        const isViewed = rotViewedSet.has(ev.id) || rotPendingViewId === ev.id;
                         return (
                           <div key={ev.id} className="rounded-lg overflow-hidden"
-                            style={{ background: "#E7EBEF", border: "0.5px solid #C9CED4", marginBottom: 8 }}
+                            style={{ background: rotFlashId === ev.id ? "rgba(74,132,108,0.15)" : "#E7EBEF", border: "0.5px solid #C9CED4", transition: "background 0.4s ease", marginBottom: 8 }}
                           >
                             {/* Collapsed row */}
                             <div
@@ -888,6 +942,11 @@ const Evaluations = () => {
                                 <div style={{ fontSize: 11, color: "#8A9AAB" }}>
                                   {ev.resident_name} · PGY-{ev.pgy_level || "?"} · {fmtDate(ev.date_completed)}
                                 </div>
+                              </div>
+                              <div onClick={(e) => { e.stopPropagation(); toggleRotView(ev.id); }}
+                                style={{ width: 18, height: 18, borderRadius: 4, border: isViewed ? "none" : "2px solid #C9CED4", background: isViewed ? "#4A846C" : "transparent", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", flexShrink: 0 }}
+                              >
+                                {isViewed && <Check style={{ width: 12, height: 12, color: "#fff" }} />}
                               </div>
                               {isExpanded ? <ChevronUp style={{ width: 16, height: 16, color: "#8A9AAB" }} /> : <ChevronDown style={{ width: 16, height: 16, color: "#8A9AAB" }} />}
                             </div>
