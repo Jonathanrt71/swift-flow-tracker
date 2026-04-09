@@ -875,11 +875,13 @@ const Compliance = () => {
             </button>
           </div>
 
+          {canEdit && (
           <div style={{ fontSize: 13, color: "#888", marginBottom: 16, lineHeight: 1.6 }}>
             Write the program's compliance narrative here. Use <RequirementPill number="1.7.c" /> syntax in your markdown
             (e.g., <code style={{ fontSize: 11, background: "#E7EBEF", padding: "1px 4px", borderRadius: 3 }}>[1.7.c]</code>)
             to create clickable links to specific requirements in the table.
           </div>
+          )}
 
           {(narrativeSections || []).length === 0 && !narLoading && canEdit && (
             <div style={{
