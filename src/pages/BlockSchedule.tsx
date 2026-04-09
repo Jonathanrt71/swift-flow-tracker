@@ -426,7 +426,7 @@ const BlockSchedule = () => {
               overflow: "auto",
               border: "0.5px solid #C9CED4",
               borderRadius: 8,
-              flex: 1,
+              maxHeight: "calc(100vh - 180px)",
               minHeight: 0,
               overscrollBehaviorX: "contain",
             }}
