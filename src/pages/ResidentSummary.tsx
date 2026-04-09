@@ -358,24 +358,49 @@ const ResidentSummary = () => {
       </header>
 
       <main style={{ maxWidth: 900, margin: "0 auto", padding: "12px 16px 100px" }}>
-        {/* Resident selector */}
-        <div style={{ marginBottom: 16 }}>
-          <Select value={selectedResident} onValueChange={setSelectedResident}>
-            <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0" style={{ borderColor: "#C9CED4", background: "#fff", fontSize: 14 }}>
-              <SelectValue placeholder="Select a resident" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="none" disabled>Select a resident</SelectItem>
-              {(residentsQuery.data || []).map(r => {
-                const last = r.last_name || "";
-                const firstInitial = r.first_name ? r.first_name.charAt(0) + "." : "";
-                const label = last && firstInitial ? `${last}, ${firstInitial}` : r.display_name || `${r.first_name || ""} ${last}`;
-                return (
-                  <SelectItem key={r.id} value={r.id}>{label}</SelectItem>
-                );
-              })}
-            </SelectContent>
-          </Select>
+        {/* Header with inline resident selector */}
+        <div style={{ background: "#fff", borderRadius: 12, border: "0.5px solid #C9CED4", padding: "14px 16px", marginBottom: 16 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+            <div style={{ width: 48, height: 48, borderRadius: "50%", background: "#415162", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 500, fontSize: 16, color: "#fff", flexShrink: 0 }}>
+              {selectedResident !== "none" ? initials : "?"}
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <span style={{ fontSize: 18, fontWeight: 500, color: "#2D3748" }}>
+                  {selectedResident !== "none" ? residentName : "Select a resident"}
+                </span>
+                <Select value={selectedResident} onValueChange={setSelectedResident}>
+                  <SelectTrigger
+                    className="focus:ring-0 focus:ring-offset-0"
+                    style={{
+                      width: 28, height: 26, padding: 0,
+                      borderRadius: 6, border: "0.5px solid #C9CED4", background: "transparent",
+                      display: "inline-flex", alignItems: "center", justifyContent: "center",
+                      minHeight: 0,
+                    }}
+                  >
+                    <span style={{ display: "none" }}><SelectValue /></span>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none" disabled>Select a resident</SelectItem>
+                    {(residentsQuery.data || []).map(r => {
+                      const last = r.last_name || "";
+                      const firstInitial = r.first_name ? r.first_name.charAt(0) + "." : "";
+                      const label = last && firstInitial ? `${last}, ${firstInitial}` : r.display_name || `${r.first_name || ""} ${last}`;
+                      return (
+                        <SelectItem key={r.id} value={r.id}>{label}</SelectItem>
+                      );
+                    })}
+                  </SelectContent>
+                </Select>
+              </div>
+              {selectedResident !== "none" && (
+                <div style={{ fontSize: 13, color: "#8A9AAB", marginTop: 2 }}>
+                  {pgy ? `PGY-${pgy}` : ""}{resident?.graduation_year ? ` · Class of ${resident.graduation_year}` : ""} · Family Medicine
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
         {selectedResident === "none" ? (
@@ -384,19 +409,6 @@ const ResidentSummary = () => {
           </div>
         ) : (
           <>
-            {/* Header */}
-            <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "0 0 16px" }}>
-              <div style={{ width: 48, height: 48, borderRadius: "50%", background: "#415162", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 500, fontSize: 16, color: "#fff", flexShrink: 0 }}>
-                {initials}
-              </div>
-              <div>
-                <div style={{ fontSize: 18, fontWeight: 500, color: "#2D3748" }}>{residentName}</div>
-                <div style={{ fontSize: 13, color: "#8A9AAB" }}>
-                  {pgy ? `PGY-${pgy}` : ""}{resident?.graduation_year ? ` · Class of ${resident.graduation_year}` : ""} · Family Medicine
-                </div>
-              </div>
-            </div>
-
             {/* Metric cards */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginBottom: 16 }}>
               <div style={{ background: "#E7EBEF", borderRadius: 8, padding: "10px 12px" }}>
