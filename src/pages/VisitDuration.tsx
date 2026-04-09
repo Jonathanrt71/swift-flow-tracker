@@ -283,32 +283,34 @@ const VisitDuration = () => {
             </div>
 
             {/* Data table */}
-            <div style={{ background: "#fff", border: "1px solid #D5DAE0", borderRadius: 10, padding: 0, maxWidth: 520, overflow: "hidden" }}>
-              <table style={{ borderCollapse: "collapse", fontSize: 13, width: "100%" }}>
+            <div style={{ background: "#E7EBEF", border: "0.5px solid #C9CED4", borderRadius: 12, padding: "14px 16px", maxWidth: 520 }}>
+              <div style={{ fontSize: 14, fontWeight: 500, color: "#2D3748", marginBottom: 10 }}>Data</div>
+              <div style={{ overflowX: "auto" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
                 <thead>
-                  <tr style={{ background: "#415162" }}>
-                    <th style={{ textAlign: "left", padding: "10px 20px", color: "#fff", fontWeight: 500 }}>Week</th>
-                    <th style={{ textAlign: "left", padding: "10px 20px", color: "#fff", fontWeight: 500 }}>Median</th>
-                    <th style={{ textAlign: "left", padding: "10px 20px", color: "#fff", fontWeight: 500 }}>Phase</th>
-                    {canEdit && <th style={{ padding: "10px 12px", width: 36 }} />}
+                  <tr>
+                    <th style={{ textAlign: "left", padding: "4px 6px", fontSize: 11, color: "#8A9AAB", fontWeight: 500, borderBottom: "1px solid #D5DAE0" }}>Week</th>
+                    <th style={{ textAlign: "center", padding: "4px 6px", fontSize: 11, color: "#8A9AAB", fontWeight: 500, borderBottom: "1px solid #D5DAE0", width: 60 }}>Median</th>
+                    <th style={{ textAlign: "center", padding: "4px 6px", fontSize: 11, color: "#8A9AAB", fontWeight: 500, borderBottom: "1px solid #D5DAE0", width: 70 }}>Phase</th>
+                    {canEdit && <th style={{ padding: "4px 6px", borderBottom: "1px solid #D5DAE0", width: 30 }} />}
                   </tr>
                 </thead>
                 <tbody>
                   {[...rows].reverse().slice(0, 10).map((r, i) => (
-                    <tr key={r.id} style={{ borderBottom: "1px solid #E7EBEF", background: i % 2 === 0 ? "#E7EBEF" : "#fff" }}>
-                      <td style={{ padding: "10px 20px", color: "#2D3748" }}>{r.week_label}</td>
-                      <td style={{ padding: "10px 20px", color: "#2D3748", fontWeight: 600 }}>{r.median_minutes}</td>
-                      <td style={{ padding: "10px 20px" }}>
+                    <tr key={r.id} style={{ background: i % 2 === 0 ? "transparent" : "rgba(0,0,0,0.03)" }}>
+                      <td style={{ padding: "4px 6px", color: "#2D3748", fontWeight: 500 }}>{r.week_label}</td>
+                      <td style={{ padding: "4px 6px", color: "#2D3748", fontWeight: 500, textAlign: "center" }}>{r.median_minutes}</td>
+                      <td style={{ padding: "4px 6px", textAlign: "center" }}>
                         <span style={{
                           fontSize: 10, padding: "2px 8px", borderRadius: 10, fontWeight: 500,
-                          background: r.phase === 1 ? "#E7EBEF" : "#E4F0EB",
+                          background: r.phase === 1 ? "#D6DEE6" : "#E4F0EB",
                           color: r.phase === 1 ? "#415162" : "#27500A",
                         }}>
                           {r.phase === 1 ? "AY 24-25" : "AY 25-26"}
                         </span>
                       </td>
                       {canEdit && (
-                        <td style={{ padding: "10px 12px", textAlign: "center" }}>
+                        <td style={{ padding: "4px 6px", textAlign: "center" }}>
                           <button
                             onClick={() => { if (confirm("Delete this entry?")) deleteRow.mutate(r.id); }}
                             style={{ background: "transparent", border: "none", cursor: "pointer", color: "#C9CED4", fontSize: 14, padding: 2 }}
@@ -321,8 +323,9 @@ const VisitDuration = () => {
                   ))}
                 </tbody>
               </table>
+              </div>
               {rows.length > 10 && (
-                <div style={{ fontSize: 11, color: "#8A9AAB", textAlign: "center", padding: "8px 0" }}>
+                <div style={{ fontSize: 11, color: "#8A9AAB", textAlign: "center", padding: "8px 0 0" }}>
                   Showing 10 most recent of {rows.length} entries
                 </div>
               )}
