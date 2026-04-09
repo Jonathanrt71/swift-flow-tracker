@@ -288,9 +288,9 @@ const VisitDuration = () => {
               <div style={{ overflowX: "auto" }}>
               <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, tableLayout: "fixed" }}>
                 <colgroup>
-                  <col style={{ width: "40%" }} />
-                  <col style={{ width: "25%" }} />
-                  <col style={{ width: "25%" }} />
+                  <col style={{ width: "30%" }} />
+                  <col style={{ width: "30%" }} />
+                  <col style={{ width: "30%" }} />
                   {canEdit && <col style={{ width: "10%" }} />}
                 </colgroup>
                 <thead>
