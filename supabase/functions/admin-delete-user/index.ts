@@ -38,13 +38,12 @@ Deno.serve(async (req) => {
     if (!user_id) throw new Error("user_id is required");
     if (user_id === caller.id) throw new Error("Cannot delete yourself");
 
-    // Clean up related data that might block deletion
-    await adminClient.from("user_roles").delete().eq("user_id", user_id);
-    await adminClient.from("profiles").delete().eq("id", user_id);
-
-    // Delete the auth user
+    // Delete the auth user — FK cascades handle all related data
     const { error } = await adminClient.auth.admin.deleteUser(user_id);
-    if (error) throw error;
+    if (error) throw new Error(`Auth delete failed: ${error.message || JSON.stringify(error)}`);
+
+    // Clean up profile if it survived (in case FK is to profiles not auth.users)
+    await adminClient.from("profiles").delete().eq("id", user_id);
 
     return new Response(JSON.stringify({ success: true }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
