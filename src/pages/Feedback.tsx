@@ -654,7 +654,7 @@ const Feedback = () => {
                 Summary
               </TabsTrigger>
               <TabsTrigger value="lastFeedback" className="underline-tab p-0 h-auto bg-transparent shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none" style={{ paddingBottom: 8, marginBottom: -8.5, fontSize: 13, fontWeight: 500, borderRadius: 0 }}>
-                Last Dates
+                Last
               </TabsTrigger>
               <TabsTrigger value="facultyCounts" className="underline-tab p-0 h-auto bg-transparent shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none" style={{ paddingBottom: 8, marginBottom: -8.5, fontSize: 13, fontWeight: 500, borderRadius: 0 }}>
                 Faculty
