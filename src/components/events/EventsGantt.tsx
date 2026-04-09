@@ -61,8 +61,15 @@ const EventsGantt = ({ events, showPast = false }: EventsGanttProps) => {
     const result: { month: number; year: number; days: number; label: string; isCurrent: boolean }[] = [];
     let cm = now.getMonth();
     let cy = now.getFullYear();
-    if (showPast) {
-      cy -= 1;
+    if (showPast && rows.length > 0) {
+      let earliest = new Date();
+      rows.forEach(row => {
+        row.occurrences.forEach(o => {
+          if (o.startDate < earliest) earliest = o.startDate;
+        });
+      });
+      cm = earliest.getMonth();
+      cy = earliest.getFullYear();
     }
     const endY = now.getFullYear() + 2;
     const endM = now.getMonth();
