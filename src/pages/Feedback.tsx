@@ -803,7 +803,7 @@ const Feedback = () => {
             ) : (
               <div>
                 {/* Summary row — program totals */}
-                <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
+                <div style={{ display: "flex", gap: 8, marginBottom: 24 }}>
                   <div style={{ flex: 1, background: "#E7EBEF", borderRadius: 8, padding: "10px 12px", textAlign: "center" }}>
                     <div style={{ fontSize: 20, fontWeight: 600, color: "#415162" }}>{totalMonth}</div>
                     <div style={{ fontSize: 11, color: "#5F7285" }}>This month</div>
@@ -818,11 +818,11 @@ const Feedback = () => {
                   </div>
                 </div>
                 {/* Header */}
-                <div style={{ display: "flex", alignItems: "center", padding: "8px 12px", background: "#63839D", borderRadius: "8px 8px 0 0" }}>
-                  <span style={{ flex: 1, fontSize: 11, fontWeight: 600, color: "#F3F5F7" }}>Faculty</span>
-                  <span style={{ width: 50, fontSize: 11, fontWeight: 600, color: "#F3F5F7", textAlign: "center" }}>Mo</span>
-                  <span style={{ width: 50, fontSize: 11, fontWeight: 600, color: "#F3F5F7", textAlign: "center" }}>Yr</span>
-                  <span style={{ width: 50, fontSize: 11, fontWeight: 600, color: "#F3F5F7", textAlign: "center" }}>Total</span>
+                <div style={{ display: "flex", alignItems: "center", padding: "8px 12px", background: "#415162", borderRadius: "8px 8px 0 0" }}>
+                  <span style={{ flex: 1, fontSize: 11, fontWeight: 600, color: "#fff" }}>Faculty</span>
+                  <span style={{ width: 50, fontSize: 11, fontWeight: 600, color: "#fff", textAlign: "center" }}>Mo</span>
+                  <span style={{ width: 50, fontSize: 11, fontWeight: 600, color: "#fff", textAlign: "center" }}>Yr</span>
+                  <span style={{ width: 50, fontSize: 11, fontWeight: 600, color: "#fff", textAlign: "center" }}>Total</span>
                 </div>
                 {/* Rows */}
                 {rows.map((r, i) => {
@@ -830,7 +830,7 @@ const Feedback = () => {
                   return (
                     <div key={r.id} style={{
                       display: "flex", alignItems: "center", padding: "9px 12px",
-                      background: isMe ? "rgba(55,138,221,0.08)" : i % 2 === 0 ? "rgba(243,245,247,0.1)" : "#E7EBEF",
+                      background: isMe ? "rgba(55,138,221,0.08)" : i % 2 === 0 ? "#E7EBEF" : "#fff",
                       borderRadius: i === rows.length - 1 ? "0 0 8px 8px" : 0,
                     }}>
                       <div style={{ flex: 1, minWidth: 0 }}>
