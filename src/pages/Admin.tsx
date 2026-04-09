@@ -498,9 +498,12 @@ const AddUserDialog = ({
   return (
     <Dialog open={open} onOpenChange={handleOpen}>
       <DialogTrigger asChild>
-        <button className="flex items-center justify-center w-8 h-8 bg-transparent border-none cursor-pointer text-muted-foreground hover:text-foreground transition-colors">
-          <Plus className="h-[18px] w-[18px]" />
-        </button>
+        <span style={{
+          fontSize: 13, fontWeight: 600, color: "#415162", background: "#E7EBEF",
+          padding: "4px 12px", borderRadius: 6, cursor: "pointer", userSelect: "none",
+        }}>
+          Add
+        </span>
       </DialogTrigger>
       <DialogContent className="w-[calc(100%-2rem)] max-w-sm max-h-[85vh] overflow-y-auto bg-muted border-border rounded-xl p-0 [&>button[class*='absolute']]:hidden">
         <div className="flex items-center justify-between px-5 pt-4 pb-2">

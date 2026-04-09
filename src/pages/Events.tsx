@@ -610,8 +610,8 @@ const Events = () => {
         <div className="sticky z-30 bg-background" style={{ top: 56 }}>
 
           {/* Row 1: View tabs + Add button */}
-          <div className="flex items-start justify-between" style={{ paddingTop: 8, paddingBottom: 8 }}>
-            <div style={{ display: "flex", gap: 16 }}>
+          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "8px 16px", paddingTop: 8, paddingBottom: 8 }}>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 16, alignItems: "center" }}>
               {([
                 { mode: "list" as const, label: "List" },
                 { mode: "vertical" as const, label: "Timeline" },
@@ -647,6 +647,7 @@ const Events = () => {
               <CreateEventDialog
                 onSubmit={(data) => createEvent.mutate(data)}
                 defaultCategory={activeCategories.size === 1 ? (Array.from(activeCategories)[0] as EventCategory) : "program"}
+                addPill
               />
             )}
           </div>

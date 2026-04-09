@@ -478,13 +478,16 @@ const Topics = () => {
         </div>
 
         {/* Topic count + add button */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "6px 16px", marginBottom: 10 }}>
           <span style={{ fontSize: 12, color: "#aaa" }}>{filtered.length} topic{filtered.length !== 1 ? "s" : ""}</span>
           {canEdit && !showAddForm && (
-            <button onClick={() => setShowAddForm(true)}
-              style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 32, height: 32, background: "transparent", border: "none", cursor: "pointer", color: "#8A9AAB" }}>
-              <Plus style={{ width: 18, height: 18 }} />
-            </button>
+            <span onClick={() => setShowAddForm(true)}
+              style={{
+                fontSize: 13, fontWeight: 600, color: "#415162", background: "#E7EBEF",
+                padding: "4px 12px", borderRadius: 6, cursor: "pointer", userSelect: "none",
+              }}>
+              Add
+            </span>
           )}
         </div>
 

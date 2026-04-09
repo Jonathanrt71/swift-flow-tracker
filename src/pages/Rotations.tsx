@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   ArrowLeft, MapPin, Clock, Calendar, Shirt, Users,
-  Phone, Pencil, X, Save, User, Plus,
+  Phone, Pencil, X, Save, User,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
@@ -314,12 +314,15 @@ const Rotations = () => {
           </div>
         ) : (
           <div>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+            <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "8px 16px", marginBottom: 12 }}>
               <h1 style={{ fontSize: 22, fontWeight: 600, color: "#2D3748", margin: 0 }}>Rotations</h1>
               {canEdit && (
-                <button onClick={() => setShowCreate(true)} style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 32, height: 32, background: "transparent", border: "none", cursor: "pointer", color: "#415162" }}>
-                  <Plus style={{ width: 20, height: 20 }} />
-                </button>
+                <span onClick={() => setShowCreate(true)} style={{
+                  fontSize: 13, fontWeight: 600, color: "#415162", background: "#E7EBEF",
+                  padding: "4px 12px", borderRadius: 6, cursor: "pointer", userSelect: "none",
+                }}>
+                  Add
+                </span>
               )}
             </div>
             {isLoading && <p style={{ fontSize: 14, color: "#999" }}>Loading rotations...</p>}
