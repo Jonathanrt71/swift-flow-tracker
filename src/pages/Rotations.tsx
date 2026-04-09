@@ -314,7 +314,7 @@ const Rotations = () => {
           </div>
         ) : (
           <div>
-            <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "8px 16px", marginBottom: 12 }}>
+            <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "8px 16px", marginBottom: 12, justifyContent: "space-between" }}>
               <h1 style={{ fontSize: 22, fontWeight: 600, color: "#2D3748", margin: 0 }}>Rotations</h1>
               {canEdit && (
                 <span onClick={() => setShowCreate(true)} style={{
