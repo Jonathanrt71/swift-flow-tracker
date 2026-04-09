@@ -221,7 +221,7 @@ const PatientSatisfaction = () => {
       if (parsed.error) throw new Error(parsed.error);
       if (!parsed.comments?.length) {
         setImportStatus("No comments found in PDF.");
-        setTimeout(() => setImportStatus(null), 3000);
+
         setImporting(false);
         return;
       }
@@ -248,10 +248,10 @@ const PatientSatisfaction = () => {
 
       queryClient.invalidateQueries({ queryKey: ["patient_comments"] });
       setImportStatus(`Imported ${rows.length} comments for ${monthLabel}`);
-      setTimeout(() => setImportStatus(null), 4000);
+
     } catch (err: any) {
       setImportStatus(`Error: ${err.message}`);
-      setTimeout(() => setImportStatus(null), 5000);
+
     } finally {
       setImporting(false);
       if (fileRef.current) fileRef.current.value = "";
@@ -355,8 +355,10 @@ const PatientSatisfaction = () => {
             fontSize: 12, padding: "8px 12px", marginBottom: 12, borderRadius: 6,
             background: importStatus.startsWith("Error") ? "#FBF3E0" : "#E4F0EB",
             color: importStatus.startsWith("Error") ? "#854F0B" : "#27500A",
+            display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8,
           }}>
-            {importStatus}
+            <span>{importStatus}</span>
+            <button onClick={() => setImportStatus(null)} style={{ background: "transparent", border: "none", cursor: "pointer", color: "inherit", fontSize: 16, padding: "0 2px", lineHeight: 1 }}>×</button>
           </div>
         )}
 
