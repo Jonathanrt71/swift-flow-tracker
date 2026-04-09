@@ -456,25 +456,22 @@ const Topics = () => {
       </header>
 
       <main style={{ maxWidth: 900, margin: "0 auto", padding: "20px 16px 120px" }}>
-        {/* Domain filter pills */}
+        {/* Domain filter dropdown */}
         <div style={{ marginBottom: 14 }}>
-          <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" as any }}>
-            <div style={{ display: "flex", gap: 6, minWidth: "max-content", paddingBottom: 2 }}>
-              <button onClick={() => setFilterTagId(null)}
-                style={{ padding: "4px 12px", fontSize: 12, borderRadius: 20, border: "none", cursor: "pointer", background: filterTagId === null ? "#415162" : "#E7EBEF", color: filterTagId === null ? "#fff" : "#555", fontWeight: filterTagId === null ? 600 : 400 }}>
-                All
-              </button>
-              {domainTags.map(tag => (
-                <button key={tag.id} onClick={() => setFilterTagId(filterTagId === tag.id ? null : tag.id)}
-                  style={{ padding: "4px 12px", fontSize: 12, borderRadius: 20, border: "none", cursor: "pointer",
-                    background: filterTagId === tag.id ? tag.color : "#E7EBEF",
-                    color: filterTagId === tag.id ? "#fff" : "#555",
-                    fontWeight: filterTagId === tag.id ? 600 : 400 }}>
-                  {tag.name}
-                </button>
-              ))}
-            </div>
-          </div>
+          <select
+            value={filterTagId || "all"}
+            onChange={(e) => setFilterTagId(e.target.value === "all" ? null : e.target.value)}
+            style={{
+              fontSize: 13, padding: "6px 28px 6px 10px", border: "1px solid #C9CED4", borderRadius: 6,
+              background: "#fff url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E\") no-repeat right 8px center",
+              color: "#333", outline: "none", WebkitAppearance: "none", MozAppearance: "none", appearance: "none",
+            } as any}
+          >
+            <option value="all">All categories</option>
+            {domainTags.map(tag => (
+              <option key={tag.id} value={tag.id}>{tag.name}</option>
+            ))}
+          </select>
         </div>
 
         {/* Topic count + add button */}
