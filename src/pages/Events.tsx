@@ -12,7 +12,7 @@ import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Calendar, Search, X, List, ClipboardCheck, ArrowLeft, Pencil, BookMarked } from "lucide-react";
+import { Calendar, Search, X, ClipboardCheck, Pencil, BookMarked } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { formatCardDate, ordinalSuffix } , getInitials } from "@/lib/dateFormat";
 import CreateEventDialog from "@/components/events/CreateEventDialog";
@@ -606,132 +606,83 @@ const Events = () => {
         {/* Sticky filter bar below header */}
         <div className="sticky z-30 bg-background" style={{ top: 56 }}>
 
-          {viewMode === "gantt" ? (
-            /* Gantt mode: back arrow + category tabs in one row */
-            <div className="flex items-center" style={{ gap: 8, borderBottom: "1px solid #D5DAE0" }}>
-              <button
-                onClick={() => setViewMode("list")}
-                style={{
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  width: 28, height: 28, background: "transparent", border: "none",
-                  cursor: "pointer", color: "#5F7285", flexShrink: 0,
-                }}
-              >
-                <ArrowLeft style={{ width: 16, height: 16 }} />
-              </button>
-              <button
-                onClick={handleAllClick}
-                style={{
-                  padding: "6px 0", marginRight: 20, border: "none",
-                  borderBottom: isAllSelected ? "2px solid #415162" : "2px solid transparent",
-                  cursor: "pointer", fontSize: 13, fontWeight: isAllSelected ? 700 : 500,
-                  background: "transparent", color: isAllSelected ? "#415162" : "#8A9AAB",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                All
-              </button>
-              {categories.map((cat) => {
-                const isActive = activeCategories.has(cat.name);
-                return (
-                  <button
-                    key={cat.name}
-                    onClick={() => handleCategoryToggle(cat.name)}
-                    style={{
-                      padding: "6px 0", marginRight: 20, border: "none",
-                      borderBottom: isActive ? "2px solid #415162" : "2px solid transparent",
-                      cursor: "pointer", fontSize: 13, fontWeight: isActive ? 700 : 500,
-                      background: "transparent", color: isActive ? "#415162" : "#8A9AAB",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    {cat.label}
-                  </button>
-                );
-              })}
+          {/* Row 1: View tabs + Add button */}
+          <div className="flex items-start justify-between" style={{ paddingTop: 8, paddingBottom: 8 }}>
+            <div style={{ display: "flex", gap: 16 }}>
+              {([
+                { mode: "list" as const, label: "List" },
+                { mode: "vertical" as const, label: "Timeline" },
+                { mode: "gantt" as const, label: "Gantt" },
+              ] as { mode: "list" | "vertical" | "gantt"; label: string }[]).map(({ mode, label }) => (
+                <span
+                  key={mode}
+                  onClick={() => setViewMode(mode)}
+                  style={{
+                    fontSize: 13, fontWeight: 500, cursor: "pointer",
+                    color: viewMode === mode ? "#415162" : "#8A9AAB",
+                    borderBottom: viewMode === mode ? "2px solid #415162" : "2px solid transparent",
+                    paddingBottom: 2,
+                  }}
+                >
+                  {label}
+                </span>
+              ))}
+              {(viewMode === "list" || viewMode === "vertical") && (
+                <span
+                  onClick={() => setShowPast(!showPast)}
+                  style={{
+                    fontSize: 13, fontWeight: 500, cursor: "pointer",
+                    color: showPast ? "#415162" : "#8A9AAB",
+                    borderBottom: showPast ? "2px solid #415162" : "2px solid transparent",
+                    paddingBottom: 2,
+                  }}
+                >
+                  {showPast ? "Hide past" : "Show past"}
+                </span>
+              )}
             </div>
-          ) : (
-            /* List/Timeline mode: view tabs + category pills */
-            <>
-              {/* Row 1: View tabs + Add button */}
-              <div className="flex items-start justify-between" style={{ paddingTop: 8, paddingBottom: 8 }}>
-                <div style={{ display: "flex", gap: 16 }}>
-                  {([
-                    { mode: "list" as const, label: "List" },
-                    { mode: "vertical" as const, label: "Timeline" },
-                    { mode: "gantt" as const, label: "Gantt" },
-                  ] as { mode: "list" | "vertical" | "gantt"; label: string }[]).map(({ mode, label }) => (
-                    <span
-                      key={mode}
-                      onClick={() => setViewMode(mode)}
-                      style={{
-                        fontSize: 13, fontWeight: 500, cursor: "pointer",
-                        color: viewMode === mode ? "#415162" : "#8A9AAB",
-                        borderBottom: viewMode === mode ? "2px solid #415162" : "2px solid transparent",
-                        paddingBottom: 2,
-                      }}
-                    >
-                      {label}
-                    </span>
-                  ))}
-                  {(viewMode === "list" || viewMode === "vertical") && (
-                    <span
-                      onClick={() => setShowPast(!showPast)}
-                      style={{
-                        fontSize: 13, fontWeight: 500, cursor: "pointer",
-                        color: showPast ? "#415162" : "#8A9AAB",
-                        borderBottom: showPast ? "2px solid #415162" : "2px solid transparent",
-                        paddingBottom: 2,
-                      }}
-                    >
-                      {showPast ? "Hide past" : "Show past"}
-                    </span>
-                  )}
-                </div>
 
-                {canEditEvents && (
-                  <CreateEventDialog
-                    onSubmit={(data) => createEvent.mutate(data)}
-                    defaultCategory={activeCategories.size === 1 ? (Array.from(activeCategories)[0] as EventCategory) : "program"}
-                  />
-                )}
-              </div>
+            {canEditEvents && (
+              <CreateEventDialog
+                onSubmit={(data) => createEvent.mutate(data)}
+                defaultCategory={activeCategories.size === 1 ? (Array.from(activeCategories)[0] as EventCategory) : "program"}
+              />
+            )}
+          </div>
 
-              {/* Row 2: Category pills */}
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 6, paddingBottom: 10 }}>
+          {/* Row 2: Category pills */}
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6, paddingBottom: 10 }}>
+            <button
+              onClick={handleAllClick}
+              style={{
+                fontSize: 12, fontWeight: 500, padding: "4px 12px", borderRadius: 20,
+                border: isAllSelected ? "1px solid #415162" : "1px solid #C9CED4",
+                background: isAllSelected ? "#415162" : "transparent",
+                color: isAllSelected ? "#fff" : "#8A9AAB",
+                cursor: "pointer",
+              }}
+            >
+              All
+            </button>
+            {categories.map((cat) => {
+              const isActive = activeCategories.has(cat.name);
+              return (
                 <button
-                  onClick={handleAllClick}
+                  key={cat.name}
+                  onClick={() => handleCategoryToggle(cat.name)}
                   style={{
                     fontSize: 12, fontWeight: 500, padding: "4px 12px", borderRadius: 20,
-                    border: isAllSelected ? "1px solid #415162" : "1px solid #C9CED4",
-                    background: isAllSelected ? "#415162" : "transparent",
-                    color: isAllSelected ? "#fff" : "#8A9AAB",
+                    border: isActive ? "1px solid #415162" : "1px solid #C9CED4",
+                    background: isActive ? "#415162" : "transparent",
+                    color: isActive ? "#fff" : "#8A9AAB",
                     cursor: "pointer",
                   }}
                 >
-                  All
+                  {cat.label}
                 </button>
-                {categories.map((cat) => {
-                  const isActive = activeCategories.has(cat.name);
-                  return (
-                    <button
-                      key={cat.name}
-                      onClick={() => handleCategoryToggle(cat.name)}
-                      style={{
-                        fontSize: 12, fontWeight: 500, padding: "4px 12px", borderRadius: 20,
-                        border: isActive ? "1px solid #415162" : "1px solid #C9CED4",
-                        background: isActive ? "#415162" : "transparent",
-                        color: isActive ? "#fff" : "#8A9AAB",
-                        cursor: "pointer",
-                      }}
-                    >
-                      {cat.label}
-                    </button>
-                  );
-                })}
-              </div>
-            </>
-          )}
+              );
+            })}
+          </div>}
 
 
         </div>
