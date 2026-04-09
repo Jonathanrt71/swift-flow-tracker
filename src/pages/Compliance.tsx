@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
+import { usePermissions } from "@/hooks/usePermissions";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import HeaderLogo from "@/components/HeaderLogo";
@@ -115,7 +116,7 @@ function RequirementPill({ number, onClick }: { number: string; onClick?: () => 
 
 // ── Requirement Row ──────────────────────────────────────────────────────
 function RequirementRow({
-  req, users, userId, expanded, onToggle, mutations, onHighlight, onGoToNarrative,
+  req, users, userId, expanded, onToggle, mutations, onHighlight, onGoToNarrative, canEdit,
 }: {
   req: ProgramRequirement;
   users: { id: string; name: string }[];
@@ -125,6 +126,7 @@ function RequirementRow({
   mutations: ReturnType<typeof useRequirementsMutations>;
   onHighlight?: string;
   onGoToNarrative?: (sectionNumber: number) => void;
+  canEdit?: boolean;
 }) {
   const [editingComment, setEditingComment] = useState(false);
   const [commentDraft, setCommentDraft] = useState(req.compliance_narrative || "");
@@ -234,8 +236,16 @@ function RequirementRow({
           <div style={{ display: "flex", gap: 12, alignItems: "flex-start", flexWrap: "wrap", marginBottom: 12 }}>
             <div>
               <div style={{ fontSize: 10, fontWeight: 600, color: "#888", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 4 }}>Status</div>
-              <StatusSelector value={req.compliance_status} onChange={handleStatusChange} />
+              {canEdit ? (
+                <StatusSelector value={req.compliance_status} onChange={handleStatusChange} />
+              ) : (
+                <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                  <StatusIcon status={req.compliance_status} size={14} />
+                  <span style={{ fontSize: 12, color: "#333" }}>{STATUS_CONFIG[req.compliance_status].label}</span>
+                </div>
+              )}
             </div>
+            {canEdit && (
             <div>
               <div style={{ fontSize: 10, fontWeight: 600, color: "#888", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 4 }}>Responsible</div>
               <select
@@ -252,6 +262,7 @@ function RequirementRow({
                 ))}
               </select>
             </div>
+            )}
             {req.last_reviewed_at && (
               <div style={{ fontSize: 11, color: "#999", display: "flex", alignItems: "center", gap: 4, marginTop: 18 }}>
                 <Clock style={{ width: 11, height: 11 }} />
@@ -265,7 +276,7 @@ function RequirementRow({
             <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
               <FileText style={{ width: 13, height: 13, color: "#999" }} />
               <span style={{ fontSize: 11, fontWeight: 600, color: "#888", textTransform: "uppercase", letterSpacing: 0.5 }}>Comment</span>
-              {!editingComment && (
+              {!editingComment && canEdit && (
                 <button
                   onClick={() => { setCommentDraft(req.compliance_narrative || ""); setEditingComment(true); }}
                   style={{ background: "none", border: "none", cursor: "pointer", padding: 2, color: "#415162", display: "flex" }}
@@ -419,6 +430,8 @@ function renderNarrativeContent(
 const Compliance = () => {
   const { user, signOut } = useAuth();
   const { isAdmin, users: adminUsers } = useAdmin();
+  const { has: hasPerm } = usePermissions();
+  const canEdit = hasPerm("compliance.edit");
   const { toast } = useToast();
 
   // ── Data ───────────────────────────────────────────────────────────────
@@ -817,6 +830,7 @@ const Compliance = () => {
                           mutations={mutations}
                           onHighlight={highlightedReq || undefined}
                           onGoToNarrative={handleGoToNarrative}
+                          canEdit={canEdit}
                         />
                       ))}
                     </div>
@@ -866,7 +880,7 @@ const Compliance = () => {
             to create clickable links to specific requirements in the table.
           </div>
 
-          {(narrativeSections || []).length === 0 && !narLoading && (
+          {(narrativeSections || []).length === 0 && !narLoading && canEdit && (
             <div style={{
               padding: "40px 20px", textAlign: "center", background: "#fff",
               border: "1px solid #E7EBEF", borderRadius: 10, marginBottom: 16,
@@ -914,7 +928,7 @@ const Compliance = () => {
                     <h2 style={{ fontSize: 17, fontWeight: 600, color: "#333", margin: 0 }}>{section.title}</h2>
                   )}
                   <div style={{ display: "flex", gap: 4, flexShrink: 0 }}>
-                    {isEditing ? (
+                    {canEdit && (isEditing ? (
                       <>
                         <button
                           onClick={saveNarEdit}
@@ -966,7 +980,7 @@ const Compliance = () => {
                           <Trash2 style={{ width: 12, height: 12 }} />
                         </button>
                       </>
-                    )}
+                    ))}
                   </div>
                 </div>
 
@@ -1003,7 +1017,7 @@ const Compliance = () => {
           })}
 
           {/* Add section */}
-          {addingNarrative ? (
+          {canEdit && (addingNarrative ? (
             <div style={{
               background: "#fff", border: "1px solid #E7EBEF",
               borderRadius: 10, padding: 16, marginBottom: 16,
