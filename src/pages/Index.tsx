@@ -314,7 +314,7 @@ const Index = () => {
 
       <main className="px-4 py-6" style={{ maxWidth: 900, margin: "0 auto" }}>
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-start justify-between mb-4">
             <TabsList className="gap-4 h-auto p-0 bg-transparent" style={{ borderRadius: 0, background: "transparent" }}>
               <TabsTrigger value="priorities" className="underline-tab p-0 h-auto bg-transparent shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none" style={{ paddingBottom: 2, fontSize: 13, fontWeight: 500, borderRadius: 0 }}>
                 Priorities

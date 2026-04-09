@@ -644,7 +644,7 @@ const Feedback = () => {
       <main className="px-4 pt-2 pb-6" style={{ maxWidth: 900, margin: "0 auto" }}>
         <Tabs defaultValue="list" onValueChange={(v) => setViewMode(v as any)}>
         {/* Toolbar */}
-        <div className="flex items-center justify-between pb-2.5">
+        <div className="flex items-start justify-between pb-2.5">
           <div className="flex gap-2 items-center">
             <TabsList className="gap-4 h-auto p-0 bg-transparent" style={{ borderRadius: 0, background: "transparent" }}>
               <TabsTrigger value="list" className="underline-tab p-0 h-auto bg-transparent shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none" style={{ paddingBottom: 2, fontSize: 13, fontWeight: 500, borderRadius: 0 }}>
