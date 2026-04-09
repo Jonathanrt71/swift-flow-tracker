@@ -458,14 +458,14 @@ const PatientSatisfaction = () => {
               No survey data yet.
             </div>
           ) : (
-            <div style={{ background: "#fff", border: "1px solid #D5DAE0", borderRadius: 10, padding: "4px 0", maxWidth: 520 }}>
+            <div style={{ background: "#fff", border: "1px solid #D5DAE0", borderRadius: 10, padding: 0, maxWidth: 520, overflow: "hidden" }}>
               <table style={{ borderCollapse: "collapse", fontSize: 13, width: "100%" }}>
                 <thead>
-                  <tr style={{ borderBottom: "1px solid #D5DAE0" }}>
-                    <th style={{ textAlign: "left", padding: "10px 20px", color: "#5F7285", fontWeight: 500 }}>Resident</th>
-                    <th style={{ textAlign: "left", padding: "10px 20px", color: "#5F7285", fontWeight: 500 }}>Surveys</th>
-                    <th style={{ textAlign: "left", padding: "10px 20px", color: "#5F7285", fontWeight: 500 }}>Positive</th>
-                    <th style={{ textAlign: "left", padding: "10px 20px", color: "#5F7285", fontWeight: 500 }}>Negative</th>
+                  <tr style={{ background: "#C9CED4", borderBottom: "1px solid #B8BFC7" }}>
+                    <th style={{ textAlign: "left", padding: "10px 20px", color: "#415162", fontWeight: 500 }}>Resident</th>
+                    <th style={{ textAlign: "left", padding: "10px 20px", color: "#415162", fontWeight: 500 }}>Surveys</th>
+                    <th style={{ textAlign: "left", padding: "10px 20px", color: "#415162", fontWeight: 500 }}>Positive</th>
+                    <th style={{ textAlign: "left", padding: "10px 20px", color: "#415162", fontWeight: 500 }}>Negative</th>
                   </tr>
                 </thead>
                 <tbody>

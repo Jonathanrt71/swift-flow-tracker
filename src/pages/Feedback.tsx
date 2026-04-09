@@ -818,11 +818,11 @@ const Feedback = () => {
                   </div>
                 </div>
                 {/* Header */}
-                <div style={{ display: "flex", alignItems: "center", padding: "8px 12px", background: "#415162", borderRadius: "8px 8px 0 0" }}>
-                  <span style={{ flex: 1, fontSize: 11, fontWeight: 600, color: "#fff" }}>Faculty</span>
-                  <span style={{ width: 50, fontSize: 11, fontWeight: 600, color: "#fff", textAlign: "center" }}>Mo</span>
-                  <span style={{ width: 50, fontSize: 11, fontWeight: 600, color: "#fff", textAlign: "center" }}>Yr</span>
-                  <span style={{ width: 50, fontSize: 11, fontWeight: 600, color: "#fff", textAlign: "center" }}>Total</span>
+                <div style={{ display: "flex", alignItems: "center", padding: "8px 12px", background: "#C9CED4", borderRadius: "8px 8px 0 0" }}>
+                  <span style={{ flex: 1, fontSize: 11, fontWeight: 600, color: "#415162" }}>Faculty</span>
+                  <span style={{ width: 50, fontSize: 11, fontWeight: 600, color: "#415162", textAlign: "center" }}>Mo</span>
+                  <span style={{ width: 50, fontSize: 11, fontWeight: 600, color: "#415162", textAlign: "center" }}>Yr</span>
+                  <span style={{ width: 50, fontSize: 11, fontWeight: 600, color: "#415162", textAlign: "center" }}>Total</span>
                 </div>
                 {/* Rows */}
                 {rows.map((r, i) => {
