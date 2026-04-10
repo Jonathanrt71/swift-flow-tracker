@@ -89,9 +89,9 @@ interface EvaluationView {
 // ═══════════════════════════════════════════════════════════════════════════
 
 const ratingLabel = (val: number | null): string => {
-  if (val === 1) return "Needs Improvement";
-  if (val === 2) return "Meets Expectation";
-  if (val === 3) return "Exceeds Expectation";
+  if (val === 1) return "Needs improvement";
+  if (val === 2) return "Meets expectations";
+  if (val === 3) return "Exceeds expectations";
   if (val === 4) return "N/A";
   return "—";
 };
@@ -118,9 +118,9 @@ const profColor = (val: number | null): string => {
 };
 
 const rotRatingLabel = (val: number | null): string => {
-  if (val === 1) return "Needs Improvement";
-  if (val === 2) return "Meets Expectation";
-  if (val === 3) return "Exceeds Expectation";
+  if (val === 1) return "Needs improvement";
+  if (val === 2) return "Meets expectations";
+  if (val === 3) return "Exceeds expectations";
   if (val === 4) return "N/A";
   return "—";
 };
