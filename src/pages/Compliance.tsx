@@ -713,7 +713,7 @@ const Compliance = () => {
           </div>
 
           {/* Tab bar */}
-          <div style={{ display: "flex", gap: 0, borderBottom: "2px solid #E7EBEF", marginBottom: 12 }}>
+          <div style={{ display: "flex", gap: 0, marginBottom: 12 }}>
             <button
               onClick={() => setActiveTab("table")}
               style={{
@@ -809,7 +809,7 @@ const Compliance = () => {
         <div style={{ flex: 1, padding: "16px 16px 100px", maxWidth: 900, margin: "0 auto" }}>
           <h1 style={{ fontSize: 22, fontWeight: 600, color: "#2D3748", margin: "0 0 12px 0" }}>ACGME Handbook</h1>
           {/* Tab bar */}
-          <div style={{ display: "flex", gap: 0, borderBottom: "2px solid #E7EBEF", marginBottom: 12 }}>
+          <div style={{ display: "flex", gap: 0, marginBottom: 12 }}>
             <button
               onClick={() => setActiveTab("table")}
               style={{
