@@ -362,42 +362,59 @@ const ResidentSummary = () => {
       </header>
 
       <main style={{ maxWidth: 900, margin: "0 auto", padding: "12px 16px 100px" }}>
-        {/* Resident selector */}
-        <div style={{ marginBottom: 16 }}>
-          <Select value={selectedResident} onValueChange={setSelectedResident}>
-            <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0" style={{ borderColor: "#C9CED4", background: "#fff", fontSize: 14 }}>
-              <SelectValue placeholder="Select a resident" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="none" disabled>Select a resident</SelectItem>
-              {(residentsQuery.data || []).map(r => {
-                const last = r.last_name || "";
-                const firstInitial = r.first_name ? r.first_name.charAt(0) + "." : "";
-                const label = last && firstInitial ? `${last}, ${firstInitial}` : r.display_name || `${r.first_name || ""} ${last}`;
-                return (
-                  <SelectItem key={r.id} value={r.id}>{label}</SelectItem>
-                );
-              })}
-            </SelectContent>
-          </Select>
-        </div>
-
         {selectedResident === "none" ? (
-          <div style={{ textAlign: "center", padding: 60, color: "#8A9AAB", fontSize: 14 }}>
-            Select a resident to view their summary
-          </div>
+          <>
+            <div style={{ marginBottom: 16 }}>
+              <Select value={selectedResident} onValueChange={setSelectedResident}>
+                <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0" style={{ borderColor: "#C9CED4", background: "#fff", fontSize: 14 }}>
+                  <SelectValue placeholder="Select a resident" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none" disabled>Select a resident</SelectItem>
+                  {(residentsQuery.data || []).map(r => {
+                    const last = r.last_name || "";
+                    const firstInitial = r.first_name ? r.first_name.charAt(0) + "." : "";
+                    const label = last && firstInitial ? `${last}, ${firstInitial}` : r.display_name || `${r.first_name || ""} ${last}`;
+                    return (
+                      <SelectItem key={r.id} value={r.id}>{label}</SelectItem>
+                    );
+                  })}
+                </SelectContent>
+              </Select>
+            </div>
+            <div style={{ textAlign: "center", padding: 60, color: "#8A9AAB", fontSize: 14 }}>
+              Select a resident to view their summary
+            </div>
+          </>
         ) : (
           <>
-            {/* Header */}
+            {/* Header with name + dropdown */}
             <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "0 0 16px" }}>
               <div style={{ width: 48, height: 48, borderRadius: "50%", background: "#415162", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 500, fontSize: 16, color: "#fff", flexShrink: 0 }}>
                 {initials}
               </div>
-              <div>
+              <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: 18, fontWeight: 500, color: "#2D3748" }}>{residentName}</div>
                 <div style={{ fontSize: 13, color: "#8A9AAB" }}>
                   {pgy ? `PGY-${pgy}` : ""}{resident?.graduation_year ? ` · Class of ${resident.graduation_year}` : ""} · Family Medicine
                 </div>
+              </div>
+              <div style={{ flexShrink: 0, width: 180 }}>
+                <Select value={selectedResident} onValueChange={setSelectedResident}>
+                  <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0" style={{ borderColor: "#C9CED4", background: "#fff", fontSize: 12, height: 32, padding: "0 8px" }}>
+                    <SelectValue placeholder="Select" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {(residentsQuery.data || []).map(r => {
+                      const last = r.last_name || "";
+                      const firstInitial = r.first_name ? r.first_name.charAt(0) + "." : "";
+                      const label = last && firstInitial ? `${last}, ${firstInitial}` : r.display_name || `${r.first_name || ""} ${last}`;
+                      return (
+                        <SelectItem key={r.id} value={r.id}>{label}</SelectItem>
+                      );
+                    })}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
