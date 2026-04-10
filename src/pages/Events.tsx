@@ -609,76 +609,38 @@ const Events = () => {
         {/* Sticky filter bar below header */}
         <div className="sticky z-30 bg-background" style={{ top: 56 }}>
 
-          {/* Row 1: Category tabs */}
-          <div style={{ display: "flex", gap: 0, borderBottom: "2px solid #E7EBEF", paddingTop: 8 }}>
-            <button
-              onClick={handleAllClick}
-              style={{
-                padding: "8px 0", marginRight: 20, fontSize: 13, fontWeight: 600, cursor: "pointer",
-                background: "transparent", border: "none",
-                color: isAllSelected ? "#415162" : "#999",
-                borderBottom: isAllSelected ? "2px solid #415162" : "2px solid transparent",
-                marginBottom: -2,
-              }}
-            >
-              All
-            </button>
-            {categories.map((cat) => {
-              const isActive = activeCategories.has(cat.name);
-              return (
-                <button
-                  key={cat.name}
-                  onClick={() => handleCategoryToggle(cat.name)}
-                  style={{
-                    padding: "8px 0", marginRight: 20, fontSize: 13, fontWeight: 600, cursor: "pointer",
-                    background: "transparent", border: "none",
-                    color: isActive ? "#415162" : "#999",
-                    borderBottom: isActive ? "2px solid #415162" : "2px solid transparent",
-                    marginBottom: -2,
-                  }}
-                >
-                  {cat.label}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Row 2: View tabs + Add button */}
-          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "8px 16px", paddingTop: 8, paddingBottom: 8, justifyContent: "space-between" }}>
-            <div style={{ display: "flex", gap: 0, borderBottom: "2px solid #E7EBEF" }}>
-              {([
-                { mode: "list" as const, label: "List" },
-                { mode: "vertical" as const, label: "Timeline" },
-                { mode: "gantt" as const, label: "Gantt" },
-              ] as { mode: "list" | "vertical" | "gantt"; label: string }[]).map(({ mode, label }) => (
-                <button
-                  key={mode}
-                  onClick={() => setViewMode(mode)}
-                  style={{
-                    padding: "6px 0", marginRight: 16, fontSize: 12, fontWeight: 600, cursor: "pointer",
-                    background: "transparent", border: "none",
-                    color: viewMode === mode ? "#415162" : "#999",
-                    borderBottom: viewMode === mode ? "2px solid #415162" : "2px solid transparent",
-                    marginBottom: -2,
-                  }}
-                >
-                  {label}
-                </button>
-              ))}
+          {/* Row 1: Category tabs + Add button */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: 8 }}>
+            <div style={{ display: "flex", gap: 0 }}>
               <button
-                onClick={() => setShowPast(!showPast)}
+                onClick={handleAllClick}
                 style={{
-                  padding: "6px 0", marginRight: 16, fontSize: 12, fontWeight: 600, cursor: "pointer",
+                  padding: "8px 0", marginRight: 20, fontSize: 13, fontWeight: 600, cursor: "pointer",
                   background: "transparent", border: "none",
-                  color: showPast ? "#415162" : "#999",
-                  borderBottom: showPast ? "2px solid #415162" : "2px solid transparent",
-                  marginBottom: -2,
+                  color: isAllSelected ? "#415162" : "#999",
+                  borderBottom: isAllSelected ? "2px solid #415162" : "2px solid transparent",
                 }}
               >
-                {showPast ? "Hide past" : "Show past"}
+                All
               </button>
+              {categories.map((cat) => {
+                const isActive = activeCategories.has(cat.name);
+                return (
+                  <button
+                    key={cat.name}
+                    onClick={() => handleCategoryToggle(cat.name)}
+                    style={{
+                      padding: "8px 0", marginRight: 20, fontSize: 13, fontWeight: 600, cursor: "pointer",
+                      background: "transparent", border: "none",
+                      color: isActive ? "#415162" : "#999",
+                      borderBottom: isActive ? "2px solid #415162" : "2px solid transparent",
+                    }}
+                  >
+                    {cat.label}
+                  </button>
+                );
+              })}
             </div>
-
             {canEditEvents && (
               <CreateEventDialog
                 onSubmit={(data) => createEvent.mutate(data)}
@@ -688,6 +650,38 @@ const Events = () => {
             )}
           </div>
 
+          {/* Row 2: View tabs */}
+          <div style={{ display: "flex", gap: 0, paddingTop: 4, paddingBottom: 8 }}>
+            {([
+              { mode: "list" as const, label: "List" },
+              { mode: "vertical" as const, label: "Timeline" },
+              { mode: "gantt" as const, label: "Gantt" },
+            ] as { mode: "list" | "vertical" | "gantt"; label: string }[]).map(({ mode, label }) => (
+              <button
+                key={mode}
+                onClick={() => setViewMode(mode)}
+                style={{
+                  padding: "6px 0", marginRight: 16, fontSize: 12, fontWeight: 500, cursor: "pointer",
+                  background: "transparent", border: "none",
+                  color: viewMode === mode ? "rgba(65,81,98,0.9)" : "rgba(65,81,98,0.35)",
+                  borderBottom: viewMode === mode ? "2px solid rgba(65,81,98,0.9)" : "2px solid transparent",
+                }}
+              >
+                {label}
+              </button>
+            ))}
+            <button
+              onClick={() => setShowPast(!showPast)}
+              style={{
+                padding: "6px 0", marginRight: 16, fontSize: 12, fontWeight: 500, cursor: "pointer",
+                background: "transparent", border: "none",
+                color: showPast ? "rgba(65,81,98,0.9)" : "rgba(65,81,98,0.35)",
+                borderBottom: showPast ? "2px solid rgba(65,81,98,0.9)" : "2px solid transparent",
+              }}
+            >
+              {showPast ? "Hide past" : "Show past"}
+            </button>
+          </div>
 
         </div>
 
