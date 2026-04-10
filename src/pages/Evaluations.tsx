@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { formatPersonName } from "@/lib/dateFormat";
 import HeaderLogo from "@/components/HeaderLogo";
 import NotificationBell from "@/components/NotificationBell";
-import { Upload, Check, ChevronDown, ChevronUp, Search, X, Trash2 } from "lucide-react";
+import { Upload, Check, ChevronDown, ChevronUp, Search, X, Trash2, Flag } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -269,6 +269,35 @@ const Evaluations = () => {
     return s;
   }, [viewsQuery.data]);
 
+  const flagsQuery = useQuery({
+    queryKey: ["evaluation_flags", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from("evaluation_flags")
+        .select("*")
+        .eq("user_id", user!.id);
+      if (error) throw error;
+      return (data || []) as { id: string; evaluation_id: string; user_id: string }[];
+    },
+  });
+
+  const flaggedSet = useMemo(() => {
+    const s = new Set<string>();
+    (flagsQuery.data || []).forEach(f => s.add(f.evaluation_id));
+    return s;
+  }, [flagsQuery.data]);
+
+  const toggleFlag = async (evalId: string) => {
+    if (flaggedSet.has(evalId)) {
+      const flag = (flagsQuery.data || []).find(f => f.evaluation_id === evalId);
+      if (flag) await (supabase as any).from("evaluation_flags").delete().eq("id", flag.id);
+    } else {
+      await (supabase as any).from("evaluation_flags").insert({ evaluation_id: evalId, user_id: user!.id });
+    }
+    queryClient.invalidateQueries({ queryKey: ["evaluation_flags"] });
+  };
+
   const [flashId, setFlashId] = useState<string | null>(null);
   const [pendingViewId, setPendingViewId] = useState<string | null>(null);
 
@@ -457,6 +486,35 @@ const Evaluations = () => {
     (rotViewsQuery.data || []).forEach(v => s.add(v.evaluation_id));
     return s;
   }, [rotViewsQuery.data]);
+
+  const rotFlagsQuery = useQuery({
+    queryKey: ["rotation_evaluation_flags", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from("rotation_evaluation_flags")
+        .select("*")
+        .eq("user_id", user!.id);
+      if (error) throw error;
+      return (data || []) as { id: string; evaluation_id: string; user_id: string }[];
+    },
+  });
+
+  const rotFlaggedSet = useMemo(() => {
+    const s = new Set<string>();
+    (rotFlagsQuery.data || []).forEach(f => s.add(f.evaluation_id));
+    return s;
+  }, [rotFlagsQuery.data]);
+
+  const toggleRotFlag = async (evalId: string) => {
+    if (rotFlaggedSet.has(evalId)) {
+      const flag = (rotFlagsQuery.data || []).find(f => f.evaluation_id === evalId);
+      if (flag) await (supabase as any).from("rotation_evaluation_flags").delete().eq("id", flag.id);
+    } else {
+      await (supabase as any).from("rotation_evaluation_flags").insert({ evaluation_id: evalId, user_id: user!.id });
+    }
+    queryClient.invalidateQueries({ queryKey: ["rotation_evaluation_flags"] });
+  };
 
   const toggleRotView = async (evalId: string) => {
     if (rotViewedSet.has(evalId)) {
@@ -753,10 +811,19 @@ const Evaluations = () => {
                                 </div>
                                 <div style={{ fontSize: 11, color: "#8A9AAB" }}>{ev.evaluator_name} · {fmtDate(ev.date_completed)}</div>
                               </div>
-                              <div onClick={(e) => { e.stopPropagation(); toggleView(ev.id); }}
-                                style={{ width: 18, height: 18, borderRadius: 4, border: isViewed ? "none" : "2px solid #C9CED4", background: isViewed ? "#4A846C" : "transparent", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", flexShrink: 0 }}
-                              >
-                                {isViewed && <Check style={{ width: 12, height: 12, color: "#fff" }} />}
+                              <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
+                                <div onClick={(e) => { e.stopPropagation(); toggleFlag(ev.id); }}
+                                  style={{ display: "flex", alignItems: "center", gap: 3, padding: "3px 8px", borderRadius: 4, background: flaggedSet.has(ev.id) ? "#D4A017" : "#D5DAE0", cursor: "pointer" }}
+                                >
+                                  <Flag style={{ width: 11, height: 11, color: flaggedSet.has(ev.id) ? "#fff" : "#5F7285" }} />
+                                  <span style={{ fontSize: 10, fontWeight: 500, color: flaggedSet.has(ev.id) ? "#fff" : "#5F7285" }}>Flag</span>
+                                </div>
+                                <div onClick={(e) => { e.stopPropagation(); toggleView(ev.id); }}
+                                  style={{ display: "flex", alignItems: "center", gap: 3, padding: "3px 8px", borderRadius: 4, background: isViewed ? "#4A846C" : "#D5DAE0", cursor: "pointer" }}
+                                >
+                                  <Check style={{ width: 11, height: 11, color: isViewed ? "#fff" : "#5F7285" }} />
+                                  <span style={{ fontSize: 10, fontWeight: 500, color: isViewed ? "#fff" : "#5F7285" }}>Read</span>
+                                </div>
                               </div>
                               {isExpanded ? <ChevronUp style={{ width: 16, height: 16, color: "#8A9AAB" }} /> : <ChevronDown style={{ width: 16, height: 16, color: "#8A9AAB" }} />}
                             </div>
@@ -970,10 +1037,19 @@ const Evaluations = () => {
                                   {ev.resident_name} · PGY-{ev.pgy_level || "?"} · {fmtDate(ev.date_completed)}
                                 </div>
                               </div>
-                              <div onClick={(e) => { e.stopPropagation(); toggleRotView(ev.id); }}
-                                style={{ width: 18, height: 18, borderRadius: 4, border: isViewed ? "none" : "2px solid #C9CED4", background: isViewed ? "#4A846C" : "transparent", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", flexShrink: 0 }}
-                              >
-                                {isViewed && <Check style={{ width: 12, height: 12, color: "#fff" }} />}
+                              <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
+                                <div onClick={(e) => { e.stopPropagation(); toggleRotFlag(ev.id); }}
+                                  style={{ display: "flex", alignItems: "center", gap: 3, padding: "3px 8px", borderRadius: 4, background: rotFlaggedSet.has(ev.id) ? "#D4A017" : "#D5DAE0", cursor: "pointer" }}
+                                >
+                                  <Flag style={{ width: 11, height: 11, color: rotFlaggedSet.has(ev.id) ? "#fff" : "#5F7285" }} />
+                                  <span style={{ fontSize: 10, fontWeight: 500, color: rotFlaggedSet.has(ev.id) ? "#fff" : "#5F7285" }}>Flag</span>
+                                </div>
+                                <div onClick={(e) => { e.stopPropagation(); toggleRotView(ev.id); }}
+                                  style={{ display: "flex", alignItems: "center", gap: 3, padding: "3px 8px", borderRadius: 4, background: isViewed ? "#4A846C" : "#D5DAE0", cursor: "pointer" }}
+                                >
+                                  <Check style={{ width: 11, height: 11, color: isViewed ? "#fff" : "#5F7285" }} />
+                                  <span style={{ fontSize: 10, fontWeight: 500, color: isViewed ? "#fff" : "#5F7285" }}>Read</span>
+                                </div>
                               </div>
                               {isExpanded ? <ChevronUp style={{ width: 16, height: 16, color: "#8A9AAB" }} /> : <ChevronDown style={{ width: 16, height: 16, color: "#8A9AAB" }} />}
                             </div>
