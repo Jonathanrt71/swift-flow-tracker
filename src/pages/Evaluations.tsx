@@ -917,26 +917,36 @@ const Evaluations = () => {
     </div>
   );
 
-  const renderSubToggle = (mode: "evals" | "summary", setMode: (m: "evals" | "summary") => void) => (
-    <div style={{ display: "flex", gap: 0, borderBottom: "2px solid #E7EBEF", marginBottom: 12 }}>
-      {([
-        { value: "evals" as const, label: "Evaluations" },
-        { value: "summary" as const, label: "Summary" },
-      ]).map(tab => (
-        <button
-          key={tab.value}
-          onClick={() => setMode(tab.value)}
-          style={{
-            padding: "6px 0", marginRight: 16, fontSize: 12, fontWeight: 600, cursor: "pointer",
-            background: "transparent", border: "none",
-            color: mode === tab.value ? "#415162" : "#999",
-            borderBottom: mode === tab.value ? "2px solid #415162" : "2px solid transparent",
-            marginBottom: -2,
-          }}
+  const renderSubToggle = (mode: "evals" | "summary", setMode: (m: "evals" | "summary") => void, importHandler?: (e: React.ChangeEvent<HTMLInputElement>) => void) => (
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+      <div style={{ display: "flex", gap: 0 }}>
+        {([
+          { value: "evals" as const, label: "Evaluations" },
+          { value: "summary" as const, label: "Summary" },
+        ]).map(tab => (
+          <button
+            key={tab.value}
+            onClick={() => setMode(tab.value)}
+            style={{
+              padding: "6px 0", marginRight: 16, fontSize: 12, fontWeight: 600, cursor: "pointer",
+              background: "transparent", border: "none",
+              color: mode === tab.value ? "#415162" : "#999",
+              borderBottom: mode === tab.value ? "2px solid #415162" : "2px solid transparent",
+            }}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+      {isAdmin && importHandler && (
+        <label
+          className="hidden sm:flex"
+          style={{ alignItems: "center", gap: 6, padding: "5px 12px", background: "#415162", color: "#fff", borderRadius: 8, fontSize: 12, fontWeight: 500, cursor: "pointer" }}
         >
-          {tab.label}
-        </button>
-      ))}
+          <Upload style={{ width: 13, height: 13 }} /> Import
+          <input type="file" accept=".tab,.tsv,.txt" onChange={importHandler} style={{ display: "none" }} />
+        </label>
+      )}
     </div>
   );
 
@@ -974,7 +984,7 @@ const Evaluations = () => {
       <main style={{ maxWidth: 900, margin: "0 auto", padding: "12px 16px 100px" }}>
 
         {/* ── Page selector tabs ── */}
-        <div style={{ display: "flex", gap: 0, borderBottom: "2px solid #E7EBEF", marginBottom: 12 }}>
+        <div style={{ display: "flex", gap: 0, marginBottom: 12 }}>
           {([
             { value: "attending" as const, label: "Attending" },
             { value: "rotation" as const, label: "Resident" },
@@ -988,7 +998,6 @@ const Evaluations = () => {
                 background: "transparent", border: "none",
                 color: activePage === tab.value ? "#415162" : "#999",
                 borderBottom: activePage === tab.value ? "2px solid #415162" : "2px solid transparent",
-                marginBottom: -2,
               }}
             >
               {tab.label}
@@ -1001,14 +1010,14 @@ const Evaluations = () => {
         {/* ═══════════════════════════════════════════════════════════════ */}
         {activePage === "attending" && (
           <>
-            {renderSubToggle(attViewMode, setAttViewMode)}
+            {renderSubToggle(attViewMode, setAttViewMode, handleFileUpload)}
 
             {attViewMode === "summary" ? renderSummaryTable(attSummary, "Resident") : (
             <>
             {/* Filter bar — row 1: dropdowns */}
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
               <Select value={filterResident} onValueChange={setFilterResident}>
-                <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0" style={{ borderColor: "#C9CED4", background: "#fff", flex: 1, minWidth: 0, maxWidth: 160, fontSize: 12 }}>
+                <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0" style={{ borderColor: "#C9CED4", background: "#fff", flex: 1, minWidth: 0, maxWidth: 160, fontSize: 12, height: 32, padding: "0 8px" }}>
                   <SelectValue placeholder="Residents" />
                 </SelectTrigger>
                 <SelectContent>
@@ -1020,7 +1029,7 @@ const Evaluations = () => {
               </Select>
 
               <Select value={filterEvaluator} onValueChange={setFilterEvaluator}>
-                <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0" style={{ borderColor: "#C9CED4", background: "#fff", flex: 1, minWidth: 0, maxWidth: 160, fontSize: 12 }}>
+                <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0" style={{ borderColor: "#C9CED4", background: "#fff", flex: 1, minWidth: 0, maxWidth: 160, fontSize: 12, height: 32, padding: "0 8px" }}>
                   <SelectValue placeholder="Evaluators" />
                 </SelectTrigger>
                 <SelectContent>
@@ -1031,15 +1040,6 @@ const Evaluations = () => {
                 </SelectContent>
               </Select>
 
-              {isAdmin && (
-                <label
-                  className="hidden sm:flex"
-                  style={{ alignItems: "center", gap: 6, padding: "6px 12px", background: "#415162", color: "#fff", borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: "pointer", marginLeft: "auto" }}
-                >
-                  <Upload style={{ width: 14, height: 14 }} /> Import
-                  <input type="file" accept=".tab,.tsv,.txt" onChange={handleFileUpload} style={{ display: "none" }} />
-                </label>
-              )}
             </div>
 
             {/* Filter bar — row 2: toggles */}
@@ -1237,7 +1237,7 @@ const Evaluations = () => {
         {/* ═══════════════════════════════════════════════════════════════ */}
         {activePage === "rotation" && (
           <>
-            {renderSubToggle(rotViewMode, setRotViewMode)}
+            {renderSubToggle(rotViewMode, setRotViewMode, handleRotFileUpload)}
 
             {rotViewMode === "summary" ? renderSummaryTable(rotSummary, "Rotation") : (
             <>
@@ -1261,15 +1261,6 @@ const Evaluations = () => {
                 {rotRotations.map(name => <option key={name} value={name}>{name}</option>)}
               </select>
 
-              {isAdmin && (
-                <label
-                  className="hidden sm:flex"
-                  style={{ alignItems: "center", gap: 6, padding: "6px 12px", background: "#415162", color: "#fff", borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: "pointer", marginLeft: "auto" }}
-                >
-                  <Upload style={{ width: 14, height: 14 }} /> Import
-                  <input type="file" accept=".tab,.tsv,.txt" onChange={handleRotFileUpload} style={{ display: "none" }} />
-                </label>
-              )}
             </div>
 
             {/* Filter bar — row 2: read/unread toggles */}
@@ -1462,7 +1453,7 @@ const Evaluations = () => {
         {/* ═══════════════════════════════════════════════════════════════ */}
         {activePage === "peer" && (
           <>
-            {renderSubToggle(peerViewMode, setPeerViewMode)}
+            {renderSubToggle(peerViewMode, setPeerViewMode, handlePeerFileUpload)}
 
             {peerViewMode === "summary" ? renderSummaryTable(peerSummary, "Resident") : (
             <>
@@ -1477,15 +1468,6 @@ const Evaluations = () => {
                 {peerSubjects.map(name => <option key={name} value={name}>{name}</option>)}
               </select>
 
-              {isAdmin && (
-                <label
-                  className="hidden sm:flex"
-                  style={{ alignItems: "center", gap: 6, padding: "6px 12px", background: "#415162", color: "#fff", borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: "pointer", marginLeft: "auto" }}
-                >
-                  <Upload style={{ width: 14, height: 14 }} /> Import
-                  <input type="file" accept=".tab,.tsv,.txt" onChange={handlePeerFileUpload} style={{ display: "none" }} />
-                </label>
-              )}
             </div>
 
             {/* Filter bar — row 2: read/unread/flagged toggles */}
