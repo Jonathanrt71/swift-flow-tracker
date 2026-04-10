@@ -8,6 +8,13 @@ import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { useClinicalTopics, ClinicalTopic, TopicTag } from "@/hooks/useClinicalTopics";
 import HeaderLogo from "@/components/HeaderLogo";
 import NotificationBell from "@/components/NotificationBell";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const TAG_COLORS = ["#415162","#4A846C","#52657A","#D4A017","#7A6052","#6A5A7A","#5A7A6A","#378ADD","#993556","#D85A30","#7F77DD","#1D9E75","#E24B4A","#BA7517"];
 
@@ -459,20 +466,17 @@ const Topics = () => {
         {/* Domain filter dropdown + add button */}
         <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: "8px 16px", marginBottom: 14 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <select
-              value={filterTagId || "all"}
-              onChange={(e) => setFilterTagId(e.target.value === "all" ? null : e.target.value)}
-              style={{
-                fontSize: 13, padding: "6px 28px 6px 10px", border: "1px solid #C9CED4", borderRadius: 6,
-                background: "#fff url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E\") no-repeat right 8px center",
-                color: "#333", outline: "none", WebkitAppearance: "none", MozAppearance: "none", appearance: "none",
-              } as any}
-            >
-              <option value="all">All categories</option>
-              {domainTags.map(tag => (
-                <option key={tag.id} value={tag.id}>{tag.name}</option>
-              ))}
-            </select>
+            <Select value={filterTagId || "all"} onValueChange={(v) => setFilterTagId(v === "all" ? null : v)}>
+              <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0" style={{ borderColor: "#C9CED4", background: "#fff", minWidth: 0, maxWidth: 180, fontSize: 12 }}>
+                <SelectValue placeholder="All categories" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All categories</SelectItem>
+                {domainTags.map(tag => (
+                  <SelectItem key={tag.id} value={tag.id}>{tag.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <span style={{ fontSize: 12, color: "#aaa" }}>{filtered.length} topic{filtered.length !== 1 ? "s" : ""}</span>
           </div>
           {canEdit && !showAddForm && (
