@@ -256,9 +256,9 @@ const ReadTracker = ({ announcement, onClose }: { announcement: Announcement; on
   const ackCount = reads.filter((r) => r.acknowledged_at).length;
 
   const tabStyle = (active: boolean): React.CSSProperties => ({
-    flex: 1, padding: "8px 0", fontSize: 13, fontWeight: 600, border: "none",
+    flex: 1, padding: "1px 0 0 0", fontSize: 14, fontWeight: 600, border: "none",
     borderBottom: active ? "2px solid #415162" : "2px solid transparent",
-    backgroundColor: "transparent", color: active ? "#415162" : "#6B7280",
+    backgroundColor: "transparent", color: active ? "#415162" : "#999",
     cursor: "pointer", fontFamily: "inherit",
   });
 

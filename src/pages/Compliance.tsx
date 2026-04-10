@@ -717,7 +717,7 @@ const Compliance = () => {
             <button
               onClick={() => setActiveTab("table")}
               style={{
-                padding: "8px 0", marginRight: 20, fontSize: 13, fontWeight: 600, cursor: "pointer",
+                padding: "1px 0 0 0", marginRight: 20, fontSize: 14, fontWeight: 600, cursor: "pointer",
                 background: "transparent", border: "none",
                 color: activeTab === "table" ? "#415162" : "#999",
                 borderBottom: activeTab === "table" ? "2px solid #415162" : "2px solid transparent",
@@ -729,7 +729,7 @@ const Compliance = () => {
             <button
               onClick={() => setActiveTab("narrative")}
               style={{
-                padding: "8px 0", marginRight: 20, fontSize: 13, fontWeight: 600, cursor: "pointer",
+                padding: "1px 0 0 0", marginRight: 20, fontSize: 14, fontWeight: 600, cursor: "pointer",
                 background: "transparent", border: "none",
                 color: activeTab === "narrative" ? "#415162" : "#999",
                 borderBottom: activeTab === "narrative" ? "2px solid #415162" : "2px solid transparent",
@@ -813,7 +813,7 @@ const Compliance = () => {
             <button
               onClick={() => setActiveTab("table")}
               style={{
-                padding: "8px 0", marginRight: 20, fontSize: 13, fontWeight: 600, cursor: "pointer",
+                padding: "1px 0 0 0", marginRight: 20, fontSize: 14, fontWeight: 600, cursor: "pointer",
                 background: "transparent", border: "none",
                 color: activeTab === "table" ? "#415162" : "#999",
                 borderBottom: activeTab === "table" ? "2px solid #415162" : "2px solid transparent",
@@ -825,7 +825,7 @@ const Compliance = () => {
             <button
               onClick={() => setActiveTab("narrative")}
               style={{
-                padding: "8px 0", marginRight: 20, fontSize: 13, fontWeight: 600, cursor: "pointer",
+                padding: "1px 0 0 0", marginRight: 20, fontSize: 14, fontWeight: 600, cursor: "pointer",
                 background: "transparent", border: "none",
                 color: activeTab === "narrative" ? "#415162" : "#999",
                 borderBottom: activeTab === "narrative" ? "2px solid #415162" : "2px solid transparent",

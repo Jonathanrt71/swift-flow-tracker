@@ -303,10 +303,10 @@ const PatientSatisfaction = () => {
               key={mode}
               onClick={() => setViewMode(mode)}
               style={{
-                fontSize: 13, fontWeight: 500, cursor: "pointer",
-                color: viewMode === mode ? "#415162" : "#8A9AAB",
+                fontSize: 14, fontWeight: 600, cursor: "pointer",
+                color: viewMode === mode ? "#415162" : "#999",
                 borderBottom: viewMode === mode ? "2px solid #415162" : "2px solid transparent",
-                paddingBottom: 2,
+                padding: "1px 0 0 0",
               }}
             >
               {mode === "surveys" ? "Surveys" : "Summary"}

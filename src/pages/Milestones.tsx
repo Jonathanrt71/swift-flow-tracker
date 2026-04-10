@@ -27,8 +27,8 @@ const Milestones = () => {
           <span
             onClick={() => setView("levels")}
             style={{
-              fontSize: 13, fontWeight: 500, cursor: "pointer", paddingBottom: 8, marginBottom: -8.5,
-              color: view === "levels" ? "#415162" : "#8A9AAB",
+              fontSize: 14, fontWeight: 600, cursor: "pointer", padding: "1px 0 0 0",
+              color: view === "levels" ? "#415162" : "#999",
               borderBottom: view === "levels" ? "2px solid #415162" : "2px solid transparent",
             }}
           >
@@ -37,8 +37,8 @@ const Milestones = () => {
           <span
             onClick={() => setView("reference")}
             style={{
-              fontSize: 13, fontWeight: 500, cursor: "pointer", paddingBottom: 8, marginBottom: -8.5,
-              color: view === "reference" ? "#415162" : "#8A9AAB",
+              fontSize: 14, fontWeight: 600, cursor: "pointer", padding: "1px 0 0 0",
+              color: view === "reference" ? "#415162" : "#999",
               borderBottom: view === "reference" ? "2px solid #415162" : "2px solid transparent",
             }}
           >

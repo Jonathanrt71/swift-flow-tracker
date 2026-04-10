@@ -264,10 +264,10 @@ const CBME = () => {
               <span
                 onClick={() => setActiveTab("list")}
                 style={{
-                  fontSize: 13, fontWeight: 500, cursor: "pointer",
-                  color: activeTab === "list" ? "#415162" : "#8A9AAB",
+                  fontSize: 14, fontWeight: 600, cursor: "pointer",
+                  color: activeTab === "list" ? "#415162" : "#999",
                   borderBottom: activeTab === "list" ? "2px solid #415162" : "2px solid transparent",
-                  paddingBottom: 2,
+                  padding: "1px 0 0 0",
                 }}
               >
                 List
@@ -276,10 +276,10 @@ const CBME = () => {
                 <span
                   onClick={() => setActiveTab("dashboard")}
                   style={{
-                    fontSize: 13, fontWeight: 500, cursor: "pointer",
-                    color: activeTab === "dashboard" ? "#415162" : "#8A9AAB",
+                    fontSize: 14, fontWeight: 600, cursor: "pointer",
+                    color: activeTab === "dashboard" ? "#415162" : "#999",
                     borderBottom: activeTab === "dashboard" ? "2px solid #415162" : "2px solid transparent",
-                    paddingBottom: 2,
+                    padding: "1px 0 0 0",
                   }}
                 >
                   Assessments
@@ -288,10 +288,10 @@ const CBME = () => {
               <span
                 onClick={() => setActiveTab("history")}
                 style={{
-                  fontSize: 13, fontWeight: 500, cursor: "pointer",
-                  color: activeTab === "history" ? "#415162" : "#8A9AAB",
+                  fontSize: 14, fontWeight: 600, cursor: "pointer",
+                  color: activeTab === "history" ? "#415162" : "#999",
                   borderBottom: activeTab === "history" ? "2px solid #415162" : "2px solid transparent",
-                  paddingBottom: 2,
+                  padding: "1px 0 0 0",
                 }}
               >
                 Reports
