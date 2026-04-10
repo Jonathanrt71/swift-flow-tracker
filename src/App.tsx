@@ -24,7 +24,6 @@ import Topics from "./pages/Topics.tsx";
 import Announcements from "./pages/Announcements.tsx";
 import Evaluations from "./pages/Evaluations.tsx";
 import BlockSchedule from "./pages/BlockSchedule.tsx";
-import ProcedureLogs from "./pages/ProcedureLogs.tsx";
 import ResidentSummary from "./pages/ResidentSummary.tsx";
 import VisitDuration from "./pages/VisitDuration.tsx";
 import PatientSatisfaction from "./pages/PatientSatisfaction.tsx";
@@ -66,7 +65,6 @@ const App = () => (
               <Route path="/announcements" element={<RoleRoute permissionKey="announcements.view"><Announcements /></RoleRoute>} />
               <Route path="/evaluations" element={<RoleRoute permissionKey="evaluations.view"><Evaluations /></RoleRoute>} />
               <Route path="/schedule" element={<RoleRoute permissionKey="schedule.view"><BlockSchedule /></RoleRoute>} />
-              <Route path="/procedure-logs" element={<RoleRoute permissionKey="procedures.view"><ProcedureLogs /></RoleRoute>} />
               <Route path="/resident-summary" element={<RoleRoute permissionKey="resident_summary.view"><ResidentSummary /></RoleRoute>} />
               <Route path="/visit-duration" element={<RoleRoute permissionKey="visit_duration.view"><VisitDuration /></RoleRoute>} />
               <Route path="/patient-satisfaction" element={<RoleRoute permissionKey="patient_satisfaction.view"><PatientSatisfaction /></RoleRoute>} />

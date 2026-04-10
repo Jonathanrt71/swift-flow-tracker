@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { CheckSquare, Users, Calendar, BookOpen, MessageSquare, Shield, User, LogOut, BookMarked, Stethoscope, ClipboardList, BookOpenCheck, Home, ShieldCheck, FileText, Megaphone, FileCheck, CalendarDays, Activity, UserCheck, BarChart2, Clock, Heart, FileSignature } from "lucide-react";
+import { CheckSquare, Users, Calendar, BookOpen, MessageSquare, Shield, User, LogOut, BookMarked, Stethoscope, ClipboardList, BookOpenCheck, Home, ShieldCheck, FileText, Megaphone, FileCheck, CalendarDays,  UserCheck, BarChart2, Clock, Heart, FileSignature } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { usePermissions } from "@/hooks/usePermissions";
 import { useAppSettings } from "@/hooks/useAppSettings";
@@ -21,7 +21,6 @@ const allNavItems: NavEntry[] = [
   { path: "/events",      label: "Events",       icon: Calendar,      permissionKey: "events.view" },
   { path: "/feedback",    label: "Feedback",     icon: MessageSquare, permissionKey: "feedback.view" },
   { path: "/evaluations", label: "Evaluations",  icon: FileCheck,     permissionKey: "evaluations.view" },
-  { path: "/procedure-logs", label: "Procedures", icon: Activity,     permissionKey: "procedures.view" },
   { path: "/resident-summary", label: "Resident Summary", icon: UserCheck, permissionKey: "resident_summary.view" },
   { path: "/topics",      label: "Topics",       icon: BookOpenCheck, permissionKey: "topics.view" },
   { path: "/compliance",  label: "ACGME Handbook", icon: ShieldCheck,   permissionKey: "compliance.view" },
@@ -41,7 +40,7 @@ const allNavItems: NavEntry[] = [
 interface NavSection { label: string; paths: string[]; }
 const navSections: NavSection[] = [
   { label: "Curriculum", paths: ["/rotations", "/topics"] },
-  { label: "Evaluation", paths: ["/cbme", "/evaluations", "/feedback", "/milestones", "/procedure-logs", "/resident-summary"] },
+  { label: "Evaluation", paths: ["/cbme", "/evaluations", "/feedback", "/milestones", "/resident-summary"] },
   { label: "Program",    paths: ["/events", "/schedule", "/announcements", "/meetings", "/visit-duration", "/patient-satisfaction", "/pla-tracking"] },
   { label: "Reference",  paths: ["/compliance", "/gme-handbook", "/handbook"] },
 ];
