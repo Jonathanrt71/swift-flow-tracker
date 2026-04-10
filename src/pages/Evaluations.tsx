@@ -917,38 +917,10 @@ const Evaluations = () => {
     </div>
   );
 
-  const renderSubToggle = (mode: "evals" | "summary", setMode: (m: "evals" | "summary") => void, importHandler?: (e: React.ChangeEvent<HTMLInputElement>) => void) => (
-    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-      <div style={{ display: "flex", gap: 0 }}>
-        {([
-          { value: "evals" as const, label: "Evaluations" },
-          { value: "summary" as const, label: "Summary" },
-        ]).map(tab => (
-          <button
-            key={tab.value}
-            onClick={() => setMode(tab.value)}
-            style={{
-              padding: "1px 0 0 0", marginRight: 16, fontSize: 12, fontWeight: 500, cursor: "pointer",
-              background: "transparent", border: "none",
-              color: mode === tab.value ? "rgba(65,81,98,0.9)" : "#999",
-              borderBottom: mode === tab.value ? "2px solid rgba(65,81,98,0.9)" : "2px solid transparent",
-            }}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
-      {isAdmin && importHandler && (
-        <label
-          className="hidden sm:flex"
-          style={{ alignItems: "center", gap: 6, padding: "5px 12px", background: "#415162", color: "#fff", borderRadius: 8, fontSize: 12, fontWeight: 500, cursor: "pointer" }}
-        >
-          <Upload style={{ width: 13, height: 13 }} /> Import
-          <input type="file" accept=".tab,.tsv,.txt" onChange={importHandler} style={{ display: "none" }} />
-        </label>
-      )}
-    </div>
-  );
+  // Derived view mode / setters / import handler based on active page
+  const currentViewMode = activePage === "attending" ? attViewMode : activePage === "rotation" ? rotViewMode : peerViewMode;
+  const setCurrentViewMode = activePage === "attending" ? setAttViewMode : activePage === "rotation" ? setRotViewMode : setPeerViewMode;
+  const currentImportHandler = activePage === "attending" ? handleFileUpload : activePage === "rotation" ? handleRotFileUpload : handlePeerFileUpload;
 
   // ═══════════════════════════════════════════════════════════════════════
   // Render
@@ -983,26 +955,56 @@ const Evaluations = () => {
 
       <main style={{ maxWidth: 900, margin: "0 auto", padding: "12px 16px 100px" }}>
 
-        {/* ── Page selector tabs ── */}
-        <div style={{ display: "flex", gap: 0, marginBottom: 12 }}>
-          {([
-            { value: "attending" as const, label: "Attending" },
-            { value: "rotation" as const, label: "Resident" },
-            { value: "peer" as const, label: "Peer" },
-          ]).map(tab => (
-            <button
-              key={tab.value}
-              onClick={() => setActivePage(tab.value)}
-              style={{
-                padding: "1px 0 0 0", marginRight: 20, fontSize: 14, fontWeight: 600, cursor: "pointer",
-                background: "transparent", border: "none",
-                color: activePage === tab.value ? "#415162" : "#999",
-                borderBottom: activePage === tab.value ? "2px solid #415162" : "2px solid transparent",
-              }}
-            >
-              {tab.label}
-            </button>
-          ))}
+        {/* ── Row 1: Page tabs (left) + Evaluations/Summary + Import (right) ── */}
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 14, flexWrap: "wrap", gap: 8 }}>
+          <div style={{ display: "flex", gap: 0 }}>
+            {([
+              { value: "attending" as const, label: "Attending" },
+              { value: "rotation" as const, label: "Resident" },
+              { value: "peer" as const, label: "Peer" },
+            ]).map(tab => (
+              <button
+                key={tab.value}
+                onClick={() => setActivePage(tab.value)}
+                style={{
+                  padding: "1px 0 0 0", marginRight: 20, fontSize: 14, fontWeight: 600, cursor: "pointer",
+                  background: "transparent", border: "none",
+                  color: activePage === tab.value ? "#415162" : "#999",
+                  borderBottom: activePage === tab.value ? "2px solid #415162" : "2px solid transparent",
+                }}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            {([
+              { value: "evals" as const, label: "Evaluations" },
+              { value: "summary" as const, label: "Summary" },
+            ]).map(tab => (
+              <button
+                key={tab.value}
+                onClick={() => setCurrentViewMode(tab.value)}
+                style={{
+                  padding: "1px 0 0 0", fontSize: 12, fontWeight: 500, cursor: "pointer",
+                  background: "transparent", border: "none",
+                  color: currentViewMode === tab.value ? "rgba(65,81,98,0.9)" : "#999",
+                  borderBottom: currentViewMode === tab.value ? "2px solid rgba(65,81,98,0.9)" : "2px solid transparent",
+                }}
+              >
+                {tab.label}
+              </button>
+            ))}
+            {isAdmin && (
+              <label
+                className="hidden sm:flex"
+                style={{ alignItems: "center", gap: 6, padding: "5px 12px", background: "#415162", color: "#fff", borderRadius: 8, fontSize: 12, fontWeight: 500, cursor: "pointer", marginLeft: 4 }}
+              >
+                <Upload style={{ width: 13, height: 13 }} /> Import
+                <input type="file" accept=".tab,.tsv,.txt" onChange={currentImportHandler} style={{ display: "none" }} />
+              </label>
+            )}
+          </div>
         </div>
 
         {/* ═══════════════════════════════════════════════════════════════ */}
@@ -1010,14 +1012,12 @@ const Evaluations = () => {
         {/* ═══════════════════════════════════════════════════════════════ */}
         {activePage === "attending" && (
           <>
-            {renderSubToggle(attViewMode, setAttViewMode, handleFileUpload)}
-
             {attViewMode === "summary" ? renderSummaryTable(attSummary, "Resident") : (
             <>
-            {/* Filter bar — row 1: dropdowns */}
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+            {/* Filter bar — dropdowns + status pills in one row */}
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
               <Select value={filterResident} onValueChange={setFilterResident}>
-                <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0" style={{ borderColor: "#C9CED4", background: "#fff", flex: 1, minWidth: 0, maxWidth: 160, fontSize: 12, height: 32, padding: "0 8px" }}>
+                <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0" style={{ borderColor: "#C9CED4", background: "#fff", flex: 1, minWidth: 0, maxWidth: 150, fontSize: 12, height: 32, padding: "0 8px" }}>
                   <SelectValue placeholder="Residents" />
                 </SelectTrigger>
                 <SelectContent>
@@ -1029,7 +1029,7 @@ const Evaluations = () => {
               </Select>
 
               <Select value={filterEvaluator} onValueChange={setFilterEvaluator}>
-                <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0" style={{ borderColor: "#C9CED4", background: "#fff", flex: 1, minWidth: 0, maxWidth: 160, fontSize: 12, height: 32, padding: "0 8px" }}>
+                <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0" style={{ borderColor: "#C9CED4", background: "#fff", flex: 1, minWidth: 0, maxWidth: 150, fontSize: 12, height: 32, padding: "0 8px" }}>
                   <SelectValue placeholder="Evaluators" />
                 </SelectTrigger>
                 <SelectContent>
@@ -1040,11 +1040,7 @@ const Evaluations = () => {
                 </SelectContent>
               </Select>
 
-            </div>
-
-            {/* Filter bar — row 2: toggles */}
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
-              <div style={{ display: "flex", gap: 0, borderRadius: 8, overflow: "hidden", border: "0.5px solid #C9CED4" }}>
+              <div style={{ display: "flex", gap: 0, borderRadius: 8, overflow: "hidden", border: "0.5px solid #C9CED4", marginLeft: "auto" }}>
                 {([
                   { value: "all" as const, label: "All" },
                   { value: "unread" as const, label: `Unread${unviewedCount > 0 ? ` (${unviewedCount})` : ""}` },
@@ -1237,16 +1233,14 @@ const Evaluations = () => {
         {/* ═══════════════════════════════════════════════════════════════ */}
         {activePage === "rotation" && (
           <>
-            {renderSubToggle(rotViewMode, setRotViewMode, handleRotFileUpload)}
-
             {rotViewMode === "summary" ? renderSummaryTable(rotSummary, "Rotation") : (
             <>
-            {/* Filter bar */}
+            {/* Filter bar — dropdowns + status pills in one row */}
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
               <select
                 value={rotFilterResident}
                 onChange={(e) => setRotFilterResident(e.target.value)}
-                style={{ ...nativeSelectStyle, flex: 1, minWidth: 0, maxWidth: 180 } as any}
+                style={{ ...nativeSelectStyle, flex: 1, minWidth: 0, maxWidth: 150 } as any}
               >
                 <option value="all">All residents</option>
                 {rotResidents.map(name => <option key={name} value={name}>{name}</option>)}
@@ -1255,17 +1249,13 @@ const Evaluations = () => {
               <select
                 value={rotFilterRotation}
                 onChange={(e) => setRotFilterRotation(e.target.value)}
-                style={{ ...nativeSelectStyle, flex: 1, minWidth: 0, maxWidth: 180 } as any}
+                style={{ ...nativeSelectStyle, flex: 1, minWidth: 0, maxWidth: 150 } as any}
               >
                 <option value="all">All rotations</option>
                 {rotRotations.map(name => <option key={name} value={name}>{name}</option>)}
               </select>
 
-            </div>
-
-            {/* Filter bar — row 2: read/unread toggles */}
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
-              <div style={{ display: "flex", gap: 0, borderRadius: 8, overflow: "hidden", border: "0.5px solid #C9CED4" }}>
+              <div style={{ display: "flex", gap: 0, borderRadius: 8, overflow: "hidden", border: "0.5px solid #C9CED4", marginLeft: "auto" }}>
                 {([
                   { value: "all" as const, label: "All" },
                   { value: "unread" as const, label: `Unread${rotUnviewedCount > 0 ? ` (${rotUnviewedCount})` : ""}` },
@@ -1453,26 +1443,20 @@ const Evaluations = () => {
         {/* ═══════════════════════════════════════════════════════════════ */}
         {activePage === "peer" && (
           <>
-            {renderSubToggle(peerViewMode, setPeerViewMode, handlePeerFileUpload)}
-
             {peerViewMode === "summary" ? renderSummaryTable(peerSummary, "Resident") : (
             <>
-            {/* Filter bar */}
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, flexWrap: "wrap" }}>
+            {/* Filter bar — dropdown + status pills in one row */}
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
               <select
                 value={peerFilterSubject}
                 onChange={(e) => setPeerFilterSubject(e.target.value)}
-                style={{ ...nativeSelectStyle, flex: 1, minWidth: 0, maxWidth: 200 } as any}
+                style={{ ...nativeSelectStyle, flex: 1, minWidth: 0, maxWidth: 150 } as any}
               >
                 <option value="all">All residents</option>
                 {peerSubjects.map(name => <option key={name} value={name}>{name}</option>)}
               </select>
 
-            </div>
-
-            {/* Filter bar — row 2: read/unread/flagged toggles */}
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
-              <div style={{ display: "flex", gap: 0, borderRadius: 8, overflow: "hidden", border: "0.5px solid #C9CED4" }}>
+              <div style={{ display: "flex", gap: 0, borderRadius: 8, overflow: "hidden", border: "0.5px solid #C9CED4", marginLeft: "auto" }}>
                 {([
                   { value: "all" as const, label: "All" },
                   { value: "unread" as const, label: `Unread${peerUnviewedCount > 0 ? ` (${peerUnviewedCount})` : ""}` },
