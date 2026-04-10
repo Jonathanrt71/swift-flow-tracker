@@ -609,59 +609,16 @@ const Events = () => {
         {/* Sticky filter bar below header */}
         <div className="sticky z-30 bg-background" style={{ top: 56 }}>
 
-          {/* Row 1: View tabs + Add button */}
-          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "8px 16px", paddingTop: 8, paddingBottom: 8, justifyContent: "space-between" }}>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 16, alignItems: "center" }}>
-              {([
-                { mode: "list" as const, label: "List" },
-                { mode: "vertical" as const, label: "Timeline" },
-                { mode: "gantt" as const, label: "Gantt" },
-              ] as { mode: "list" | "vertical" | "gantt"; label: string }[]).map(({ mode, label }) => (
-                <span
-                  key={mode}
-                  onClick={() => setViewMode(mode)}
-                  style={{
-                    fontSize: 13, fontWeight: 500, cursor: "pointer",
-                    color: viewMode === mode ? "#415162" : "#8A9AAB",
-                    borderBottom: viewMode === mode ? "2px solid #415162" : "2px solid transparent",
-                    paddingBottom: 2,
-                  }}
-                >
-                  {label}
-                </span>
-              ))}
-              <span
-                  onClick={() => setShowPast(!showPast)}
-                  style={{
-                    fontSize: 13, fontWeight: 500, cursor: "pointer",
-                    color: showPast ? "#415162" : "#8A9AAB",
-                    borderBottom: showPast ? "2px solid #415162" : "2px solid transparent",
-                    paddingBottom: 2,
-                  }}
-                >
-                  {showPast ? "Hide past" : "Show past"}
-                </span>
-            </div>
-
-            {canEditEvents && (
-              <CreateEventDialog
-                onSubmit={(data) => createEvent.mutate(data)}
-                defaultCategory={activeCategories.size === 1 ? (Array.from(activeCategories)[0] as EventCategory) : "program"}
-                addPill
-              />
-            )}
-          </div>
-
-          {/* Row 2: Category pills */}
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 6, paddingBottom: 10 }}>
+          {/* Row 1: Category tabs */}
+          <div style={{ display: "flex", gap: 0, borderBottom: "2px solid #E7EBEF", paddingTop: 8 }}>
             <button
               onClick={handleAllClick}
               style={{
-                fontSize: 12, fontWeight: 500, padding: "4px 12px", borderRadius: 20,
-                border: isAllSelected ? "1px solid #415162" : "1px solid #C9CED4",
-                background: isAllSelected ? "#415162" : "transparent",
-                color: isAllSelected ? "#fff" : "#8A9AAB",
-                cursor: "pointer",
+                padding: "8px 0", marginRight: 20, fontSize: 13, fontWeight: 600, cursor: "pointer",
+                background: "transparent", border: "none",
+                color: isAllSelected ? "#415162" : "#999",
+                borderBottom: isAllSelected ? "2px solid #415162" : "2px solid transparent",
+                marginBottom: -2,
               }}
             >
               All
@@ -673,17 +630,62 @@ const Events = () => {
                   key={cat.name}
                   onClick={() => handleCategoryToggle(cat.name)}
                   style={{
-                    fontSize: 12, fontWeight: 500, padding: "4px 12px", borderRadius: 20,
-                    border: isActive ? "1px solid #415162" : "1px solid #C9CED4",
-                    background: isActive ? "#415162" : "transparent",
-                    color: isActive ? "#fff" : "#8A9AAB",
-                    cursor: "pointer",
+                    padding: "8px 0", marginRight: 20, fontSize: 13, fontWeight: 600, cursor: "pointer",
+                    background: "transparent", border: "none",
+                    color: isActive ? "#415162" : "#999",
+                    borderBottom: isActive ? "2px solid #415162" : "2px solid transparent",
+                    marginBottom: -2,
                   }}
                 >
                   {cat.label}
                 </button>
               );
             })}
+          </div>
+
+          {/* Row 2: View tabs + Add button */}
+          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "8px 16px", paddingTop: 8, paddingBottom: 8, justifyContent: "space-between" }}>
+            <div style={{ display: "flex", gap: 0, borderBottom: "2px solid #E7EBEF" }}>
+              {([
+                { mode: "list" as const, label: "List" },
+                { mode: "vertical" as const, label: "Timeline" },
+                { mode: "gantt" as const, label: "Gantt" },
+              ] as { mode: "list" | "vertical" | "gantt"; label: string }[]).map(({ mode, label }) => (
+                <button
+                  key={mode}
+                  onClick={() => setViewMode(mode)}
+                  style={{
+                    padding: "6px 0", marginRight: 16, fontSize: 12, fontWeight: 600, cursor: "pointer",
+                    background: "transparent", border: "none",
+                    color: viewMode === mode ? "#415162" : "#999",
+                    borderBottom: viewMode === mode ? "2px solid #415162" : "2px solid transparent",
+                    marginBottom: -2,
+                  }}
+                >
+                  {label}
+                </button>
+              ))}
+              <button
+                onClick={() => setShowPast(!showPast)}
+                style={{
+                  padding: "6px 0", marginRight: 16, fontSize: 12, fontWeight: 600, cursor: "pointer",
+                  background: "transparent", border: "none",
+                  color: showPast ? "#415162" : "#999",
+                  borderBottom: showPast ? "2px solid #415162" : "2px solid transparent",
+                  marginBottom: -2,
+                }}
+              >
+                {showPast ? "Hide past" : "Show past"}
+              </button>
+            </div>
+
+            {canEditEvents && (
+              <CreateEventDialog
+                onSubmit={(data) => createEvent.mutate(data)}
+                defaultCategory={activeCategories.size === 1 ? (Array.from(activeCategories)[0] as EventCategory) : "program"}
+                addPill
+              />
+            )}
           </div>
 
 
