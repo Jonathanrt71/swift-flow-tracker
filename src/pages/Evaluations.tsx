@@ -217,7 +217,7 @@ const Evaluations = () => {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [filterResident, setFilterResident] = useState<string>("all");
   const [filterEvaluator, setFilterEvaluator] = useState<string>("all");
-  const [filterStatus, setFilterStatus] = useState<"all" | "unread" | "read">("unread");
+  const [filterStatus, setFilterStatus] = useState<"all" | "unread" | "read" | "flagged">("unread");
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [importPreview, setImportPreview] = useState<any[] | null>(null);
@@ -227,7 +227,7 @@ const Evaluations = () => {
   const [rotExpandedId, setRotExpandedId] = useState<string | null>(null);
   const [rotFilterResident, setRotFilterResident] = useState<string>("all");
   const [rotFilterRotation, setRotFilterRotation] = useState<string>("all");
-  const [rotFilterStatus, setRotFilterStatus] = useState<"all" | "unread" | "read">("unread");
+  const [rotFilterStatus, setRotFilterStatus] = useState<"all" | "unread" | "read" | "flagged">("unread");
   const [rotImportPreview, setRotImportPreview] = useState<any[] | null>(null);
   const [rotImporting, setRotImporting] = useState(false);
   const [rotFlashId, setRotFlashId] = useState<string | null>(null);
@@ -349,6 +349,7 @@ const Evaluations = () => {
     if (filterEvaluator !== "all") evals = evals.filter(e => e.evaluator_name === filterEvaluator);
     if (filterStatus === "unread") evals = evals.filter(e => !viewedSet.has(e.id) || pendingViewId === e.id);
     else if (filterStatus === "read") evals = evals.filter(e => viewedSet.has(e.id));
+    else if (filterStatus === "flagged") evals = evals.filter(e => flaggedSet.has(e.id));
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       evals = evals.filter(e =>
@@ -381,6 +382,7 @@ const Evaluations = () => {
 
   const unviewedCount = useMemo(() => baseFiltered.filter(e => !viewedSet.has(e.id)).length, [baseFiltered, viewedSet]);
   const viewedCount = useMemo(() => baseFiltered.filter(e => viewedSet.has(e.id)).length, [baseFiltered, viewedSet]);
+  const flaggedCount = useMemo(() => baseFiltered.filter(e => flaggedSet.has(e.id)).length, [baseFiltered, flaggedSet]);
 
   // ── Attending import handler ──
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -563,11 +565,13 @@ const Evaluations = () => {
     let evals = rotBaseFiltered;
     if (rotFilterStatus === "unread") evals = evals.filter(e => !rotViewedSet.has(e.id) || rotPendingViewId === e.id);
     else if (rotFilterStatus === "read") evals = evals.filter(e => rotViewedSet.has(e.id));
+    else if (rotFilterStatus === "flagged") evals = evals.filter(e => rotFlaggedSet.has(e.id));
     return evals;
   }, [rotBaseFiltered, rotFilterStatus, rotViewedSet, rotPendingViewId]);
 
   const rotUnviewedCount = useMemo(() => rotBaseFiltered.filter(e => !rotViewedSet.has(e.id)).length, [rotBaseFiltered, rotViewedSet]);
   const rotViewedCount = useMemo(() => rotBaseFiltered.filter(e => rotViewedSet.has(e.id)).length, [rotBaseFiltered, rotViewedSet]);
+  const rotFlaggedCount = useMemo(() => rotBaseFiltered.filter(e => rotFlaggedSet.has(e.id)).length, [rotBaseFiltered, rotFlaggedSet]);
 
   // ── Rotation import handler ──
   const handleRotFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -727,6 +731,7 @@ const Evaluations = () => {
                   { value: "all" as const, label: "All" },
                   { value: "unread" as const, label: `Unread${unviewedCount > 0 ? ` (${unviewedCount})` : ""}` },
                   { value: "read" as const, label: `Read${viewedCount > 0 ? ` (${viewedCount})` : ""}` },
+                  { value: "flagged" as const, label: `Flagged${flaggedCount > 0 ? ` (${flaggedCount})` : ""}` },
                 ]).map(opt => (
                   <button
                     key={opt.value}
@@ -950,6 +955,7 @@ const Evaluations = () => {
                   { value: "all" as const, label: "All" },
                   { value: "unread" as const, label: `Unread${rotUnviewedCount > 0 ? ` (${rotUnviewedCount})` : ""}` },
                   { value: "read" as const, label: `Read${rotViewedCount > 0 ? ` (${rotViewedCount})` : ""}` },
+                  { value: "flagged" as const, label: `Flagged${rotFlaggedCount > 0 ? ` (${rotFlaggedCount})` : ""}` },
                 ]).map(opt => (
                   <button
                     key={opt.value}
