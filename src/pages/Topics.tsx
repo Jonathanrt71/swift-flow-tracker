@@ -467,17 +467,17 @@ const Topics = () => {
         <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: "8px 16px", marginBottom: 14 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <Select value={filterTagId || "all"} onValueChange={(v) => setFilterTagId(v === "all" ? null : v)}>
-              <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0" style={{ borderColor: "#C9CED4", background: "#fff", minWidth: 0, maxWidth: 180, fontSize: 12 }}>
+              <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0" style={{ borderColor: "#C9CED4", background: "#fff", minWidth: 0, maxWidth: 180, fontSize: 12, height: 32, padding: "0 8px" }}>
                 <SelectValue placeholder="All categories" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All categories</SelectItem>
+              <SelectContent style={{ maxHeight: 260 }}>
+                <SelectItem value="all" style={{ fontSize: 13, padding: "6px 8px 6px 28px" }}>All categories</SelectItem>
                 {domainTags.map(tag => (
-                  <SelectItem key={tag.id} value={tag.id}>{tag.name}</SelectItem>
+                  <SelectItem key={tag.id} value={tag.id} style={{ fontSize: 13, padding: "6px 8px 6px 28px" }}>{tag.name}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            <span style={{ fontSize: 12, color: "#aaa" }}>{filtered.length} topic{filtered.length !== 1 ? "s" : ""}</span>
+            <span style={{ fontSize: 12, color: "#aaa", whiteSpace: "nowrap" }}>{filtered.length} topic{filtered.length !== 1 ? "s" : ""}</span>
           </div>
           {canEdit && !showAddForm && (
             <span onClick={() => setShowAddForm(true)}
