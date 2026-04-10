@@ -77,6 +77,25 @@ interface RotationEvaluation {
   created_at: string;
 }
 
+interface PeerEvaluation {
+  id: string;
+  evaluator_name: string;
+  evaluator_id: string | null;
+  subject_name: string;
+  subject_id: string | null;
+  evaluator_pgy: number | null;
+  subject_pgy: number | null;
+  overall_rating: number | null;
+  comment: string | null;
+  session_date: string | null;
+  eval_start_date: string | null;
+  eval_end_date: string | null;
+  date_completed: string | null;
+  form_type: string | null;
+  source: string | null;
+  created_at: string;
+}
+
 interface EvaluationView {
   id: string;
   evaluation_id: string;
@@ -211,7 +230,7 @@ const Evaluations = () => {
   const { toast } = useToast();
 
   // ── Page-level state ──
-  const [activePage, setActivePage] = useState<"attending" | "rotation">("attending");
+  const [activePage, setActivePage] = useState<"attending" | "rotation" | "peer">("attending");
 
   // ── Attending eval state ──
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -232,6 +251,15 @@ const Evaluations = () => {
   const [rotImporting, setRotImporting] = useState(false);
   const [rotFlashId, setRotFlashId] = useState<string | null>(null);
   const [rotPendingViewId, setRotPendingViewId] = useState<string | null>(null);
+
+  // ── Peer eval state ──
+  const [peerExpandedId, setPeerExpandedId] = useState<string | null>(null);
+  const [peerFilterSubject, setPeerFilterSubject] = useState<string>("all");
+  const [peerFilterStatus, setPeerFilterStatus] = useState<"all" | "unread" | "read" | "flagged">("unread");
+  const [peerImportPreview, setPeerImportPreview] = useState<any[] | null>(null);
+  const [peerImporting, setPeerImporting] = useState(false);
+  const [peerFlashId, setPeerFlashId] = useState<string | null>(null);
+  const [peerPendingViewId, setPeerPendingViewId] = useState<string | null>(null);
 
   // ═══════════════════════════════════════════════════════════════════════
   // Attending evaluations queries
@@ -638,6 +666,171 @@ const Evaluations = () => {
   };
 
   // ═══════════════════════════════════════════════════════════════════════
+  // Peer evaluations queries
+  // ═══════════════════════════════════════════════════════════════════════
+
+  const peerEvalsQuery = useQuery({
+    queryKey: ["peer_evaluations"],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from("peer_evaluations")
+        .select("*")
+        .order("date_completed", { ascending: false });
+      if (error) throw error;
+      return (data || []) as PeerEvaluation[];
+    },
+  });
+
+  const peerViewsQuery = useQuery({
+    queryKey: ["peer_evaluation_views", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from("peer_evaluation_views")
+        .select("*")
+        .eq("user_id", user!.id);
+      if (error) throw error;
+      return (data || []) as EvaluationView[];
+    },
+  });
+
+  const peerViewedSet = useMemo(() => {
+    const s = new Set<string>();
+    (peerViewsQuery.data || []).forEach(v => s.add(v.evaluation_id));
+    return s;
+  }, [peerViewsQuery.data]);
+
+  const peerFlagsQuery = useQuery({
+    queryKey: ["peer_evaluation_flags", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from("peer_evaluation_flags")
+        .select("*")
+        .eq("user_id", user!.id);
+      if (error) throw error;
+      return (data || []) as { id: string; evaluation_id: string; user_id: string }[];
+    },
+  });
+
+  const peerFlaggedSet = useMemo(() => {
+    const s = new Set<string>();
+    (peerFlagsQuery.data || []).forEach(f => s.add(f.evaluation_id));
+    return s;
+  }, [peerFlagsQuery.data]);
+
+  const togglePeerView = async (evalId: string) => {
+    if (peerViewedSet.has(evalId)) {
+      const view = (peerViewsQuery.data || []).find(v => v.evaluation_id === evalId);
+      if (view) await (supabase as any).from("peer_evaluation_views").delete().eq("id", view.id);
+      queryClient.invalidateQueries({ queryKey: ["peer_evaluation_views"] });
+    } else {
+      setPeerFlashId(evalId);
+      setPeerPendingViewId(evalId);
+      await (supabase as any).from("peer_evaluation_views").insert({ evaluation_id: evalId, user_id: user!.id });
+      setTimeout(() => {
+        setPeerFlashId(null);
+        setPeerPendingViewId(null);
+        queryClient.invalidateQueries({ queryKey: ["peer_evaluation_views"] });
+      }, 800);
+    }
+  };
+
+  const togglePeerFlag = async (evalId: string) => {
+    if (peerFlaggedSet.has(evalId)) {
+      const flag = (peerFlagsQuery.data || []).find(f => f.evaluation_id === evalId);
+      if (flag) await (supabase as any).from("peer_evaluation_flags").delete().eq("id", flag.id);
+    } else {
+      await (supabase as any).from("peer_evaluation_flags").insert({ evaluation_id: evalId, user_id: user!.id });
+    }
+    queryClient.invalidateQueries({ queryKey: ["peer_evaluation_flags"] });
+  };
+
+  const peerSubjects = useMemo(() => {
+    const evals = peerEvalsQuery.data || [];
+    const set = new Set<string>();
+    evals.forEach(e => { if (e.subject_name) set.add(e.subject_name); });
+    return Array.from(set).sort();
+  }, [peerEvalsQuery.data]);
+
+  const peerBaseFiltered = useMemo(() => {
+    let evals = peerEvalsQuery.data || [];
+    if (peerFilterSubject !== "all") evals = evals.filter(e => e.subject_name === peerFilterSubject);
+    return evals;
+  }, [peerEvalsQuery.data, peerFilterSubject]);
+
+  const peerFiltered = useMemo(() => {
+    let evals = peerBaseFiltered;
+    if (peerFilterStatus === "unread") evals = evals.filter(e => !peerViewedSet.has(e.id) || peerPendingViewId === e.id);
+    else if (peerFilterStatus === "read") evals = evals.filter(e => peerViewedSet.has(e.id));
+    else if (peerFilterStatus === "flagged") evals = evals.filter(e => peerFlaggedSet.has(e.id));
+    return evals;
+  }, [peerBaseFiltered, peerFilterStatus, peerViewedSet, peerPendingViewId, peerFlaggedSet]);
+
+  const peerUnviewedCount = useMemo(() => peerBaseFiltered.filter(e => !peerViewedSet.has(e.id)).length, [peerBaseFiltered, peerViewedSet]);
+  const peerViewedCount = useMemo(() => peerBaseFiltered.filter(e => peerViewedSet.has(e.id)).length, [peerBaseFiltered, peerViewedSet]);
+  const peerFlaggedCount = useMemo(() => peerBaseFiltered.filter(e => peerFlaggedSet.has(e.id)).length, [peerBaseFiltered, peerFlaggedSet]);
+
+  // ── Peer import handler ──
+  const handlePeerFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const buffer = await file.arrayBuffer();
+    let text: string;
+    try { text = new TextDecoder("utf-16le").decode(buffer); } catch { text = new TextDecoder("utf-8").decode(buffer); }
+    const rows = parseTabFile(text);
+    if (rows.length === 0) { toast({ title: "No data found in file", variant: "destructive" }); return; }
+    const parsed = rows.map(row => ({
+      evaluator_name: row["Evaluator Name"] || "",
+      subject_name: row["Subject Name"] || "",
+      evaluator_pgy: parsePgy(row["Evaluator Status"] || ""),
+      subject_pgy: parsePgy(row["Subject Status"] || ""),
+      overall_rating: parseRating(row["[Question 1 Response]"] || ""),
+      comment: row["[Question 1 Comment]"] || null,
+      session_date: parseDateOnly(row["Session Date"] || ""),
+      eval_start_date: parseDateOnly(row["Evaluation Start Date"] || ""),
+      eval_end_date: parseDateOnly(row["Evaluation End Date"] || ""),
+      date_completed: parseDate(row["Date Completed"] || ""),
+      form_type: row["Evaluation Form"] || null,
+    })).filter(r => r.evaluator_name && r.subject_name);
+    setPeerImportPreview(parsed);
+    e.target.value = "";
+  };
+
+  const handlePeerImport = async () => {
+    if (!peerImportPreview || peerImportPreview.length === 0) return;
+    setPeerImporting(true);
+    try {
+      const { data: profiles } = await (supabase as any).from("profiles").select("id, first_name, last_name, ni_names");
+      const matchByNiNames = (name: string): string | null => {
+        const n = name.toLowerCase().trim().replace(/\s+/g, " ");
+        for (const p of (profiles || [])) {
+          const niNames = (p.ni_names || "").split(";").map((s: string) => s.toLowerCase().trim()).filter(Boolean);
+          for (const ni of niNames) { if (ni === n || n.startsWith(ni) || ni.startsWith(n)) return p.id; }
+        }
+        return null;
+      };
+      const records = peerImportPreview.map(row => ({
+        ...row,
+        evaluator_id: matchByNiNames(row.evaluator_name),
+        subject_id: matchByNiNames(row.subject_name),
+        source: "new_innovations",
+      }));
+      const { error } = await (supabase as any)
+        .from("peer_evaluations")
+        .upsert(records, { onConflict: "evaluator_name,subject_name,date_completed", ignoreDuplicates: true });
+      if (error) throw error;
+      toast({ title: `Imported ${records.length} peer evaluations` });
+      setPeerImportPreview(null);
+      queryClient.invalidateQueries({ queryKey: ["peer_evaluations"] });
+    } catch (err: any) {
+      console.error("Import error:", err);
+      toast({ title: "Import failed: " + (err.message || "Unknown error"), variant: "destructive" });
+    } finally { setPeerImporting(false); }
+  };
+
+  // ═══════════════════════════════════════════════════════════════════════
   // Render
   // ═══════════════════════════════════════════════════════════════════════
 
@@ -679,6 +872,7 @@ const Evaluations = () => {
           >
             <option value="attending">Attending evaluation of residents</option>
             <option value="rotation">Resident evaluation of rotations</option>
+            <option value="peer">Resident peer to peer</option>
           </select>
         </div>
 
@@ -1111,6 +1305,196 @@ const Evaluations = () => {
                                         queryClient.invalidateQueries({ queryKey: ["rotation_evaluations"] });
                                         setRotExpandedId(null);
                                         toast({ title: "Rotation evaluation deleted" });
+                                      }}
+                                      style={{ display: "flex", alignItems: "center", gap: 4, background: "transparent", border: "none", cursor: "pointer", color: "#c44444", fontSize: 12 }}
+                                    >
+                                      <Trash2 style={{ width: 14, height: 14 }} /> Delete
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ));
+                })()}
+              </div>
+            )}
+          </>
+        )}
+
+        {/* ═══════════════════════════════════════════════════════════════ */}
+        {/* RESIDENT PEER TO PEER                                          */}
+        {/* ═══════════════════════════════════════════════════════════════ */}
+        {activePage === "peer" && (
+          <>
+            {/* Filter bar */}
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, flexWrap: "wrap" }}>
+              <select
+                value={peerFilterSubject}
+                onChange={(e) => setPeerFilterSubject(e.target.value)}
+                style={{ ...nativeSelectStyle, flex: 1, minWidth: 0, maxWidth: 200 } as any}
+              >
+                <option value="all">All residents</option>
+                {peerSubjects.map(name => <option key={name} value={name}>{name}</option>)}
+              </select>
+
+              {isAdmin && (
+                <label
+                  className="hidden sm:flex"
+                  style={{ alignItems: "center", gap: 6, padding: "6px 12px", background: "#415162", color: "#fff", borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: "pointer", marginLeft: "auto" }}
+                >
+                  <Upload style={{ width: 14, height: 14 }} /> Import
+                  <input type="file" accept=".tab,.tsv,.txt" onChange={handlePeerFileUpload} style={{ display: "none" }} />
+                </label>
+              )}
+            </div>
+
+            {/* Filter bar — row 2: read/unread/flagged toggles */}
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+              <div style={{ display: "flex", gap: 0, borderRadius: 8, overflow: "hidden", border: "0.5px solid #C9CED4" }}>
+                {([
+                  { value: "all" as const, label: "All" },
+                  { value: "unread" as const, label: `Unread${peerUnviewedCount > 0 ? ` (${peerUnviewedCount})` : ""}` },
+                  { value: "read" as const, label: `Read${peerViewedCount > 0 ? ` (${peerViewedCount})` : ""}` },
+                  { value: "flagged" as const, label: `Flagged${peerFlaggedCount > 0 ? ` (${peerFlaggedCount})` : ""}` },
+                ]).map(opt => (
+                  <button
+                    key={opt.value}
+                    onClick={() => setPeerFilterStatus(opt.value)}
+                    style={{
+                      padding: "5px 10px", fontSize: 11, fontWeight: 500, border: "none", cursor: "pointer",
+                      background: peerFilterStatus === opt.value ? "#415162" : "#fff",
+                      color: peerFilterStatus === opt.value ? "#fff" : "#5F7285",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Import preview */}
+            {peerImportPreview && (
+              <div style={{ background: "#E7EBEF", border: "1px solid #C9CED4", borderRadius: 8, padding: 16, marginBottom: 16 }}>
+                <div style={{ fontSize: 14, fontWeight: 600, color: "#2D3748", marginBottom: 8 }}>
+                  Import Preview — {peerImportPreview.length} peer evaluations
+                </div>
+                <div style={{ maxHeight: 200, overflowY: "auto", marginBottom: 12 }}>
+                  {peerImportPreview.slice(0, 20).map((row, i) => (
+                    <div key={i} style={{ fontSize: 12, color: "#5F7285", padding: "2px 0" }}>
+                      {row.subject_name} — by {row.evaluator_name} — {fmtDate(row.date_completed)}
+                    </div>
+                  ))}
+                  {peerImportPreview.length > 20 && (
+                    <div style={{ fontSize: 12, color: "#8A9AAB", fontStyle: "italic" }}>...and {peerImportPreview.length - 20} more</div>
+                  )}
+                </div>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <button onClick={handlePeerImport} disabled={peerImporting}
+                    style={{ padding: "8px 20px", background: "#415162", color: "#fff", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: "pointer", opacity: peerImporting ? 0.5 : 1 }}
+                  >{peerImporting ? "Importing..." : "Confirm Import"}</button>
+                  <button onClick={() => setPeerImportPreview(null)}
+                    style={{ padding: "8px 20px", background: "transparent", color: "#5F7285", border: "1px solid #C9CED4", borderRadius: 8, fontSize: 13, cursor: "pointer" }}
+                  >Cancel</button>
+                </div>
+              </div>
+            )}
+
+            {/* Peer evaluations list */}
+            {peerEvalsQuery.isLoading ? (
+              <div style={{ display: "flex", justifyContent: "center", padding: 48 }}>
+                <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+              </div>
+            ) : peerFiltered.length === 0 ? (
+              <div style={{ textAlign: "center", padding: 48, color: "#8A9AAB", fontSize: 14 }}>
+                {(peerEvalsQuery.data || []).length === 0 ? "No peer evaluations imported yet" : "No evaluations match filters"}
+              </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {(() => {
+                  const groups: { month: string; items: PeerEvaluation[] }[] = [];
+                  peerFiltered.forEach(ev => {
+                    let monthLabel = "Unknown";
+                    try { if (ev.date_completed) monthLabel = format(parseISO(ev.date_completed), "MMMM yyyy"); } catch {}
+                    const last = groups[groups.length - 1];
+                    if (last && last.month === monthLabel) last.items.push(ev);
+                    else groups.push({ month: monthLabel, items: [ev] });
+                  });
+                  return groups.map(g => (
+                    <div key={g.month}>
+                      <div style={{ fontSize: 11, fontWeight: 500, color: "#8A9AAB", textTransform: "uppercase", letterSpacing: "0.05em", padding: "12px 0 4px" }}>{g.month}</div>
+                      {g.items.map(ev => {
+                        const isExpanded = peerExpandedId === ev.id;
+                        const isViewed = peerViewedSet.has(ev.id) || peerPendingViewId === ev.id;
+                        return (
+                          <div key={ev.id} className="rounded-lg overflow-hidden"
+                            style={{ background: peerFlashId === ev.id ? "rgba(74,132,108,0.15)" : "#E7EBEF", border: "0.5px solid #C9CED4", transition: "background 0.4s ease", marginBottom: 8 }}
+                          >
+                            {/* Collapsed row */}
+                            <div
+                              style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 14px", cursor: "pointer" }}
+                              onClick={() => setPeerExpandedId(isExpanded ? null : ev.id)}
+                            >
+                              <div style={{ flex: 1, minWidth: 0 }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                  <span style={{ fontSize: 14, fontWeight: 500, color: "#2D3748" }}>{ev.subject_name}</span>
+                                  <span style={{ fontSize: 12, fontWeight: 500, color: ratingColor(ev.overall_rating) }}>{ratingLabel(ev.overall_rating)}</span>
+                                </div>
+                                <div style={{ fontSize: 11, color: "#8A9AAB" }}>
+                                  {isAdmin ? ev.evaluator_name : "Anonymous peer"} · {fmtDate(ev.date_completed)}
+                                </div>
+                              </div>
+                              <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
+                                <div onClick={(e) => { e.stopPropagation(); togglePeerFlag(ev.id); }}
+                                  style={{ display: "flex", alignItems: "center", gap: 3, padding: "3px 8px", borderRadius: 4, background: peerFlaggedSet.has(ev.id) ? "#D4A017" : "#D5DAE0", cursor: "pointer" }}
+                                >
+                                  <Flag style={{ width: 11, height: 11, color: peerFlaggedSet.has(ev.id) ? "#fff" : "#5F7285" }} />
+                                  <span style={{ fontSize: 10, fontWeight: 500, color: peerFlaggedSet.has(ev.id) ? "#fff" : "#5F7285" }}>Flag</span>
+                                </div>
+                                <div onClick={(e) => { e.stopPropagation(); togglePeerView(ev.id); }}
+                                  style={{ display: "flex", alignItems: "center", gap: 3, padding: "3px 8px", borderRadius: 4, background: isViewed ? "#4A846C" : "#D5DAE0", cursor: "pointer" }}
+                                >
+                                  <Check style={{ width: 11, height: 11, color: isViewed ? "#fff" : "#5F7285" }} />
+                                  <span style={{ fontSize: 10, fontWeight: 500, color: isViewed ? "#fff" : "#5F7285" }}>Read</span>
+                                </div>
+                              </div>
+                              {isExpanded ? <ChevronUp style={{ width: 16, height: 16, color: "#8A9AAB" }} /> : <ChevronDown style={{ width: 16, height: 16, color: "#8A9AAB" }} />}
+                            </div>
+
+                            {/* Expanded content */}
+                            {isExpanded && (
+                              <div style={{ padding: "0 14px 14px" }} onClick={(e) => e.stopPropagation()}>
+                                <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginBottom: 12, fontSize: 11, color: "#5F7285" }}>
+                                  <span>Subject: PGY-{ev.subject_pgy || "?"}</span>
+                                  {isAdmin && <span>Evaluator: PGY-{ev.evaluator_pgy || "?"}</span>}
+                                  <span>{fmtDate(ev.eval_start_date)} – {fmtDate(ev.eval_end_date)}</span>
+                                </div>
+
+                                <div style={{ marginBottom: 12 }}>
+                                  <div style={{ fontSize: 10, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", color: "#8A9AAB", marginBottom: 4 }}>Overall</div>
+                                  <span style={{ fontSize: 13, fontWeight: 500, color: ratingColor(ev.overall_rating) }}>{ratingLabel(ev.overall_rating)}</span>
+                                </div>
+
+                                {hasText(ev.comment) && (
+                                  <div style={{ marginBottom: 10 }}>
+                                    <div style={{ fontSize: 10, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", color: "#8A9AAB", marginBottom: 4 }}>Comment</div>
+                                    <div style={{ fontSize: 13, color: "#2D3748", lineHeight: 1.5 }}>{ev.comment}</div>
+                                  </div>
+                                )}
+
+                                {isAdmin && (
+                                  <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 8 }}>
+                                    <button
+                                      onClick={async () => {
+                                        if (!confirm("Delete this peer evaluation?")) return;
+                                        await (supabase as any).from("peer_evaluations").delete().eq("id", ev.id);
+                                        queryClient.invalidateQueries({ queryKey: ["peer_evaluations"] });
+                                        setPeerExpandedId(null);
+                                        toast({ title: "Peer evaluation deleted" });
                                       }}
                                       style={{ display: "flex", alignItems: "center", gap: 4, background: "transparent", border: "none", cursor: "pointer", color: "#c44444", fontSize: 12 }}
                                     >
