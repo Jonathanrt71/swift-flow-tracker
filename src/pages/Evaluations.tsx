@@ -873,7 +873,32 @@ const Evaluations = () => {
                   <Upload style={{ width: 14, height: 14 }} /> Import
                   <input type="file" accept=".tab,.tsv,.txt" onChange={handleRotFileUpload} style={{ display: "none" }} />
                 </label>
-              )}\n            </div>\n\n            {/* Filter bar — row 2: read/unread toggles */}\n            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>\n              <div style={{ display: "flex", gap: 0, borderRadius: 8, overflow: "hidden", border: "0.5px solid #C9CED4" }}>\n                {([\n                  { value: "all" as const, label: "All" },\n                  { value: "unread" as const, label: `Unread${rotUnviewedCount > 0 ? ` (${rotUnviewedCount})` : ""}` },\n                  { value: "read" as const, label: `Read${rotViewedCount > 0 ? ` (${rotViewedCount})` : ""}` },\n                ]).map(opt => (\n                  <button\n                    key={opt.value}\n                    onClick={() => setRotFilterStatus(opt.value)}\n                    style={{\n                      padding: "5px 10px", fontSize: 11, fontWeight: 500, border: "none", cursor: "pointer",\n                      background: rotFilterStatus === opt.value ? "#415162" : "#fff",\n                      color: rotFilterStatus === opt.value ? "#fff" : "#5F7285",\n                      whiteSpace: "nowrap",\n                    }}\n                  >\n                    {opt.label}\n                  </button>\n                ))}\n              </div>\n            </div>
+              )}
+            </div>
+
+            {/* Filter bar — row 2: read/unread toggles */}
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+              <div style={{ display: "flex", gap: 0, borderRadius: 8, overflow: "hidden", border: "0.5px solid #C9CED4" }}>
+                {([
+                  { value: "all" as const, label: "All" },
+                  { value: "unread" as const, label: `Unread${rotUnviewedCount > 0 ? ` (${rotUnviewedCount})` : ""}` },
+                  { value: "read" as const, label: `Read${rotViewedCount > 0 ? ` (${rotViewedCount})` : ""}` },
+                ]).map(opt => (
+                  <button
+                    key={opt.value}
+                    onClick={() => setRotFilterStatus(opt.value)}
+                    style={{
+                      padding: "5px 10px", fontSize: 11, fontWeight: 500, border: "none", cursor: "pointer",
+                      background: rotFilterStatus === opt.value ? "#415162" : "#fff",
+                      color: rotFilterStatus === opt.value ? "#fff" : "#5F7285",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
 
             {/* Import preview */}
             {rotImportPreview && (
