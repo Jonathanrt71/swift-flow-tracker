@@ -615,7 +615,7 @@ const Events = () => {
               <button
                 onClick={handleAllClick}
                 style={{
-                  padding: "4px 0", marginRight: 20, fontSize: 14, fontWeight: 600, cursor: "pointer",
+                  padding: "1px 0", marginRight: 20, fontSize: 14, fontWeight: 600, cursor: "pointer",
                   background: "transparent", border: "none",
                   color: isAllSelected ? "#415162" : "#999",
                   borderBottom: isAllSelected ? "2px solid #415162" : "2px solid transparent",
@@ -630,7 +630,7 @@ const Events = () => {
                     key={cat.name}
                     onClick={() => handleCategoryToggle(cat.name)}
                     style={{
-                      padding: "4px 0", marginRight: 20, fontSize: 14, fontWeight: 600, cursor: "pointer",
+                      padding: "1px 0", marginRight: 20, fontSize: 14, fontWeight: 600, cursor: "pointer",
                       background: "transparent", border: "none",
                       color: isActive ? "#415162" : "#999",
                       borderBottom: isActive ? "2px solid #415162" : "2px solid transparent",
@@ -661,7 +661,7 @@ const Events = () => {
                 key={mode}
                 onClick={() => setViewMode(mode)}
                 style={{
-                  padding: "4px 0", marginRight: 16, fontSize: 12, fontWeight: 500, cursor: "pointer",
+                  padding: "1px 0", marginRight: 16, fontSize: 12, fontWeight: 500, cursor: "pointer",
                   background: "transparent", border: "none",
                   color: viewMode === mode ? "rgba(65,81,98,0.9)" : "#999",
                   borderBottom: viewMode === mode ? "2px solid rgba(65,81,98,0.9)" : "2px solid transparent",
@@ -673,7 +673,7 @@ const Events = () => {
             <button
               onClick={() => setShowPast(!showPast)}
               style={{
-                padding: "4px 0", marginRight: 16, fontSize: 12, fontWeight: 500, cursor: "pointer",
+                padding: "1px 0", marginRight: 16, fontSize: 12, fontWeight: 500, cursor: "pointer",
                 background: "transparent", border: "none",
                 color: showPast ? "rgba(65,81,98,0.9)" : "#999",
                 borderBottom: showPast ? "2px solid rgba(65,81,98,0.9)" : "2px solid transparent",
