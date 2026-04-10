@@ -1,4 +1,5 @@
 import { useState, useMemo, useRef } from "react";
+import { Upload } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePermissions } from "@/hooks/usePermissions";
 import { useAdmin } from "@/hooks/useAdmin";
@@ -296,22 +297,44 @@ const PatientSatisfaction = () => {
       </header>
 
       <main style={{ maxWidth: 900, margin: "0 auto", padding: "12px 24px 100px" }}>
-        {/* View mode tabs */}
-        <div style={{ display: "flex", gap: 16, marginBottom: 16 }}>
-          {(["surveys", "summary"] as const).map((mode) => (
-            <span
-              key={mode}
-              onClick={() => setViewMode(mode)}
-              style={{
-                fontSize: 14, fontWeight: 600, cursor: "pointer",
-                color: viewMode === mode ? "#415162" : "#999",
-                borderBottom: viewMode === mode ? "2px solid #415162" : "2px solid transparent",
-                padding: "1px 0 0 0",
-              }}
-            >
-              {mode === "surveys" ? "Surveys" : "Summary"}
-            </span>
-          ))}
+        {/* View mode tabs + Import */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+          <div style={{ display: "flex", gap: 16 }}>
+            {(["surveys", "summary"] as const).map((mode) => (
+              <span
+                key={mode}
+                onClick={() => setViewMode(mode)}
+                style={{
+                  fontSize: 14, fontWeight: 600, cursor: "pointer",
+                  color: viewMode === mode ? "#415162" : "#999",
+                  borderBottom: viewMode === mode ? "2px solid #415162" : "2px solid transparent",
+                  padding: "1px 0 0 0",
+                }}
+              >
+                {mode === "surveys" ? "Surveys" : "Summary"}
+              </span>
+            ))}
+          </div>
+          {canEdit && (
+            <>
+              <input
+                ref={fileRef}
+                type="file"
+                accept=".pdf"
+                style={{ display: "none" }}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) handleImport(file);
+                }}
+              />
+              <label
+                onClick={() => !importing && fileRef.current?.click()}
+                style={{ display: "flex", alignItems: "center", gap: 6, padding: "5px 12px", background: "#415162", color: "#fff", borderRadius: 8, fontSize: 12, fontWeight: 500, cursor: importing ? "wait" : "pointer", opacity: importing ? 0.6 : 1 }}
+              >
+                <Upload style={{ width: 13, height: 13 }} /> {importing ? "Importing..." : "Import"}
+              </label>
+            </>
+          )}
         </div>
 
         {viewMode === "surveys" ? (
@@ -350,30 +373,6 @@ const PatientSatisfaction = () => {
 
             {/* Toolbar */}
             <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8, marginBottom: 12 }}>
-              {canEdit && (
-                <>
-                  <input
-                    ref={fileRef}
-                    type="file"
-                    accept=".pdf"
-                    style={{ display: "none" }}
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) handleImport(file);
-                    }}
-                  />
-                  <span
-                    onClick={() => !importing && fileRef.current?.click()}
-                    style={{
-                      fontSize: 13, fontWeight: 600, color: "#415162", background: "#E7EBEF",
-                      padding: "4px 12px", borderRadius: 6, cursor: importing ? "wait" : "pointer",
-                      userSelect: "none", opacity: importing ? 0.6 : 1,
-                    }}
-                  >
-                    {importing ? "Importing..." : "Import"}
-                  </span>
-                </>
-              )}
               <select
                 value={monthFilter}
                 onChange={(e) => setMonthFilter(e.target.value)}

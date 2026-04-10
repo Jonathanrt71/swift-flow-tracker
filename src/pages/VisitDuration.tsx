@@ -167,7 +167,7 @@ const VisitDuration = () => {
                     if (form) form.style.display = form.style.display === "none" ? "flex" : "none";
                   }}
                   style={{
-                    fontSize: 13, fontWeight: 600, color: "#415162", background: "#E7EBEF",
+                    fontSize: 13, fontWeight: 600, color: "#fff", background: "#415162",
                     padding: "4px 12px", borderRadius: 6, cursor: "pointer", userSelect: "none",
                     marginLeft: "auto",
                   }}

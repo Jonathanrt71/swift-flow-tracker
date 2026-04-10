@@ -271,14 +271,14 @@ const Meetings = () => {
       <main className="px-4 py-6" style={{ maxWidth: 900, margin: "0 auto" }}>
         {/* Category filter + Add button */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-          <div style={{ display: "flex", gap: 6, overflowX: "auto", WebkitOverflowScrolling: "touch" as any }}>
+          <div style={{ display: "flex", gap: 0 }}>
             <button
               onClick={() => setCategoryFilter(null)}
               style={{
-                padding: "4px 12px", fontSize: 12, borderRadius: 20, border: "none", cursor: "pointer", whiteSpace: "nowrap",
-                background: categoryFilter === null ? "#415162" : "#E7EBEF",
-                color: categoryFilter === null ? "#fff" : "#555",
-                fontWeight: categoryFilter === null ? 600 : 400,
+                padding: "1px 0 0 0", marginRight: 20, fontSize: 14, fontWeight: 600, cursor: "pointer",
+                background: "transparent", border: "none",
+                color: categoryFilter === null ? "#415162" : "#999",
+                borderBottom: categoryFilter === null ? "2px solid #415162" : "2px solid transparent",
               }}
             >
               All
@@ -288,10 +288,10 @@ const Meetings = () => {
                 key={cat.id}
                 onClick={() => setCategoryFilter(categoryFilter === cat.id ? null : cat.id)}
                 style={{
-                  padding: "4px 12px", fontSize: 12, borderRadius: 20, border: "none", cursor: "pointer", whiteSpace: "nowrap",
-                  background: categoryFilter === cat.id ? "#415162" : "#E7EBEF",
-                  color: categoryFilter === cat.id ? "#fff" : "#555",
-                  fontWeight: categoryFilter === cat.id ? 600 : 400,
+                  padding: "1px 0 0 0", marginRight: 20, fontSize: 14, fontWeight: 600, cursor: "pointer",
+                  background: "transparent", border: "none",
+                  color: categoryFilter === cat.id ? "#415162" : "#999",
+                  borderBottom: categoryFilter === cat.id ? "2px solid #415162" : "2px solid transparent",
                 }}
               >
                 {cat.name}
