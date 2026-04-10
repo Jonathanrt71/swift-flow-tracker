@@ -231,6 +231,9 @@ const Evaluations = () => {
 
   // ── Page-level state ──
   const [activePage, setActivePage] = useState<"attending" | "rotation" | "peer">("attending");
+  const [attViewMode, setAttViewMode] = useState<"evals" | "summary">("evals");
+  const [rotViewMode, setRotViewMode] = useState<"evals" | "summary">("evals");
+  const [peerViewMode, setPeerViewMode] = useState<"evals" | "summary">("evals");
 
   // ── Attending eval state ──
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -411,6 +414,21 @@ const Evaluations = () => {
   const unviewedCount = useMemo(() => baseFiltered.filter(e => !viewedSet.has(e.id)).length, [baseFiltered, viewedSet]);
   const viewedCount = useMemo(() => baseFiltered.filter(e => viewedSet.has(e.id)).length, [baseFiltered, viewedSet]);
   const flaggedCount = useMemo(() => baseFiltered.filter(e => flaggedSet.has(e.id)).length, [baseFiltered, flaggedSet]);
+
+  const attSummary = useMemo(() => {
+    const evals = evaluationsQuery.data || [];
+    const map = new Map<string, { needs: number; meets: number; exceeds: number; total: number }>();
+    evals.forEach(e => {
+      if (!e.resident_name || e.overall_rating == null) return;
+      if (!map.has(e.resident_name)) map.set(e.resident_name, { needs: 0, meets: 0, exceeds: 0, total: 0 });
+      const s = map.get(e.resident_name)!;
+      s.total++;
+      if (e.overall_rating === 1) s.needs++;
+      else if (e.overall_rating === 2) s.meets++;
+      else if (e.overall_rating === 3) s.exceeds++;
+    });
+    return Array.from(map.entries()).map(([name, s]) => ({ name, ...s })).sort((a, b) => a.name.localeCompare(b.name));
+  }, [evaluationsQuery.data]);
 
   // ── Attending import handler ──
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -601,6 +619,21 @@ const Evaluations = () => {
   const rotViewedCount = useMemo(() => rotBaseFiltered.filter(e => rotViewedSet.has(e.id)).length, [rotBaseFiltered, rotViewedSet]);
   const rotFlaggedCount = useMemo(() => rotBaseFiltered.filter(e => rotFlaggedSet.has(e.id)).length, [rotBaseFiltered, rotFlaggedSet]);
 
+  const rotSummary = useMemo(() => {
+    const evals = rotEvalsQuery.data || [];
+    const map = new Map<string, { needs: number; meets: number; exceeds: number; total: number }>();
+    evals.forEach(e => {
+      if (!e.rotation || e.quality_overall == null) return;
+      if (!map.has(e.rotation)) map.set(e.rotation, { needs: 0, meets: 0, exceeds: 0, total: 0 });
+      const s = map.get(e.rotation)!;
+      s.total++;
+      if (e.quality_overall === 1) s.needs++;
+      else if (e.quality_overall === 2) s.meets++;
+      else if (e.quality_overall === 3) s.exceeds++;
+    });
+    return Array.from(map.entries()).map(([name, s]) => ({ name, ...s })).sort((a, b) => a.name.localeCompare(b.name));
+  }, [rotEvalsQuery.data]);
+
   // ── Rotation import handler ──
   const handleRotFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -772,6 +805,21 @@ const Evaluations = () => {
   const peerViewedCount = useMemo(() => peerBaseFiltered.filter(e => peerViewedSet.has(e.id)).length, [peerBaseFiltered, peerViewedSet]);
   const peerFlaggedCount = useMemo(() => peerBaseFiltered.filter(e => peerFlaggedSet.has(e.id)).length, [peerBaseFiltered, peerFlaggedSet]);
 
+  const peerSummary = useMemo(() => {
+    const evals = peerEvalsQuery.data || [];
+    const map = new Map<string, { needs: number; meets: number; exceeds: number; total: number }>();
+    evals.forEach(e => {
+      if (!e.subject_name || e.overall_rating == null) return;
+      if (!map.has(e.subject_name)) map.set(e.subject_name, { needs: 0, meets: 0, exceeds: 0, total: 0 });
+      const s = map.get(e.subject_name)!;
+      s.total++;
+      if (e.overall_rating === 1) s.needs++;
+      else if (e.overall_rating === 2) s.meets++;
+      else if (e.overall_rating === 3) s.exceeds++;
+    });
+    return Array.from(map.entries()).map(([name, s]) => ({ name, ...s })).sort((a, b) => a.name.localeCompare(b.name));
+  }, [peerEvalsQuery.data]);
+
   // ── Peer import handler ──
   const handlePeerFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -829,6 +877,68 @@ const Evaluations = () => {
       toast({ title: "Import failed: " + (err.message || "Unknown error"), variant: "destructive" });
     } finally { setPeerImporting(false); }
   };
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // Render helpers
+  // ═══════════════════════════════════════════════════════════════════════
+
+  const pct = (n: number, total: number) => total === 0 ? "—" : `${Math.round((n / total) * 100)}%`;
+
+  const renderSummaryTable = (data: { name: string; needs: number; meets: number; exceeds: number; total: number }[], label: string) => (
+    <div style={{ overflowX: "auto" }}>
+      {data.length === 0 ? (
+        <div style={{ textAlign: "center", padding: 48, color: "#8A9AAB", fontSize: 14 }}>No data</div>
+      ) : (
+        <div>
+          {data.map(row => (
+            <div key={row.name} style={{ background: "#E7EBEF", border: "0.5px solid #C9CED4", borderRadius: 8, padding: "10px 14px", marginBottom: 6 }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 6 }}>
+                <span style={{ fontSize: 14, fontWeight: 500, color: "#2D3748" }}>{row.name}</span>
+                <span style={{ fontSize: 11, color: "#8A9AAB" }}>{row.total} eval{row.total !== 1 ? "s" : ""}</span>
+              </div>
+              <div style={{ display: "flex", gap: 8 }}>
+                <div style={{ flex: 1, background: "#F5F3EE", borderRadius: 6, padding: "5px 8px", textAlign: "center" }}>
+                  <div style={{ fontSize: 10, color: "#8A9AAB", marginBottom: 1 }}>Needs imp.</div>
+                  <div style={{ fontSize: 13, fontWeight: 500, color: row.needs > 0 ? "#D4A017" : "#C9CED4" }}>{pct(row.needs, row.total)}</div>
+                </div>
+                <div style={{ flex: 1, background: "#F5F3EE", borderRadius: 6, padding: "5px 8px", textAlign: "center" }}>
+                  <div style={{ fontSize: 10, color: "#8A9AAB", marginBottom: 1 }}>Meets</div>
+                  <div style={{ fontSize: 13, fontWeight: 500, color: row.meets > 0 ? "#4A846C" : "#C9CED4" }}>{pct(row.meets, row.total)}</div>
+                </div>
+                <div style={{ flex: 1, background: "#F5F3EE", borderRadius: 6, padding: "5px 8px", textAlign: "center" }}>
+                  <div style={{ fontSize: 10, color: "#8A9AAB", marginBottom: 1 }}>Exceeds</div>
+                  <div style={{ fontSize: 13, fontWeight: 500, color: row.exceeds > 0 ? "#52657A" : "#C9CED4" }}>{pct(row.exceeds, row.total)}</div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+
+  const renderSubToggle = (mode: "evals" | "summary", setMode: (m: "evals" | "summary") => void) => (
+    <div style={{ display: "flex", gap: 0, borderBottom: "2px solid #E7EBEF", marginBottom: 12 }}>
+      {([
+        { value: "evals" as const, label: "Evaluations" },
+        { value: "summary" as const, label: "Summary" },
+      ]).map(tab => (
+        <button
+          key={tab.value}
+          onClick={() => setMode(tab.value)}
+          style={{
+            padding: "6px 0", marginRight: 16, fontSize: 12, fontWeight: 600, cursor: "pointer",
+            background: "transparent", border: "none",
+            color: mode === tab.value ? "#415162" : "#999",
+            borderBottom: mode === tab.value ? "2px solid #415162" : "2px solid transparent",
+            marginBottom: -2,
+          }}
+        >
+          {tab.label}
+        </button>
+      ))}
+    </div>
+  );
 
   // ═══════════════════════════════════════════════════════════════════════
   // Render
@@ -891,6 +1001,10 @@ const Evaluations = () => {
         {/* ═══════════════════════════════════════════════════════════════ */}
         {activePage === "attending" && (
           <>
+            {renderSubToggle(attViewMode, setAttViewMode)}
+
+            {attViewMode === "summary" ? renderSummaryTable(attSummary, "Resident") : (
+            <>
             {/* Filter bar — row 1: dropdowns */}
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
               <Select value={filterResident} onValueChange={setFilterResident}>
@@ -1113,6 +1227,8 @@ const Evaluations = () => {
                 })()}
               </div>
             )}
+            </>
+            )}
           </>
         )}
 
@@ -1121,6 +1237,10 @@ const Evaluations = () => {
         {/* ═══════════════════════════════════════════════════════════════ */}
         {activePage === "rotation" && (
           <>
+            {renderSubToggle(rotViewMode, setRotViewMode)}
+
+            {rotViewMode === "summary" ? renderSummaryTable(rotSummary, "Rotation") : (
+            <>
             {/* Filter bar */}
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
               <select
@@ -1332,6 +1452,8 @@ const Evaluations = () => {
                 })()}
               </div>
             )}
+            </>
+            )}
           </>
         )}
 
@@ -1340,6 +1462,10 @@ const Evaluations = () => {
         {/* ═══════════════════════════════════════════════════════════════ */}
         {activePage === "peer" && (
           <>
+            {renderSubToggle(peerViewMode, setPeerViewMode)}
+
+            {peerViewMode === "summary" ? renderSummaryTable(peerSummary, "Resident") : (
+            <>
             {/* Filter bar */}
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, flexWrap: "wrap" }}>
               <select
@@ -1520,6 +1646,8 @@ const Evaluations = () => {
                   ));
                 })()}
               </div>
+            )}
+            </>
             )}
           </>
         )}
