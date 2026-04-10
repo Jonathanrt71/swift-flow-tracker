@@ -103,10 +103,6 @@ const PriorityCard = ({
             </span>
           )}
 
-          {(totalCount > 0 || hasRealNotes) && (
-            <div style={{ width: 7, height: 7, borderRadius: "50%", background: "#9F2929", flexShrink: 0 }} />
-          )}
-
           <div className="shrink-0">
             {member?.avatar_url ? (
               <img src={member.avatar_url} alt={assignedName || ""} className="w-7 h-7 rounded-full object-cover shrink-0" title={assignedName || ""} />
