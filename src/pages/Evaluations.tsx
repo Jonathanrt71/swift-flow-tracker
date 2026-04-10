@@ -863,17 +863,27 @@ const Evaluations = () => {
 
       <main style={{ maxWidth: 900, margin: "0 auto", padding: "12px 16px 100px" }}>
 
-        {/* ── Page selector dropdown ── */}
-        <div style={{ marginBottom: 12 }}>
-          <select
-            value={activePage}
-            onChange={(e) => setActivePage(e.target.value as any)}
-            style={{ ...nativeSelectStyle, width: "100%", maxWidth: 320, fontWeight: 500 } as any}
-          >
-            <option value="attending">Attending evaluation of residents</option>
-            <option value="rotation">Resident evaluation of rotations</option>
-            <option value="peer">Resident peer to peer</option>
-          </select>
+        {/* ── Page selector tabs ── */}
+        <div style={{ display: "flex", gap: 0, borderBottom: "2px solid #E7EBEF", marginBottom: 12 }}>
+          {([
+            { value: "attending" as const, label: "Attending" },
+            { value: "rotation" as const, label: "Resident" },
+            { value: "peer" as const, label: "Peer" },
+          ]).map(tab => (
+            <button
+              key={tab.value}
+              onClick={() => setActivePage(tab.value)}
+              style={{
+                padding: "8px 0", marginRight: 20, fontSize: 13, fontWeight: 600, cursor: "pointer",
+                background: "transparent", border: "none",
+                color: activePage === tab.value ? "#415162" : "#999",
+                borderBottom: activePage === tab.value ? "2px solid #415162" : "2px solid transparent",
+                marginBottom: -2,
+              }}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
 
         {/* ═══════════════════════════════════════════════════════════════ */}
@@ -1442,7 +1452,6 @@ const Evaluations = () => {
                               <div style={{ flex: 1, minWidth: 0 }}>
                                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                                   <span style={{ fontSize: 14, fontWeight: 500, color: "#2D3748" }}>{ev.subject_name}</span>
-                                  <span style={{ fontSize: 12, fontWeight: 500, color: ratingColor(ev.overall_rating) }}>{ratingLabel(ev.overall_rating)}</span>
                                 </div>
                                 <div style={{ fontSize: 11, color: "#8A9AAB" }}>
                                   {isAdmin ? ev.evaluator_name : "Anonymous peer"} · {fmtDate(ev.date_completed)}
