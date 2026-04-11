@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { CheckSquare, Users, Calendar, BookOpen, MessageSquare, Shield, User, LogOut, BookMarked, Stethoscope, ClipboardList, BookOpenCheck, Home, ShieldCheck, FileText, Megaphone, FileCheck, CalendarDays,  UserCheck, BarChart2, Clock, Heart, FileSignature, Layers, GraduationCap, Lightbulb, Timer } from "lucide-react";
+import { CheckSquare, Users, Calendar, BookOpen, MessageSquare, Shield, User, LogOut, BookMarked, Stethoscope, ClipboardList, BookOpenCheck, Home, ShieldCheck, FileText, Megaphone, FileCheck, CalendarDays,  UserCheck, BarChart2, Clock, Heart, FileSignature, Layers, GraduationCap, Lightbulb, Timer, Map } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { usePermissions } from "@/hooks/usePermissions";
 import { useAppSettings } from "@/hooks/useAppSettings";
@@ -337,6 +337,9 @@ const HeaderLogo = ({
                   </div>
                   <Link to="/admin" onClick={() => setMenuOpen(false)} style={navLink(location.pathname === "/admin")}>
                     <Shield style={{ width: 16, height: 16 }} /> Admin
+                  </Link>
+                  <Link to="/roadmap" onClick={() => setMenuOpen(false)} style={navLink(location.pathname === "/roadmap")}>
+                    <Map style={{ width: 16, height: 16 }} /> Roadmap
                   </Link>
                 </>
               )}

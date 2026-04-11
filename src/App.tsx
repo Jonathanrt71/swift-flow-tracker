@@ -33,6 +33,7 @@ import FacultyDevelopment from "./pages/FacultyDevelopment.tsx";
 import ScholarlyActivity from "./pages/ScholarlyActivity.tsx";
 import VisitMetrics from "./pages/VisitMetrics.tsx";
 import Home from "./pages/Home.tsx";
+import Roadmap from "./pages/Roadmap.tsx";
 import Milestones from "./pages/Milestones.tsx";
 import ScrollToTop from "./components/ScrollToTop";
 import { useEffect } from "react";
@@ -100,6 +101,7 @@ const App = () => (
               <Route path="/faculty-development" element={<RoleRoute permissionKey="faculty_development.view"><FacultyDevelopment /></RoleRoute>} />
               <Route path="/scholarly-activity" element={<RoleRoute permissionKey="scholarly_activity.view"><ScholarlyActivity /></RoleRoute>} />
               <Route path="/visit-metrics" element={<RoleRoute permissionKey="visit_metrics.view"><VisitMetrics /></RoleRoute>} />
+              <Route path="/roadmap" element={<RoleRoute permissionKey="admin.all"><Roadmap /></RoleRoute>} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
