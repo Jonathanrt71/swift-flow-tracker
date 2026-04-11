@@ -281,26 +281,32 @@ const Cases = () => {
 
         {/* ── Zoomed image overlay ── */}
         {zoomedImage && (
-          <div style={{ position: "fixed", inset: 0, zIndex: 110, background: "rgba(0,0,0,0.95)" }}>
-            <button onClick={() => setZoomedImage(null)} style={{
-              position: "fixed", top: 16, right: 16, zIndex: 112,
-              background: "rgba(255,255,255,0.3)", border: "none", borderRadius: "50%",
-              width: 44, height: 44, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer",
-            }}>
-              <X style={{ width: 22, height: 22, color: "#fff" }} />
-            </button>
+          <>
+            {/* Scrollable image layer */}
             <div style={{
-              width: "100%", height: "100%", overflow: "auto",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              WebkitOverflowScrolling: "touch",
+              position: "fixed", inset: 0, zIndex: 110, background: "rgba(0,0,0,0.95)",
+              overflow: "auto", WebkitOverflowScrolling: "touch",
             } as any}>
               <img
                 src={zoomedImage}
                 alt=""
-                style={{ maxWidth: "none", width: "100%", minWidth: "100vw", objectFit: "contain" }}
+                style={{ width: "100%", minWidth: "100vw", objectFit: "contain", display: "block" }}
               />
             </div>
-          </div>
+            {/* X button layer — separate fixed div, cannot scroll */}
+            <div style={{
+              position: "fixed", top: 0, right: 0, zIndex: 113,
+              padding: 16, pointerEvents: "none",
+            }}>
+              <button onClick={() => setZoomedImage(null)} style={{
+                pointerEvents: "auto",
+                background: "rgba(0,0,0,0.6)", border: "2px solid rgba(255,255,255,0.5)", borderRadius: "50%",
+                width: 44, height: 44, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer",
+              }}>
+                <X style={{ width: 22, height: 22, color: "#fff" }} />
+              </button>
+            </div>
+          </>
         )}
 
         {/* ── Header row ── */}
