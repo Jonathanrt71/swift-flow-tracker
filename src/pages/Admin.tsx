@@ -638,6 +638,10 @@ const RoleAccessSection = () => {
     { name: "Evaluations", rows: [
       { action: "View page", key: "evaluations.view" },
     ]},
+    { name: "Faculty Development", rows: [
+      { action: "View page", key: "faculty_development.view" },
+      { action: "Create / edit / delete", key: "faculty_development.edit" },
+    ]},
     { name: "Feedback", rows: [
       { action: "View page", key: "feedback.view" },
       { action: "Create / edit / delete", key: "feedback.edit" },
@@ -671,6 +675,10 @@ const RoleAccessSection = () => {
     ]},
     { name: "Rotations", rows: [
       { action: "View page", key: "rotations.view" },
+    ]},
+    { name: "Scholarly Activity", rows: [
+      { action: "View page", key: "scholarly_activity.view" },
+      { action: "Create / edit / delete", key: "scholarly_activity.edit" },
     ]},
     { name: "Tasks", rows: [
       { action: "View page", key: "tasks.view" },

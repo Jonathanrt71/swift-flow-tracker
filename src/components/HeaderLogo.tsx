@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { CheckSquare, Users, Calendar, BookOpen, MessageSquare, Shield, User, LogOut, BookMarked, Stethoscope, ClipboardList, BookOpenCheck, Home, ShieldCheck, FileText, Megaphone, FileCheck, CalendarDays,  UserCheck, BarChart2, Clock, Heart, FileSignature, Layers } from "lucide-react";
+import { CheckSquare, Users, Calendar, BookOpen, MessageSquare, Shield, User, LogOut, BookMarked, Stethoscope, ClipboardList, BookOpenCheck, Home, ShieldCheck, FileText, Megaphone, FileCheck, CalendarDays,  UserCheck, BarChart2, Clock, Heart, FileSignature, Layers, GraduationCap, Lightbulb } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { usePermissions } from "@/hooks/usePermissions";
 import { useAppSettings } from "@/hooks/useAppSettings";
@@ -36,13 +36,15 @@ const allNavItems: NavEntry[] = [
   { path: "/patient-satisfaction", label: "Patient Satisfaction", icon: Heart, permissionKey: "patient_satisfaction.view" },
   { path: "/pla-tracking", label: "PLA Tracking", icon: FileSignature, permissionKey: "pla_tracking.view" },
   { path: "/cases",       label: "Cases",         icon: Layers,        permissionKey: "cases.view" },
+  { path: "/faculty-development", label: "Faculty Development", icon: GraduationCap, permissionKey: "faculty_development.view" },
+  { path: "/scholarly-activity", label: "Scholarly Activity", icon: Lightbulb, permissionKey: "scholarly_activity.view" },
 ];
 
 interface NavSection { label: string; paths: string[]; }
 const navSections: NavSection[] = [
-  { label: "Curriculum", paths: ["/rotations", "/topics", "/cases"] },
+  { label: "Curriculum", paths: ["/rotations", "/topics", "/cases", "/scholarly-activity"] },
   { label: "Evaluation", paths: ["/cbme", "/evaluations", "/feedback", "/milestones", "/resident-summary"] },
-  { label: "Program",    paths: ["/events", "/schedule", "/announcements", "/meetings", "/visit-duration", "/patient-satisfaction", "/pla-tracking"] },
+  { label: "Program",    paths: ["/events", "/schedule", "/announcements", "/meetings", "/visit-duration", "/patient-satisfaction", "/pla-tracking", "/faculty-development"] },
   { label: "Reference",  paths: ["/compliance", "/gme-handbook", "/handbook"] },
 ];
 

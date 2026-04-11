@@ -29,6 +29,8 @@ import VisitDuration from "./pages/VisitDuration.tsx";
 import PatientSatisfaction from "./pages/PatientSatisfaction.tsx";
 import PLATracking from "./pages/PLATracking.tsx";
 import Cases from "./pages/Cases.tsx";
+import FacultyDevelopment from "./pages/FacultyDevelopment.tsx";
+import ScholarlyActivity from "./pages/ScholarlyActivity.tsx";
 import Home from "./pages/Home.tsx";
 import Milestones from "./pages/Milestones.tsx";
 import ScrollToTop from "./components/ScrollToTop";
@@ -94,6 +96,8 @@ const App = () => (
               <Route path="/patient-satisfaction" element={<RoleRoute permissionKey="patient_satisfaction.view"><PatientSatisfaction /></RoleRoute>} />
               <Route path="/pla-tracking" element={<RoleRoute permissionKey="pla_tracking.view"><PLATracking /></RoleRoute>} />
               <Route path="/cases" element={<RoleRoute permissionKey="cases.view"><Cases /></RoleRoute>} />
+              <Route path="/faculty-development" element={<RoleRoute permissionKey="faculty_development.view"><FacultyDevelopment /></RoleRoute>} />
+              <Route path="/scholarly-activity" element={<RoleRoute permissionKey="scholarly_activity.view"><ScholarlyActivity /></RoleRoute>} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
