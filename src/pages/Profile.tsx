@@ -145,7 +145,7 @@ const Profile = () => {
 
   return (
     <div style={{ minHeight: "100vh", background: "#F5F3EE" }}>
-      <header className="sticky top-0 z-40" style={{ background: "#415162" }}>
+      <header style={{ position: "sticky", top: 0, zIndex: 40, background: "#415162" }}>
         <div className="flex items-center h-14 px-4">
           <HeaderLogo isAdmin={isAdmin} onSignOut={signOut}>
             <NotificationBell />

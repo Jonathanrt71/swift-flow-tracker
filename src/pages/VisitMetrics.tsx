@@ -43,7 +43,7 @@ const VISIT_LEVELS = ["99213", "99214", "99215", "99203", "99204", "99205"];
 
 /* ── Main Page ── */
 const VisitMetrics = () => {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const userId = user?.id || "";
   const { isAdmin: isAdminQuery } = useAdmin();
   const isAdmin = !!isAdminQuery.data;
@@ -65,9 +65,14 @@ const VisitMetrics = () => {
 
   return (
     <div style={{ minHeight: "100vh", background: "#F5F3EE" }}>
-      <HeaderLogo />
-      <NotificationBell />
-      <div style={{ maxWidth: 540, margin: "0 auto", padding: "80px 16px 100px" }}>
+      <header style={{ position: "sticky", top: 0, zIndex: 40, background: "#415162" }}>
+        <div style={{ display: "flex", alignItems: "center", height: 56, padding: "0 16px" }}>
+          <HeaderLogo isAdmin={isAdmin} onSignOut={signOut}>
+            <NotificationBell />
+          </HeaderLogo>
+        </div>
+      </header>
+      <div style={{ maxWidth: 540, margin: "0 auto", padding: "12px 16px 100px" }}>
         {/* Tab bar */}
         <div style={{ display: "flex", gap: 24, marginBottom: 20, borderBottom: "1px solid #D5DAE0" }}>
           {(["precepting", "room"] as const).map((tab) => (

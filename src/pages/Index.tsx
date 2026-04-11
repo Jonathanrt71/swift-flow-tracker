@@ -278,7 +278,7 @@ const Index = () => {
         .underline-tab[data-state="inactive"] { color: #8A9AAB !important; border-bottom: 2px solid transparent !important; }
         .underline-tab { font-size: 14px !important; font-weight: 600 !important; }
       `}</style>
-      <header className="bg-[#415162] sticky top-0 z-40">
+      <header style={{ position: "sticky", top: 0, zIndex: 40, background: "#415162" }}>
         <div className="flex items-center h-14 px-4">
           <HeaderLogo isAdmin={isAdmin} onSignOut={signOut}>
             <button

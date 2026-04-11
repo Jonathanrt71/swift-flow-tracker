@@ -622,7 +622,7 @@ const Feedback = () => {
         .underline-tab { font-size: 14px !important; font-weight: 600 !important; }
       `}</style>
       {/* Header */}
-      <header className="sticky top-0 z-40" style={{ background: "#415162" }}>
+      <header style={{ position: "sticky", top: 0, zIndex: 40, background: "#415162" }}>
         <div className="flex items-center h-14 px-4">
           <HeaderLogo isAdmin={isAdmin} onSignOut={signOut}>
             <button

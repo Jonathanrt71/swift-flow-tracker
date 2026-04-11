@@ -622,10 +622,8 @@ const Compliance = () => {
     <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh", background: "#F5F3EE" }}>
       <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
       {/* Header */}
-      <div style={{
-        display: "flex", alignItems: "center",
-        padding: "14px 16px", background: "#415162", color: "#fff",
-      }}>
+      <header style={{ position: "sticky", top: 0, zIndex: 40, background: "#415162" }}>
+        <div style={{ display: "flex", alignItems: "center", height: 56, padding: "0 16px" }}>
         <HeaderLogo isAdmin={isAdmin} onSignOut={signOut}>
           <button
             style={{
@@ -639,7 +637,7 @@ const Compliance = () => {
           </button>
           <NotificationBell />
         </HeaderLogo>
-      </div>
+        </div>
       {searchOpen && (
         <div style={{ padding: "0 16px 12px", background: "#415162" }}>
           <input
@@ -656,6 +654,7 @@ const Compliance = () => {
           />
         </div>
       )}
+      </header>
 
       {/* ── TAB: Requirements Table ─────────────────────────────────────── */}
       {activeTab === "table" && (
