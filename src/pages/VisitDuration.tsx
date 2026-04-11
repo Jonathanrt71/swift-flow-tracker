@@ -146,17 +146,19 @@ const VisitDuration = () => {
         ) : (
           <>
             {/* Summary pills + Add button */}
-            <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 12, marginBottom: 16 }}>
-              <div style={{ background: "#E7EBEF", borderRadius: 8, padding: "10px 16px" }}>
-                <div style={{ fontSize: 11, color: "#5F7285", marginBottom: 2 }}>AY 2024-25</div>
-                <div style={{ fontSize: 14, fontWeight: 600, color: "#415162" }}>
-                  CL {p1.mean} <span style={{ fontWeight: 400, fontSize: 12, color: "#5F7285" }}>· UCL {p1.ucl} · LCL {p1.lcl} · n={p1.n}</span>
+            <div style={{ display: "flex", alignItems: "flex-start", gap: 12, marginBottom: 16 }}>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 12, flex: 1, minWidth: 0 }}>
+                <div style={{ background: "#E7EBEF", borderRadius: 8, padding: "10px 16px" }}>
+                  <div style={{ fontSize: 11, color: "#5F7285", marginBottom: 2 }}>AY 2024-25</div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: "#415162" }}>
+                    CL {p1.mean} <span style={{ fontWeight: 400, fontSize: 12, color: "#5F7285" }}>· UCL {p1.ucl} · LCL {p1.lcl} · n={p1.n}</span>
+                  </div>
                 </div>
-              </div>
-              <div style={{ background: "#E4F0EB", borderRadius: 8, padding: "10px 16px" }}>
-                <div style={{ fontSize: 11, color: "#3B6D11", marginBottom: 2 }}>AY 2025-26</div>
-                <div style={{ fontSize: 14, fontWeight: 600, color: "#27500A" }}>
-                  CL {p2.mean} <span style={{ fontWeight: 400, fontSize: 12, color: "#3B6D11" }}>· UCL {p2.ucl} · LCL {p2.lcl} · n={p2.n}</span>
+                <div style={{ background: "#E4F0EB", borderRadius: 8, padding: "10px 16px" }}>
+                  <div style={{ fontSize: 11, color: "#3B6D11", marginBottom: 2 }}>AY 2025-26</div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: "#27500A" }}>
+                    CL {p2.mean} <span style={{ fontWeight: 400, fontSize: 12, color: "#3B6D11" }}>· UCL {p2.ucl} · LCL {p2.lcl} · n={p2.n}</span>
+                  </div>
                 </div>
               </div>
               {canEdit && (
@@ -168,7 +170,7 @@ const VisitDuration = () => {
                   style={{
                     fontSize: 13, fontWeight: 600, color: "#fff", background: "#415162",
                     padding: "4px 12px", borderRadius: 6, cursor: "pointer", userSelect: "none",
-                    marginLeft: "auto",
+                    flexShrink: 0,
                   }}
                 >
                   Add

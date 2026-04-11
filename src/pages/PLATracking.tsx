@@ -55,7 +55,8 @@ const PLATracking = () => {
         ) : (
           <div style={{ background: "#E7EBEF", border: "1px solid #C9CED4", borderRadius: 12, padding: "14px 16px" }}>
             <div style={{ fontSize: 14, fontWeight: 500, color: "#2D3748", marginBottom: 10 }}>Participating Learning Agreements</div>
-            <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" as any }}>
+            <div style={{ position: "relative" }}>
+              <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" as any }}>
               <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, minWidth: 900 }}>
                 <thead>
                   <tr>
@@ -86,6 +87,8 @@ const PLATracking = () => {
                   })}
                 </tbody>
               </table>
+              </div>
+              <div style={{ position: "absolute", top: 0, right: 0, bottom: 0, width: 32, pointerEvents: "none", background: "linear-gradient(to right, transparent, #E7EBEF)" }} />
             </div>
           </div>
         )}
