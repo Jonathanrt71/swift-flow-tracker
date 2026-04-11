@@ -49,28 +49,6 @@ const CATEGORY_COLORS: Record<string, { bg: string; text: string }> = {
 const getCatColor = (cat: string) => CATEGORY_COLORS[cat] || CATEGORY_COLORS.Other;
 
 // ── Zoom Overlay with pinch-zoom ─────────────────────────────────────────
-const ZoomOverlay = ({ src, onClose }: { src: string; onClose: () => void }) => {
-  return (
-    <div style={{
-      position: "fixed", inset: 0, zIndex: 200, background: "#000",
-      display: "flex", alignItems: "center", justifyContent: "center",
-    }}>
-      <button onClick={onClose} style={{
-        position: "fixed", top: 16, right: 16, zIndex: 201,
-        background: "rgba(0,0,0,0.6)", border: "2px solid rgba(255,255,255,0.5)", borderRadius: "50%",
-        width: 44, height: 44, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer",
-      }}>
-        <X style={{ width: 22, height: 22, color: "#fff" }} />
-      </button>
-      <img
-        src={src}
-        alt=""
-        style={{ maxWidth: "100vw", maxHeight: "100vh", objectFit: "contain", display: "block" }}
-      />
-    </div>
-  );
-};
-
 // ── Component ────────────────────────────────────────────────────────────
 const Cases = () => {
   const { user, signOut } = useAuth();
@@ -87,7 +65,6 @@ const Cases = () => {
   const [revealShown, setRevealShown] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
   const [editingCase, setEditingCase] = useState<ClinicalCase | null>(null);
-  const [zoomedImage, setZoomedImage] = useState<string | null>(null);
 
   // ── Queries ──
   const casesQuery = useQuery({
@@ -256,24 +233,11 @@ const Cases = () => {
                   ) : (
                     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, padding: 24, maxWidth: 500, width: "100%" }}>
                       {viewingCase.slides[currentSlide].image_url && (
-                        <div
-                          onClick={(e) => { e.stopPropagation(); setZoomedImage(viewingCase.slides[currentSlide].image_url); }}
-                          style={{ cursor: "zoom-in", position: "relative" }}
-                        >
-                          <img
-                            src={viewingCase.slides[currentSlide].image_url}
-                            alt=""
-                            style={{ maxWidth: "100%", maxHeight: "60vh", objectFit: "contain", borderRadius: 8 }}
-                          />
-                          <div style={{
-                            position: "absolute", bottom: 8, right: 8,
-                            background: "rgba(0,0,0,0.5)", borderRadius: 6, padding: "4px 8px",
-                            display: "flex", alignItems: "center", gap: 4,
-                          }}>
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
-                            <span style={{ color: "#fff", fontSize: 11 }}>Expand</span>
-                          </div>
-                        </div>
+                        <img
+                          src={viewingCase.slides[currentSlide].image_url}
+                          alt=""
+                          style={{ maxWidth: "100%", maxHeight: "60vh", objectFit: "contain", borderRadius: 8 }}
+                        />
                       )}
                       {viewingCase.slides[currentSlide].caption && (
                         <div
@@ -300,11 +264,6 @@ const Cases = () => {
               ))}
             </div>
           </div>
-        )}
-
-        {/* ── Zoomed image overlay ── */}
-        {zoomedImage && (
-          <ZoomOverlay src={zoomedImage} onClose={() => setZoomedImage(null)} />
         )}
 
         {/* ── Header row ── */}
