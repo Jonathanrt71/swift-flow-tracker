@@ -5,7 +5,7 @@ import { format, parseISO } from "date-fns";
 import { useTasks } from "@/hooks/useTasks";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
-import { Tabs, TabsContent } from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ListTodo, CheckCircle2, Star, Search, X, Hash, ChevronDown } from "lucide-react";
 import TaskCard from "@/components/tasks/TaskCard";
 import CreateTaskDialog from "@/components/tasks/CreateTaskDialog";
@@ -273,7 +273,10 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background pb-20">
-
+      <style>{`
+        .underline-tab[data-state="active"] { color: #415162 !important; border-bottom: 2px solid #415162 !important; }
+        .underline-tab[data-state="inactive"] { color: #8A9AAB !important; border-bottom: 2px solid transparent !important; }
+      `}</style>
       <header className="bg-[#415162] sticky top-0 z-40">
         <div className="flex items-center h-14 px-4">
           <HeaderLogo isAdmin={isAdmin} onSignOut={signOut}>
@@ -317,27 +320,20 @@ const Index = () => {
       <main className="px-4 pt-2 pb-6" style={{ maxWidth: 900, margin: "0 auto" }}>
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <div className="flex items-center mb-4" style={{ gap: "8px 16px", flexWrap: "wrap", justifyContent: "space-between" }}>
-            <div style={{ display: "flex", gap: 0, flexWrap: "wrap" }}>
-              {([
-                { value: "allPriorities" as const, label: "All priorities" },
-                { value: "myPriorities" as const, label: "My priorities" },
-                { value: "myTasks" as const, label: "My tasks" },
-                { value: "completed" as const, label: "Done" },
-              ]).map(tab => (
-                <button
-                  key={tab.value}
-                  onClick={() => setActiveTab(tab.value)}
-                  style={{
-                    padding: "1px 0 0 0", marginRight: 20, fontSize: 14, fontWeight: 600, cursor: "pointer",
-                    background: "transparent", border: "none",
-                    color: activeTab === tab.value ? "#415162" : "#8A9AAB",
-                    borderBottom: activeTab === tab.value ? "2px solid #415162" : "2px solid transparent",
-                  }}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
+            <TabsList className="gap-4 h-auto p-0 bg-transparent" style={{ borderRadius: 0, background: "transparent", flexWrap: "wrap" }}>
+              <TabsTrigger value="allPriorities" className="underline-tab p-0 h-auto bg-transparent shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none" style={{ paddingBottom: 2, fontSize: 13, fontWeight: 500, borderRadius: 0 }}>
+                All priorities
+              </TabsTrigger>
+              <TabsTrigger value="myPriorities" className="underline-tab p-0 h-auto bg-transparent shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none" style={{ paddingBottom: 2, fontSize: 13, fontWeight: 500, borderRadius: 0 }}>
+                My priorities
+              </TabsTrigger>
+              <TabsTrigger value="myTasks" className="underline-tab p-0 h-auto bg-transparent shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none" style={{ paddingBottom: 2, fontSize: 13, fontWeight: 500, borderRadius: 0 }}>
+                My tasks
+              </TabsTrigger>
+              <TabsTrigger value="completed" className="underline-tab p-0 h-auto bg-transparent shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none" style={{ paddingBottom: 2, fontSize: 13, fontWeight: 500, borderRadius: 0 }}>
+                Done
+              </TabsTrigger>
+            </TabsList>
             {(activeTab === "allPriorities") && isAdmin ? (
               <CreatePriorityDialog
                 onSubmit={(data) => createPriority.mutate(data)}
