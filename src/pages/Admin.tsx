@@ -619,6 +619,10 @@ const RoleAccessSection = () => {
     { name: "Block Schedule", rows: [
       { action: "View page", key: "schedule.view" },
     ]},
+    { name: "Cases", rows: [
+      { action: "View page", key: "cases.view" },
+      { action: "Create / edit / delete", key: "cases.edit" },
+    ]},
     { name: "CBME", rows: [
       { action: "View page", key: "cbme.view" },
       { action: "Assess / edit / all scores", key: "cbme.assess" },

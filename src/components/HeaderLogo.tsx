@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { CheckSquare, Users, Calendar, BookOpen, MessageSquare, Shield, User, LogOut, BookMarked, Stethoscope, ClipboardList, BookOpenCheck, Home, ShieldCheck, FileText, Megaphone, FileCheck, CalendarDays,  UserCheck, BarChart2, Clock, Heart, FileSignature } from "lucide-react";
+import { CheckSquare, Users, Calendar, BookOpen, MessageSquare, Shield, User, LogOut, BookMarked, Stethoscope, ClipboardList, BookOpenCheck, Home, ShieldCheck, FileText, Megaphone, FileCheck, CalendarDays,  UserCheck, BarChart2, Clock, Heart, FileSignature, Layers } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { usePermissions } from "@/hooks/usePermissions";
 import { useAppSettings } from "@/hooks/useAppSettings";
@@ -35,11 +35,12 @@ const allNavItems: NavEntry[] = [
   { path: "/visit-duration", label: "Visit Duration", icon: Clock, permissionKey: "visit_duration.view" },
   { path: "/patient-satisfaction", label: "Patient Satisfaction", icon: Heart, permissionKey: "patient_satisfaction.view" },
   { path: "/pla-tracking", label: "PLA Tracking", icon: FileSignature, permissionKey: "pla_tracking.view" },
+  { path: "/cases",       label: "Cases",         icon: Layers,        permissionKey: "cases.view" },
 ];
 
 interface NavSection { label: string; paths: string[]; }
 const navSections: NavSection[] = [
-  { label: "Curriculum", paths: ["/rotations", "/topics"] },
+  { label: "Curriculum", paths: ["/rotations", "/topics", "/cases"] },
   { label: "Evaluation", paths: ["/cbme", "/evaluations", "/feedback", "/milestones", "/resident-summary"] },
   { label: "Program",    paths: ["/events", "/schedule", "/announcements", "/meetings", "/visit-duration", "/patient-satisfaction", "/pla-tracking"] },
   { label: "Reference",  paths: ["/compliance", "/gme-handbook", "/handbook"] },
