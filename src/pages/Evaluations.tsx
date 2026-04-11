@@ -1040,7 +1040,7 @@ const Evaluations = () => {
                 </SelectContent>
               </Select>
 
-              <div style={{ display: "flex", gap: 0, borderRadius: 8, overflow: "hidden", border: "1px solid #C9CED4", marginLeft: "auto" }}>
+              <div style={{ display: "flex", gap: 0, borderRadius: 8, overflow: "hidden", border: "1px solid #C9CED4" }}>
                 {([
                   { value: "all" as const, label: "All" },
                   { value: "unread" as const, label: `Unread${unviewedCount > 0 ? ` (${unviewedCount})` : ""}` },
@@ -1255,7 +1255,7 @@ const Evaluations = () => {
                 {rotRotations.map(name => <option key={name} value={name}>{name}</option>)}
               </select>
 
-              <div style={{ display: "flex", gap: 0, borderRadius: 8, overflow: "hidden", border: "1px solid #C9CED4", marginLeft: "auto" }}>
+              <div style={{ display: "flex", gap: 0, borderRadius: 8, overflow: "hidden", border: "1px solid #C9CED4" }}>
                 {([
                   { value: "all" as const, label: "All" },
                   { value: "unread" as const, label: `Unread${rotUnviewedCount > 0 ? ` (${rotUnviewedCount})` : ""}` },
@@ -1456,7 +1456,7 @@ const Evaluations = () => {
                 {peerSubjects.map(name => <option key={name} value={name}>{name}</option>)}
               </select>
 
-              <div style={{ display: "flex", gap: 0, borderRadius: 8, overflow: "hidden", border: "1px solid #C9CED4", marginLeft: "auto" }}>
+              <div style={{ display: "flex", gap: 0, borderRadius: 8, overflow: "hidden", border: "1px solid #C9CED4" }}>
                 {([
                   { value: "all" as const, label: "All" },
                   { value: "unread" as const, label: `Unread${peerUnviewedCount > 0 ? ` (${peerUnviewedCount})` : ""}` },
