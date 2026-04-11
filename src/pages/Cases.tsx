@@ -275,8 +275,9 @@ const Cases = () => {
           <div style={{
             position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
             zIndex: 200, background: "#000",
-            height: "100dvh", overflow: "scroll",
+            height: "100dvh", overflow: "auto",
             WebkitOverflowScrolling: "touch",
+            display: "flex", alignItems: "center", justifyContent: "center",
           } as any}>
             <button onClick={() => setExpandedImage(null)} style={{
               position: "fixed", top: 16, right: 16, zIndex: 201,
@@ -288,7 +289,7 @@ const Cases = () => {
             <img
               src={expandedImage}
               alt=""
-              style={{ width: "100%", display: "block" }}
+              style={{ width: "100%", display: "block", flexShrink: 0 }}
             />
           </div>
         )}
