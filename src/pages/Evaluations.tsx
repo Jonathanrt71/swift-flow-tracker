@@ -969,7 +969,7 @@ const Evaluations = () => {
                 style={{
                   padding: "1px 0 0 0", marginRight: 20, fontSize: 14, fontWeight: 600, cursor: "pointer",
                   background: "transparent", border: "none",
-                  color: activePage === tab.value ? "#415162" : "#999",
+                  color: activePage === tab.value ? "#415162" : "#8A9AAB",
                   borderBottom: activePage === tab.value ? "2px solid #415162" : "2px solid transparent",
                 }}
               >
@@ -988,7 +988,7 @@ const Evaluations = () => {
                 style={{
                   padding: "1px 0 0 0", fontSize: 12, fontWeight: 500, cursor: "pointer",
                   background: "transparent", border: "none",
-                  color: currentViewMode === tab.value ? "rgba(65,81,98,0.9)" : "#999",
+                  color: currentViewMode === tab.value ? "rgba(65,81,98,0.9)" : "#8A9AAB",
                   borderBottom: currentViewMode === tab.value ? "2px solid rgba(65,81,98,0.9)" : "2px solid transparent",
                 }}
               >
