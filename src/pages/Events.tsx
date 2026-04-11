@@ -650,33 +650,38 @@ const Events = () => {
             )}
           </div>
 
-          {/* Row 2: View tabs */}
-          <div style={{ display: "flex", gap: 0, paddingTop: 4, paddingBottom: 8 }}>
-            {([
-              { mode: "list" as const, label: "List" },
-              { mode: "vertical" as const, label: "Timeline" },
-              { mode: "gantt" as const, label: "Gantt" },
-            ] as { mode: "list" | "vertical" | "gantt"; label: string }[]).map(({ mode, label }) => (
-              <button
-                key={mode}
-                onClick={() => setViewMode(mode)}
-                style={{
-                  padding: "1px 0 0 0", marginRight: 16, fontSize: 12, fontWeight: 500, cursor: "pointer",
-                  background: "transparent", border: "none",
-                  color: viewMode === mode ? "rgba(65,81,98,0.9)" : "#8A9AAB",
-                  borderBottom: viewMode === mode ? "2px solid rgba(65,81,98,0.9)" : "2px solid transparent",
-                }}
-              >
-                {label}
-              </button>
-            ))}
+          {/* Row 2: View toggle */}
+          <div style={{ display: "flex", alignItems: "center", gap: 10, paddingTop: 4, paddingBottom: 8 }}>
+            <div style={{ display: "inline-flex", gap: 0, borderRadius: 8, overflow: "hidden", border: "1px solid #C9CED4" }}>
+              {([
+                { mode: "list" as const, label: "List" },
+                { mode: "vertical" as const, label: "Timeline" },
+                { mode: "gantt" as const, label: "Gantt" },
+              ] as { mode: "list" | "vertical" | "gantt"; label: string }[]).map(({ mode, label }, i) => (
+                <button
+                  key={mode}
+                  onClick={() => setViewMode(mode)}
+                  style={{
+                    padding: "5px 12px", fontSize: 11, fontWeight: 500, cursor: "pointer",
+                    border: "none", borderLeft: i > 0 ? "1px solid #C9CED4" : "none",
+                    background: viewMode === mode ? "#415162" : "#fff",
+                    color: viewMode === mode ? "#fff" : "#5F7285",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
             <button
               onClick={() => setShowPast(!showPast)}
               style={{
-                padding: "1px 0 0 0", marginRight: 16, fontSize: 12, fontWeight: 500, cursor: "pointer",
-                background: "transparent", border: "none",
-                color: showPast ? "rgba(65,81,98,0.9)" : "#8A9AAB",
-                borderBottom: showPast ? "2px solid rgba(65,81,98,0.9)" : "2px solid transparent",
+                padding: "5px 12px", fontSize: 11, fontWeight: 500, cursor: "pointer",
+                border: showPast ? "1px solid #415162" : "1px solid #C9CED4",
+                borderRadius: 8,
+                background: showPast ? "#415162" : "#fff",
+                color: showPast ? "#fff" : "#5F7285",
+                whiteSpace: "nowrap",
               }}
             >
               {showPast ? "Hide past" : "Show past"}

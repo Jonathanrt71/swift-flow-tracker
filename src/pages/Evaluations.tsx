@@ -955,8 +955,8 @@ const Evaluations = () => {
 
       <main style={{ maxWidth: 900, margin: "0 auto", padding: "12px 16px 100px" }}>
 
-        {/* ── Row 1: Page tabs (left) + Evaluations/Summary + Import (right) ── */}
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 14, flexWrap: "wrap", gap: 8 }}>
+        {/* ── Row 1: Page tabs (left) + Import (right) ── */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10, flexWrap: "wrap", gap: 8 }}>
           <div style={{ display: "flex", gap: 0 }}>
             {([
               { value: "attending" as const, label: "Attending" },
@@ -977,33 +977,38 @@ const Evaluations = () => {
               </button>
             ))}
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          {isAdmin && (
+            <label
+              className="hidden sm:flex"
+              style={{ alignItems: "center", gap: 6, padding: "5px 12px", background: "#415162", color: "#fff", borderRadius: 8, fontSize: 12, fontWeight: 500, cursor: "pointer" }}
+            >
+              <Upload style={{ width: 13, height: 13 }} /> Import
+              <input type="file" accept=".tab,.tsv,.txt" onChange={currentImportHandler} style={{ display: "none" }} />
+            </label>
+          )}
+        </div>
+
+        {/* ── Row 2: View toggle ── */}
+        <div style={{ marginBottom: 14 }}>
+          <div style={{ display: "inline-flex", gap: 0, borderRadius: 8, overflow: "hidden", border: "1px solid #C9CED4" }}>
             {([
               { value: "evals" as const, label: "Evaluations" },
               { value: "summary" as const, label: "Summary" },
-            ]).map(tab => (
+            ]).map((tab, i) => (
               <button
                 key={tab.value}
                 onClick={() => setCurrentViewMode(tab.value)}
                 style={{
-                  padding: "1px 0 0 0", fontSize: 12, fontWeight: 500, cursor: "pointer",
-                  background: "transparent", border: "none",
-                  color: currentViewMode === tab.value ? "rgba(65,81,98,0.9)" : "#8A9AAB",
-                  borderBottom: currentViewMode === tab.value ? "2px solid rgba(65,81,98,0.9)" : "2px solid transparent",
+                  padding: "5px 12px", fontSize: 11, fontWeight: 500, cursor: "pointer",
+                  border: "none", borderLeft: i > 0 ? "1px solid #C9CED4" : "none",
+                  background: currentViewMode === tab.value ? "#415162" : "#fff",
+                  color: currentViewMode === tab.value ? "#fff" : "#5F7285",
+                  whiteSpace: "nowrap",
                 }}
               >
                 {tab.label}
               </button>
             ))}
-            {isAdmin && (
-              <label
-                className="hidden sm:flex"
-                style={{ alignItems: "center", gap: 6, padding: "5px 12px", background: "#415162", color: "#fff", borderRadius: 8, fontSize: 12, fontWeight: 500, cursor: "pointer", marginLeft: 4 }}
-              >
-                <Upload style={{ width: 13, height: 13 }} /> Import
-                <input type="file" accept=".tab,.tsv,.txt" onChange={currentImportHandler} style={{ display: "none" }} />
-              </label>
-            )}
           </div>
         </div>
 
