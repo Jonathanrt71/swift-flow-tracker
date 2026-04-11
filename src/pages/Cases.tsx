@@ -6,7 +6,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { format, parseISO, isPast } from "date-fns";
-import { Plus, X, Trash2, ChevronLeft, ChevronRight, GripVertical, Eye, EyeOff, Clock, Upload } from "lucide-react";
+import { Plus, X, Trash2, ChevronLeft, ChevronRight, GripVertical, Eye, EyeOff, Clock, Upload, Pencil, Send } from "lucide-react";
 import HeaderLogo from "@/components/HeaderLogo";
 import NotificationBell from "@/components/NotificationBell";
 
@@ -61,6 +61,7 @@ const Cases = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [revealShown, setRevealShown] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
+  const [editingCase, setEditingCase] = useState<ClinicalCase | null>(null);
 
   // ── Queries ──
   const casesQuery = useQuery({
@@ -123,6 +124,31 @@ const Cases = () => {
       if (error) throw error;
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["clinical_cases"] }),
+    onError: (e: Error) => toast({ title: "Error", description: e.message, variant: "destructive" }),
+  });
+
+  const updateCase = useMutation({
+    mutationFn: async ({ id, ...data }: { id: string; title: string; description: string; category: string; slides: Slide[]; published: boolean; scheduled_at: string | null }) => {
+      const { error } = await (supabase.from("clinical_cases" as any).update({
+        title: data.title,
+        description: data.description,
+        category: data.category,
+        slides: data.slides as any,
+        published: data.published,
+        scheduled_at: data.scheduled_at,
+      }).eq("id", id) as any);
+      if (error) throw error;
+    },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["clinical_cases"] }); toast({ title: "Case updated" }); setEditingCase(null); },
+    onError: (e: Error) => toast({ title: "Error", description: e.message, variant: "destructive" }),
+  });
+
+  const postNow = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await (supabase.from("clinical_cases" as any).update({ published: true, scheduled_at: null }).eq("id", id) as any);
+      if (error) throw error;
+    },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["clinical_cases"] }); toast({ title: "Case published" }); },
     onError: (e: Error) => toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
 
@@ -238,8 +264,8 @@ const Cases = () => {
         {/* ── Header row ── */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
           <span style={{ fontSize: 14, fontWeight: 600, color: "#415162" }}>Cases</span>
-          {canEdit && !showCreate && (
-            <span onClick={() => setShowCreate(true)} style={{
+          {canEdit && !showCreate && !editingCase && (
+            <span onClick={() => { setShowCreate(true); setEditingCase(null); }} style={{
               fontSize: 13, fontWeight: 600, color: "#415162", background: "#E7EBEF",
               padding: "4px 12px", borderRadius: 6, cursor: "pointer", userSelect: "none",
             }}>Add</span>
@@ -262,7 +288,15 @@ const Cases = () => {
         </div>
 
         {/* ── Create form ── */}
+        {/* ── Create / Edit form ── */}
         {showCreate && <CreateCaseForm onSubmit={(d) => createCase.mutate(d)} onCancel={() => setShowCreate(false)} />}
+        {editingCase && !showCreate && (
+          <CreateCaseForm
+            initialData={editingCase}
+            onSubmit={(d) => updateCase.mutate({ id: editingCase.id, ...d })}
+            onCancel={() => setEditingCase(null)}
+          />
+        )}
 
         {/* ── Case feed ── */}
         {filtered.length === 0 && !showCreate && (
@@ -316,6 +350,20 @@ const Cases = () => {
                   {/* Admin actions */}
                   {canEdit && (
                     <div style={{ display: "flex", gap: 4 }} onClick={(e) => e.stopPropagation()}>
+                      <button onClick={() => { setEditingCase(c); setShowCreate(false); }}
+                        style={{ background: "none", border: "none", cursor: "pointer", padding: 4, color: "#5F7285" }}
+                        title="Edit"
+                      >
+                        <Pencil style={{ width: 14, height: 14 }} />
+                      </button>
+                      {(!c.published || scheduled) && (
+                        <button onClick={() => postNow.mutate(c.id)}
+                          style={{ background: "none", border: "none", cursor: "pointer", padding: 4, color: "#4A846C" }}
+                          title="Post now"
+                        >
+                          <Send style={{ width: 14, height: 14 }} />
+                        </button>
+                      )}
                       <button onClick={() => togglePublish.mutate({ id: c.id, published: !c.published })}
                         style={{ background: "none", border: "none", cursor: "pointer", padding: 4, color: "#8A9AAB" }}
                         title={c.published ? "Unpublish" : "Publish"}
@@ -351,13 +399,13 @@ interface CreateFormData {
   scheduled_at: string | null;
 }
 
-const CreateCaseForm = ({ onSubmit, onCancel }: { onSubmit: (d: CreateFormData) => void; onCancel: () => void }) => {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [category, setCategory] = useState("EKG");
-  const [slides, setSlides] = useState<Slide[]>([{ image_url: "", caption: "", is_reveal: false }]);
-  const [published, setPublished] = useState(true);
-  const [scheduledAt, setScheduledAt] = useState("");
+const CreateCaseForm = ({ initialData, onSubmit, onCancel }: { initialData?: ClinicalCase; onSubmit: (d: CreateFormData) => void; onCancel: () => void }) => {
+  const [title, setTitle] = useState(initialData?.title || "");
+  const [description, setDescription] = useState(initialData?.description || "");
+  const [category, setCategory] = useState(initialData?.category || "EKG");
+  const [slides, setSlides] = useState<Slide[]>(initialData?.slides?.length ? initialData.slides : [{ image_url: "", caption: "", is_reveal: false }]);
+  const [published, setPublished] = useState(initialData?.published ?? true);
+  const [scheduledAt, setScheduledAt] = useState(initialData?.scheduled_at ? initialData.scheduled_at.slice(0, 16) : "");
   const [uploading, setUploading] = useState<number | null>(null);
 
   const handleImageUpload = async (file: File, index: number) => {
@@ -401,7 +449,7 @@ const CreateCaseForm = ({ onSubmit, onCancel }: { onSubmit: (d: CreateFormData) 
 
   return (
     <div style={{ background: "#E7EBEF", borderRadius: 10, padding: 16, marginBottom: 16, border: "1px solid #D5DAE0" }}>
-      <div style={{ fontSize: 14, fontWeight: 600, color: "#2D3748", marginBottom: 12 }}>New case</div>
+      <div style={{ fontSize: 14, fontWeight: 600, color: "#2D3748", marginBottom: 12 }}>{initialData ? "Edit case" : "New case"}</div>
 
       <input
         placeholder="Title"
@@ -515,7 +563,7 @@ const CreateCaseForm = ({ onSubmit, onCancel }: { onSubmit: (d: CreateFormData) 
           padding: "8px 16px", fontSize: 13, background: "#415162", color: "#fff",
           border: "none", borderRadius: 6, cursor: "pointer", opacity: !title.trim() ? 0.5 : 1,
         }}>
-          {scheduledAt ? "Schedule" : "Publish"}
+          {initialData ? "Save" : scheduledAt ? "Schedule" : "Publish"}
         </button>
       </div>
     </div>
