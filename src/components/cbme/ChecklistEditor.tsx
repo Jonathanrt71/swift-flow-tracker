@@ -105,11 +105,11 @@ const ChecklistEditor = ({
     <Dialog open={open} onOpenChange={handleOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent
-        className="w-[calc(100%-2rem)] max-w-md overflow-y-auto border-none rounded-xl p-0 max-h-[85vh] [&>button[class*='absolute']]:hidden"
-        style={{ background: "#F5F3EE" }}
+        className="w-[calc(100%-2rem)] max-w-md overflow-y-auto rounded-lg p-0 max-h-[85vh] [&>button[class*='absolute']]:hidden"
+        style={{ background: "#F5F3EE", border: "1px solid #C9CED4", boxShadow: "0 8px 32px rgba(0,0,0,0.22)" }}
         overlayClassName="bg-[rgba(65,81,98,0.45)] backdrop-blur-sm"
       >
-        <div className="flex items-center justify-between px-4 py-3 bg-[#415162] rounded-t-xl">
+        <div className="flex items-center justify-between px-4 py-3 bg-[#415162] rounded-t-lg">
           <span className="text-sm font-medium text-white">Edit: {competencyTitle}</span>
           <button onClick={() => setOpen(false)} className="w-9 h-9 flex items-center justify-center bg-transparent border-none cursor-pointer">
             <X className="h-4 w-4 text-white/70" />

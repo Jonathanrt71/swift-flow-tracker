@@ -129,7 +129,8 @@ const TaskDetailSheet = ({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent
-        className="w-[calc(100%-2rem)] max-w-md overflow-y-auto bg-muted border-border rounded-xl p-0 max-h-[85vh]"
+        className="w-[calc(100%-2rem)] max-w-md overflow-y-auto rounded-lg p-0 max-h-[85vh]"
+        style={{ background: "#F5F3EE", border: "1px solid #C9CED4", boxShadow: "0 8px 32px rgba(0,0,0,0.22)" }}
         overlayClassName="bg-[rgba(65,81,98,0.45)] backdrop-blur-sm"
         onCloseAutoFocus={(e) => e.preventDefault()}
       >
