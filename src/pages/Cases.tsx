@@ -63,7 +63,6 @@ const ZoomOverlay = ({ src, onClose }: { src: string; onClose: () => void }) => 
   return (
     <div style={{
       position: "fixed", inset: 0, zIndex: 110, background: "rgba(0,0,0,0.95)",
-      display: "flex", alignItems: "center", justifyContent: "center",
       touchAction: "none",
     }}>
       <button onClick={onClose} style={{
@@ -73,12 +72,18 @@ const ZoomOverlay = ({ src, onClose }: { src: string; onClose: () => void }) => 
       }}>
         <X style={{ width: 22, height: 22, color: "#fff" }} />
       </button>
-      <QuickPinchZoom onUpdate={onUpdate} maxZoom={5} minZoom={1} zoomOutFactor={0}>
+      <QuickPinchZoom
+        onUpdate={onUpdate}
+        maxZoom={5}
+        minZoom={1}
+        zoomOutFactor={0}
+        containerProps={{ style: { width: "100vw", height: "100vh", display: "flex", alignItems: "center", justifyContent: "center" } }}
+      >
         <img
           ref={imgRef}
           src={src}
           alt=""
-          style={{ maxWidth: "100vw", maxHeight: "100vh", objectFit: "contain" }}
+          style={{ maxWidth: "100vw", maxHeight: "100vh", objectFit: "contain", display: "block" }}
         />
       </QuickPinchZoom>
     </div>
