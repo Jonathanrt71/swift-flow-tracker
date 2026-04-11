@@ -281,29 +281,23 @@ const Cases = () => {
 
         {/* ── Zoomed image overlay ── */}
         {zoomedImage && (
-          <div
-            onClick={() => setZoomedImage(null)}
-            style={{
-              position: "fixed", inset: 0, zIndex: 110, background: "rgba(0,0,0,0.95)",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              cursor: "zoom-out",
-            }}
-          >
+          <div style={{ position: "fixed", inset: 0, zIndex: 110, background: "rgba(0,0,0,0.95)" }}>
             <button onClick={() => setZoomedImage(null)} style={{
-              position: "absolute", top: 16, right: 16, background: "rgba(255,255,255,0.2)",
-              border: "none", borderRadius: "50%", width: 40, height: 40,
-              display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", zIndex: 2,
+              position: "fixed", top: 16, right: 16, zIndex: 112,
+              background: "rgba(255,255,255,0.3)", border: "none", borderRadius: "50%",
+              width: 44, height: 44, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer",
             }}>
-              <X style={{ width: 20, height: 20, color: "#fff" }} />
+              <X style={{ width: 22, height: 22, color: "#fff" }} />
             </button>
-            <div
-              onClick={(e) => e.stopPropagation()}
-              style={{ width: "100%", height: "100%", overflow: "auto", display: "flex", alignItems: "center", justifyContent: "center", WebkitOverflowScrolling: "touch" }}
-            >
+            <div style={{
+              width: "100%", height: "100%", overflow: "auto",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              WebkitOverflowScrolling: "touch",
+            } as any}>
               <img
                 src={zoomedImage}
                 alt=""
-                style={{ maxWidth: "none", width: "100%", minWidth: "100vw", objectFit: "contain", cursor: "grab" }}
+                style={{ maxWidth: "none", width: "100%", minWidth: "100vw", objectFit: "contain" }}
               />
             </div>
           </div>
