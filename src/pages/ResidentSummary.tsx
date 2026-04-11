@@ -28,8 +28,10 @@ const getPgyLevel = (gradYear: number | null): number | null => {
   if (!gradYear) return null;
   const now = new Date();
   const academicYear = now.getMonth() >= 6 ? now.getFullYear() : now.getFullYear() - 1;
-  const pgy = gradYear - academicYear;
-  return pgy >= 1 && pgy <= 5 ? pgy : null;
+  const yearsRemaining = gradYear - academicYear;
+  const programLength = 3; // FM residency
+  const pgy = programLength - yearsRemaining + 1;
+  return pgy >= 1 && pgy <= programLength ? pgy : null;
 };
 
 const formatDate = (d: string | null) => {
@@ -396,7 +398,7 @@ const ResidentSummary = () => {
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: 18, fontWeight: 500, color: "#2D3748" }}>{residentName}</div>
                 <div style={{ fontSize: 13, color: "#8A9AAB" }}>
-                  {pgy ? `PGY-${pgy}` : ""}{resident?.graduation_year ? ` · Class of ${resident.graduation_year}` : ""} · Family Medicine
+                  {pgy ? `PGY-${pgy}` : ""}
                 </div>
               </div>
               <div style={{ flexShrink: 0, minWidth: 150 }}>
