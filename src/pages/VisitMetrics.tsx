@@ -76,7 +76,7 @@ const VisitMetrics = () => {
               onClick={() => setActiveTab(tab)}
               style={{
                 background: "none", border: "none", cursor: "pointer",
-                fontSize: 14, fontWeight: activeTab === tab ? 600 : 400,
+                fontSize: 14, fontWeight: 600,
                 color: activeTab === tab ? "#415162" : "#8A9AAB",
                 borderBottom: activeTab === tab ? "2px solid #415162" : "2px solid transparent",
                 paddingBottom: 8, marginBottom: -1,
