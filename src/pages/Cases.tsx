@@ -6,7 +6,9 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { format, parseISO, isPast } from "date-fns";
-import { Plus, X, Trash2, ChevronLeft, ChevronRight, GripVertical, Eye, EyeOff, Clock, Upload, Pencil, Send } from "lucide-react";
+import { Plus, X, Trash2, ChevronLeft, ChevronRight, GripVertical, Eye, EyeOff, Clock, Upload, Pencil, Send, Bold, Italic, List, ListOrdered } from "lucide-react";
+import { useEditor, EditorContent } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
 import HeaderLogo from "@/components/HeaderLogo";
 import NotificationBell from "@/components/NotificationBell";
 
@@ -237,9 +239,11 @@ const Cases = () => {
                         />
                       )}
                       {viewingCase.slides[currentSlide].caption && (
-                        <div style={{ color: "#fff", fontSize: 15, lineHeight: 1.6, textAlign: "center" }}>
-                          {viewingCase.slides[currentSlide].caption}
-                        </div>
+                        <div
+                          style={{ color: "#fff", fontSize: 15, lineHeight: 1.6, textAlign: "center" }}
+                          className="[&_ul]:list-disc [&_ul]:pl-5 [&_ul]:text-left [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:text-left [&_li]:my-0.5 [&_p]:my-1"
+                          dangerouslySetInnerHTML={{ __html: viewingCase.slides[currentSlide].caption }}
+                        />
                       )}
                     </div>
                   )}
@@ -383,6 +387,84 @@ const Cases = () => {
           );
         })}
       </main>
+    </div>
+  );
+};
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Slide Caption TipTap Editor
+// ═══════════════════════════════════════════════════════════════════════════
+const SlideCaptionEditor = ({ content, onChange, placeholder }: { content: string; onChange: (html: string) => void; placeholder?: string }) => {
+  const editor = useEditor({
+    extensions: [
+      StarterKit.configure({
+        heading: false,
+        codeBlock: false,
+        blockquote: false,
+        horizontalRule: false,
+      }),
+    ],
+    content: content || "",
+    editable: true,
+    immediatelyRender: false,
+    onUpdate: ({ editor }) => {
+      onChange(editor.getHTML());
+    },
+  });
+
+  // Sync content when initialData changes (edit mode)
+  useEffect(() => {
+    if (editor && content !== editor.getHTML()) {
+      editor.commands.setContent(content || "");
+    }
+  }, []);
+
+  if (!editor) return null;
+
+  const btnStyle = (active: boolean): React.CSSProperties => ({
+    background: active ? "#D5DAE0" : "transparent",
+    border: "none", cursor: "pointer", borderRadius: 4,
+    width: 28, height: 28, display: "flex", alignItems: "center", justifyContent: "center",
+    color: "#415162",
+  });
+
+  return (
+    <div style={{ border: "1px solid #C9CED4", borderRadius: 6, background: "#fff", overflow: "hidden" }}>
+      <div style={{ display: "flex", gap: 2, padding: "4px 6px", borderBottom: "1px solid #E7EBEF" }}>
+        <button type="button" style={btnStyle(editor.isActive("bold"))}
+          onMouseDown={(e) => { e.preventDefault(); (editor.chain().focus() as any).toggleBold().run(); }}>
+          <Bold style={{ width: 14, height: 14 }} />
+        </button>
+        <button type="button" style={btnStyle(editor.isActive("italic"))}
+          onMouseDown={(e) => { e.preventDefault(); (editor.chain().focus() as any).toggleItalic().run(); }}>
+          <Italic style={{ width: 14, height: 14 }} />
+        </button>
+        <button type="button" style={btnStyle(editor.isActive("bulletList"))}
+          onMouseDown={(e) => { e.preventDefault(); (editor.chain().focus() as any).toggleBulletList().run(); }}>
+          <List style={{ width: 14, height: 14 }} />
+        </button>
+        <button type="button" style={btnStyle(editor.isActive("orderedList"))}
+          onMouseDown={(e) => { e.preventDefault(); (editor.chain().focus() as any).toggleOrderedList().run(); }}>
+          <ListOrdered style={{ width: 14, height: 14 }} />
+        </button>
+      </div>
+      <div
+        onClick={() => editor.commands.focus()}
+        style={{ cursor: "text" }}
+      >
+        <EditorContent
+          editor={editor}
+          style={{ fontSize: 12, minHeight: 60 }}
+          className={[
+            "[&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[60px] [&_.ProseMirror]:px-2 [&_.ProseMirror]:py-1.5 [&_.ProseMirror]:text-xs",
+            "[&_.ProseMirror_ul]:list-disc [&_.ProseMirror_ul]:pl-5 [&_.ProseMirror_ul]:my-1",
+            "[&_.ProseMirror_ol]:list-decimal [&_.ProseMirror_ol]:pl-5 [&_.ProseMirror_ol]:my-1",
+            "[&_.ProseMirror_p]:my-0.5",
+            "[&_.ProseMirror:empty::before]:content-[attr(data-placeholder)] [&_.ProseMirror:empty::before]:text-gray-400 [&_.ProseMirror:empty::before]:pointer-events-none [&_.ProseMirror:empty::before]:h-0 [&_.ProseMirror:empty::before]:float-left",
+          ].join(" ")}
+          data-placeholder={placeholder}
+        />
+      </div>
     </div>
   );
 };
@@ -536,12 +618,11 @@ const CreateCaseForm = ({ initialData, onSubmit, onCancel }: { initialData?: Cli
             )}
           </div>
 
-          <textarea
+          <SlideCaptionEditor
+            key={`slide-editor-${i}`}
+            content={slide.caption}
+            onChange={(html) => updateSlide(i, "caption", html)}
             placeholder={slide.is_reveal ? "Diagnosis and teaching points..." : "Caption (optional)"}
-            value={slide.caption}
-            onChange={e => updateSlide(i, "caption", e.target.value)}
-            rows={2}
-            style={{ width: "100%", padding: "6px 8px", fontSize: 12, border: "1px solid #C9CED4", borderRadius: 6, background: "#fff", resize: "vertical", boxSizing: "border-box" }}
           />
         </div>
       ))}
