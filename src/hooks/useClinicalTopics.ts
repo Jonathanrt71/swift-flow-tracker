@@ -7,7 +7,7 @@ export interface TopicTag {
   id: string;
   name: string;
   color: string;
-  tag_type: "domain" | "custom";
+  tag_type: "domain" | "custom" | "source";
 }
 
 export interface TopicCheckoff {
@@ -32,6 +32,10 @@ export interface ClinicalTopic {
   updated_at: string;
   tags?: TopicTag[];
   checkoffs?: TopicCheckoff[];
+  /** The single domain tag this topic belongs to (its category) */
+  categoryTag?: TopicTag | null;
+  /** Source tags (ABFM, etc.) */
+  sourceTags?: TopicTag[];
 }
 
 export function useClinicalTopics() {
@@ -56,14 +60,20 @@ export function useClinicalTopics() {
       if (le) throw le;
 
       const tagMap = new Map((tagsData || []).map((t: any) => [t.id, t]));
-      return (topicsData || []).map((t: any) => ({
-        ...t,
-        tags: (linksData || [])
+      return (topicsData || []).map((t: any) => {
+        const allTags = (linksData || [])
           .filter((l: any) => l.topic_id === t.id)
           .map((l: any) => tagMap.get(l.tag_id))
-          .filter(Boolean) as TopicTag[],
-        checkoffs: (checkoffsData || []).filter((c: any) => c.topic_id === t.id),
-      })) as ClinicalTopic[];
+          .filter(Boolean) as TopicTag[];
+
+        return {
+          ...t,
+          tags: allTags,
+          categoryTag: allTags.find(tag => tag.tag_type === "domain") || null,
+          sourceTags: allTags.filter(tag => tag.tag_type === "source"),
+          checkoffs: (checkoffsData || []).filter((c: any) => c.topic_id === t.id),
+        };
+      }) as ClinicalTopic[];
     },
   });
 
@@ -121,8 +131,8 @@ export function useClinicalTopics() {
   });
 
   const createTag = useMutation({
-    mutationFn: async (data: { name: string; color: string; tag_type: "domain" | "custom" }) => {
-      const { error } = await supabase.from("topic_tags").insert(data);
+    mutationFn: async (data: { name: string; color: string; tag_type: "domain" | "custom" | "source" }) => {
+      const { error } = await supabase.from("topic_tags").insert(data as any);
       if (error) throw error;
     },
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["topic-tags"] }); invalidate(); },
