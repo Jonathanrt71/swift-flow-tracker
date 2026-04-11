@@ -199,11 +199,13 @@ const Cases = () => {
         {/* ── Full-screen case viewer ── */}
         {viewingCase && (
           <div style={{
-            position: "fixed", inset: 0, zIndex: 100, background: "#1a1a1a",
+            position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+            zIndex: 100, background: "#1a1a1a",
             display: "flex", flexDirection: "column",
+            height: "100dvh", overflow: "hidden",
           }}>
             {/* Viewer header */}
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 16px", background: "rgba(0,0,0,0.3)" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 16px", background: "rgba(0,0,0,0.3)", flexShrink: 0 }}>
               <div>
                 <div style={{ color: "#fff", fontSize: 15, fontWeight: 500 }}>{viewingCase.title}</div>
                 <div style={{ color: "rgba(255,255,255,0.6)", fontSize: 12 }}>{viewingCase.author_name}</div>
@@ -215,7 +217,7 @@ const Cases = () => {
 
             {/* Slide area */}
             <div
-              style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", position: "relative", overflow: "hidden", cursor: "pointer" }}
+              style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", position: "relative", overflow: "hidden", cursor: "pointer", minHeight: 0 }}
               onClick={advanceSlide}
               onTouchStart={handleTouchStart}
               onTouchEnd={handleTouchEnd}
@@ -231,12 +233,12 @@ const Cases = () => {
                       <div style={{ color: "rgba(255,255,255,0.6)", fontSize: 14 }}>Tap to reveal</div>
                     </div>
                   ) : (
-                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, padding: 24, maxWidth: 500, width: "100%" }}>
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, padding: "16px 24px", maxWidth: "100%", width: "100%", maxHeight: "100%", overflow: "auto" }}>
                       {viewingCase.slides[currentSlide].image_url && (
                         <img
                           src={viewingCase.slides[currentSlide].image_url}
                           alt=""
-                          style={{ maxWidth: "100%", maxHeight: "60vh", objectFit: "contain", borderRadius: 8 }}
+                          style={{ maxWidth: "100%", maxHeight: "calc(100% - 40px)", objectFit: "contain", borderRadius: 8, flexShrink: 0 }}
                         />
                       )}
                       {viewingCase.slides[currentSlide].caption && (
