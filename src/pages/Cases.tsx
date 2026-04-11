@@ -50,11 +50,11 @@ const getCatColor = (cat: string) => CATEGORY_COLORS[cat] || CATEGORY_COLORS.Oth
 const Cases = () => {
   const { user, signOut } = useAuth();
   const { isAdmin } = useAdmin();
-  const { hasPerm } = usePermissions();
+  const { has: hasPerm } = usePermissions();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const canEdit = hasPerm("cases.edit");
+  const canEdit = hasPerm("cases.edit", "full");
 
   const [filterCat, setFilterCat] = useState<string>("All");
   const [viewingCase, setViewingCase] = useState<ClinicalCase | null>(null);
