@@ -121,6 +121,9 @@ All colors MUST be HSL.
 }
 /* force rebuild 1773630196 */
 
+/* Global spinner animation */
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
 /* TipTap task list / checklist styles */
 ul[data-type="taskList"] {
   list-style: none !important;

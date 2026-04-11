@@ -124,7 +124,7 @@ const EventsGanttPage = () => {
         {/* Gantt chart */}
         {events.isLoading ? (
           <div style={{ display: "flex", justifyContent: "center", padding: "48px 0" }}>
-            <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            <div style={{ width: 20, height: 20, border: "2px solid #C9CED4", borderTopColor: "#415162", borderRadius: "50%", animation: "spin 0.7s linear infinite" }} />
           </div>
         ) : (
           <EventsGantt events={filteredEvents} />

@@ -606,7 +606,6 @@ const Announcements = () => {
               width: 20, height: 20, border: "2px solid #C9CED4", borderTopColor: "#415162",
               borderRadius: "50%", animation: "spin 0.7s linear infinite", margin: "0 auto",
             }} />
-            <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
           </div>
         ) : announcements.length === 0 ? (
           <div style={{ textAlign: "center", padding: "48px 20px", color: "#6B7280", fontSize: 14 }}>

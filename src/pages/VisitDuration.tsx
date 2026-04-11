@@ -140,7 +140,6 @@ const VisitDuration = () => {
         {isLoading ? (
           <div style={{ padding: 40, textAlign: "center" }}>
             <div style={{ width: 20, height: 20, border: "2px solid #C9CED4", borderTopColor: "#415162", borderRadius: "50%", animation: "spin 0.7s linear infinite", margin: "0 auto" }} />
-            <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
           </div>
         ) : rows.length === 0 ? (
           <div style={{ textAlign: "center", padding: 48, color: "#6B7280", fontSize: 14 }}>No data yet.</div>

@@ -620,7 +620,6 @@ const Compliance = () => {
   // ══════════════════════════════════════════════════════════════════════
   return (
     <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh", background: "#F5F3EE" }}>
-      <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
       {/* Header */}
       <header style={{ position: "sticky", top: 0, zIndex: 40, background: "#415162" }}>
         <div style={{ display: "flex", alignItems: "center", height: 56, padding: "0 16px" }}>

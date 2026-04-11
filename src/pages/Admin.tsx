@@ -1013,7 +1013,7 @@ const Admin = () => {
               </div>
               {users.isLoading ? (
                 <div className="flex justify-center py-4">
-                  <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                  <div style={{ width: 16, height: 16, border: "2px solid #C9CED4", borderTopColor: "#415162", borderRadius: "50%", animation: "spin 0.7s linear infinite" }} />
                 </div>
               ) : users.data?.length === 0 ? (
                 <p className="text-sm text-muted-foreground py-4 text-center">No users found.</p>
@@ -1418,7 +1418,7 @@ const Admin = () => {
 
               {msResident && msLoading && (
                 <div className="flex justify-center py-4">
-                  <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                  <div style={{ width: 16, height: 16, border: "2px solid #C9CED4", borderTopColor: "#415162", borderRadius: "50%", animation: "spin 0.7s linear infinite" }} />
                 </div>
               )}
 

@@ -231,8 +231,7 @@ const Home = () => {
 
   const Spinner = () => (
     <div style={{ padding: 24, textAlign: "center" }}>
-      <div style={{ width: 18, height: 18, border: "2px solid #C9CED4", borderTopColor: "#415162", borderRadius: "50%", animation: "spin 0.7s linear infinite", margin: "0 auto" }} />
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      <div style={{ width: 20, height: 20, border: "2px solid #C9CED4", borderTopColor: "#415162", borderRadius: "50%", animation: "spin 0.7s linear infinite", margin: "0 auto" }} />
     </div>
   );
 

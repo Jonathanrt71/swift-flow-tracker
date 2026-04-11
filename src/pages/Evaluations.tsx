@@ -1093,7 +1093,7 @@ const Evaluations = () => {
             {/* Evaluations list */}
             {evaluationsQuery.isLoading ? (
               <div style={{ display: "flex", justifyContent: "center", padding: 48 }}>
-                <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                <div style={{ width: 20, height: 20, border: "2px solid #C9CED4", borderTopColor: "#415162", borderRadius: "50%", animation: "spin 0.7s linear infinite" }} />
               </div>
             ) : filtered.length === 0 ? (
               <div style={{ textAlign: "center", padding: 48, color: "#8A9AAB", fontSize: 14 }}>
@@ -1308,7 +1308,7 @@ const Evaluations = () => {
             {/* Rotation evaluations list */}
             {rotEvalsQuery.isLoading ? (
               <div style={{ display: "flex", justifyContent: "center", padding: 48 }}>
-                <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                <div style={{ width: 20, height: 20, border: "2px solid #C9CED4", borderTopColor: "#415162", borderRadius: "50%", animation: "spin 0.7s linear infinite" }} />
               </div>
             ) : rotFiltered.length === 0 ? (
               <div style={{ textAlign: "center", padding: 48, color: "#8A9AAB", fontSize: 14 }}>
@@ -1509,7 +1509,7 @@ const Evaluations = () => {
             {/* Peer evaluations list */}
             {peerEvalsQuery.isLoading ? (
               <div style={{ display: "flex", justifyContent: "center", padding: 48 }}>
-                <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                <div style={{ width: 20, height: 20, border: "2px solid #C9CED4", borderTopColor: "#415162", borderRadius: "50%", animation: "spin 0.7s linear infinite" }} />
               </div>
             ) : peerFiltered.length === 0 ? (
               <div style={{ textAlign: "center", padding: 48, color: "#8A9AAB", fontSize: 14 }}>
