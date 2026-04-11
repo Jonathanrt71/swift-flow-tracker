@@ -9,6 +9,7 @@ import { format, parseISO, isPast } from "date-fns";
 import { Plus, X, Trash2, ChevronLeft, ChevronRight, GripVertical, Eye, EyeOff, Clock, Upload, Pencil, Send, Bold, Italic, List, ListOrdered } from "lucide-react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import QuickPinchZoom, { make3dTransformValue } from "react-quick-pinch-zoom";
 import HeaderLogo from "@/components/HeaderLogo";
 import NotificationBell from "@/components/NotificationBell";
 
@@ -47,6 +48,42 @@ const CATEGORY_COLORS: Record<string, { bg: string; text: string }> = {
 };
 
 const getCatColor = (cat: string) => CATEGORY_COLORS[cat] || CATEGORY_COLORS.Other;
+
+// ── Zoom Overlay with pinch-zoom ─────────────────────────────────────────
+const ZoomOverlay = ({ src, onClose }: { src: string; onClose: () => void }) => {
+  const imgRef = useRef<HTMLImageElement>(null);
+
+  const onUpdate = useCallback(({ x, y, scale }: { x: number; y: number; scale: number }) => {
+    const img = imgRef.current;
+    if (img) {
+      img.style.transform = make3dTransformValue({ x, y, scale });
+    }
+  }, []);
+
+  return (
+    <div style={{
+      position: "fixed", inset: 0, zIndex: 110, background: "rgba(0,0,0,0.95)",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      touchAction: "none",
+    }}>
+      <button onClick={onClose} style={{
+        position: "absolute", top: 16, right: 16, zIndex: 2,
+        background: "rgba(0,0,0,0.6)", border: "2px solid rgba(255,255,255,0.5)", borderRadius: "50%",
+        width: 44, height: 44, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer",
+      }}>
+        <X style={{ width: 22, height: 22, color: "#fff" }} />
+      </button>
+      <QuickPinchZoom onUpdate={onUpdate} maxZoom={5} minZoom={1} zoomOutFactor={0}>
+        <img
+          ref={imgRef}
+          src={src}
+          alt=""
+          style={{ maxWidth: "100vw", maxHeight: "100vh", objectFit: "contain" }}
+        />
+      </QuickPinchZoom>
+    </div>
+  );
+};
 
 // ── Component ────────────────────────────────────────────────────────────
 const Cases = () => {
@@ -281,28 +318,7 @@ const Cases = () => {
 
         {/* ── Zoomed image overlay ── */}
         {zoomedImage && (
-          <div
-            onClick={() => setZoomedImage(null)}
-            style={{
-              position: "fixed", inset: 0, zIndex: 110, background: "rgba(0,0,0,0.95)",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              padding: 16,
-            }}
-          >
-            <button onClick={(e) => { e.stopPropagation(); setZoomedImage(null); }} style={{
-              position: "absolute", top: 16, right: 16, zIndex: 2,
-              background: "rgba(0,0,0,0.6)", border: "2px solid rgba(255,255,255,0.5)", borderRadius: "50%",
-              width: 44, height: 44, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer",
-            }}>
-              <X style={{ width: 22, height: 22, color: "#fff" }} />
-            </button>
-            <img
-              src={zoomedImage}
-              alt=""
-              onClick={(e) => e.stopPropagation()}
-              style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }}
-            />
-          </div>
+          <ZoomOverlay src={zoomedImage} onClose={() => setZoomedImage(null)} />
         )}
 
         {/* ── Header row ── */}
