@@ -281,32 +281,28 @@ const Cases = () => {
 
         {/* ── Zoomed image overlay ── */}
         {zoomedImage && (
-          <>
-            {/* Scrollable image layer */}
-            <div style={{
+          <div
+            onClick={() => setZoomedImage(null)}
+            style={{
               position: "fixed", inset: 0, zIndex: 110, background: "rgba(0,0,0,0.95)",
-              overflow: "auto", WebkitOverflowScrolling: "touch",
-            } as any}>
-              <img
-                src={zoomedImage}
-                alt=""
-                style={{ width: "100%", minWidth: "100vw", objectFit: "contain", display: "block" }}
-              />
-            </div>
-            {/* X button layer — separate fixed div, cannot scroll */}
-            <div style={{
-              position: "fixed", top: 0, right: 0, zIndex: 113,
-              padding: 16, pointerEvents: "none",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              padding: 16,
+            }}
+          >
+            <button onClick={(e) => { e.stopPropagation(); setZoomedImage(null); }} style={{
+              position: "absolute", top: 16, right: 16, zIndex: 2,
+              background: "rgba(0,0,0,0.6)", border: "2px solid rgba(255,255,255,0.5)", borderRadius: "50%",
+              width: 44, height: 44, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer",
             }}>
-              <button onClick={() => setZoomedImage(null)} style={{
-                pointerEvents: "auto",
-                background: "rgba(0,0,0,0.6)", border: "2px solid rgba(255,255,255,0.5)", borderRadius: "50%",
-                width: 44, height: 44, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer",
-              }}>
-                <X style={{ width: 22, height: 22, color: "#fff" }} />
-              </button>
-            </div>
-          </>
+              <X style={{ width: 22, height: 22, color: "#fff" }} />
+            </button>
+            <img
+              src={zoomedImage}
+              alt=""
+              onClick={(e) => e.stopPropagation()}
+              style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }}
+            />
+          </div>
         )}
 
         {/* ── Header row ── */}
