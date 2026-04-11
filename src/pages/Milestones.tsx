@@ -23,12 +23,12 @@ const Milestones = () => {
       </header>
 
       <main style={{ maxWidth: 1200, margin: "0 auto", padding: "12px 16px 100px" }}>
-        <div style={{ display: "flex", gap: 16, borderBottom: "1px solid #D5DAE0", paddingBottom: 8, marginBottom: 16 }}>
+        <div style={{ display: "flex", gap: 16, paddingBottom: 8, marginBottom: 16 }}>
           <span
             onClick={() => setView("levels")}
             style={{
               fontSize: 14, fontWeight: 600, cursor: "pointer", padding: "1px 0 0 0",
-              color: view === "levels" ? "#415162" : "#999",
+              color: view === "levels" ? "#415162" : "#8A9AAB",
               borderBottom: view === "levels" ? "2px solid #415162" : "2px solid transparent",
             }}
           >
@@ -38,7 +38,7 @@ const Milestones = () => {
             onClick={() => setView("reference")}
             style={{
               fontSize: 14, fontWeight: 600, cursor: "pointer", padding: "1px 0 0 0",
-              color: view === "reference" ? "#415162" : "#999",
+              color: view === "reference" ? "#415162" : "#8A9AAB",
               borderBottom: view === "reference" ? "2px solid #415162" : "2px solid transparent",
             }}
           >
