@@ -619,6 +619,7 @@ const Feedback = () => {
       <style>{`
         .underline-tab[data-state="active"] { color: #415162 !important; border-bottom: 2px solid #415162 !important; }
         .underline-tab[data-state="inactive"] { color: #8A9AAB !important; border-bottom: 2px solid transparent !important; }
+        .underline-tab { font-size: 14px !important; font-weight: 600 !important; }
       `}</style>
       {/* Header */}
       <header className="sticky top-0 z-40" style={{ background: "#415162" }}>
@@ -667,16 +668,16 @@ const Feedback = () => {
         <div className="flex items-center justify-between pb-2.5">
           <div className="flex gap-2 items-center">
             <TabsList className="gap-4 h-auto p-0 bg-transparent" style={{ borderRadius: 0, background: "transparent" }}>
-              <TabsTrigger value="list" className="underline-tab p-0 h-auto bg-transparent shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none" style={{ paddingBottom: 2, fontSize: 13, fontWeight: 500, borderRadius: 0 }}>
+              <TabsTrigger value="list" className="underline-tab p-0 h-auto bg-transparent shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none" style={{ paddingBottom: 2, borderRadius: 0 }}>
                 My List
               </TabsTrigger>
-              <TabsTrigger value="summary" className="underline-tab p-0 h-auto bg-transparent shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none" style={{ paddingBottom: 2, fontSize: 13, fontWeight: 500, borderRadius: 0 }}>
+              <TabsTrigger value="summary" className="underline-tab p-0 h-auto bg-transparent shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none" style={{ paddingBottom: 2, borderRadius: 0 }}>
                 My Summary
               </TabsTrigger>
-              <TabsTrigger value="lastFeedback" className="underline-tab p-0 h-auto bg-transparent shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none" style={{ paddingBottom: 2, fontSize: 13, fontWeight: 500, borderRadius: 0 }}>
+              <TabsTrigger value="lastFeedback" className="underline-tab p-0 h-auto bg-transparent shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none" style={{ paddingBottom: 2, borderRadius: 0 }}>
                 Last
               </TabsTrigger>
-              <TabsTrigger value="facultyCounts" className="underline-tab p-0 h-auto bg-transparent shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none" style={{ paddingBottom: 2, fontSize: 13, fontWeight: 500, borderRadius: 0 }}>
+              <TabsTrigger value="facultyCounts" className="underline-tab p-0 h-auto bg-transparent shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none" style={{ paddingBottom: 2, borderRadius: 0 }}>
                 Faculty
               </TabsTrigger>
             </TabsList>
