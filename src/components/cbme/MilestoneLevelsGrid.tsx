@@ -134,7 +134,7 @@ const MilestoneLevelsGrid = () => {
       {/* Filters */}
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12, flexWrap: "wrap" }}>
         <Select value={filterResident} onValueChange={setFilterResident}>
-          <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0" style={{ borderColor: "#C9CED4", background: "#fff", maxWidth: 240, fontSize: 12 }}>
+          <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0" style={{ borderColor: "#C9CED4", background: "#fff", maxWidth: 240, fontSize: 12, height: 32, padding: "0 8px" }}>
             <SelectValue placeholder="All residents" />
           </SelectTrigger>
           <SelectContent>

@@ -662,7 +662,7 @@ const Compliance = () => {
           {/* Filters */}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 8, marginBottom: 12 }}>
             <Select value={filterSection?.toString() ?? "all"} onValueChange={v => setFilterSection(v === "all" ? null : Number(v))}>
-              <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0 w-full" style={{ borderColor: "#C9CED4", background: "#fff", fontSize: 12 }}>
+              <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0 w-full" style={{ borderColor: "#C9CED4", background: "#fff", fontSize: 12, height: 32, padding: "0 8px" }}>
                 <SelectValue placeholder="All Sections" />
               </SelectTrigger>
               <SelectContent>
@@ -673,7 +673,7 @@ const Compliance = () => {
               </SelectContent>
             </Select>
             <Select value={filterStatus ?? "all"} onValueChange={v => setFilterStatus(v === "all" ? null : v as ComplianceStatus)}>
-              <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0 w-full" style={{ borderColor: "#C9CED4", background: "#fff", fontSize: 12 }}>
+              <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0 w-full" style={{ borderColor: "#C9CED4", background: "#fff", fontSize: 12, height: 32, padding: "0 8px" }}>
                 <SelectValue placeholder="All Status" />
               </SelectTrigger>
               <SelectContent>
@@ -684,7 +684,7 @@ const Compliance = () => {
               </SelectContent>
             </Select>
             <Select value={filterType ?? "all"} onValueChange={v => setFilterType(v === "all" ? null : v)}>
-              <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0 w-full" style={{ borderColor: "#C9CED4", background: "#fff", fontSize: 12 }}>
+              <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0 w-full" style={{ borderColor: "#C9CED4", background: "#fff", fontSize: 12, height: 32, padding: "0 8px" }}>
                 <SelectValue placeholder="All Types" />
               </SelectTrigger>
               <SelectContent>
@@ -695,7 +695,7 @@ const Compliance = () => {
               </SelectContent>
             </Select>
             <Select value={filterSource ?? "all"} onValueChange={v => setFilterSource(v === "all" ? null : v)}>
-              <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0 w-full" style={{ borderColor: "#C9CED4", background: "#fff", fontSize: 12 }}>
+              <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0 w-full" style={{ borderColor: "#C9CED4", background: "#fff", fontSize: 12, height: 32, padding: "0 8px" }}>
                 <SelectValue placeholder="All Sources" />
               </SelectTrigger>
               <SelectContent>

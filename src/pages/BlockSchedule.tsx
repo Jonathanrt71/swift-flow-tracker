@@ -339,7 +339,7 @@ const BlockSchedule = () => {
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12, flexWrap: "wrap", flexShrink: 0 }}>
           {academicYears.length > 1 && (
             <Select value={filterYear === "latest" ? activeYear : filterYear} onValueChange={(v) => { setFilterYear(v); setFilterResident("all"); setFilterPgy("all"); }}>
-              <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0" style={{ borderColor: "#C9CED4", background: "#fff", maxWidth: 160 }}>
+              <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0" style={{ borderColor: "#C9CED4", background: "#fff", maxWidth: 160, fontSize: 12, height: 32, padding: "0 8px" }}>
                 <SelectValue placeholder="Academic Year" />
               </SelectTrigger>
               <SelectContent>
@@ -350,7 +350,7 @@ const BlockSchedule = () => {
             </Select>
           )}
           <Select value={filterResident} onValueChange={setFilterResident}>
-            <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0" style={{ borderColor: "#C9CED4", background: "#fff", maxWidth: 280 }}>
+            <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0" style={{ borderColor: "#C9CED4", background: "#fff", maxWidth: 280, fontSize: 12, height: 32, padding: "0 8px" }}>
               <SelectValue placeholder="All residents" />
             </SelectTrigger>
             <SelectContent>
