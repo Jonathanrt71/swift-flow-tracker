@@ -2,7 +2,7 @@ import { useState, useRef, useMemo, useCallback } from "react";
 import {
   Search, Filter, ChevronDown, ChevronRight, Save, X, Pencil,
   Plus, Trash2, Shield, FileText, User, Clock,
-  CheckCircle2, AlertCircle, MinusCircle, HelpCircle, Eye, EyeOff,
+  Eye, EyeOff,
   Menu, BookOpen, ClipboardList, Sparkles, Loader2,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -29,14 +29,11 @@ import {
 // ── Status Icon ──────────────────────────────────────────────────────────
 function StatusIcon({ status, size = 16 }: { status: ComplianceStatus; size?: number }) {
   const cfg = STATUS_CONFIG[status];
-  const iconProps = { width: size, height: size, color: cfg.color, strokeWidth: 2 };
-  switch (status) {
-    case "compliant": return <CheckCircle2 {...iconProps} />;
-    case "partially_compliant": return <AlertCircle {...iconProps} />;
-    case "non_compliant": return <MinusCircle {...iconProps} />;
-    case "not_applicable": return <HelpCircle {...iconProps} />;
-    default: return <HelpCircle {...iconProps} />;
-  }
+  return (
+    <div style={{
+      width: size, height: size, borderRadius: "50%", background: cfg.color, flexShrink: 0,
+    }} />
+  );
 }
 
 // ── Status Selector (tap-to-cycle) ───────────────────────────────────────

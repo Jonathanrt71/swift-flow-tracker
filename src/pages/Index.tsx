@@ -222,6 +222,8 @@ const Index = () => {
             task={task}
             isOverdue={isOverdue(task)}
             teamMembers={teamMembers || []}
+            currentUserId={user?.id}
+            isAdmin={!!isAdmin}
             priorityName={(task as any).priority_id ? priorityNameMap.get((task as any).priority_id) || null : null}
             sectionName={(task as any).operations_section_id ? sectionNameMap.get((task as any).operations_section_id) || null : null}
             onToggleComplete={(d) => toggleComplete.mutate(d)}
@@ -257,6 +259,8 @@ const Index = () => {
           task={task}
           isOverdue={isOverdue(task)}
           teamMembers={teamMembers || []}
+          currentUserId={user?.id}
+          isAdmin={!!isAdmin}
           priorityName={(task as any).priority_id ? priorityNameMap.get((task as any).priority_id) || null : null}
           sectionName={(task as any).operations_section_id ? sectionNameMap.get((task as any).operations_section_id) || null : null}
           onToggleComplete={(d) => toggleComplete.mutate(d)}
@@ -492,6 +496,8 @@ const Index = () => {
           onOpenChange={(open) => { if (!open) setSelectedTask(null); }}
           teamMembers={teamMembers || []}
           meetingNames={meetingNames}
+          currentUserId={user?.id}
+          isAdmin={!!isAdmin}
           onUpdate={(d) => { updateTask.mutate(d); setSelectedTask(null); }}
           onDelete={(id) => { deleteTask.mutate(id); setSelectedTask(null); }}
           onToggleComplete={(d) => toggleComplete.mutate(d)}

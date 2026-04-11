@@ -44,6 +44,8 @@ import ComboSearch from "@/components/shared/ComboSearch";
 
 interface TaskDetailSheetProps {
   task: Task;
+  currentUserId?: string;
+  isAdmin?: boolean;
   onUpdate: (data: {
     id: string;
     title?: string;
@@ -60,12 +62,15 @@ interface TaskDetailSheetProps {
 
 const TaskDetailSheet = ({
   task,
+  currentUserId,
+  isAdmin: isAdminProp,
   onUpdate,
   onDelete,
   onTriggerOpen,
   iconTrigger,
 }: TaskDetailSheetProps) => {
   const [open, setOpen] = useState(false);
+  const canDelete = !!isAdminProp || task.created_by === currentUserId;
   const [title, setTitle] = useState(task.title);
   const [dueDate, setDueDate] = useState(
     task.due_date ? task.due_date.split("T")[0] : ""
@@ -244,6 +249,7 @@ const TaskDetailSheet = ({
           </div>
 
           <div className="flex items-center justify-between pt-4 border-t border-border">
+            {canDelete ? (
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <button
@@ -274,6 +280,7 @@ const TaskDetailSheet = ({
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
+            ) : <div />}
 
             <button
               onClick={handleSave}

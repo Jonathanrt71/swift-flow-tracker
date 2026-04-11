@@ -13,6 +13,8 @@ interface TaskCardProps {
   teamMembers: TeamMember[];
   priorityName?: string | null;
   sectionName?: string | null;
+  currentUserId?: string;
+  isAdmin?: boolean;
   onToggleComplete: (data: { id: string; completed: boolean }) => void;
   onToggleStar: (data: { id: string; starred: boolean }) => void;
   onCardClick: (task: Task) => void;
@@ -32,12 +34,15 @@ const TaskCard = ({
   teamMembers,
   priorityName,
   sectionName,
+  currentUserId,
+  isAdmin,
   onToggleComplete,
   onToggleStar,
   onCardClick,
 }: TaskCardProps) => {
   const [expanded, setExpanded] = useState(false);
   const navigate = useNavigate();
+  const canComplete = !!isAdmin || task.assigned_to === currentUserId || task.created_by === currentUserId;
   const member = teamMembers.find((m) => m.id === (task.assigned_to || task.created_by));
   const assignedName = member ? [member.first_name, member.last_name].filter(Boolean).join(" ") || member.display_name : null;
   const dd = formatCardDate(task.due_date);
@@ -61,12 +66,13 @@ const TaskCard = ({
         {/* Checkbox */}
         <div
           className="checkbox-hit"
-          onClick={(e) => { e.stopPropagation(); onToggleComplete({ id: task.id, completed: !task.completed }); }}
+          onClick={(e) => { e.stopPropagation(); if (canComplete) onToggleComplete({ id: task.id, completed: !task.completed }); }}
           style={{
-            width: 20, height: 20, borderRadius: 4, flexShrink: 0, cursor: "pointer",
+            width: 20, height: 20, borderRadius: 4, flexShrink: 0, cursor: canComplete ? "pointer" : "default",
             border: task.completed ? "none" : "1.5px solid #C9CED4",
             background: task.completed ? "#4A846C" : "transparent",
             display: "flex", alignItems: "center", justifyContent: "center",
+            opacity: canComplete ? 1 : 0.4,
           }}
         >
           {task.completed && (

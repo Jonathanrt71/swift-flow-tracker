@@ -21,6 +21,8 @@ interface EditTaskDialogProps {
   onOpenChange: (open: boolean) => void;
   teamMembers: TeamMember[];
   meetingNames?: Map<string, string>;
+  currentUserId?: string;
+  isAdmin?: boolean;
   onUpdate: (data: { id: string; title?: string; description?: string; due_date?: string | null; assigned_to?: string | null }) => void;
   onDelete: (id: string) => void;
   onToggleComplete: (data: { id: string; completed: boolean }) => void;
@@ -28,7 +30,9 @@ interface EditTaskDialogProps {
   onToggleStar: (data: { id: string; starred: boolean }) => void;
 }
 
-const EditTaskDialog = ({ task, open, onOpenChange, teamMembers, meetingNames, onUpdate, onDelete, onToggleComplete, onCreateSubtask, onToggleStar }: EditTaskDialogProps) => {
+const EditTaskDialog = ({ task, open, onOpenChange, teamMembers, meetingNames, currentUserId, isAdmin: isAdminProp, onUpdate, onDelete, onToggleComplete, onCreateSubtask, onToggleStar }: EditTaskDialogProps) => {
+  const canDelete = !!isAdminProp || task.created_by === currentUserId;
+  const canComplete = !!isAdminProp || task.assigned_to === currentUserId || task.created_by === currentUserId;
   const [title, setTitle] = useState(task.title);
   const [description, setDescription] = useState(task.description || "");
   const [dueDate, setDueDate] = useState(task.due_date ? task.due_date.split("T")[0] : "");
@@ -153,7 +157,7 @@ const EditTaskDialog = ({ task, open, onOpenChange, teamMembers, meetingNames, o
               <div className="space-y-1.5">
                 {task.subtasks.map((sub) => (
                   <div key={sub.id} className="flex items-center gap-2 px-2 py-1.5 rounded-md" style={{ background: "#fff", border: "1px solid #E2E8F0" }}>
-                    <Checkbox checked={sub.completed} onCheckedChange={(checked) => onToggleComplete({ id: sub.id, completed: !!checked })} />
+                    <Checkbox checked={sub.completed} disabled={!canComplete} onCheckedChange={(checked) => { if (canComplete) onToggleComplete({ id: sub.id, completed: !!checked }); }} />
                     <span className={cn("text-sm flex-1", sub.completed && "line-through opacity-50")}>{sub.title}</span>
                   </div>
                 ))}
@@ -172,6 +176,7 @@ const EditTaskDialog = ({ task, open, onOpenChange, teamMembers, meetingNames, o
           </button>
 
           {/* Delete */}
+          {canDelete && (
           <div className="mt-4 flex justify-center">
             <AlertDialog>
               <AlertDialogTrigger asChild>
@@ -191,6 +196,7 @@ const EditTaskDialog = ({ task, open, onOpenChange, teamMembers, meetingNames, o
               </AlertDialogContent>
             </AlertDialog>
           </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>

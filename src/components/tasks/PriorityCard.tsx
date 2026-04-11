@@ -28,6 +28,8 @@ interface PriorityCardProps {
   showArrows?: boolean;
   isFirst?: boolean;
   isLast?: boolean;
+  currentUserId?: string;
+  isAdmin?: boolean;
   onMoveUp?: () => void;
   onMoveDown?: () => void;
   onUpdate?: (data: { id: string; title?: string; notes?: string; assigned_to?: string | null }) => void;
@@ -42,6 +44,7 @@ const PriorityCard = ({
   priority, rank, secondaryRank, secondaryLabel, teamMembers,
   linkedTasks, unlinkableTasks,
   showArrows = true, isFirst, isLast, onMoveUp, onMoveDown,
+  currentUserId, isAdmin: isAdminProp,
   onUpdate, onDelete, onToggleTaskComplete, onUnlinkTask, onLinkTask, onCreateTask,
 }: PriorityCardProps) => {
   const [editOpen, setEditOpen] = useState(false);
