@@ -272,7 +272,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-background">
       <style>{`
         .underline-tab[data-state="active"] { color: #415162 !important; border-bottom: 2px solid #415162 !important; }
         .underline-tab[data-state="inactive"] { color: #8A9AAB !important; border-bottom: 2px solid transparent !important; }
@@ -318,7 +318,7 @@ const Index = () => {
         )}
       </header>
 
-      <main className="px-4 pt-3 pb-6" style={{ maxWidth: 900, margin: "0 auto" }}>
+      <main className="px-4 pt-3" style={{ maxWidth: 900, margin: "0 auto", paddingBottom: 100 }}>
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <div className="flex items-center mb-4" style={{ gap: "8px 16px", flexWrap: "wrap", justifyContent: "space-between" }}>
             <TabsList className="gap-4 h-auto p-0 bg-transparent" style={{ borderRadius: 0, background: "transparent", flexWrap: "wrap" }}>

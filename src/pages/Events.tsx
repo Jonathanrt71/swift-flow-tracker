@@ -563,7 +563,7 @@ const Events = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-background">
       <header className="bg-[#415162] sticky top-0 z-40">
         <div className="flex items-center h-14 px-4">
           <HeaderLogo isAdmin={isAdmin} onSignOut={() => signOut()}>
@@ -604,7 +604,7 @@ const Events = () => {
         )}
       </header>
 
-      <main className="px-4 pt-3 pb-4" style={{ maxWidth: viewMode === "gantt" ? undefined : 900, margin: "0 auto" }}>
+      <main className="px-4 pt-3" style={{ maxWidth: viewMode === "gantt" ? undefined : 900, margin: "0 auto", paddingBottom: 100 }}>
 
         {/* Sticky filter bar below header */}
         <div className="sticky z-30 bg-background" style={{ top: 56 }}>

@@ -247,7 +247,7 @@ const Topics = () => {
         )}
       </header>
 
-      <main style={{ maxWidth: 900, margin: "0 auto", padding: "20px 16px 120px" }}>
+      <main style={{ maxWidth: 900, margin: "0 auto", padding: "12px 16px 100px" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
           <span style={{ fontSize: 12, color: "#8A9AAB" }}>
             {filteredCategories.length} categories · {totalTopics} topics

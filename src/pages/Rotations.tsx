@@ -282,7 +282,7 @@ const Rotations = () => {
         </div>
       </header>
 
-      <main className="px-4 py-5 pb-24" style={{ maxWidth: 900, margin: "0 auto" }}>
+      <main className="px-4 pt-3" style={{ maxWidth: 900, margin: "0 auto", paddingBottom: 100 }}>
         {selected ? (
           <div>
             <button onClick={() => setSelectedSlug(null)} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: "#415162", background: "transparent", border: "none", cursor: "pointer", padding: 0, marginBottom: 16 }}>

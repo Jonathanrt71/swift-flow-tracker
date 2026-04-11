@@ -615,7 +615,7 @@ const Feedback = () => {
 
 
   return (
-    <div className="min-h-screen bg-background pb-20" style={{ background: "#F5F3EE" }}>
+    <div className="min-h-screen bg-background" style={{ background: "#F5F3EE" }}>
       <style>{`
         .underline-tab[data-state="active"] { color: #415162 !important; border-bottom: 2px solid #415162 !important; }
         .underline-tab[data-state="inactive"] { color: #8A9AAB !important; border-bottom: 2px solid transparent !important; }
@@ -662,7 +662,7 @@ const Feedback = () => {
         )}
       </header>
 
-      <main className="px-4 pt-3 pb-6" style={{ maxWidth: 900, margin: "0 auto" }}>
+      <main className="px-4 pt-3" style={{ maxWidth: 900, margin: "0 auto", paddingBottom: 100 }}>
         <Tabs value={viewMode} onValueChange={(v) => setViewMode(v)}>
         {/* Toolbar */}
         <div className="flex items-center justify-between pb-2.5">

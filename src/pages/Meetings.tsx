@@ -227,7 +227,7 @@ const Meetings = () => {
   });
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-background">
       <header className="bg-[#415162] sticky top-0 z-40">
         <div className="flex items-center h-14 px-4">
           <HeaderLogo isAdmin={isAdmin} onSignOut={() => signOut()}>
@@ -268,7 +268,7 @@ const Meetings = () => {
         )}
       </header>
 
-      <main className="px-4 pt-3 pb-6" style={{ maxWidth: 900, margin: "0 auto" }}>
+      <main className="px-4 pt-3" style={{ maxWidth: 900, margin: "0 auto", paddingBottom: 100 }}>
         {/* Category filter + Add button */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
           <div style={{ display: "flex", gap: 0 }}>
