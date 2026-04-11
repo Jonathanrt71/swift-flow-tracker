@@ -364,7 +364,11 @@ const ResidentSummary = () => {
       </header>
 
       <main style={{ maxWidth: 900, margin: "0 auto", padding: "12px 16px 100px" }}>
-        {selectedResident === "none" ? (
+        {residentsQuery.isLoading ? (
+          <div style={{ padding: 40, textAlign: "center" }}>
+            <div style={{ width: 20, height: 20, border: "2px solid #C9CED4", borderTopColor: "#415162", borderRadius: "50%", animation: "spin 0.7s linear infinite", margin: "0 auto" }} />
+          </div>
+        ) : selectedResident === "none" ? (
           <>
             <div style={{ marginBottom: 16 }}>
               <Select value={selectedResident} onValueChange={setSelectedResident}>
