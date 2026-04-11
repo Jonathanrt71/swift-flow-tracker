@@ -692,6 +692,10 @@ const RoleAccessSection = () => {
       { action: "View page", key: "visit_duration.view" },
       { action: "Add / edit data", key: "visit_duration.edit" },
     ]},
+    { name: "Visit Metrics", rows: [
+      { action: "View page", key: "visit_metrics.view" },
+      { action: "Add / edit entries", key: "visit_metrics.edit" },
+    ]},
     { name: "Patient Satisfaction", rows: [
       { action: "View page", key: "patient_satisfaction.view" },
       { action: "Import / edit", key: "patient_satisfaction.edit" },

@@ -31,6 +31,7 @@ import PLATracking from "./pages/PLATracking.tsx";
 import Cases from "./pages/Cases.tsx";
 import FacultyDevelopment from "./pages/FacultyDevelopment.tsx";
 import ScholarlyActivity from "./pages/ScholarlyActivity.tsx";
+import VisitMetrics from "./pages/VisitMetrics.tsx";
 import Home from "./pages/Home.tsx";
 import Milestones from "./pages/Milestones.tsx";
 import ScrollToTop from "./components/ScrollToTop";
@@ -98,6 +99,7 @@ const App = () => (
               <Route path="/cases" element={<RoleRoute permissionKey="cases.view"><Cases /></RoleRoute>} />
               <Route path="/faculty-development" element={<RoleRoute permissionKey="faculty_development.view"><FacultyDevelopment /></RoleRoute>} />
               <Route path="/scholarly-activity" element={<RoleRoute permissionKey="scholarly_activity.view"><ScholarlyActivity /></RoleRoute>} />
+              <Route path="/visit-metrics" element={<RoleRoute permissionKey="visit_metrics.view"><VisitMetrics /></RoleRoute>} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
