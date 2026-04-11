@@ -184,6 +184,20 @@ const Cases = () => {
 
   const isScheduled = (c: ClinicalCase) => c.scheduled_at && !isPast(parseISO(c.scheduled_at));
 
+  // Enable pinch-zoom when expanded image is open, disable when closed
+  useEffect(() => {
+    const meta = document.querySelector('meta[name="viewport"]');
+    if (!meta) return;
+    if (expandedImage) {
+      meta.setAttribute("content", "width=device-width, initial-scale=1.0, viewport-fit=cover");
+    } else {
+      meta.setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover");
+    }
+    return () => {
+      meta.setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover");
+    };
+  }, [expandedImage]);
+
   // ── Render ─────────────────────────────────────────────────────────────
   return (
     <div style={{ minHeight: "100vh", background: "#F5F3EE" }}>
