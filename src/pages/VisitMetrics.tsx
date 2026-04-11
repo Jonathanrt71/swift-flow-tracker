@@ -253,10 +253,8 @@ const PreceptingTab = ({ userId, isAdmin, canEdit, isResident, isFaculty, attend
         {running && <p style={{ fontSize: 12, color: "#8A9AAB", marginTop: 8 }}>Timer running…</p>}
       </div>
 
-      {/* Tag form — shown after stop */}
-      {stopped && (
-        <div style={{ background: "#E7EBEF", borderRadius: 10, padding: 16, marginBottom: 20 }}>
-          <p style={{ fontSize: 13, fontWeight: 600, color: "#5F7285", marginBottom: 12 }}>Tag this entry</p>
+      {/* Tag form — always visible */}
+      <div style={{ background: "#E7EBEF", borderRadius: 10, padding: 16, marginBottom: 20 }}>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
             <div>
               <label style={{ fontSize: 12, color: "#5F7285", display: "block", marginBottom: 4 }}>Attending</label>
@@ -306,13 +304,12 @@ const PreceptingTab = ({ userId, isAdmin, canEdit, isResident, isFaculty, attend
           </div>
           <button
             onClick={handleSave}
-            disabled={!attendingId || !residentId || addEntry.isPending}
-            style={{ width: "100%", padding: 10, fontSize: 14, fontWeight: 500, borderRadius: 8, border: "none", background: (!attendingId || !residentId) ? "#C9CED4" : "#415162", color: "#fff", cursor: (!attendingId || !residentId) ? "default" : "pointer" }}
+            disabled={!stopped || !attendingId || !residentId || addEntry.isPending}
+            style={{ width: "100%", padding: 10, fontSize: 14, fontWeight: 500, borderRadius: 8, border: "none", background: (!stopped || !attendingId || !residentId) ? "#C9CED4" : "#415162", color: "#fff", cursor: (!stopped || !attendingId || !residentId) ? "default" : "pointer" }}
           >
             {addEntry.isPending ? "Saving…" : "Save entry"}
           </button>
         </div>
-      )}
 
       {/* Entries log */}
       <p style={{ fontSize: 13, fontWeight: 600, color: "#5F7285", marginBottom: 10 }}>Recent entries</p>
@@ -523,10 +520,8 @@ const RoomTimeTab = ({ userId, isAdmin, canEdit, isResident, residents, queryCli
         {running && <p style={{ fontSize: 12, color: "#8A9AAB", marginTop: 8 }}>Timer running…</p>}
       </div>
 
-      {/* Tag form */}
-      {stopped && (
-        <div style={{ background: "#E7EBEF", borderRadius: 10, padding: 16, marginBottom: 20 }}>
-          <p style={{ fontSize: 13, fontWeight: 600, color: "#5F7285", marginBottom: 12 }}>Tag this entry</p>
+      {/* Tag form — always visible */}
+      <div style={{ background: "#E7EBEF", borderRadius: 10, padding: 16, marginBottom: 20 }}>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 12 }}>
             <div>
               <label style={{ fontSize: 12, color: "#5F7285", display: "block", marginBottom: 4 }}>Resident</label>
@@ -549,13 +544,12 @@ const RoomTimeTab = ({ userId, isAdmin, canEdit, isResident, residents, queryCli
           </div>
           <button
             onClick={handleSave}
-            disabled={!residentId || addEntry.isPending}
-            style={{ width: "100%", padding: 10, fontSize: 14, fontWeight: 500, borderRadius: 8, border: "none", background: !residentId ? "#C9CED4" : "#415162", color: "#fff", cursor: !residentId ? "default" : "pointer" }}
+            disabled={!stopped || !residentId || addEntry.isPending}
+            style={{ width: "100%", padding: 10, fontSize: 14, fontWeight: 500, borderRadius: 8, border: "none", background: (!stopped || !residentId) ? "#C9CED4" : "#415162", color: "#fff", cursor: (!stopped || !residentId) ? "default" : "pointer" }}
           >
             {addEntry.isPending ? "Saving…" : "Save entry"}
           </button>
         </div>
-      )}
 
       {/* Entries log */}
       <p style={{ fontSize: 13, fontWeight: 600, color: "#5F7285", marginBottom: 10 }}>Recent entries</p>
