@@ -389,7 +389,7 @@ const ResidentSummary = () => {
         ) : (
           <>
             {/* Header with name + dropdown */}
-            <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "0 0 16px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "0 0 16px", flexWrap: "wrap" }}>
               <div style={{ width: 48, height: 48, borderRadius: "50%", background: "#415162", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 500, fontSize: 16, color: "#fff", flexShrink: 0 }}>
                 {initials}
               </div>
@@ -399,7 +399,7 @@ const ResidentSummary = () => {
                   {pgy ? `PGY-${pgy}` : ""}{resident?.graduation_year ? ` · Class of ${resident.graduation_year}` : ""} · Family Medicine
                 </div>
               </div>
-              <div style={{ flexShrink: 0, width: 180 }}>
+              <div style={{ flexShrink: 0, minWidth: 150 }}>
                 <Select value={selectedResident} onValueChange={setSelectedResident}>
                   <SelectTrigger className="rounded-lg focus:ring-0 focus:ring-offset-0" style={{ borderColor: "#C9CED4", background: "#fff", fontSize: 12, height: 32, padding: "0 8px" }}>
                     <SelectValue placeholder="Select" />
