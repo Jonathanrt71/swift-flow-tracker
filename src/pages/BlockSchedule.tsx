@@ -361,7 +361,7 @@ const BlockSchedule = () => {
             </SelectContent>
           </Select>
 
-          <div style={{ display: "flex", gap: 0, borderRadius: 8, overflow: "hidden", border: "0.5px solid #C9CED4" }}>
+          <div style={{ display: "flex", gap: 0, borderRadius: 8, overflow: "hidden", border: "1px solid #C9CED4" }}>
             <button
               onClick={() => setFilterPgy("all")}
               style={{
@@ -388,7 +388,7 @@ const BlockSchedule = () => {
           </div>
 
           {/* View toggle — 3 modes */}
-          <div style={{ display: "flex", gap: 0, borderRadius: 8, overflow: "hidden", border: "0.5px solid #C9CED4" }}>
+          <div style={{ display: "flex", gap: 0, borderRadius: 8, overflow: "hidden", border: "1px solid #C9CED4" }}>
             {([
               { mode: "table" as const, label: "Table" },
               { mode: "cards" as const, label: "List" },
@@ -424,7 +424,7 @@ const BlockSchedule = () => {
             key={`${filterResident}::${filterPgy}::${searchQuery}`}
             style={{
               overflow: "auto",
-              border: "0.5px solid #C9CED4",
+              border: "1px solid #C9CED4",
               borderRadius: 8,
               maxHeight: "calc(100vh - 180px)",
               minHeight: 0,
@@ -512,7 +512,7 @@ const BlockSchedule = () => {
                             minWidth: 100, maxWidth: 100, whiteSpace: "nowrap",
                             overflow: "hidden", textOverflow: "ellipsis",
                             borderRight: "1px solid #C9CED4",
-                            borderBottom: "0.5px solid #D5DAE0",
+                            borderBottom: "1px solid #D5DAE0",
                           }}>
                             {resident.name}
                           </td>
@@ -643,7 +643,7 @@ const BlockSchedule = () => {
                           display: "flex", alignItems: "center", gap: 10,
                           padding: "8px 12px",
                           background: isCurrent ? "rgba(55,138,221,0.08)" : "#E7EBEF",
-                          border: isCurrent ? "1.5px solid #378ADD" : "0.5px solid #C9CED4",
+                          border: isCurrent ? "1.5px solid #378ADD" : "1px solid #C9CED4",
                           borderRadius: 8,
                         }}
                       >
@@ -691,7 +691,7 @@ const BlockSchedule = () => {
                   <div
                     key={resident.name}
                     className="rounded-lg"
-                    style={{ background: "#E7EBEF", border: "0.5px solid #C9CED4", padding: "10px 12px", cursor: "pointer" }}
+                    style={{ background: "#E7EBEF", border: "1px solid #C9CED4", padding: "10px 12px", cursor: "pointer" }}
                     onClick={() => { setFilterResident(resident.name); setViewMode("cards"); }}
                   >
                     <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>

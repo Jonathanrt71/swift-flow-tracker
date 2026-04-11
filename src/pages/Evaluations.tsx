@@ -891,7 +891,7 @@ const Evaluations = () => {
       ) : (
         <div>
           {data.map(row => (
-            <div key={row.name} style={{ background: "#E7EBEF", border: "0.5px solid #C9CED4", borderRadius: 8, padding: "10px 14px", marginBottom: 6 }}>
+            <div key={row.name} style={{ background: "#E7EBEF", border: "1px solid #C9CED4", borderRadius: 8, padding: "10px 14px", marginBottom: 6 }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 6 }}>
                 <span style={{ fontSize: 14, fontWeight: 500, color: "#2D3748" }}>{row.name}</span>
                 <span style={{ fontSize: 11, color: "#8A9AAB" }}>{row.total} eval{row.total !== 1 ? "s" : ""}</span>
@@ -1040,7 +1040,7 @@ const Evaluations = () => {
                 </SelectContent>
               </Select>
 
-              <div style={{ display: "flex", gap: 0, borderRadius: 8, overflow: "hidden", border: "0.5px solid #C9CED4", marginLeft: "auto" }}>
+              <div style={{ display: "flex", gap: 0, borderRadius: 8, overflow: "hidden", border: "1px solid #C9CED4", marginLeft: "auto" }}>
                 {([
                   { value: "all" as const, label: "All" },
                   { value: "unread" as const, label: `Unread${unviewedCount > 0 ? ` (${unviewedCount})` : ""}` },
@@ -1118,7 +1118,7 @@ const Evaluations = () => {
                         const isViewed = viewedSet.has(ev.id) || pendingViewId === ev.id;
                         return (
                           <div key={ev.id} className="rounded-lg overflow-hidden"
-                            style={{ background: flashId === ev.id ? "rgba(74,132,108,0.15)" : "#E7EBEF", border: "0.5px solid #C9CED4", transition: "background 0.4s ease", marginBottom: 8 }}
+                            style={{ background: flashId === ev.id ? "rgba(74,132,108,0.15)" : "#E7EBEF", border: "1px solid #C9CED4", transition: "background 0.4s ease", marginBottom: 8 }}
                           >
                             <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 14px", cursor: "pointer" }}
                               onClick={() => setExpandedId(isExpanded ? null : ev.id)}
@@ -1180,7 +1180,7 @@ const Evaluations = () => {
                                     <div style={{ fontSize: 10, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", color: "#8A9AAB", marginBottom: 4 }}>Observed</div>
                                     <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
                                       {ev.observation_types.map((t, i) => (
-                                        <span key={i} style={{ fontSize: 11, background: "#F5F3EE", border: "0.5px solid #D5DAE0", borderRadius: 4, padding: "2px 8px", color: "#2D3748" }}>{t}</span>
+                                        <span key={i} style={{ fontSize: 11, background: "#F5F3EE", border: "1px solid #D5DAE0", borderRadius: 4, padding: "2px 8px", color: "#2D3748" }}>{t}</span>
                                       ))}
                                     </div>
                                   </div>
@@ -1255,7 +1255,7 @@ const Evaluations = () => {
                 {rotRotations.map(name => <option key={name} value={name}>{name}</option>)}
               </select>
 
-              <div style={{ display: "flex", gap: 0, borderRadius: 8, overflow: "hidden", border: "0.5px solid #C9CED4", marginLeft: "auto" }}>
+              <div style={{ display: "flex", gap: 0, borderRadius: 8, overflow: "hidden", border: "1px solid #C9CED4", marginLeft: "auto" }}>
                 {([
                   { value: "all" as const, label: "All" },
                   { value: "unread" as const, label: `Unread${rotUnviewedCount > 0 ? ` (${rotUnviewedCount})` : ""}` },
@@ -1333,7 +1333,7 @@ const Evaluations = () => {
                         const isViewed = rotViewedSet.has(ev.id) || rotPendingViewId === ev.id;
                         return (
                           <div key={ev.id} className="rounded-lg overflow-hidden"
-                            style={{ background: rotFlashId === ev.id ? "rgba(74,132,108,0.15)" : "#E7EBEF", border: "0.5px solid #C9CED4", transition: "background 0.4s ease", marginBottom: 8 }}
+                            style={{ background: rotFlashId === ev.id ? "rgba(74,132,108,0.15)" : "#E7EBEF", border: "1px solid #C9CED4", transition: "background 0.4s ease", marginBottom: 8 }}
                           >
                             {/* Collapsed row */}
                             <div
@@ -1456,7 +1456,7 @@ const Evaluations = () => {
                 {peerSubjects.map(name => <option key={name} value={name}>{name}</option>)}
               </select>
 
-              <div style={{ display: "flex", gap: 0, borderRadius: 8, overflow: "hidden", border: "0.5px solid #C9CED4", marginLeft: "auto" }}>
+              <div style={{ display: "flex", gap: 0, borderRadius: 8, overflow: "hidden", border: "1px solid #C9CED4", marginLeft: "auto" }}>
                 {([
                   { value: "all" as const, label: "All" },
                   { value: "unread" as const, label: `Unread${peerUnviewedCount > 0 ? ` (${peerUnviewedCount})` : ""}` },
@@ -1534,7 +1534,7 @@ const Evaluations = () => {
                         const isViewed = peerViewedSet.has(ev.id) || peerPendingViewId === ev.id;
                         return (
                           <div key={ev.id} className="rounded-lg overflow-hidden"
-                            style={{ background: peerFlashId === ev.id ? "rgba(74,132,108,0.15)" : "#E7EBEF", border: "0.5px solid #C9CED4", transition: "background 0.4s ease", marginBottom: 8 }}
+                            style={{ background: peerFlashId === ev.id ? "rgba(74,132,108,0.15)" : "#E7EBEF", border: "1px solid #C9CED4", transition: "background 0.4s ease", marginBottom: 8 }}
                           >
                             {/* Collapsed row */}
                             <div

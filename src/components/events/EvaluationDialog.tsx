@@ -74,7 +74,7 @@ export default function EvaluationDialog({
     editorProps: {
       attributes: {
         style:
-          "background: white; border: 0.5px solid #C9CED4; border-radius: 6px; padding: 10px 12px; min-height: 72px; font-size: 13px; color: #2D3748; outline: none;",
+          "background: white; border: 1px solid #C9CED4; border-radius: 6px; padding: 10px 12px; min-height: 72px; font-size: 13px; color: #2D3748; outline: none;",
         "data-placeholder": "Add optional notes...",
       },
     },
@@ -238,8 +238,8 @@ export default function EvaluationDialog({
                   gridTemplateColumns: "1fr 126px",
                   alignItems: "center",
                   padding: "10px 0",
-                  borderTop: idx === 0 ? "0.5px solid #D5DAE0" : "none",
-                  borderBottom: "0.5px solid #D5DAE0",
+                  borderTop: idx === 0 ? "1px solid #D5DAE0" : "none",
+                  borderBottom: "1px solid #D5DAE0",
                 }}
               >
                 <span style={{ fontSize: 13, fontWeight: 500, color: "#2D3748" }}>

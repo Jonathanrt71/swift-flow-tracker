@@ -51,7 +51,7 @@ export default function EventEvaluation({ eventId }: EventEvaluationProps) {
     editorProps: {
       attributes: {
         style:
-          `background: ${isLocked ? "#F5F3EE" : "white"}; border: 0.5px solid #C9CED4; border-radius: 6px; padding: 10px 12px; min-height: 72px; font-size: 13px; color: #2D3748; outline: none;`,
+          `background: ${isLocked ? "#F5F3EE" : "white"}; border: 1px solid #C9CED4; border-radius: 6px; padding: 10px 12px; min-height: 72px; font-size: 13px; color: #2D3748; outline: none;`,
         "data-placeholder": "Add optional notes...",
       },
     },
@@ -117,7 +117,7 @@ export default function EventEvaluation({ eventId }: EventEvaluationProps) {
 
   return (
     <div onClick={(e) => e.stopPropagation()}>
-      <div style={{ borderTop: "0.5px solid #C9CED4", margin: "14px 0" }} />
+      <div style={{ borderTop: "1px solid #C9CED4", margin: "14px 0" }} />
 
       {/* Dots */}
       <div style={{ display: "flex", justifyContent: "center", gap: 12, marginBottom: 12 }}>

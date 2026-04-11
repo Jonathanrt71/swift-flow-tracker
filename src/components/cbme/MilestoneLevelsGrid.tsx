@@ -145,7 +145,7 @@ const MilestoneLevelsGrid = () => {
           </SelectContent>
         </Select>
 
-        <div style={{ display: "flex", gap: 0, borderRadius: 8, overflow: "hidden", border: "0.5px solid #C9CED4" }}>
+        <div style={{ display: "flex", gap: 0, borderRadius: 8, overflow: "hidden", border: "1px solid #C9CED4" }}>
           <button
             onClick={() => setFilterPgy("all")}
             style={{
@@ -173,7 +173,7 @@ const MilestoneLevelsGrid = () => {
       </div>
 
       {/* Grid */}
-      <div style={{ overflow: "auto", border: "0.5px solid #C9CED4", borderRadius: 8, maxHeight: "calc(100vh - 220px)" }}>
+      <div style={{ overflow: "auto", border: "1px solid #C9CED4", borderRadius: 8, maxHeight: "calc(100vh - 220px)" }}>
         <table style={{ borderCollapse: "collapse", width: "100%" }}>
           <thead>
             <tr>
@@ -234,7 +234,7 @@ const MilestoneLevelsGrid = () => {
                       minWidth: 150, maxWidth: 180, whiteSpace: "nowrap",
                       overflow: "hidden", textOverflow: "ellipsis",
                       borderRight: "1px solid #C9CED4",
-                      borderBottom: "0.5px solid #D5DAE0",
+                      borderBottom: "1px solid #D5DAE0",
                     }}>
                       {resident.name}
                     </td>
@@ -243,8 +243,8 @@ const MilestoneLevelsGrid = () => {
                       return (
                         <td key={sub.id} style={{
                           background: rowBg,
-                          borderLeft: "0.5px solid #D5DAE0",
-                          borderBottom: "0.5px solid #D5DAE0",
+                          borderLeft: "1px solid #D5DAE0",
+                          borderBottom: "1px solid #D5DAE0",
                           padding: "4px 2px",
                           textAlign: "center",
                           fontSize: 12,

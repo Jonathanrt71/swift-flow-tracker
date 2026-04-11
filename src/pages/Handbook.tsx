@@ -433,20 +433,20 @@ const Handbook = () => {
             <div style={{ display: "flex", gap: 6, marginTop: 10 }}>
               <button
                 onClick={() => setCreateEventForSectionId(section.id)}
-                style={{ display: "flex", alignItems: "center", gap: 4, padding: "4px 8px", fontSize: 11, color: "#415162", background: "#fff", border: "0.5px solid #C9CED4", borderRadius: 4, cursor: "pointer" }}
+                style={{ display: "flex", alignItems: "center", gap: 4, padding: "4px 8px", fontSize: 11, color: "#415162", background: "#fff", border: "1px solid #C9CED4", borderRadius: 4, cursor: "pointer" }}
               >
                 <CalendarPlus style={{ width: 11, height: 11 }} /> Add event
               </button>
               <button
                 onClick={() => setCreateTaskForSectionId(section.id)}
-                style={{ display: "flex", alignItems: "center", gap: 4, padding: "4px 8px", fontSize: 11, color: "#415162", background: "#fff", border: "0.5px solid #C9CED4", borderRadius: 4, cursor: "pointer" }}
+                style={{ display: "flex", alignItems: "center", gap: 4, padding: "4px 8px", fontSize: 11, color: "#415162", background: "#fff", border: "1px solid #C9CED4", borderRadius: 4, cursor: "pointer" }}
               >
                 <CheckSquare style={{ width: 11, height: 11 }} /> Add task
               </button>
               <button
                 onClick={() => { setUploadingSectionId(section.id); setTimeout(() => fileInputRef.current?.click(), 50); }}
                 disabled={!!uploadingSectionId}
-                style={{ display: "flex", alignItems: "center", gap: 4, padding: "4px 8px", fontSize: 11, color: "#415162", background: "#fff", border: "0.5px solid #C9CED4", borderRadius: 4, cursor: "pointer" }}
+                style={{ display: "flex", alignItems: "center", gap: 4, padding: "4px 8px", fontSize: 11, color: "#415162", background: "#fff", border: "1px solid #C9CED4", borderRadius: 4, cursor: "pointer" }}
               >
                 <Paperclip style={{ width: 11, height: 11 }} /> {uploadingSectionId === section.id ? "Uploading…" : "Attach file"}
               </button>
@@ -476,7 +476,7 @@ const Handbook = () => {
                   <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
                     {sectionEvents.map((ev: any) => (
                       <div key={ev.id} onClick={() => navigate(`/events?highlight=${ev.id}`)}
-                        style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 10px", background: "#fff", border: "0.5px solid #D5DAE0", borderRadius: 5, cursor: "pointer", fontSize: 12 }}>
+                        style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 10px", background: "#fff", border: "1px solid #D5DAE0", borderRadius: 5, cursor: "pointer", fontSize: 12 }}>
                         <Calendar style={{ width: 12, height: 12, color: "#415162", flexShrink: 0 }} />
                         <span style={{ flex: 1, color: "#333", fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{ev.title}</span>
                         {ev.category && (
@@ -496,7 +496,7 @@ const Handbook = () => {
                   <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
                     {sectionTasks.map((t: any) => (
                       <div key={t.id} onClick={() => navigate(`/tasks?tab=myTasks&highlight=${t.id}`)}
-                        style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 10px", background: "#fff", border: "0.5px solid #D5DAE0", borderRadius: 5, cursor: "pointer", fontSize: 12 }}>
+                        style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 10px", background: "#fff", border: "1px solid #D5DAE0", borderRadius: 5, cursor: "pointer", fontSize: 12 }}>
                         <CheckSquare style={{ width: 12, height: 12, color: t.completed ? "#4A846C" : "#415162", flexShrink: 0 }} />
                         <span style={{ flex: 1, color: t.completed ? "#999" : "#333", fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", textDecoration: t.completed ? "line-through" : "none" }}>{t.title}</span>
                         {t.due_date && <span style={{ fontSize: 11, color: "#999", flexShrink: 0 }}>{formatDateShort(t.due_date)}</span>}
@@ -511,7 +511,7 @@ const Handbook = () => {
                   <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
                     {sectionFiles.map((f: any) => (
                       <div key={f.id}
-                        style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 10px", background: "#fff", border: "0.5px solid #D5DAE0", borderRadius: 5, fontSize: 12 }}>
+                        style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 10px", background: "#fff", border: "1px solid #D5DAE0", borderRadius: 5, fontSize: 12 }}>
                         <Paperclip style={{ width: 12, height: 12, color: "#415162", flexShrink: 0 }} />
                         <a href={getFileUrl(f.file_path)} target="_blank" rel="noopener noreferrer"
                           style={{ flex: 1, color: "#415162", fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", textDecoration: "underline" }}>
@@ -664,7 +664,7 @@ const Handbook = () => {
           {/* Top bar: Read/Edit toggle */}
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
             {hasEditPerm ? (
-              <div style={{ display: "flex", gap: 0, borderRadius: 8, overflow: "hidden", border: "0.5px solid #C9CED4" }}>
+              <div style={{ display: "flex", gap: 0, borderRadius: 8, overflow: "hidden", border: "1px solid #C9CED4" }}>
                 <button
                   onClick={() => setViewAsReader(true)}
                   style={{

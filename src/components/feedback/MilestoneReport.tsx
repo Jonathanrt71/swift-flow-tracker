@@ -365,7 +365,7 @@ const MilestoneReport = () => {
       {/* Controls card */}
       <div
         className="rounded-lg p-4"
-        style={{ background: "#E7EBEF", border: "0.5px solid #C9CED4" }}
+        style={{ background: "#E7EBEF", border: "1px solid #C9CED4" }}
       >
         <div className="flex flex-col gap-3">
           {/* Resident selector */}

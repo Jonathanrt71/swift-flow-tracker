@@ -53,7 +53,7 @@ const PLATracking = () => {
             <div style={{ width: 20, height: 20, border: "2px solid #C9CED4", borderTopColor: "#415162", borderRadius: "50%", animation: "spin 0.7s linear infinite", margin: "0 auto" }} />
           </div>
         ) : (
-          <div style={{ background: "#E7EBEF", border: "0.5px solid #C9CED4", borderRadius: 12, padding: "14px 16px" }}>
+          <div style={{ background: "#E7EBEF", border: "1px solid #C9CED4", borderRadius: 12, padding: "14px 16px" }}>
             <div style={{ fontSize: 14, fontWeight: 500, color: "#2D3748", marginBottom: 10 }}>Participating Learning Agreements</div>
             <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" as any }}>
               <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, minWidth: 700 }}>

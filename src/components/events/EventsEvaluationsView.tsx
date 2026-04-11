@@ -89,7 +89,7 @@ const EvaluationCard = ({
   return (
     <div
       className="rounded-lg overflow-hidden mb-3 cursor-pointer"
-      style={{ background: "#E7EBEF", border: "0.5px solid #C9CED4" }}
+      style={{ background: "#E7EBEF", border: "1px solid #C9CED4" }}
       onClick={() => hasEvals && setExpanded(!expanded)}
     >
       {/* Header */}
@@ -173,11 +173,11 @@ const EvaluationCard = ({
       {/* Individual evaluations */}
       {expanded && hasEvals && (
         <>
-          <div style={{ borderTop: "0.5px solid #C9CED4" }} />
+          <div style={{ borderTop: "1px solid #C9CED4" }} />
           <div style={{ padding: "0 14px 12px" }}>
             {evaluations.map((ev, i) => (
               <div key={ev.id}>
-                {i > 0 && <div style={{ borderTop: "0.5px solid #D5DAE0" }} />}
+                {i > 0 && <div style={{ borderTop: "1px solid #D5DAE0" }} />}
                 <div className="py-2.5" style={{ alignItems: "flex-start" }}>
                   <div style={{ fontSize: 12, fontWeight: 500, color: "#2D3748", marginBottom: 4 }}>
                     {formatName(ev.profiles)}

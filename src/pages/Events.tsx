@@ -258,7 +258,7 @@ const EventCard = ({
                   display: "inline-flex", alignItems: "center", gap: 5,
                   padding: "4px 10px", fontSize: 11, fontWeight: 500,
                   color: hasEvaluated ? "#5E9E82" : "#415162",
-                  background: "#F5F3EE", border: "0.5px solid #C9CED4", borderRadius: 6, cursor: "pointer",
+                  background: "#F5F3EE", border: "1px solid #C9CED4", borderRadius: 6, cursor: "pointer",
                 }}
                 onClick={(e) => { e.stopPropagation(); setEvalDialogOpen(true); }}
               >

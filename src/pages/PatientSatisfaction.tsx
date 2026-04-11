@@ -455,7 +455,7 @@ const PatientSatisfaction = () => {
               No survey data yet.
             </div>
           ) : (
-            <div style={{ background: "#E7EBEF", border: "0.5px solid #C9CED4", borderRadius: 12, padding: "14px 16px" }}>
+            <div style={{ background: "#E7EBEF", border: "1px solid #C9CED4", borderRadius: 12, padding: "14px 16px" }}>
               <div style={{ fontSize: 14, fontWeight: 500, color: "#2D3748", marginBottom: 10 }}>Summary</div>
               <div style={{ overflowX: "auto" }}>
               <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>

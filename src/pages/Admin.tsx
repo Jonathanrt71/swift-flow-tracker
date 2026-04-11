@@ -182,7 +182,7 @@ const EditUserDialog = ({
                 {(u.first_name || "?")[0]}{(u.last_name || "")[0]}
               </div>
             )}
-            <label style={{ fontSize: 12, padding: "5px 12px", background: "#E7EBEF", border: "0.5px solid #C9CED4", borderRadius: 6, cursor: "pointer", color: "#415162", fontWeight: 500 }}>
+            <label style={{ fontSize: 12, padding: "5px 12px", background: "#E7EBEF", border: "1px solid #C9CED4", borderRadius: 6, cursor: "pointer", color: "#415162", fontWeight: 500 }}>
               Change photo
               <input type="file" accept="image/*" style={{ display: "none" }} onChange={async (e) => {
                 const file = e.target.files?.[0];
@@ -974,7 +974,7 @@ const Admin = () => {
         {/* Category toggle */}
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
           <span style={{ fontSize: 11, fontWeight: 500, color: "#8A9AAB", textTransform: "uppercase", letterSpacing: "0.04em" }}>Category</span>
-          <div style={{ display: "flex", borderRadius: 6, overflow: "hidden", border: "0.5px solid #C9CED4" }}>
+          <div style={{ display: "flex", borderRadius: 6, overflow: "hidden", border: "1px solid #C9CED4" }}>
             {(["FM", "GME"] as const).map((cat) => (
               <button
                 key={cat}
@@ -994,7 +994,7 @@ const Admin = () => {
         {/* Team Members */}
         <div
           className="rounded-lg overflow-hidden cursor-pointer"
-          style={{ background: "#E7EBEF", border: "0.5px solid #C9CED4" }}
+          style={{ background: "#E7EBEF", border: "1px solid #C9CED4" }}
         >
           <div
             className="flex items-center px-3.5 py-3"
@@ -1058,7 +1058,7 @@ const Admin = () => {
         {/* Meeting Tags */}
         <div
           className="rounded-lg overflow-hidden cursor-pointer"
-          style={{ background: "#E7EBEF", border: "0.5px solid #C9CED4" }}
+          style={{ background: "#E7EBEF", border: "1px solid #C9CED4" }}
         >
           <div
             className="flex items-center px-3.5 py-3"
@@ -1168,7 +1168,7 @@ const Admin = () => {
         {/* Competency Categories */}
         <div
           className="rounded-lg overflow-hidden cursor-pointer"
-          style={{ background: "#E7EBEF", border: "0.5px solid #C9CED4" }}
+          style={{ background: "#E7EBEF", border: "1px solid #C9CED4" }}
         >
           <div
             className="flex items-center px-3.5 py-3"
@@ -1274,7 +1274,7 @@ const Admin = () => {
         {/* Milestone Status */}
         <div
           className="rounded-lg overflow-hidden cursor-pointer"
-          style={{ background: "#E7EBEF", border: "0.5px solid #C9CED4" }}
+          style={{ background: "#E7EBEF", border: "1px solid #C9CED4" }}
         >
           <div
             className="flex items-center px-3.5 py-3"
@@ -1394,7 +1394,7 @@ const Admin = () => {
         {/* Milestone Status (original) */}
         <div
           className="rounded-lg overflow-hidden cursor-pointer"
-          style={{ background: "#E7EBEF", border: "0.5px solid #C9CED4" }}
+          style={{ background: "#E7EBEF", border: "1px solid #C9CED4" }}
         >
           <div
             className="flex items-center px-3.5 py-3"
@@ -1491,7 +1491,7 @@ const Admin = () => {
         {/* App Settings */}
         <div
           className="rounded-lg overflow-hidden cursor-pointer"
-          style={{ background: "#E7EBEF", border: "0.5px solid #C9CED4" }}
+          style={{ background: "#E7EBEF", border: "1px solid #C9CED4" }}
         >
           <div
             className="flex items-center px-3.5 py-3"
@@ -1535,7 +1535,7 @@ const Admin = () => {
                     <label
                       style={{
                         display: "inline-block", fontSize: 12, padding: "5px 12px",
-                        background: "#E7EBEF", border: "0.5px solid #C9CED4",
+                        background: "#E7EBEF", border: "1px solid #C9CED4",
                         borderRadius: 6, cursor: navImageUploading ? "not-allowed" : "pointer",
                         color: "#415162", fontWeight: 500,
                       }}
@@ -1615,7 +1615,7 @@ const Admin = () => {
 
         <div
           className="rounded-lg overflow-hidden cursor-pointer"
-          style={{ background: "#E7EBEF", border: "0.5px solid #C9CED4" }}
+          style={{ background: "#E7EBEF", border: "1px solid #C9CED4" }}
         >
           <div
             className="flex items-center justify-between px-3.5 py-3"

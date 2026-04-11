@@ -42,8 +42,8 @@ export const DetailEditor = ({
   if (!editor) return null;
 
   return (
-    <div style={{ border: "0.5px solid #C9CED4", borderRadius: 6, background: "#F5F3EE", overflow: "hidden" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 2, borderBottom: "0.5px solid #C9CED4", padding: "2px 4px" }}>
+    <div style={{ border: "1px solid #C9CED4", borderRadius: 6, background: "#F5F3EE", overflow: "hidden" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 2, borderBottom: "1px solid #C9CED4", padding: "2px 4px" }}>
         <Button
           type="button"
           variant="ghost"

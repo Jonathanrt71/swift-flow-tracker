@@ -124,7 +124,7 @@ const ChecklistEditor = ({
               <select
                 value={categoryId}
                 onChange={(e) => setCategoryId(e.target.value)}
-                style={{ width: "100%", padding: "7px 10px", background: "#E7EBEF", border: "0.5px solid #C9CED4", borderRadius: 6, fontSize: 12, color: "#333", outline: "none" }}
+                style={{ width: "100%", padding: "7px 10px", background: "#E7EBEF", border: "1px solid #C9CED4", borderRadius: 6, fontSize: 12, color: "#333", outline: "none" }}
               >
                 <option value="">No category</option>
                 {categories.map((c) => (

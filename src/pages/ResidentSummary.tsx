@@ -347,7 +347,7 @@ const ResidentSummary = () => {
   ];
 
   const secStyle: React.CSSProperties = {
-    background: "#E7EBEF", border: "0.5px solid #C9CED4", borderRadius: 12, padding: "14px 16px", marginBottom: 12,
+    background: "#E7EBEF", border: "1px solid #C9CED4", borderRadius: 12, padding: "14px 16px", marginBottom: 12,
   };
   const secTitle: React.CSSProperties = { fontSize: 14, fontWeight: 500, color: "#2D3748", marginBottom: 10 };
 
@@ -486,7 +486,7 @@ const ResidentSummary = () => {
               <div style={secStyle}>
                 <div style={secTitle}>Recent feedback</div>
                 {feedbackList.slice(0, 5).map(fb => (
-                  <div key={fb.id} style={{ display: "flex", alignItems: "flex-start", gap: 8, padding: "8px 0", borderBottom: "0.5px solid #D5DAE0" }}>
+                  <div key={fb.id} style={{ display: "flex", alignItems: "flex-start", gap: 8, padding: "8px 0", borderBottom: "1px solid #D5DAE0" }}>
                     <div style={{ width: 8, height: 8, borderRadius: "50%", marginTop: 5, flexShrink: 0, background: fb.sentiment === "positive" ? "#4A846C" : "#E24B4A" }} />
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: 12, color: "#2D3748", lineHeight: 1.5 }}>{fb.comment}</div>
@@ -504,7 +504,7 @@ const ResidentSummary = () => {
               <div style={secStyle}>
                 <div style={secTitle}>Recent evaluations</div>
                 {evalsList.slice(0, 5).map(ev => (
-                  <div key={ev.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 0", borderBottom: "0.5px solid #D5DAE0" }}>
+                  <div key={ev.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 0", borderBottom: "1px solid #D5DAE0" }}>
                     <div style={{ fontSize: 12, fontWeight: 500, color: "#2D3748", flex: 1 }}>{ev.rotation || "—"}</div>
                     <span style={{ fontSize: 11, padding: "2px 8px", borderRadius: 4, ...ratingStyle(ev.overall_rating) }}>
                       {ratingLabel(ev.overall_rating)}

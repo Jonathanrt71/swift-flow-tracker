@@ -127,7 +127,7 @@ const CreateFeedbackDialog = ({ onSubmit, residents }: CreateFeedbackDialogProps
           </label>
           <div
             className="rounded-lg bg-white overflow-hidden"
-            style={{ border: "0.5px solid #C9CED4", minHeight: 100 }}
+            style={{ border: "1px solid #C9CED4", minHeight: 100 }}
           >
             {editor && <EditorContent editor={editor} />}
           </div>

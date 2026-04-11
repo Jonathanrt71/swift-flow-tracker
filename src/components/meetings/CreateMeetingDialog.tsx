@@ -122,7 +122,7 @@ const CreateMeetingDialog = ({ onSubmit }: CreateMeetingDialogProps) => {
             {categoryId ? (() => {
               const linked = categories.data?.find(c => c.id === categoryId);
               return (
-                <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "#fff", border: "0.5px solid #C9CED4", borderRadius: 6, padding: "5px 10px", fontSize: 12, color: "#2D3748", fontWeight: 500 }}>
+                <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "#fff", border: "1px solid #C9CED4", borderRadius: 6, padding: "5px 10px", fontSize: 12, color: "#2D3748", fontWeight: 500 }}>
                   {linked?.name || "Unknown"}
                   <div onClick={() => setCategoryId(null)} style={{ cursor: "pointer", display: "flex" }}>
                     <X style={{ width: 12, height: 12, color: "#8A9AAB" }} />

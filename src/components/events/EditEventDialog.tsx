@@ -154,7 +154,7 @@ const EditEventDialog = ({ event, open, onOpenChange, clinicalTopics, onCreateTo
               {topicId ? (() => {
                 const linked = clinicalTopics?.find(t => t.id === topicId);
                 return (
-                  <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "#fff", border: "0.5px solid #C9CED4", borderRadius: 6, padding: "5px 10px", fontSize: 12, color: "#2D3748", fontWeight: 500 }}>
+                  <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "#fff", border: "1px solid #C9CED4", borderRadius: 6, padding: "5px 10px", fontSize: 12, color: "#2D3748", fontWeight: 500 }}>
                     {linked?.title || "Unknown"}
                     <div onClick={() => setTopicId(null)} style={{ cursor: "pointer", display: "flex" }}>
                       <X style={{ width: 12, height: 12, color: "#8A9AAB" }} />

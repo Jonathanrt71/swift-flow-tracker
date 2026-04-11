@@ -263,7 +263,7 @@ const Topics = () => {
               const isExpanded = expandedCat === cat.id || (!!searchLower && catTopics.length > 0);
 
               return (
-                <div key={cat.id} style={{ borderRadius: 10, overflow: "hidden", border: "0.5px solid #D5DAE0" }}>
+                <div key={cat.id} style={{ borderRadius: 10, overflow: "hidden", border: "1px solid #D5DAE0" }}>
                   <button
                     onClick={() => setExpandedCat(isExpanded && !searchLower ? null : cat.id)}
                     style={{
@@ -321,7 +321,7 @@ const Topics = () => {
             })}
 
             {categorizedTopics.uncategorized.length > 0 && (
-              <div style={{ borderRadius: 10, overflow: "hidden", border: "0.5px solid #D5DAE0" }}>
+              <div style={{ borderRadius: 10, overflow: "hidden", border: "1px solid #D5DAE0" }}>
                 <button
                   onClick={() => setExpandedCat(expandedCat === "__uncategorized" ? null : "__uncategorized")}
                   style={{

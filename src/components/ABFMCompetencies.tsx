@@ -110,7 +110,7 @@ const ABFMCompetencies = ({ profileId, isAdmin }: Props) => {
   if (competencies.length === 0) return null;
 
   return (
-    <div style={{ background: "#E7EBEF", border: "0.5px solid #C9CED4", borderRadius: 12, padding: "14px 16px", marginBottom: 12 }}>
+    <div style={{ background: "#E7EBEF", border: "1px solid #C9CED4", borderRadius: 12, padding: "14px 16px", marginBottom: 12 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
         <div style={{ fontSize: 14, fontWeight: 500, color: "#2D3748" }}>ABFM Core Competencies</div>
         <span style={{ fontSize: 11, color: "#8A9AAB" }}>

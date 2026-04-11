@@ -23,7 +23,7 @@ const Milestones = () => {
       </header>
 
       <main style={{ maxWidth: 1200, margin: "0 auto", padding: "12px 16px 100px" }}>
-        <div style={{ display: "flex", gap: 16, borderBottom: "0.5px solid #D5DAE0", paddingBottom: 8, marginBottom: 16 }}>
+        <div style={{ display: "flex", gap: 16, borderBottom: "1px solid #D5DAE0", paddingBottom: 8, marginBottom: 16 }}>
           <span
             onClick={() => setView("levels")}
             style={{

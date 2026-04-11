@@ -23,7 +23,7 @@ const MilestonesBrowser = () => {
                 setExpandedMileId(null);
               }}
               className="w-full flex items-center gap-2.5 rounded-lg px-3.5 py-3 text-left"
-              style={{ background: "#E7EBEF", border: "0.5px solid #C9CED4" }}
+              style={{ background: "#E7EBEF", border: "1px solid #C9CED4" }}
             >
               <span style={{ fontSize: 13, fontWeight: 500, color: "#2D3748" }}>
                 {cat.code}
@@ -54,7 +54,7 @@ const MilestonesBrowser = () => {
                         className="w-full flex items-center gap-2 rounded-lg px-3 py-2.5 text-left"
                         style={{
                           background: isSubExpanded ? "#EEF0F2" : "#E7EBEF",
-                          border: "0.5px solid #C9CED4",
+                          border: "1px solid #C9CED4",
                         }}
                       >
                         <span className="flex-1 text-xs" style={{ color: "#2D3748" }}>
@@ -132,7 +132,7 @@ const MilestonesBrowser = () => {
                                     <div
                                       style={{
                                         background: "#fff",
-                                        border: "0.5px solid #C9CED4",
+                                        border: "1px solid #C9CED4",
                                         borderLeft: `2px solid ${cat.color}`,
                                         borderRadius: 8,
                                         padding: "10px 14px",

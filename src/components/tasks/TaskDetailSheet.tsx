@@ -224,7 +224,7 @@ const TaskDetailSheet = ({
               {priorityId ? (() => {
                 const linked = priorities.find(p => p.id === priorityId);
                 return (
-                  <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "#fff", border: "0.5px solid #C9CED4", borderRadius: 6, padding: "5px 10px", fontSize: 12, color: "#2D3748", fontWeight: 500 }}>
+                  <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "#fff", border: "1px solid #C9CED4", borderRadius: 6, padding: "5px 10px", fontSize: 12, color: "#2D3748", fontWeight: 500 }}>
                     <span style={{ width: 18, height: 18, borderRadius: "50%", background: "#415162", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 500, flexShrink: 0 }}>
                       {linked ? priorities.indexOf(linked) + 1 : "?"}
                     </span>

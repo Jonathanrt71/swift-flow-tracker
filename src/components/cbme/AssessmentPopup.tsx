@@ -129,7 +129,7 @@ const AssessmentPopup = ({
             </div>
 
             {/* Resident bar */}
-            <div className="flex items-center gap-2 px-4 py-3" style={{ borderBottom: "0.5px solid #C9CED4" }}>
+            <div className="flex items-center gap-2 px-4 py-3" style={{ borderBottom: "1px solid #C9CED4" }}>
               {resident?.avatar_url ? (
                 <img src={resident.avatar_url} className="w-7 h-7 rounded-full object-cover" alt="" />
               ) : (
@@ -144,7 +144,7 @@ const AssessmentPopup = ({
             </div>
 
             {/* Column headers */}
-            <div className="flex items-center px-4 py-2" style={{ borderBottom: "0.5px solid #C9CED4" }}>
+            <div className="flex items-center px-4 py-2" style={{ borderBottom: "1px solid #C9CED4" }}>
               <div className="flex-1" />
               <div className="flex gap-3">
                 <div className="w-6 flex justify-center"><GradeDot color="#D4A017" /></div>
@@ -209,7 +209,7 @@ const AssessmentPopup = ({
             ))}
 
             {/* Overall Assessment */}
-            <div className="px-4 py-3" style={{ borderTop: "0.5px solid #C9CED4" }}>
+            <div className="px-4 py-3" style={{ borderTop: "1px solid #C9CED4" }}>
               <div className="flex items-start mb-2.5">
                 <span className="flex-1 pt-0.5" style={{ fontSize: 12, fontWeight: 600, color: "#415162", textTransform: "uppercase", letterSpacing: 0.5 }}>
                   Overall Assessment
@@ -238,12 +238,12 @@ const AssessmentPopup = ({
                 placeholder="Overall comments..."
                 rows={3}
                 className="w-full px-2.5 py-2 rounded-md text-xs outline-none resize-none leading-relaxed"
-                style={{ background: "#E7EBEF", border: "0.5px solid #C9CED4", color: "#333" }}
+                style={{ background: "#E7EBEF", border: "1px solid #C9CED4", color: "#333" }}
               />
             </div>
 
             {/* Footer */}
-            <div className="px-4 pb-4 pt-3 flex items-center justify-between" style={{ borderTop: "0.5px solid #C9CED4" }}>
+            <div className="px-4 pb-4 pt-3 flex items-center justify-between" style={{ borderTop: "1px solid #C9CED4" }}>
               <span style={{ fontSize: 11, color: "#888" }}>{graded}/{totalTasks} graded</span>
               <button
                 onClick={() => {

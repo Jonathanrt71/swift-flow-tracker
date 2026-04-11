@@ -199,7 +199,7 @@ const ProcedureLogs = () => {
 
         {/* Filters — row 2: toggles */}
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
-          <div style={{ display: "flex", gap: 0, borderRadius: 8, overflow: "hidden", border: "0.5px solid #C9CED4" }}>
+          <div style={{ display: "flex", gap: 0, borderRadius: 8, overflow: "hidden", border: "1px solid #C9CED4" }}>
             {([
               { value: "all", label: "All" },
               { value: "perform", label: "Perform" },
@@ -221,7 +221,7 @@ const ProcedureLogs = () => {
           </div>
 
           {/* View toggle */}
-          <div style={{ display: "flex", gap: 0, borderRadius: 8, overflow: "hidden", border: "0.5px solid #C9CED4" }}>
+          <div style={{ display: "flex", gap: 0, borderRadius: 8, overflow: "hidden", border: "1px solid #C9CED4" }}>
             {([
               { mode: "summary" as const, label: "Summary" },
               { mode: "list" as const, label: "List" },
@@ -252,19 +252,19 @@ const ProcedureLogs = () => {
             {summary.length === 0 ? (
               <div style={{ textAlign: "center", padding: 48, color: "#8A9AAB", fontSize: 14 }}>No data</div>
             ) : summary.map(resident => (
-              <div key={resident.name} className="rounded-lg" style={{ background: "#E7EBEF", border: "0.5px solid #C9CED4", overflow: "hidden" }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 14px", borderBottom: "0.5px solid #D5DAE0" }}>
+              <div key={resident.name} className="rounded-lg" style={{ background: "#E7EBEF", border: "1px solid #C9CED4", overflow: "hidden" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 14px", borderBottom: "1px solid #D5DAE0" }}>
                   <span style={{ fontSize: 14, fontWeight: 500, color: "#2D3748" }}>{resident.name}</span>
                   <span style={{ fontSize: 12, color: "#8A9AAB" }}>{resident.totalCount} total</span>
                 </div>
                 <div style={{ padding: "6px 14px 10px" }}>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr auto auto auto auto auto", gap: "2px 12px", fontSize: 11 }}>
-                    <div style={{ fontWeight: 600, color: "#5F7285", padding: "4px 0", borderBottom: "0.5px solid #D5DAE0" }}>Procedure</div>
-                    <div style={{ fontWeight: 600, color: "#4A846C", padding: "4px 0", textAlign: "center", borderBottom: "0.5px solid #D5DAE0" }}>Perf</div>
-                    <div style={{ fontWeight: 600, color: "#378ADD", padding: "4px 0", textAlign: "center", borderBottom: "0.5px solid #D5DAE0" }}>Asst</div>
-                    <div style={{ fontWeight: 600, color: "#8A9AAB", padding: "4px 0", textAlign: "center", borderBottom: "0.5px solid #D5DAE0" }}>Obs</div>
-                    <div style={{ fontWeight: 600, color: "#D4A017", padding: "4px 0", textAlign: "center", borderBottom: "0.5px solid #D5DAE0" }}>—</div>
-                    <div style={{ fontWeight: 600, color: "#2D3748", padding: "4px 0", textAlign: "center", borderBottom: "0.5px solid #D5DAE0" }}>Total</div>
+                    <div style={{ fontWeight: 600, color: "#5F7285", padding: "4px 0", borderBottom: "1px solid #D5DAE0" }}>Procedure</div>
+                    <div style={{ fontWeight: 600, color: "#4A846C", padding: "4px 0", textAlign: "center", borderBottom: "1px solid #D5DAE0" }}>Perf</div>
+                    <div style={{ fontWeight: 600, color: "#378ADD", padding: "4px 0", textAlign: "center", borderBottom: "1px solid #D5DAE0" }}>Asst</div>
+                    <div style={{ fontWeight: 600, color: "#8A9AAB", padding: "4px 0", textAlign: "center", borderBottom: "1px solid #D5DAE0" }}>Obs</div>
+                    <div style={{ fontWeight: 600, color: "#D4A017", padding: "4px 0", textAlign: "center", borderBottom: "1px solid #D5DAE0" }}>—</div>
+                    <div style={{ fontWeight: 600, color: "#2D3748", padding: "4px 0", textAlign: "center", borderBottom: "1px solid #D5DAE0" }}>Total</div>
                     {resident.procedures.map(p => (
                       <>
                         <div key={p.proc + "-name"} style={{ color: "#2D3748", padding: "3px 0" }}>{p.proc}</div>
@@ -291,7 +291,7 @@ const ProcedureLogs = () => {
                 <div
                   key={log.id}
                   className="rounded-lg overflow-hidden"
-                  style={{ background: "#E7EBEF", border: "0.5px solid #C9CED4" }}
+                  style={{ background: "#E7EBEF", border: "1px solid #C9CED4" }}
                 >
                   <div
                     style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", cursor: "pointer" }}

@@ -86,12 +86,12 @@ const CreateCompetencyDialog = ({
             onKeyDown={(e) => { if (e.key === "Enter") handleSubmit(); }}
             placeholder="Competency title..."
             autoFocus
-            style={{ width: "100%", padding: "8px 12px", background: "#E7EBEF", border: "0.5px solid #C9CED4", borderRadius: 8, fontSize: 14, color: "#333", outline: "none" }}
+            style={{ width: "100%", padding: "8px 12px", background: "#E7EBEF", border: "1px solid #C9CED4", borderRadius: 8, fontSize: 14, color: "#333", outline: "none" }}
           />
           <select
             value={categoryId}
             onChange={(e) => setCategoryId(e.target.value)}
-            style={{ width: "100%", padding: "8px 12px", background: "#E7EBEF", border: "0.5px solid #C9CED4", borderRadius: 8, fontSize: 13, color: "#333", outline: "none" }}
+            style={{ width: "100%", padding: "8px 12px", background: "#E7EBEF", border: "1px solid #C9CED4", borderRadius: 8, fontSize: 13, color: "#333", outline: "none" }}
           >
             <option value="">No category</option>
             {categories.map((c) => (

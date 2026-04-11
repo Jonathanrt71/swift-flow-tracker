@@ -301,7 +301,7 @@ const Feedback = () => {
         <div
           key={fb.id}
           className="rounded-lg overflow-hidden cursor-pointer"
-          style={{ background: "#E7EBEF", border: "0.5px solid #C9CED4" }}
+          style={{ background: "#E7EBEF", border: "1px solid #C9CED4" }}
           onClick={() => setExpandedId(isExpanded ? null : fb.id)}
         >
           {/* Collapsed row */}
@@ -352,7 +352,7 @@ const Feedback = () => {
                         <PopoverTrigger asChild>
                           <button
                             className="inline-flex items-center gap-1.5 rounded-md px-2 py-1"
-                            style={{ background: "#F5F3EE", border: "0.5px solid #D5DAE0" }}
+                            style={{ background: "#F5F3EE", border: "1px solid #D5DAE0" }}
                             onClick={(e) => e.stopPropagation()}
                           >
                             <div className="w-2 h-2 rounded-full shrink-0" style={{ background: catColor }} />
@@ -447,7 +447,7 @@ const Feedback = () => {
                         <PopoverTrigger asChild>
                           <button
                             className="inline-flex items-center gap-1.5 rounded-md px-2 py-1"
-                            style={{ background: "#F5F3EE", border: "0.5px solid #D5DAE0" }}
+                            style={{ background: "#F5F3EE", border: "1px solid #D5DAE0" }}
                             onClick={(e) => e.stopPropagation()}
                           >
                             <span className="text-[10px] font-medium" style={{ color: ratingColors[ed.rating] || "#8A9AAB" }}>
@@ -742,7 +742,7 @@ const Feedback = () => {
             return rows.length === 0 ? (
               <div style={{ fontSize: 13, color: "#8A9AAB", padding: "20px 0", textAlign: "center" }}>No residents found.</div>
             ) : (
-              <div style={{ background: "#E7EBEF", border: "0.5px solid #C9CED4", borderRadius: 12, padding: "14px 16px" }}>
+              <div style={{ background: "#E7EBEF", border: "1px solid #C9CED4", borderRadius: 12, padding: "14px 16px" }}>
                 <div style={{ overflowX: "auto" }}>
                 <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
                   <thead>
@@ -821,7 +821,7 @@ const Feedback = () => {
                     <div style={{ fontSize: 11, color: "#5F7285" }}>All time</div>
                   </div>
                 </div>
-                <div style={{ background: "#E7EBEF", border: "0.5px solid #C9CED4", borderRadius: 12, padding: "14px 16px" }}>
+                <div style={{ background: "#E7EBEF", border: "1px solid #C9CED4", borderRadius: 12, padding: "14px 16px" }}>
                   <div style={{ overflowX: "auto" }}>
                   <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
                     <thead>
@@ -892,7 +892,7 @@ const Feedback = () => {
                       <div
                         key={m.level}
                         className="rounded-lg px-3 py-2.5"
-                        style={{ background: "#E7EBEF", border: "0.5px solid #D5DAE0" }}
+                        style={{ background: "#E7EBEF", border: "1px solid #D5DAE0" }}
                       >
                         <div className="flex items-center gap-2 mb-1">
                           <span

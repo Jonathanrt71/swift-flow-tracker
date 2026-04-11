@@ -398,7 +398,7 @@ const GMEHandbook = () => {
           {/* Top bar: Read/Edit toggle */}
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
             {hasEditPerm ? (
-              <div style={{ display: "flex", gap: 0, borderRadius: 8, overflow: "hidden", border: "0.5px solid #C9CED4" }}>
+              <div style={{ display: "flex", gap: 0, borderRadius: 8, overflow: "hidden", border: "1px solid #C9CED4" }}>
                 <button
                   onClick={() => setViewAsReader(true)}
                   style={{

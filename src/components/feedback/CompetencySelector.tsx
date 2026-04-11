@@ -97,7 +97,7 @@ function MilestoneDescription({ milestone, accentColor }: { milestone: ACGMEMile
     <div
       style={{
         background: "#fff",
-        border: "0.5px solid #C9CED4",
+        border: "1px solid #C9CED4",
         borderLeft: `2px solid ${accentColor || "#8A9AAB"}`,
         borderRadius: 8,
         padding: "10px 14px",
@@ -358,7 +358,7 @@ const CompetencySelector = ({ value, onChange, commentText, sentiment, pgyLevel,
       {activeCat && activeCat.subcategories.length > 0 && (
         <div
           className="mt-2 rounded-lg overflow-hidden overflow-y-auto"
-          style={{ border: "0.5px solid #C9CED4", maxHeight: "40vh" }}
+          style={{ border: "1px solid #C9CED4", maxHeight: "40vh" }}
         >
           {activeCat.subcategories.map((sub) => {
             const isSubExpanded = expandedSubId === sub.id;
