@@ -318,10 +318,10 @@ const GMEHandbook = () => {
           <HeaderLogo isAdmin={isAdmin} onSignOut={signOut}>
             <button
               onClick={() => { setSearchOpen(!searchOpen); if (searchOpen) clearSearch(); }}
-              style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 36, height: 36, background: "transparent", border: "none", borderRadius: 6, cursor: "pointer", color: "rgba(255,255,255,0.6)" }}
+              style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 36, height: 36, background: "transparent", border: "none", borderRadius: 6, cursor: "pointer", color: "rgba(255,255,255,0.8)" }}
               title="Search"
             >
-              {searchOpen ? <X style={{ width: 18, height: 18 }} /> : <Search style={{ width: 18, height: 18 }} />}
+              {searchOpen ? <X style={{ width: 17, height: 17 }} /> : <Search style={{ width: 17, height: 17 }} />}
             </button>
             <NotificationBell />
           </HeaderLogo>
