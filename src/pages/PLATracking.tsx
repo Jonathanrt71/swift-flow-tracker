@@ -47,7 +47,7 @@ const PLATracking = () => {
         </div>
       </header>
 
-      <main style={{ maxWidth: 900, margin: "0 auto", padding: "12px 16px 100px" }}>
+      <main style={{ maxWidth: 1200, margin: "0 auto", padding: "12px 16px 100px" }}>
         {isLoading ? (
           <div style={{ padding: 40, textAlign: "center" }}>
             <div style={{ width: 20, height: 20, border: "2px solid #C9CED4", borderTopColor: "#415162", borderRadius: "50%", animation: "spin 0.7s linear infinite", margin: "0 auto" }} />
@@ -56,7 +56,7 @@ const PLATracking = () => {
           <div style={{ background: "#E7EBEF", border: "1px solid #C9CED4", borderRadius: 12, padding: "14px 16px" }}>
             <div style={{ fontSize: 14, fontWeight: 500, color: "#2D3748", marginBottom: 10 }}>Participating Learning Agreements</div>
             <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" as any }}>
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, minWidth: 700 }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, minWidth: 900 }}>
                 <thead>
                   <tr>
                     <th style={{ textAlign: "left", padding: "6px 10px", fontSize: 11, color: "#8A9AAB", fontWeight: 500, borderBottom: "1px solid #D5DAE0" }}>Rotation</th>
@@ -74,10 +74,10 @@ const PLATracking = () => {
                     const isExpiringSoon = endYear === new Date().getFullYear();
                     return (
                     <tr key={a.id} style={{ background: i % 2 === 0 ? "transparent" : "rgba(0,0,0,0.03)" }}>
-                      <td style={{ padding: "8px 10px", color: "#2D3748", fontWeight: 500 }}>{a.rotation}</td>
-                      <td style={{ padding: "8px 10px", color: "#5F7285" }}>{a.program}</td>
-                      <td style={{ padding: "8px 10px", color: "#2D3748" }}>{a.rotation_supervisor || "—"}</td>
-                      <td style={{ padding: "8px 10px", color: "#5F7285", fontSize: 11 }}>{a.supervisor_email || "—"}</td>
+                      <td style={{ padding: "8px 10px", color: "#2D3748", fontWeight: 500, whiteSpace: "nowrap" }}>{a.rotation}</td>
+                      <td style={{ padding: "8px 10px", color: "#5F7285", whiteSpace: "nowrap" }}>{a.program}</td>
+                      <td style={{ padding: "8px 10px", color: "#2D3748", whiteSpace: "nowrap" }}>{a.rotation_supervisor || "—"}</td>
+                      <td style={{ padding: "8px 10px", color: "#5F7285", fontSize: 11, whiteSpace: "nowrap" }}>{a.supervisor_email || "—"}</td>
                       <td style={{ padding: "8px 10px", color: "#5F7285", whiteSpace: "nowrap" }}>{a.contact_number || "—"}</td>
                       <td style={{ padding: "8px 10px", color: "#5F7285", textAlign: "center", whiteSpace: "nowrap" }}>{formatDate(a.start_date)}</td>
                       <td style={{ padding: "8px 10px", textAlign: "center", whiteSpace: "nowrap", color: isExpiringSoon ? "#854F0B" : "#5F7285", fontWeight: isExpiringSoon ? 600 : 400, background: isExpiringSoon ? "#FAEEDA" : undefined, borderRadius: isExpiringSoon ? 4 : 0 }}>{formatDate(a.end_date)}</td>
