@@ -673,19 +673,32 @@ const Events = () => {
                 </button>
               ))}
             </div>
-            <button
-              onClick={() => setShowPast(!showPast)}
-              style={{
-                padding: "5px 12px", fontSize: 11, fontWeight: 500, cursor: "pointer",
-                border: showPast ? "1px solid #415162" : "1px solid #C9CED4",
-                borderRadius: 8,
-                background: showPast ? "#415162" : "#fff",
-                color: showPast ? "#fff" : "#5F7285",
-                whiteSpace: "nowrap",
-              }}
-            >
-              {showPast ? "Hide past" : "Show past"}
-            </button>
+            <div style={{ display: "inline-flex", gap: 0, borderRadius: 8, overflow: "hidden", border: "1px solid #C9CED4" }}>
+              <button
+                onClick={() => setShowPast(false)}
+                style={{
+                  padding: "5px 12px", fontSize: 11, fontWeight: 500, cursor: "pointer",
+                  border: "none",
+                  background: !showPast ? "#415162" : "#fff",
+                  color: !showPast ? "#fff" : "#5F7285",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                Upcoming
+              </button>
+              <button
+                onClick={() => setShowPast(true)}
+                style={{
+                  padding: "5px 12px", fontSize: 11, fontWeight: 500, cursor: "pointer",
+                  border: "none", borderLeft: "1px solid #C9CED4",
+                  background: showPast ? "#415162" : "#fff",
+                  color: showPast ? "#fff" : "#5F7285",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                Past
+              </button>
+            </div>
           </div>
 
         </div>
