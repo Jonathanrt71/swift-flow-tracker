@@ -64,6 +64,7 @@ const Cases = () => {
   const [revealShown, setRevealShown] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
   const [editingCase, setEditingCase] = useState<ClinicalCase | null>(null);
+  const [zoomedImage, setZoomedImage] = useState<string | null>(null);
 
   // ── Queries ──
   const casesQuery = useQuery({
@@ -232,11 +233,24 @@ const Cases = () => {
                   ) : (
                     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, padding: 24, maxWidth: 500, width: "100%" }}>
                       {viewingCase.slides[currentSlide].image_url && (
-                        <img
-                          src={viewingCase.slides[currentSlide].image_url}
-                          alt=""
-                          style={{ maxWidth: "100%", maxHeight: "60vh", objectFit: "contain", borderRadius: 8 }}
-                        />
+                        <div
+                          onClick={(e) => { e.stopPropagation(); setZoomedImage(viewingCase.slides[currentSlide].image_url); }}
+                          style={{ cursor: "zoom-in", position: "relative" }}
+                        >
+                          <img
+                            src={viewingCase.slides[currentSlide].image_url}
+                            alt=""
+                            style={{ maxWidth: "100%", maxHeight: "60vh", objectFit: "contain", borderRadius: 8 }}
+                          />
+                          <div style={{
+                            position: "absolute", bottom: 8, right: 8,
+                            background: "rgba(0,0,0,0.5)", borderRadius: 6, padding: "4px 8px",
+                            display: "flex", alignItems: "center", gap: 4,
+                          }}>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+                            <span style={{ color: "#fff", fontSize: 11 }}>Expand</span>
+                          </div>
+                        </div>
                       )}
                       {viewingCase.slides[currentSlide].caption && (
                         <div
@@ -261,6 +275,36 @@ const Cases = () => {
               {viewingCase.slides.map((_, i) => (
                 <div key={i} style={{ width: 8, height: 8, borderRadius: "50%", background: i === currentSlide ? "#fff" : "rgba(255,255,255,0.3)" }} />
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* ── Zoomed image overlay ── */}
+        {zoomedImage && (
+          <div
+            onClick={() => setZoomedImage(null)}
+            style={{
+              position: "fixed", inset: 0, zIndex: 110, background: "rgba(0,0,0,0.95)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              cursor: "zoom-out",
+            }}
+          >
+            <button onClick={() => setZoomedImage(null)} style={{
+              position: "absolute", top: 16, right: 16, background: "rgba(255,255,255,0.2)",
+              border: "none", borderRadius: "50%", width: 40, height: 40,
+              display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", zIndex: 2,
+            }}>
+              <X style={{ width: 20, height: 20, color: "#fff" }} />
+            </button>
+            <div
+              onClick={(e) => e.stopPropagation()}
+              style={{ width: "100%", height: "100%", overflow: "auto", display: "flex", alignItems: "center", justifyContent: "center", WebkitOverflowScrolling: "touch" }}
+            >
+              <img
+                src={zoomedImage}
+                alt=""
+                style={{ maxWidth: "none", width: "100%", minWidth: "100vw", objectFit: "contain", cursor: "grab" }}
+              />
             </div>
           </div>
         )}
