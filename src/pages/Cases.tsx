@@ -53,10 +53,8 @@ const ZoomOverlay = ({ src, onClose }: { src: string; onClose: () => void }) => 
   return (
     <div style={{
       position: "fixed", inset: 0, zIndex: 200, background: "#000",
-      overflow: "auto", WebkitOverflowScrolling: "touch",
       display: "flex", alignItems: "center", justifyContent: "center",
-      minHeight: "100vh",
-    } as any}>
+    }}>
       <button onClick={onClose} style={{
         position: "fixed", top: 16, right: 16, zIndex: 201,
         background: "rgba(0,0,0,0.6)", border: "2px solid rgba(255,255,255,0.5)", borderRadius: "50%",
@@ -67,7 +65,7 @@ const ZoomOverlay = ({ src, onClose }: { src: string; onClose: () => void }) => 
       <img
         src={src}
         alt=""
-        style={{ width: "100%", height: "auto", display: "block" }}
+        style={{ maxWidth: "100vw", maxHeight: "100vh", objectFit: "contain", display: "block" }}
       />
     </div>
   );
