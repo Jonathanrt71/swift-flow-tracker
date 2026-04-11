@@ -614,4 +614,6 @@ const RoomTimeTab = ({ userId, isAdmin, canEdit, isResident, residents, queryCli
   );
 };
 
+export { PreceptingTab, RoomTimeTab };
+export type { PreceptingTabProps, RoomTimeTabProps };
 export default VisitMetrics;

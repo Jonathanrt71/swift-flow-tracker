@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -31,7 +31,6 @@ import PLATracking from "./pages/PLATracking.tsx";
 import Cases from "./pages/Cases.tsx";
 import FacultyDevelopment from "./pages/FacultyDevelopment.tsx";
 import ScholarlyActivity from "./pages/ScholarlyActivity.tsx";
-import VisitMetrics from "./pages/VisitMetrics.tsx";
 import Home from "./pages/Home.tsx";
 import Roadmap from "./pages/Roadmap.tsx";
 import Milestones from "./pages/Milestones.tsx";
@@ -100,7 +99,7 @@ const App = () => (
               <Route path="/cases" element={<RoleRoute permissionKey="cases.view"><Cases /></RoleRoute>} />
               <Route path="/faculty-development" element={<RoleRoute permissionKey="faculty_development.view"><FacultyDevelopment /></RoleRoute>} />
               <Route path="/scholarly-activity" element={<RoleRoute permissionKey="scholarly_activity.view"><ScholarlyActivity /></RoleRoute>} />
-              <Route path="/visit-metrics" element={<RoleRoute permissionKey="visit_metrics.view"><VisitMetrics /></RoleRoute>} />
+              <Route path="/visit-metrics" element={<Navigate to="/visit-duration" replace />} />
               <Route path="/roadmap" element={<RoleRoute permissionKey="admin.all"><Roadmap /></RoleRoute>} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />

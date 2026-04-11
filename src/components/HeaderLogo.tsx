@@ -32,8 +32,7 @@ const allNavItems: NavEntry[] = [
   { path: "/handbook",    label: "Program Handbook", icon: BookMarked, permissionKey: "handbook.view" },
   { path: "/rotations",   label: "Rotations",    icon: Stethoscope,   permissionKey: "rotations.view" },
   { path: "/milestones",  label: "Milestones",   icon: BarChart2,     permissionKey: "cbme.view" },
-  { path: "/visit-duration", label: "Visit Duration", icon: Clock, permissionKey: "visit_duration.view" },
-  { path: "/visit-metrics", label: "Visit Metrics", icon: Timer, permissionKey: "visit_metrics.view" },
+  { path: "/visit-duration", label: "Visit Tracking", icon: Clock, permissionKey: "visit_duration.view" },
   { path: "/patient-satisfaction", label: "Patient Satisfaction", icon: Heart, permissionKey: "patient_satisfaction.view" },
   { path: "/pla-tracking", label: "PLA Tracking", icon: FileSignature, permissionKey: "pla_tracking.view" },
   { path: "/cases",       label: "Cases",         icon: Layers,        permissionKey: "cases.view" },
@@ -46,7 +45,7 @@ const navSections: NavSection[] = [
   { label: "Organization", paths: ["/announcements", "/events", "/meetings", "/tasks"] },
   { label: "Curriculum", paths: ["/rotations", "/topics", "/cases", "/scholarly-activity"] },
   { label: "Evaluation", paths: ["/cbme", "/evaluations", "/feedback", "/milestones", "/resident-summary"] },
-  { label: "Program",    paths: ["/schedule", "/visit-duration", "/visit-metrics", "/patient-satisfaction", "/pla-tracking", "/faculty-development"] },
+  { label: "Program",    paths: ["/schedule", "/visit-duration", "/patient-satisfaction", "/pla-tracking", "/faculty-development"] },
   { label: "Reference",  paths: ["/compliance", "/gme-handbook", "/handbook"] },
 ];
 

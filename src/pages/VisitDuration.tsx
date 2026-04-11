@@ -2,10 +2,13 @@ import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
 import { usePermissions } from "@/hooks/usePermissions";
+import { useUserRole } from "@/hooks/useUserRole";
+import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import HeaderLogo from "@/components/HeaderLogo";
 import NotificationBell from "@/components/NotificationBell";
+import { PreceptingTab, RoomTimeTab } from "@/pages/VisitMetrics";
 import {
   LineChart, Line, XAxis, YAxis, ReferenceLine, ReferenceArea,
   ResponsiveContainer, Tooltip, CartesianGrid,
@@ -34,8 +37,13 @@ const VisitDuration = () => {
   const { isAdmin: isAdminQuery } = useAdmin();
   const isAdmin = !!isAdminQuery.data;
   const { has: hasPerm } = usePermissions();
+  const { role } = useUserRole();
+  const { data: teamMembers = [] } = useTeamMembers();
   const canEdit = isAdmin || hasPerm("visit_duration.edit");
+  const canEditMetrics = isAdmin || hasPerm("visit_metrics.edit");
   const queryClient = useQueryClient();
+
+  const [activeTab, setActiveTab] = useState<"duration" | "precepting" | "room">("duration");
 
   const [weekLabel, setWeekLabel] = useState("");
   const [weekStart, setWeekStart] = useState("");
@@ -137,6 +145,30 @@ const VisitDuration = () => {
 
       <main style={{ padding: "12px 16px 100px", maxWidth: 1200, margin: "0 auto" }}>
 
+        {/* Tab bar */}
+        <div style={{ display: "flex", gap: 0, marginBottom: 16 }}>
+          {([
+            { value: "duration" as const, label: "Duration" },
+            { value: "precepting" as const, label: "Precepting" },
+            { value: "room" as const, label: "Room Time" },
+          ]).map(tab => (
+            <button
+              key={tab.value}
+              onClick={() => setActiveTab(tab.value)}
+              style={{
+                padding: "1px 0 0 0", marginRight: 20, fontSize: 14, fontWeight: 600, cursor: "pointer",
+                background: "transparent", border: "none",
+                color: activeTab === tab.value ? "#415162" : "#8A9AAB",
+                borderBottom: activeTab === tab.value ? "2px solid #415162" : "2px solid transparent",
+              }}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {activeTab === "duration" && (
+        <>
         {isLoading ? (
           <div style={{ padding: 40, textAlign: "center" }}>
             <div style={{ width: 20, height: 20, border: "2px solid #C9CED4", borderTopColor: "#415162", borderRadius: "50%", animation: "spin 0.7s linear infinite", margin: "0 auto" }} />
@@ -340,6 +372,37 @@ const VisitDuration = () => {
             </div>
           </>
         )}
+        </>
+        )}
+
+        {activeTab === "precepting" && (
+          <div style={{ maxWidth: 540 }}>
+            <PreceptingTab
+              userId={user?.id || ""}
+              isAdmin={isAdmin}
+              canEdit={canEditMetrics}
+              isResident={role === "resident"}
+              isFaculty={role === "faculty"}
+              attendings={teamMembers.filter(m => m.role === "faculty")}
+              residents={teamMembers.filter(m => m.role === "resident")}
+              queryClient={queryClient}
+            />
+          </div>
+        )}
+
+        {activeTab === "room" && (
+          <div style={{ maxWidth: 540 }}>
+            <RoomTimeTab
+              userId={user?.id || ""}
+              isAdmin={isAdmin}
+              canEdit={canEditMetrics}
+              isResident={role === "resident"}
+              residents={teamMembers.filter(m => m.role === "resident")}
+              queryClient={queryClient}
+            />
+          </div>
+        )}
+
       </main>
     </div>
   );
