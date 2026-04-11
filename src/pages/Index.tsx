@@ -380,6 +380,8 @@ const Index = () => {
                             showArrows={!!isAdmin}
                             isFirst={idx === 0}
                             isLast={idx === localPriorities.length - 1}
+                            currentUserId={user?.id}
+                            isAdmin={!!isAdmin}
                             onMoveUp={() => {
                               const reordered = [...localPriorities];
                               [reordered[idx - 1], reordered[idx]] = [reordered[idx], reordered[idx - 1]];
@@ -445,6 +447,8 @@ const Index = () => {
                           showArrows
                           isFirst={idx === 0}
                           isLast={idx === localMyPriorities.length - 1}
+                          currentUserId={user?.id}
+                          isAdmin={!!isAdmin}
                           onMoveUp={() => {
                             const reordered = [...localMyPriorities];
                             [reordered[idx - 1], reordered[idx]] = [reordered[idx], reordered[idx - 1]];

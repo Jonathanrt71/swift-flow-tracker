@@ -132,15 +132,18 @@ const PriorityCard = ({
         {/* Expanded: linked tasks */}
         {expanded && (
           <div style={{ padding: "0 12px 10px 58px", display: "flex", flexDirection: "column", gap: 4 }}>
-            {linkedTasks.map(t => (
+            {linkedTasks.map(t => {
+              const canComplete = !!isAdminProp || t.assigned_to === currentUserId || t.created_by === currentUserId;
+              return (
               <div key={t.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "5px 8px", background: "#F5F3EE", borderRadius: 6 }}>
                 <div
-                  onClick={(e) => { e.stopPropagation(); onToggleTaskComplete({ id: t.id, completed: !t.completed }); }}
+                  onClick={(e) => { e.stopPropagation(); if (canComplete) onToggleTaskComplete({ id: t.id, completed: !t.completed }); }}
                   style={{
-                    width: 16, height: 16, borderRadius: 3, flexShrink: 0, cursor: "pointer",
+                    width: 16, height: 16, borderRadius: 3, flexShrink: 0, cursor: canComplete ? "pointer" : "default",
                     border: t.completed ? "none" : "1.5px solid #C9CED4",
                     background: t.completed ? "#4A846C" : "transparent",
                     display: "flex", alignItems: "center", justifyContent: "center",
+                    opacity: canComplete ? 1 : 0.4,
                   }}
                 >
                   {t.completed && (
@@ -164,7 +167,8 @@ const PriorityCard = ({
                   <X style={{ width: 12, height: 12 }} />
                 </button>
               </div>
-            ))}
+              );
+            })}
 
             {/* Link or create task */}
             {showLinkInput ? (
