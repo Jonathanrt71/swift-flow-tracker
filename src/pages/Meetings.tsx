@@ -277,7 +277,7 @@ const Meetings = () => {
               style={{
                 padding: "1px 0 0 0", marginRight: 20, fontSize: 14, fontWeight: 600, cursor: "pointer",
                 background: "transparent", border: "none",
-                color: categoryFilter === null ? "#415162" : "#999",
+                color: categoryFilter === null ? "#415162" : "#8A9AAB",
                 borderBottom: categoryFilter === null ? "2px solid #415162" : "2px solid transparent",
               }}
             >
@@ -290,7 +290,7 @@ const Meetings = () => {
                 style={{
                   padding: "1px 0 0 0", marginRight: 20, fontSize: 14, fontWeight: 600, cursor: "pointer",
                   background: "transparent", border: "none",
-                  color: categoryFilter === cat.id ? "#415162" : "#999",
+                  color: categoryFilter === cat.id ? "#415162" : "#8A9AAB",
                   borderBottom: categoryFilter === cat.id ? "2px solid #415162" : "2px solid transparent",
                 }}
               >
