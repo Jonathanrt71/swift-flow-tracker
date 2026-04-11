@@ -276,6 +276,7 @@ const Index = () => {
       <style>{`
         .underline-tab[data-state="active"] { color: #415162 !important; border-bottom: 2px solid #415162 !important; }
         .underline-tab[data-state="inactive"] { color: #8A9AAB !important; border-bottom: 2px solid transparent !important; }
+        .underline-tab { font-size: 14px !important; font-weight: 600 !important; }
       `}</style>
       <header className="bg-[#415162] sticky top-0 z-40">
         <div className="flex items-center h-14 px-4">
@@ -321,16 +322,16 @@ const Index = () => {
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <div className="flex items-center mb-4" style={{ gap: "8px 16px", flexWrap: "wrap", justifyContent: "space-between" }}>
             <TabsList className="gap-4 h-auto p-0 bg-transparent" style={{ borderRadius: 0, background: "transparent", flexWrap: "wrap" }}>
-              <TabsTrigger value="allPriorities" className="underline-tab p-0 h-auto bg-transparent shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none" style={{ paddingBottom: 2, fontSize: 13, fontWeight: 500, borderRadius: 0 }}>
+              <TabsTrigger value="allPriorities" className="underline-tab p-0 h-auto bg-transparent shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none" style={{ paddingBottom: 2, borderRadius: 0 }}>
                 All priorities
               </TabsTrigger>
-              <TabsTrigger value="myPriorities" className="underline-tab p-0 h-auto bg-transparent shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none" style={{ paddingBottom: 2, fontSize: 13, fontWeight: 500, borderRadius: 0 }}>
+              <TabsTrigger value="myPriorities" className="underline-tab p-0 h-auto bg-transparent shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none" style={{ paddingBottom: 2, borderRadius: 0 }}>
                 My priorities
               </TabsTrigger>
-              <TabsTrigger value="myTasks" className="underline-tab p-0 h-auto bg-transparent shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none" style={{ paddingBottom: 2, fontSize: 13, fontWeight: 500, borderRadius: 0 }}>
+              <TabsTrigger value="myTasks" className="underline-tab p-0 h-auto bg-transparent shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none" style={{ paddingBottom: 2, borderRadius: 0 }}>
                 My tasks
               </TabsTrigger>
-              <TabsTrigger value="completed" className="underline-tab p-0 h-auto bg-transparent shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none" style={{ paddingBottom: 2, fontSize: 13, fontWeight: 500, borderRadius: 0 }}>
+              <TabsTrigger value="completed" className="underline-tab p-0 h-auto bg-transparent shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none" style={{ paddingBottom: 2, borderRadius: 0 }}>
                 Done
               </TabsTrigger>
             </TabsList>
