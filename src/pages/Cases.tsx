@@ -65,6 +65,7 @@ const Cases = () => {
   const [revealShown, setRevealShown] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
   const [editingCase, setEditingCase] = useState<ClinicalCase | null>(null);
+  const [expandedImage, setExpandedImage] = useState<string | null>(null);
 
   // ── Queries ──
   const casesQuery = useQuery({
@@ -238,7 +239,8 @@ const Cases = () => {
                         <img
                           src={viewingCase.slides[currentSlide].image_url}
                           alt=""
-                          style={{ maxWidth: "100%", maxHeight: "calc(100% - 40px)", objectFit: "contain", borderRadius: 8, flexShrink: 0 }}
+                          onClick={(e) => { e.stopPropagation(); setExpandedImage(viewingCase.slides[currentSlide].image_url); }}
+                          style={{ maxWidth: "100%", maxHeight: "calc(100% - 40px)", objectFit: "contain", borderRadius: 8, flexShrink: 0, cursor: "pointer" }}
                         />
                       )}
                       {viewingCase.slides[currentSlide].caption && (
@@ -265,6 +267,29 @@ const Cases = () => {
                 <div key={i} style={{ width: 8, height: 8, borderRadius: "50%", background: i === currentSlide ? "#fff" : "rgba(255,255,255,0.3)" }} />
               ))}
             </div>
+          </div>
+        )}
+
+        {/* ── Expanded image view ── */}
+        {expandedImage && (
+          <div style={{
+            position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+            zIndex: 200, background: "#000",
+            height: "100dvh", overflow: "scroll",
+            WebkitOverflowScrolling: "touch",
+          } as any}>
+            <button onClick={() => setExpandedImage(null)} style={{
+              position: "fixed", top: 16, right: 16, zIndex: 201,
+              background: "rgba(0,0,0,0.6)", border: "2px solid rgba(255,255,255,0.5)", borderRadius: "50%",
+              width: 44, height: 44, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer",
+            }}>
+              <X style={{ width: 22, height: 22, color: "#fff" }} />
+            </button>
+            <img
+              src={expandedImage}
+              alt=""
+              style={{ width: "100%", display: "block" }}
+            />
           </div>
         )}
 
