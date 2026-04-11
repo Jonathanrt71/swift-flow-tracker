@@ -615,7 +615,7 @@ const Feedback = () => {
 
 
   return (
-    <div className="min-h-screen bg-background" style={{ background: "#F5F3EE" }}>
+    <div style={{ minHeight: "100vh", background: "#F5F3EE" }}>
       <style>{`
         .underline-tab[data-state="active"] { color: #415162 !important; border-bottom: 2px solid #415162 !important; }
         .underline-tab[data-state="inactive"] { color: #8A9AAB !important; border-bottom: 2px solid transparent !important; }
