@@ -184,12 +184,26 @@ const Cases = () => {
 
   const isScheduled = (c: ClinicalCase) => c.scheduled_at && !isPast(parseISO(c.scheduled_at));
 
-  // Close expanded image on rotation to prevent zoom state bugs
+  // When expanded image is open: enable zoom in ALL orientations, close on rotate
   useEffect(() => {
     if (!expandedImage) return;
+    const meta = document.querySelector('meta[name="viewport"]');
+    if (meta) {
+      meta.setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover");
+    }
     const closeOnRotate = () => setExpandedImage(null);
     window.addEventListener("orientationchange", closeOnRotate);
-    return () => window.removeEventListener("orientationchange", closeOnRotate);
+    return () => {
+      window.removeEventListener("orientationchange", closeOnRotate);
+      // Let the App-level ViewportZoomManager re-apply the correct setting
+      if (meta) {
+        const isPortrait = window.matchMedia("(orientation: portrait)").matches;
+        meta.setAttribute("content", isPortrait
+          ? "width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover"
+          : "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+        );
+      }
+    };
   }, [expandedImage]);
 
   // ── Render ─────────────────────────────────────────────────────────────
