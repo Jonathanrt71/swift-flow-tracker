@@ -184,19 +184,12 @@ const Cases = () => {
 
   const isScheduled = (c: ClinicalCase) => c.scheduled_at && !isPast(parseISO(c.scheduled_at));
 
-  // Enable pinch-zoom when expanded image is open, close on rotation
+  // Close expanded image on rotation to prevent zoom state bugs
   useEffect(() => {
-    const meta = document.querySelector('meta[name="viewport"]');
-    if (!meta) return;
-    if (expandedImage) {
-      meta.setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover");
-      const closeOnRotate = () => setExpandedImage(null);
-      window.addEventListener("orientationchange", closeOnRotate);
-      return () => {
-        window.removeEventListener("orientationchange", closeOnRotate);
-        meta.setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover");
-      };
-    }
+    if (!expandedImage) return;
+    const closeOnRotate = () => setExpandedImage(null);
+    window.addEventListener("orientationchange", closeOnRotate);
+    return () => window.removeEventListener("orientationchange", closeOnRotate);
   }, [expandedImage]);
 
   // ── Render ─────────────────────────────────────────────────────────────

@@ -32,8 +32,30 @@ import Cases from "./pages/Cases.tsx";
 import Home from "./pages/Home.tsx";
 import Milestones from "./pages/Milestones.tsx";
 import ScrollToTop from "./components/ScrollToTop";
+import { useEffect } from "react";
 
 const queryClient = new QueryClient();
+
+// Allow pinch-zoom in portrait, lock in landscape (prevents iOS rotation zoom bug)
+const ViewportZoomManager = () => {
+  useEffect(() => {
+    const update = () => {
+      const meta = document.querySelector('meta[name="viewport"]');
+      if (!meta) return;
+      const isPortrait = window.matchMedia("(orientation: portrait)").matches;
+      if (isPortrait) {
+        meta.setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover");
+      } else {
+        meta.setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover");
+      }
+    };
+    update();
+    const mq = window.matchMedia("(orientation: portrait)");
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+  return null;
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -42,6 +64,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <ScrollToTop />
+        <ViewportZoomManager />
         <AuthProvider>
           <UserCategoryProvider>
           <div style={{ background: "#F5F3EE", minHeight: "100vh" }}>
