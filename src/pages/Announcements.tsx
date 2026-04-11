@@ -589,7 +589,7 @@ const Announcements = () => {
         </div>
       </header>
 
-      <main style={{ maxWidth: 900, margin: "0 auto", padding: "16px 16px 100px" }}>
+      <main style={{ maxWidth: 900, margin: "0 auto", padding: "12px 16px 100px" }}>
         {canEdit && (
           <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "8px 16px", marginBottom: 12, justifyContent: "flex-end" }}>
             <span onClick={() => setShowCompose(true)} style={{

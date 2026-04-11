@@ -296,7 +296,7 @@ const PatientSatisfaction = () => {
         </div>
       </header>
 
-      <main style={{ maxWidth: 900, margin: "0 auto", padding: "12px 24px 100px" }}>
+      <main style={{ maxWidth: 900, margin: "0 auto", padding: "12px 16px 100px" }}>
         {/* View mode tabs + Import */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
           <div style={{ display: "flex", gap: 16 }}>

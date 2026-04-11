@@ -135,7 +135,7 @@ const VisitDuration = () => {
         </div>
       </header>
 
-      <main style={{ padding: "12px 24px 100px", maxWidth: 1200, margin: "0 auto" }}>
+      <main style={{ padding: "12px 16px 100px", maxWidth: 1200, margin: "0 auto" }}>
 
         {isLoading ? (
           <div style={{ padding: 40, textAlign: "center" }}>
