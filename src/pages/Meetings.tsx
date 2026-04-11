@@ -268,7 +268,7 @@ const Meetings = () => {
         )}
       </header>
 
-      <main className="px-4 py-6" style={{ maxWidth: 900, margin: "0 auto" }}>
+      <main className="px-4 pt-3 pb-6" style={{ maxWidth: 900, margin: "0 auto" }}>
         {/* Category filter + Add button */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
           <div style={{ display: "flex", gap: 0 }}>

@@ -604,13 +604,13 @@ const Events = () => {
         )}
       </header>
 
-      <main className="px-4 pt-0 pb-4" style={{ maxWidth: viewMode === "gantt" ? undefined : 900, margin: "0 auto" }}>
+      <main className="px-4 pt-3 pb-4" style={{ maxWidth: viewMode === "gantt" ? undefined : 900, margin: "0 auto" }}>
 
         {/* Sticky filter bar below header */}
         <div className="sticky z-30 bg-background" style={{ top: 56 }}>
 
           {/* Row 1: Category tabs + Add button */}
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: 8 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <div style={{ display: "flex", gap: 0 }}>
               <button
                 onClick={handleAllClick}

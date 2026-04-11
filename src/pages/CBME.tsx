@@ -257,7 +257,7 @@ const CBME = () => {
         )}
       </header>
 
-      <main className="px-4 pt-2 pb-6" style={{ maxWidth: 900, margin: "0 auto" }}>
+      <main className="px-4 pt-3 pb-6" style={{ maxWidth: 900, margin: "0 auto" }}>
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <div className="flex items-center pb-2.5" style={{ justifyContent: "space-between" }}>
             <div style={{ display: "flex", gap: 16, alignItems: "center" }}>

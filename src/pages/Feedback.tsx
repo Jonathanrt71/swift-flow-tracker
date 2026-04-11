@@ -662,7 +662,7 @@ const Feedback = () => {
         )}
       </header>
 
-      <main className="px-4 pt-2 pb-6" style={{ maxWidth: 900, margin: "0 auto" }}>
+      <main className="px-4 pt-3 pb-6" style={{ maxWidth: 900, margin: "0 auto" }}>
         <Tabs value={viewMode} onValueChange={(v) => setViewMode(v)}>
         {/* Toolbar */}
         <div className="flex items-center justify-between pb-2.5">

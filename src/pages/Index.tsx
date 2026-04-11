@@ -318,7 +318,7 @@ const Index = () => {
         )}
       </header>
 
-      <main className="px-4 pt-2 pb-6" style={{ maxWidth: 900, margin: "0 auto" }}>
+      <main className="px-4 pt-3 pb-6" style={{ maxWidth: 900, margin: "0 auto" }}>
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <div className="flex items-center mb-4" style={{ gap: "8px 16px", flexWrap: "wrap", justifyContent: "space-between" }}>
             <TabsList className="gap-4 h-auto p-0 bg-transparent" style={{ borderRadius: 0, background: "transparent", flexWrap: "wrap" }}>
