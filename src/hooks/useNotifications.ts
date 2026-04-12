@@ -93,6 +93,17 @@ export function useNotifications() {
 
   const unreadCount = (query.data || []).filter((n) => !n.is_read).length;
 
+  // Sync unread count to PWA home screen badge (iOS 16.4+, Chrome, Edge)
+  useEffect(() => {
+    if ("setAppBadge" in navigator) {
+      if (unreadCount > 0) {
+        navigator.setAppBadge(unreadCount).catch(() => {});
+      } else {
+        navigator.clearAppBadge().catch(() => {});
+      }
+    }
+  }, [unreadCount]);
+
   return {
     notifications: query.data || [],
     unreadCount,
