@@ -138,8 +138,9 @@ const VisitDuration = () => {
   const phase2StartIdx = rows.findIndex((r) => r.phase === 2);
 
   // Detect shift point: first run of 6+ consecutive Phase 2 points below Phase 1 median
-  // The shift is confirmed at the 6th consecutive point — that's where the new median begins
-  let shiftConfirmedIdx = -1;
+  // The shift is confirmed at the 6th consecutive point
+  // The NEW median starts at the next point (7th onward)
+  let shiftConfirmedIdx = -1; // index of the 6th triggering point
   if (phase2StartIdx > 0 && p1.median > 0) {
     let runStart = phase2StartIdx;
     for (let i = phase2StartIdx; i < rows.length; i++) {
@@ -154,29 +155,33 @@ const VisitDuration = () => {
     }
   }
 
-  // Phase 2 median is calculated from the shift point onward (post-shift data only)
-  const p2 = shiftConfirmedIdx >= 0
+  // The new baseline starts at the point AFTER the shift is confirmed
+  const newBaselineStartIdx = shiftConfirmedIdx >= 0 ? shiftConfirmedIdx + 1 : -1;
+
+  // Phase 2 median is calculated from after the shift (excludes the 6 triggering points)
+  const p2 = newBaselineStartIdx >= 0 && newBaselineStartIdx < rows.length
     ? (() => {
-        const postShiftVals = rows.slice(shiftConfirmedIdx).map(r => r.median_minutes).sort((a, b) => a - b);
+        const postShiftVals = rows.slice(newBaselineStartIdx).map(r => r.median_minutes).sort((a, b) => a - b);
+        if (postShiftVals.length === 0) return { median: 0, n: 0 };
         const mid = Math.floor(postShiftVals.length / 2);
         const median = postShiftVals.length % 2 === 0 ? (postShiftVals[mid - 1] + postShiftVals[mid]) / 2 : postShiftVals[mid];
         return { median: Math.round(median * 10) / 10, n: postShiftVals.length };
       })()
     : phaseMedian(rows, 2);
 
-  // Build chart data — Phase 1 median extends until shift confirmed, Phase 2 starts at shift
+  // Build chart data — baseline median extends through shift, new median starts after
   const chartData = rows.map((r, i) => ({
     idx: i,
     label: r.week_label,
     value: r.median_minutes,
     phase: r.phase,
-    median: (shiftConfirmedIdx >= 0 && i >= shiftConfirmedIdx) ? p2.median : p1.median,
-    // Phase 1 median line: from start through shift point (or end if no shift)
-    med1: (shiftConfirmedIdx >= 0 ? i < shiftConfirmedIdx : true) ? p1.median : undefined,
-    // Phase 2 median line: from shift point onward
-    med2: (shiftConfirmedIdx >= 0 && i >= shiftConfirmedIdx) ? p2.median : undefined,
-    // Faint Phase 1 reference line extending into Phase 2 territory
-    med1ref: (shiftConfirmedIdx >= 0 && i >= shiftConfirmedIdx) ? p1.median : undefined,
+    median: (newBaselineStartIdx >= 0 && i >= newBaselineStartIdx) ? p2.median : p1.median,
+    // Baseline median line: from start through the 6th triggering point
+    med1: (newBaselineStartIdx >= 0 ? i < newBaselineStartIdx : true) ? p1.median : undefined,
+    // Post-shift median line: from the 7th point onward
+    med2: (newBaselineStartIdx >= 0 && i >= newBaselineStartIdx) ? p2.median : undefined,
+    // Faint baseline reference line extending past shift
+    med1ref: (newBaselineStartIdx >= 0 && i >= newBaselineStartIdx) ? p1.median : undefined,
   }));
 
   // Detect run chart signals within each phase
@@ -364,21 +369,21 @@ const VisitDuration = () => {
                 <LineChart data={chartData} margin={{ top: 20, right: 60, bottom: 30, left: 10 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#E7EBEF" />
 
-                  {/* Phase shading — divides at shift confirmation, not academic year */}
-                  {shiftConfirmedIdx > 0 && (
+                  {/* Phase shading — divides where the new median begins */}
+                  {newBaselineStartIdx > 0 && (
                     <>
-                      <ReferenceArea x1={0} x2={shiftConfirmedIdx - 1} fill="#415162" fillOpacity={0.04} />
-                      <ReferenceArea x1={shiftConfirmedIdx} x2={chartData.length - 1} fill="#4A846C" fillOpacity={0.04} />
+                      <ReferenceArea x1={0} x2={newBaselineStartIdx - 1} fill="#415162" fillOpacity={0.04} />
+                      <ReferenceArea x1={newBaselineStartIdx} x2={chartData.length - 1} fill="#4A846C" fillOpacity={0.04} />
                     </>
                   )}
 
-                  {/* Shift divider */}
-                  {shiftConfirmedIdx > 0 && (
-                    <ReferenceLine x={shiftConfirmedIdx} stroke="#C9CED4" strokeDasharray="4 4" strokeWidth={1} />
+                  {/* New baseline divider */}
+                  {newBaselineStartIdx > 0 && (
+                    <ReferenceLine x={newBaselineStartIdx} stroke="#C9CED4" strokeDasharray="4 4" strokeWidth={1} />
                   )}
 
                   {/* Academic year boundary (lighter reference) */}
-                  {phase2StartIdx > 0 && phase2StartIdx !== shiftConfirmedIdx && (
+                  {phase2StartIdx > 0 && phase2StartIdx !== newBaselineStartIdx && (
                     <ReferenceLine x={phase2StartIdx} stroke="#D5DAE0" strokeDasharray="2 4" strokeWidth={1} />
                   )}
 
