@@ -86,17 +86,114 @@ const acgmeConfig: Record<AcgmeLevel, { label: string; color: string; bg: string
   none: { label: "None", color: "#8A9AAB", bg: "#E7EBEF" },
 };
 
+// ── Rollout Plan ──
+interface RolloutPhase {
+  phase: number;
+  title: string;
+  timing: string;
+  audience: string;
+  rationale: string;
+  features: { name: string; description: string }[];
+}
+
+const rolloutPlan: RolloutPhase[] = [
+  {
+    phase: 0,
+    title: "Early Adoption",
+    timing: "May – June 2026",
+    audience: "Current PGY-1s & PGY-2s (rising PGY-2s & PGY-3s)",
+    rationale: "Introduce core reference features before the academic year turns over. Rising seniors become familiar with the app and can model usage for incoming interns. No new workflows — just consumption.",
+    features: [
+      { name: "Handbook & Operations", description: "Program policies, protocols, and reference material available in-app." },
+      { name: "Block Schedule", description: "Rotation schedule visible to all residents." },
+      { name: "Announcements", description: "Program communications delivered through the app — establishes the habit of opening it." },
+      { name: "Feedback (Faculty)", description: "Faculty begin submitting short coaching notes with thumbs up/down sentiment. Residents see feedback about themselves." },
+    ],
+  },
+  {
+    phase: 1,
+    title: "Resident Home & Learning Plan",
+    timing: "July 2026 (New Academic Year)",
+    audience: "All residents + faculty",
+    rationale: "New interns arrive to a platform that rising residents already use. Replace the default landing page with My Learning Plan — rotation header, focus topics, quick actions. Introduce topic selection for the first rotation. Residents experience agency from day one.",
+    features: [
+      { name: "My Learning Plan (Home)", description: "Resident-facing dashboard showing current rotation, focus topics, progress, and upcoming items." },
+      { name: "Topic Selection", description: "Core topics locked, elective topics selectable. Residents choose focus areas for each rotation block." },
+      { name: "Clinical Stakes Framing", description: "\"What's at stake for the patient\" context on every topic — connects learning to patient outcomes." },
+    ],
+  },
+  {
+    phase: 2,
+    title: "Peer Layer & Self-Directed Learning",
+    timing: "August – September 2026",
+    audience: "All residents",
+    rationale: "With learning plans established, activate the social and self-directed learning features. Peer practice creates relatedness. ILP tracking gives residents ownership of board prep. Both features require minimal faculty involvement.",
+    features: [
+      { name: "Peer Practice", description: "Residents pair up to practice clinical skills. Structured feedback with consequence-awareness prompt. \"Peers Looking for Partners\" board for self-organizing." },
+      { name: "ILP / Practice Questions", description: "Self-reported board prep tracking. Residents choose source, volume, and schedule. Monthly log with weak-area identification." },
+      { name: "Self-Assessment Layer", description: "First layer of the 4-tier assessment model (Self → Peer → Chief → Faculty). Residents self-assess on selected topics." },
+    ],
+  },
+  {
+    phase: 3,
+    title: "Faculty Integration & Precepting",
+    timing: "October – November 2026",
+    audience: "Faculty + residents",
+    rationale: "Faculty are now seeing resident feedback in the app. Layer in the precepting prompt and coaching note workflow. Faculty features should feel like teaching aids, not documentation burden. Start with the consequence question as an optional prompt during precepting.",
+    features: [
+      { name: "Precepting Prompt", description: "\"What happens to this patient if we get this wrong?\" — teaching moment prompt visible to faculty during precepting. Shows resident's current focus topics for context." },
+      { name: "Faculty Coaching Notes", description: "Quick micro-feedback tied to specific topics. 30 seconds, not 15 minutes. Notes route to the resident's topic detail." },
+      { name: "Peer Assessment Layer", description: "Second assessment tier activated. Peer practice sessions generate peer assessment data." },
+    ],
+  },
+  {
+    phase: 4,
+    title: "Assessment Progression & AHD",
+    timing: "December 2026 – January 2027",
+    audience: "All residents + chief residents + faculty",
+    rationale: "By now residents understand the platform philosophy. Activate the full assessment ladder and the AHD presentation template. Chief residents begin conducting reviews. Faculty assessment becomes the final validation layer.",
+    features: [
+      { name: "Chief Resident Review Layer", description: "Third assessment tier. Chief residents review topic competency after peer assessment is complete." },
+      { name: "Faculty Assessment Layer", description: "Fourth and final assessment tier. Faculty validate competency demonstrations. Unlocks after chief review." },
+      { name: "AHD Template with \"What's at Stake\"", description: "Structured AHD presentation template with required clinical consequences section. Residents choose topic, format, and style." },
+      { name: "Scholarly Activity Tracking", description: "Project registry with status workflow — QI, case report, research, community health. Progress milestones with clinical stakes framing." },
+    ],
+  },
+  {
+    phase: 5,
+    title: "Contribution & Community",
+    timing: "February – March 2027",
+    audience: "All residents",
+    rationale: "Residents now have enough context to make meaningful choices about where to invest beyond clinical training. The reflection-before-commitment model ensures intentional engagement rather than checkbox participation.",
+    features: [
+      { name: "\"How Can I Contribute?\"", description: "Reflection prompt, program committee opportunities, community outreach, and resident-initiated ideas with \"Express Interest\" model." },
+      { name: "Resident-Initiated Proposals", description: "Residents propose new initiatives. Peers signal interest. Program leadership reviews and approves." },
+    ],
+  },
+];
+
+const phaseColors = [
+  { bg: "#E7EBEF", border: "#415162", text: "#415162" },
+  { bg: "#DBEAFE", border: "#1E40AF", text: "#1E40AF" },
+  { bg: "#E4F0EB", border: "#2D6A4F", text: "#2D6A4F" },
+  { bg: "#FEF3C7", border: "#B45309", text: "#92400E" },
+  { bg: "#FCEAEA", border: "#9F2929", text: "#9F2929" },
+  { bg: "#EEEDFE", border: "#3C3489", text: "#3C3489" },
+];
+
 const allCategories = [...new Set(items.map((i) => i.category))].sort();
 const allAcgmeLevels: AcgmeLevel[] = ["critical", "high", "medium", "low", "none"];
 
 const Roadmap = () => {
   const { signOut } = useAuth();
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState<"rollout" | "features">("rollout");
   const [tierFilter, setTierFilter] = useState<Tier | "all">("all");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [acgmeFilter, setAcgmeFilter] = useState<AcgmeLevel | "all">("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
+  const [expandedPhases, setExpandedPhases] = useState<Set<number>>(new Set([0]));
 
   const filtered = useMemo(() => {
     let result = items;
@@ -118,6 +215,14 @@ const Roadmap = () => {
     setExpandedItems((prev) => {
       const next = new Set(prev);
       next.has(name) ? next.delete(name) : next.add(name);
+      return next;
+    });
+  };
+
+  const togglePhase = (phase: number) => {
+    setExpandedPhases((prev) => {
+      const next = new Set(prev);
+      next.has(phase) ? next.delete(phase) : next.add(phase);
       return next;
     });
   };
@@ -147,12 +252,196 @@ const Roadmap = () => {
 
       <main style={{ maxWidth: 860, margin: "0 auto", padding: "20px 16px 40px" }}>
         {/* Title */}
-        <div style={{ marginBottom: 20 }}>
+        <div style={{ marginBottom: 16 }}>
           <h1 style={{ fontSize: 20, fontWeight: 700, color: "#2D3748", margin: 0 }}>Roadmap</h1>
           <p style={{ fontSize: 13, color: "#5F7285", margin: "4px 0 0" }}>
-            {items.length} functions to build — ranked by complexity with ACGME importance
+            Release plan and feature inventory
           </p>
         </div>
+
+        {/* Tabs */}
+        <div style={{ display: "flex", gap: 0, marginBottom: 20, borderBottom: "1px solid #D5DAE0" }}>
+          {([
+            { key: "rollout" as const, label: "Release Plan" },
+            { key: "features" as const, label: "Feature Inventory" },
+          ]).map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              style={{
+                padding: "10px 18px",
+                border: "none",
+                background: "none",
+                cursor: "pointer",
+                fontSize: 14,
+                fontWeight: activeTab === tab.key ? 600 : 500,
+                color: activeTab === tab.key ? "#415162" : "#8A9AAB",
+                borderBottom: activeTab === tab.key ? "2px solid #415162" : "2px solid transparent",
+                transition: "all 0.15s",
+              }}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* ═══ ROLLOUT PLAN TAB ═══ */}
+        {activeTab === "rollout" && (
+          <div>
+            {/* Strategy summary */}
+            <div style={{
+              background: "#415162",
+              borderRadius: 10,
+              padding: "16px 20px",
+              marginBottom: 20,
+              color: "#C9CED4",
+              fontSize: 13,
+              lineHeight: 1.7,
+            }}>
+              <div style={{ fontWeight: 700, color: "#fff", marginBottom: 6, fontSize: 14 }}>
+                Rollout Strategy
+              </div>
+              <div style={{ fontSize: 12, color: "#C9CED4", lineHeight: 1.7 }}>
+                Launch core reference features to current residents before the academic year ends so rising PGY-2s and PGY-3s
+                build familiarity first. They become the model users when new interns arrive in July. Each phase builds on the
+                previous one — no phase requires understanding features that haven't been introduced yet.
+              </div>
+              <div style={{ display: "flex", gap: 12, marginTop: 12, flexWrap: "wrap" }}>
+                <div style={{ fontSize: 11, color: "#8A9AAB" }}>
+                  <span style={{ color: "#fff", fontWeight: 600 }}>Phase 0:</span> Pre-launch (current residents)
+                </div>
+                <div style={{ fontSize: 11, color: "#8A9AAB" }}>
+                  <span style={{ color: "#fff", fontWeight: 600 }}>Phases 1–5:</span> Academic year rollout
+                </div>
+                <div style={{ fontSize: 11, color: "#8A9AAB" }}>
+                  <span style={{ color: "#fff", fontWeight: 600 }}>Total span:</span> ~10 months
+                </div>
+              </div>
+            </div>
+
+            {/* Timeline */}
+            {rolloutPlan.map((phase) => {
+              const pc = phaseColors[phase.phase] || phaseColors[0];
+              const isExpanded = expandedPhases.has(phase.phase);
+
+              return (
+                <div key={phase.phase} style={{ marginBottom: 10 }}>
+                  <div
+                    onClick={() => togglePhase(phase.phase)}
+                    style={{
+                      background: "#fff",
+                      borderRadius: 10,
+                      border: `1px solid #D5DAE0`,
+                      borderLeft: `4px solid ${pc.border}`,
+                      overflow: "hidden",
+                      cursor: "pointer",
+                    }}
+                  >
+                    {/* Phase header */}
+                    <div style={{
+                      padding: "14px 16px",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 12,
+                    }}>
+                      <div style={{
+                        width: 32,
+                        height: 32,
+                        borderRadius: "50%",
+                        background: pc.border,
+                        color: "#fff",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: 14,
+                        fontWeight: 700,
+                        flexShrink: 0,
+                      }}>
+                        {phase.phase}
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: 14, fontWeight: 700, color: "#2D3748" }}>
+                          {phase.title}
+                        </div>
+                        <div style={{ fontSize: 11, color: "#8A9AAB", marginTop: 2 }}>
+                          {phase.timing} · {phase.audience}
+                        </div>
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <span style={{
+                          fontSize: 10,
+                          fontWeight: 600,
+                          color: pc.text,
+                          background: pc.bg,
+                          padding: "3px 8px",
+                          borderRadius: 4,
+                        }}>
+                          {phase.features.length} feature{phase.features.length !== 1 ? "s" : ""}
+                        </span>
+                        <span style={{
+                          fontSize: 10,
+                          color: "#8A9AAB",
+                          transform: isExpanded ? "rotate(180deg)" : "rotate(0)",
+                          transition: "transform 0.15s",
+                        }}>
+                          ▼
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Expanded content */}
+                    {isExpanded && (
+                      <div style={{ padding: "0 16px 16px", borderTop: "1px solid #E7EBEF" }}>
+                        {/* Rationale */}
+                        <p style={{
+                          fontSize: 12,
+                          color: "#5F7285",
+                          lineHeight: 1.6,
+                          margin: "12px 0",
+                          fontStyle: "italic",
+                        }}>
+                          {phase.rationale}
+                        </p>
+
+                        {/* Features list */}
+                        {phase.features.map((feature, i) => (
+                          <div key={i} style={{
+                            display: "flex",
+                            alignItems: "flex-start",
+                            gap: 10,
+                            padding: "8px 0",
+                            borderBottom: i < phase.features.length - 1 ? "1px solid #E7EBEF" : "none",
+                          }}>
+                            <div style={{
+                              width: 6,
+                              height: 6,
+                              borderRadius: "50%",
+                              background: pc.border,
+                              flexShrink: 0,
+                              marginTop: 6,
+                            }} />
+                            <div>
+                              <div style={{ fontSize: 13, fontWeight: 600, color: "#2D3748" }}>
+                                {feature.name}
+                              </div>
+                              <div style={{ fontSize: 12, color: "#5F7285", marginTop: 2, lineHeight: 1.5 }}>
+                                {feature.description}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* ═══ FEATURE INVENTORY TAB ═══ */}
+        {activeTab === "features" && (
+          <div>
 
         {/* Tier summary cards */}
         <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
@@ -444,6 +733,8 @@ const Roadmap = () => {
             Prioritize by cross-referencing difficulty with ACGME importance. The highest-value targets are ACGME Critical items in the Easy tier (ACGME Survey Tracking) and ACGME Critical items in Moderate (Scholarly Activity, Rotation G&Os, Remediation, Self-Study, Integrated Evaluations). Hard-tier Critical items (Leave, Graduation, APE, CCC, Continuity) are essential but can be sequenced across multiple build sessions.
           </div>
         </div>
+          </div>
+        )}
       </main>
     </div>
   );
