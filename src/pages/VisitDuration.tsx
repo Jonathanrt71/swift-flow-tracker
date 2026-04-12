@@ -22,14 +22,67 @@ interface VisitDurationRow {
   phase: number;
 }
 
-// Compute phase stats from data
-function phaseStats(rows: VisitDurationRow[], phase: number) {
-  const vals = rows.filter((r) => r.phase === phase).map((r) => r.median_minutes);
-  if (vals.length === 0) return { mean: 0, ucl: 0, lcl: 0, n: 0 };
-  const mean = vals.reduce((a, b) => a + b, 0) / vals.length;
-  const variance = vals.reduce((a, b) => a + (b - mean) ** 2, 0) / (vals.length - 1);
-  const sd = Math.sqrt(variance);
-  return { mean: Math.round(mean * 10) / 10, ucl: Math.round((mean + 3 * sd) * 10) / 10, lcl: Math.round((mean - 3 * sd) * 10) / 10, n: vals.length };
+// Compute phase median for run chart
+function phaseMedian(rows: VisitDurationRow[], phase: number) {
+  const vals = rows.filter((r) => r.phase === phase).map((r) => r.median_minutes).sort((a, b) => a - b);
+  if (vals.length === 0) return { median: 0, n: 0 };
+  const mid = Math.floor(vals.length / 2);
+  const median = vals.length % 2 === 0 ? (vals[mid - 1] + vals[mid]) / 2 : vals[mid];
+  return { median: Math.round(median * 10) / 10, n: vals.length };
+}
+
+// Run chart signal detection
+type Signal = { startIdx: number; endIdx: number; type: "shift" | "trend" };
+
+function detectRunChartSignals(chartData: { value: number; median: number }[]): Signal[] {
+  const signals: Signal[] = [];
+
+  // Shift detection: 6+ consecutive points all above or all below the median
+  let runStart = 0;
+  let runSide: "above" | "below" | null = null;
+  for (let i = 0; i < chartData.length; i++) {
+    const d = chartData[i];
+    const side = d.value > d.median ? "above" : d.value < d.median ? "below" : null;
+    if (side === null) {
+      // Point on median — check if prior run qualifies
+      if (runSide !== null && i - runStart >= 6) {
+        signals.push({ startIdx: runStart, endIdx: i - 1, type: "shift" });
+      }
+      runStart = i + 1;
+      runSide = null;
+    } else if (side !== runSide) {
+      if (runSide !== null && i - runStart >= 6) {
+        signals.push({ startIdx: runStart, endIdx: i - 1, type: "shift" });
+      }
+      runStart = i;
+      runSide = side;
+    }
+  }
+  if (runSide !== null && chartData.length - runStart >= 6) {
+    signals.push({ startIdx: runStart, endIdx: chartData.length - 1, type: "shift" });
+  }
+
+  // Trend detection: 5+ consecutive points all increasing or all decreasing
+  let trendStart = 0;
+  let trendDir: "up" | "down" | null = null;
+  for (let i = 1; i < chartData.length; i++) {
+    const dir = chartData[i].value > chartData[i - 1].value ? "up" : chartData[i].value < chartData[i - 1].value ? "down" : null;
+    if (dir === null || (trendDir !== null && dir !== trendDir)) {
+      if (trendDir !== null && i - trendStart >= 5) {
+        signals.push({ startIdx: trendStart, endIdx: i - 1, type: "trend" });
+      }
+      trendStart = dir === null ? i : i - 1;
+      trendDir = dir;
+    } else if (trendDir === null) {
+      trendStart = i - 1;
+      trendDir = dir;
+    }
+  }
+  if (trendDir !== null && chartData.length - trendStart >= 5) {
+    signals.push({ startIdx: trendStart, endIdx: chartData.length - 1, type: "trend" });
+  }
+
+  return signals;
 }
 
 const VisitDuration = () => {
@@ -79,28 +132,25 @@ const VisitDuration = () => {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["visit_duration"] }),
   });
 
-  const p1 = phaseStats(rows, 1);
-  const p2 = phaseStats(rows, 2);
+  const p1 = phaseMedian(rows, 1);
+  const p2 = phaseMedian(rows, 2);
 
   // Find the index where phase 2 starts
   const phase2StartIdx = rows.findIndex((r) => r.phase === 2);
 
-  // Build chart data with separate keys per phase for control lines
+  // Build chart data for run chart (median centerline, no UCL/LCL)
   const chartData = rows.map((r, i) => ({
     idx: i,
     label: r.week_label,
     value: r.median_minutes,
     phase: r.phase,
-    cl: r.phase === 1 ? p1.mean : p2.mean,
-    ucl: r.phase === 1 ? p1.ucl : p2.ucl,
-    lcl: r.phase === 1 ? p1.lcl : p2.lcl,
-    cl1: r.phase === 1 ? p1.mean : undefined,
-    ucl1: r.phase === 1 ? p1.ucl : undefined,
-    lcl1: r.phase === 1 ? p1.lcl : undefined,
-    cl2: r.phase === 2 ? p2.mean : undefined,
-    ucl2: r.phase === 2 ? p2.ucl : undefined,
-    lcl2: r.phase === 2 ? p2.lcl : undefined,
+    median: r.phase === 1 ? p1.median : p2.median,
+    med1: r.phase === 1 ? p1.median : undefined,
+    med2: r.phase === 2 ? p2.median : undefined,
   }));
+
+  // Detect run chart signals
+  const signals = detectRunChartSignals(chartData);
 
   const handleAdd = () => {
     if (!weekLabel.trim() || !weekStart || !medianMin) return;
@@ -111,27 +161,35 @@ const VisitDuration = () => {
   const CustomTooltip = ({ active, payload }: any) => {
     if (!active || !payload?.length) return null;
     const d = payload[0].payload;
+    // Check if this point is in a signal
+    const sig = signals.find(s => d.idx >= s.startIdx && d.idx <= s.endIdx);
     return (
       <div style={{ background: "#fff", border: "1px solid #C9CED4", borderRadius: 6, padding: "8px 12px", fontSize: 12, boxShadow: "0 2px 8px rgba(0,0,0,0.12)" }}>
         <div style={{ fontWeight: 600, color: "#2D3748", marginBottom: 2 }}>{d.label}</div>
-        <div style={{ color: "#415162" }}>Median: <strong>{d.value} min</strong></div>
-        <div style={{ color: "#8A9AAB", fontSize: 11 }}>CL: {d.cl} · UCL: {d.ucl} · LCL: {d.lcl}</div>
+        <div style={{ color: "#415162" }}>Median LOS: <strong>{d.value} min</strong></div>
+        <div style={{ color: "#8A9AAB", fontSize: 11 }}>Centerline: {d.median} min</div>
+        {sig && (
+          <div style={{ fontSize: 10, marginTop: 3, fontWeight: 500, color: sig.type === "shift" ? "#A04040" : "#185FA5" }}>
+            {sig.type === "shift" ? "⬤ Shift signal" : "⬤ Trend signal"}
+          </div>
+        )}
       </div>
     );
   };
 
-  // Dot renderer — red if outside limits
+  // Dot renderer — color by signal type
   const renderDot = (props: any) => {
     const { cx, cy, payload } = props;
     if (cx == null || cy == null) return null;
-    const oob = payload.value > payload.ucl || payload.value < payload.lcl;
-    return <circle cx={cx} cy={cy} r={oob ? 4.5 : 2.5} fill={oob ? "#A04040" : "#415162"} stroke="none" />;
+    const sig = signals.find(s => payload.idx >= s.startIdx && payload.idx <= s.endIdx);
+    const fill = sig ? (sig.type === "shift" ? "#A04040" : "#185FA5") : "#415162";
+    return <circle cx={cx} cy={cy} r={sig ? 4 : 2.5} fill={fill} stroke="none" />;
   };
 
   // Y axis range
   const allVals = rows.map((r) => r.median_minutes);
-  const yMin = Math.max(0, Math.floor((Math.min(...allVals, p1.lcl, p2.lcl) - 5) / 10) * 10);
-  const yMax = Math.ceil((Math.max(...allVals, p1.ucl, p2.ucl) + 5) / 10) * 10;
+  const yMin = Math.max(0, Math.floor((Math.min(...allVals) - 10) / 10) * 10);
+  const yMax = Math.ceil((Math.max(...allVals) + 10) / 10) * 10;
 
   return (
     <div style={{ minHeight: "100vh", background: "#F5F3EE" }}>
@@ -183,13 +241,13 @@ const VisitDuration = () => {
                 <div style={{ background: "#E7EBEF", borderRadius: 8, padding: "10px 16px" }}>
                   <div style={{ fontSize: 11, color: "#5F7285", marginBottom: 2 }}>AY 2024-25</div>
                   <div style={{ fontSize: 14, fontWeight: 600, color: "#415162" }}>
-                    CL {p1.mean} <span style={{ fontWeight: 400, fontSize: 12, color: "#5F7285" }}>· UCL {p1.ucl} · LCL {p1.lcl} · n={p1.n}</span>
+                    Median {p1.median} min <span style={{ fontWeight: 400, fontSize: 12, color: "#5F7285" }}>· n={p1.n}</span>
                   </div>
                 </div>
                 <div style={{ background: "#E4F0EB", borderRadius: 8, padding: "10px 16px" }}>
                   <div style={{ fontSize: 11, color: "#3B6D11", marginBottom: 2 }}>AY 2025-26</div>
                   <div style={{ fontSize: 14, fontWeight: 600, color: "#27500A" }}>
-                    CL {p2.mean} <span style={{ fontWeight: 400, fontSize: 12, color: "#3B6D11" }}>· UCL {p2.ucl} · LCL {p2.lcl} · n={p2.n}</span>
+                    Median {p2.median} min <span style={{ fontWeight: 400, fontSize: 12, color: "#3B6D11" }}>· n={p2.n}</span>
                   </div>
                 </div>
               </div>
@@ -246,7 +304,7 @@ const VisitDuration = () => {
               </div>
             )}
 
-            {/* Control chart */}
+            {/* Run chart */}
             <div style={{ background: "#fff", border: "1px solid #D5DAE0", borderRadius: 10, padding: "16px 12px 8px", marginBottom: 20 }}>
               <div style={{ width: "100%", overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
                 <div style={{ minWidth: 900, height: 420 }}>
@@ -287,18 +345,10 @@ const VisitDuration = () => {
                   />
                   <Tooltip content={<CustomTooltip />} />
 
-                  {/* Phase 1 CL */}
-                  <Line type="linear" dataKey="cl1" stroke="#415162" strokeWidth={2} dot={false} activeDot={false} isAnimationActive={false} connectNulls={false} />
-                  {/* Phase 1 UCL */}
-                  <Line type="linear" dataKey="ucl1" stroke="#A04040" strokeWidth={1.2} strokeDasharray="6 4" dot={false} activeDot={false} isAnimationActive={false} connectNulls={false} />
-                  {/* Phase 1 LCL */}
-                  <Line type="linear" dataKey="lcl1" stroke="#A04040" strokeWidth={1.2} strokeDasharray="6 4" dot={false} activeDot={false} isAnimationActive={false} connectNulls={false} />
-                  {/* Phase 2 CL */}
-                  <Line type="linear" dataKey="cl2" stroke="#4A846C" strokeWidth={2} dot={false} activeDot={false} isAnimationActive={false} connectNulls={false} />
-                  {/* Phase 2 UCL */}
-                  <Line type="linear" dataKey="ucl2" stroke="#A04040" strokeWidth={1.2} strokeDasharray="6 4" dot={false} activeDot={false} isAnimationActive={false} connectNulls={false} />
-                  {/* Phase 2 LCL */}
-                  <Line type="linear" dataKey="lcl2" stroke="#A04040" strokeWidth={1.2} strokeDasharray="6 4" dot={false} activeDot={false} isAnimationActive={false} connectNulls={false} />
+                  {/* Phase 1 median centerline */}
+                  <Line type="linear" dataKey="med1" stroke="#415162" strokeWidth={2} strokeDasharray="8 4" dot={false} activeDot={false} isAnimationActive={false} connectNulls={false} />
+                  {/* Phase 2 median centerline */}
+                  <Line type="linear" dataKey="med2" stroke="#4A846C" strokeWidth={2} strokeDasharray="8 4" dot={false} activeDot={false} isAnimationActive={false} connectNulls={false} />
 
                   {/* Data line */}
                   <Line
@@ -314,6 +364,49 @@ const VisitDuration = () => {
               </ResponsiveContainer>
               </div>
               </div>
+            </div>
+
+            {/* Signal legend */}
+            {signals.length > 0 && (
+              <div style={{ background: "#E7EBEF", border: "1px solid #C9CED4", borderRadius: 10, padding: "12px 16px", marginBottom: 20 }}>
+                <div style={{ fontSize: 12, fontWeight: 500, color: "#2D3748", marginBottom: 8 }}>Run chart signals detected</div>
+                {signals.map((s, i) => (
+                  <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: i < signals.length - 1 ? 6 : 0 }}>
+                    <span style={{
+                      width: 8, height: 8, borderRadius: "50%", flexShrink: 0,
+                      background: s.type === "shift" ? "#A04040" : "#185FA5",
+                    }} />
+                    <span style={{ fontSize: 12, color: "#3D3D3A" }}>
+                      <strong style={{ fontWeight: 600 }}>{s.type === "shift" ? "Shift" : "Trend"}</strong>
+                      {" — "}
+                      {s.type === "shift"
+                        ? `${s.endIdx - s.startIdx + 1} consecutive points ${chartData[s.startIdx]?.value > chartData[s.startIdx]?.median ? "above" : "below"} median`
+                        : `${s.endIdx - s.startIdx + 1} consecutive points ${chartData[s.endIdx]?.value > chartData[s.startIdx]?.value ? "increasing" : "decreasing"}`
+                      }
+                      <span style={{ color: "#8A9AAB" }}> (weeks {chartData[s.startIdx]?.label} → {chartData[s.endIdx]?.label})</span>
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Chart legend */}
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 16, marginBottom: 16, fontSize: 11, color: "#8A9AAB" }}>
+              <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#415162" }} /> Data point
+              </span>
+              <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                <span style={{ width: 16, height: 0, borderTop: "2px dashed #415162" }} /> Phase 1 median
+              </span>
+              <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                <span style={{ width: 16, height: 0, borderTop: "2px dashed #4A846C" }} /> Phase 2 median
+              </span>
+              <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#A04040" }} /> Shift signal
+              </span>
+              <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#185FA5" }} /> Trend signal
+              </span>
             </div>
 
             {/* Data table */}
