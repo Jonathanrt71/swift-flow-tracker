@@ -119,16 +119,13 @@ export default function DeidentifyReview({ monthLabel, rows, onCancel, onSave, s
     onSave(updatedRows);
   };
 
-  // Highlight a name within comment text
+  // Highlight a name within the full comment text
   const renderHighlightedComment = (comment: string, nameText: string) => {
     const idx = comment.toLowerCase().indexOf(nameText.toLowerCase());
     if (idx === -1) return <span>{comment}</span>;
-    // Show context around the name (up to 40 chars before and after)
-    const contextStart = Math.max(0, idx - 40);
-    const contextEnd = Math.min(comment.length, idx + nameText.length + 40);
-    const before = (contextStart > 0 ? "..." : "") + comment.slice(contextStart, idx);
+    const before = comment.slice(0, idx);
     const highlighted = comment.slice(idx, idx + nameText.length);
-    const after = comment.slice(idx + nameText.length, contextEnd) + (contextEnd < comment.length ? "..." : "");
+    const after = comment.slice(idx + nameText.length);
 
     return (
       <span>
@@ -258,10 +255,14 @@ export default function DeidentifyReview({ monthLabel, rows, onCancel, onSave, s
                     }}>{cfg.label}</span>
                   </div>
 
-                  {/* Comment context with highlighted name */}
+                  {/* Comment with provider and highlighted name */}
                   <div style={{ fontSize: 12, color: "#5F7285", marginBottom: 8, lineHeight: 1.5 }}>
-                    <span style={{ color: "#8A9AAB" }}>{item.section} • </span>
-                    {renderHighlightedComment(item.commentSnippet, item.text)}
+                    <span style={{ color: "#415162", fontWeight: 600 }}>{item.provider}</span>
+                    <span style={{ color: "#C9CED4" }}> · </span>
+                    <span style={{ color: "#8A9AAB" }}>{item.section}</span>
+                    <div style={{ marginTop: 4 }}>
+                      {renderHighlightedComment(item.commentSnippet, item.text)}
+                    </div>
                   </div>
 
                   {/* Action buttons */}
