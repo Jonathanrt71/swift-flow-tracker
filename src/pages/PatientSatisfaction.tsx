@@ -3,10 +3,14 @@ import { Upload } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePermissions } from "@/hooks/usePermissions";
 import { useAdmin } from "@/hooks/useAdmin";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useDeidentifyNames } from "@/hooks/useDeidentifyNames";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import HeaderLogo from "@/components/HeaderLogo";
 import NotificationBell from "@/components/NotificationBell";
+import DeidentifyReview from "@/components/patient-satisfaction/DeidentifyReview";
+import { parsePressGaneyPdf } from "@/lib/parsePressGaneyPdf";
+import { detectNamesInText, applyDeidentification, matchProviderToProfile } from "@/lib/deidentify";
 
 interface PatientComment {
   id: string;
@@ -82,6 +86,15 @@ const PatientSatisfaction = () => {
   const [providerFilter, setProviderFilter] = useState("all");
   const [importing, setImporting] = useState(false);
   const [importStatus, setImportStatus] = useState<string | null>(null);
+
+  // De-identification review state
+  const [reviewMode, setReviewMode] = useState(false);
+  const [reviewMonthLabel, setReviewMonthLabel] = useState("");
+  const [reviewRows, setReviewRows] = useState<any[]>([]);
+  const [saving, setSaving] = useState(false);
+
+  // All names for de-identification (profiles + known_names)
+  const { data: allNames = [] } = useDeidentifyNames();
 
   // Fetch all comments
   const { data: comments = [], isLoading } = useQuery({
@@ -196,25 +209,13 @@ const PatientSatisfaction = () => {
       .sort((a, b) => a.name.localeCompare(b.name));
   }, [nonFacultyComments, profileMap]);
 
-  // Import handler
+  // Import handler — browser-side parsing + de-identification
   const handleImport = async (file: File) => {
     setImporting(true);
     setImportStatus("Reading PDF...");
 
     try {
-      // Convert file to base64
-      const base64 = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => {
-          const result = reader.result as string;
-          resolve(result.split(",")[1]);
-        };
-        reader.onerror = () => reject(new Error("Failed to read file"));
-        reader.readAsDataURL(file);
-      });
-
-      // Determine month label from filename or prompt
-      // Try to extract from filename like "Press_Ganey_-_Feb_2026.pdf"
+      // Step 1: Extract month label from filename
       const monthMatch = file.name.match(/(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\w*[\s_-]+(\d{4})/i);
       let monthLabel = "";
       if (monthMatch) {
@@ -231,60 +232,104 @@ const PatientSatisfaction = () => {
         monthLabel = input.trim();
       }
 
-      setImportStatus("Parsing PDF with AI...");
+      // Step 2: Parse PDF in browser
+      setImportStatus("Parsing PDF in browser...");
+      const parsed = await parsePressGaneyPdf(file);
 
-      // Call edge function
-      const { data: session } = await supabase.auth.getSession();
-      const token = session?.session?.access_token;
-
-      const resp = await supabase.functions.invoke("parse-patient-comments", {
-        body: { pdfBase64: base64, monthLabel },
-      });
-
-      if (resp.error) {
-        const msg = resp.error.message || resp.error?.context?.body || JSON.stringify(resp.error);
-        throw new Error(msg);
-      }
-      const parsed = resp.data as { comments?: any[]; count?: number; error?: string };
-      if (parsed.error) throw new Error(parsed.raw ? `${parsed.error}\n\nRaw: ${parsed.raw.slice(0, 300)}` : parsed.error);
-      if (!parsed.comments?.length) {
+      if (!parsed.length) {
         setImportStatus("No comments found in PDF.");
-
         setImporting(false);
         return;
       }
 
-      setImportStatus(`Found ${parsed.count} comments. Matching providers...`);
+      setImportStatus(`Found ${parsed.length} comments. Scanning for names...`);
 
-      // Match provider names to profiles and insert
-      const rows = parsed.comments.map((c: any) => ({
-        received_date: c.received_date,
-        survey_section: c.survey_section,
-        comment_question: c.comment_question,
-        provider_name: c.provider_name,
-        profile_id: matchProfile(c.provider_name, profiles),
-        rating: c.rating,
-        comment: c.comment,
-        survey_barcode: c.survey_barcode,
-        month_label: c.month_label,
-      }));
+      // Step 3: Match providers to profiles and detect names in comments
+      const reviewData = parsed.map((c, idx) => {
+        const profileId = matchProviderToProfile(c.provider_name, allNames);
+        const detections = detectNamesInText(c.comment, allNames, `row-${idx}`);
+        return {
+          survey_barcode: c.survey_barcode,
+          received_date: c.received_date,
+          site: c.site,
+          survey_section: c.survey_section,
+          comment_question: c.comment_question,
+          provider_name: c.provider_name,
+          provider_profile_id: profileId,
+          rating: c.rating,
+          comment: c.comment,
+          detections,
+        };
+      });
 
-      setImportStatus(`Saving ${rows.length} comments...`);
-
-      const { error } = await (supabase.from("patient_comments" as any).insert(rows as any) as any);
-      if (error) throw error;
-
-      queryClient.invalidateQueries({ queryKey: ["patient_comments"] });
-      setImportStatus(`Imported ${rows.length} comments for ${monthLabel}`);
+      // Step 4: Show review UI
+      setReviewMonthLabel(monthLabel);
+      setReviewRows(reviewData);
+      setReviewMode(true);
+      setImporting(false);
+      setImportStatus(null);
 
     } catch (err: any) {
       setImportStatus(`Error: ${err.message}`);
-
-    } finally {
       setImporting(false);
       if (fileRef.current) fileRef.current.value = "";
     }
   };
+
+  // Save handler — apply de-identification and insert
+  const handleReviewSave = async (rows: any[]) => {
+    setSaving(true);
+    try {
+      const insertRows = rows.map((row) => {
+        // Apply de-identification to comment text
+        const cleanComment = applyDeidentification(row.comment, row.detections);
+        return {
+          received_date: row.received_date,
+          survey_section: row.survey_section,
+          comment_question: row.comment_question,
+          provider_name: row.provider_name, // kept for fallback display; profile_id is the primary link
+          profile_id: row.provider_profile_id,
+          rating: row.rating,
+          comment: cleanComment,
+          survey_barcode: row.survey_barcode,
+          month_label: reviewMonthLabel,
+        };
+      });
+
+      const { error } = await (supabase.from("patient_comments" as any).insert(insertRows as any) as any);
+      if (error) throw error;
+
+      queryClient.invalidateQueries({ queryKey: ["patient_comments"] });
+      queryClient.invalidateQueries({ queryKey: ["deidentify_names"] }); // Refresh in case known_names were added
+      setReviewMode(false);
+      setReviewRows([]);
+      setImportStatus(`Imported ${insertRows.length} comments for ${reviewMonthLabel}`);
+    } catch (err: any) {
+      setImportStatus(`Error saving: ${err.message}`);
+    } finally {
+      setSaving(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  };
+
+  const handleReviewCancel = () => {
+    setReviewMode(false);
+    setReviewRows([]);
+    if (fileRef.current) fileRef.current.value = "";
+  };
+
+  // If in review mode, show the de-identification review UI
+  if (reviewMode) {
+    return (
+      <DeidentifyReview
+        monthLabel={reviewMonthLabel}
+        rows={reviewRows}
+        onCancel={handleReviewCancel}
+        onSave={handleReviewSave}
+        saving={saving}
+      />
+    );
+  }
 
   return (
     <div style={{ minHeight: "100vh", background: "#F5F3EE" }}>
