@@ -182,18 +182,13 @@ const VisitDuration = () => {
   // Detect run chart signals within each phase
   const signals = detectRunChartSignals(chartData);
 
-  // Historical shift dots: Phase 2 points below the Phase 1 median in the confirmed run
+  // Historical shift dots: only the 6 consecutive points that triggered the shift
   const historicalShiftIndices = new Set<number>();
-  if (phase2StartIdx > 0 && p1.median > 0) {
-    let runStart = phase2StartIdx;
-    for (let i = phase2StartIdx; i <= rows.length; i++) {
-      const belowP1 = i < rows.length && rows[i].median_minutes < p1.median;
-      if (!belowP1) {
-        if (i - runStart >= 6) {
-          for (let j = runStart; j < i; j++) historicalShiftIndices.add(j);
-        }
-        runStart = i + 1;
-      }
+  if (shiftConfirmedIdx >= 0) {
+    // The shift was confirmed at shiftConfirmedIdx, meaning points
+    // (shiftConfirmedIdx - 5) through shiftConfirmedIdx are the triggering run
+    for (let j = shiftConfirmedIdx - 5; j <= shiftConfirmedIdx; j++) {
+      if (j >= 0) historicalShiftIndices.add(j);
     }
   }
 
