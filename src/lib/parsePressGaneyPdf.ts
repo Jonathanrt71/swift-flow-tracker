@@ -179,6 +179,21 @@ export function parseCommentsFromText(pages: string[]): ParsedComment[] {
       providerName = providerPatterns[1].trim();
     }
 
+    // Clean provider name — strip known section names that PDF extraction may prepend
+    for (const s of KNOWN_SECTIONS) {
+      const cleanSection = s.replace("Nurse/ Assistant", "Nurse/Assistant");
+      if (providerName.startsWith(cleanSection + " ")) {
+        providerName = providerName.slice(cleanSection.length).trim();
+      }
+      if (providerName.startsWith(cleanSection)) {
+        providerName = providerName.slice(cleanSection.length).trim();
+      }
+    }
+    // Also strip "Access to Care", "Access toCare" variants
+    providerName = providerName.replace(/^Access\s*to\s*Care\s*/i, "").trim();
+    // Strip "Family Medicine" prefix if present
+    providerName = providerName.replace(/^Family\s*Medicine\s*,?\s*(Comments[^,]*,?\s*)?/i, "").trim();
+
     // Extract comment text - everything after the rating to end of record
     let comment = "";
     if (rating) {
