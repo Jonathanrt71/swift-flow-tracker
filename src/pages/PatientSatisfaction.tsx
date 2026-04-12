@@ -279,6 +279,8 @@ const PatientSatisfaction = () => {
   // Save handler — apply de-identification and insert
   const handleReviewSave = async (rows: any[]) => {
     setSaving(true);
+    // Strip null bytes that PDF extraction can introduce — PostgreSQL rejects \u0000 in text
+    const clean = (s: string) => (s || "").replace(/\u0000/g, "");
     try {
       const insertRows = rows.map((row) => {
         // Apply de-identification to comment text
@@ -291,14 +293,14 @@ const PatientSatisfaction = () => {
         }
         return {
           received_date: dbDate,
-          survey_section: row.survey_section,
-          comment_question: row.comment_question,
-          provider_name: row.provider_name,
+          survey_section: clean(row.survey_section),
+          comment_question: clean(row.comment_question),
+          provider_name: clean(row.provider_name),
           profile_id: row.provider_profile_id,
-          rating: row.rating,
-          comment: cleanComment,
-          survey_barcode: row.survey_barcode,
-          month_label: reviewMonthLabel,
+          rating: clean(row.rating),
+          comment: clean(cleanComment),
+          survey_barcode: clean(row.survey_barcode),
+          month_label: clean(reviewMonthLabel),
         };
       });
 
