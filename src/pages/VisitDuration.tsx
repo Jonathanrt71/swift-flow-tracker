@@ -133,24 +133,69 @@ const VisitDuration = () => {
   });
 
   const p1 = phaseMedian(rows, 1);
-  const p2 = phaseMedian(rows, 2);
 
-  // Find the index where phase 2 starts
+  // Find the index where phase 2 starts (academic year boundary)
   const phase2StartIdx = rows.findIndex((r) => r.phase === 2);
 
-  // Build chart data for run chart (median centerline, no UCL/LCL)
+  // Detect shift point: first run of 6+ consecutive Phase 2 points below Phase 1 median
+  // The shift is confirmed at the 6th consecutive point — that's where the new median begins
+  let shiftConfirmedIdx = -1;
+  if (phase2StartIdx > 0 && p1.median > 0) {
+    let runStart = phase2StartIdx;
+    for (let i = phase2StartIdx; i < rows.length; i++) {
+      if (rows[i].median_minutes < p1.median) {
+        if (i - runStart + 1 >= 6 && shiftConfirmedIdx === -1) {
+          shiftConfirmedIdx = i;
+          break;
+        }
+      } else {
+        runStart = i + 1;
+      }
+    }
+  }
+
+  // Phase 2 median is calculated from the shift point onward (post-shift data only)
+  const p2 = shiftConfirmedIdx >= 0
+    ? (() => {
+        const postShiftVals = rows.slice(shiftConfirmedIdx).map(r => r.median_minutes).sort((a, b) => a - b);
+        const mid = Math.floor(postShiftVals.length / 2);
+        const median = postShiftVals.length % 2 === 0 ? (postShiftVals[mid - 1] + postShiftVals[mid]) / 2 : postShiftVals[mid];
+        return { median: Math.round(median * 10) / 10, n: postShiftVals.length };
+      })()
+    : phaseMedian(rows, 2);
+
+  // Build chart data — Phase 1 median extends until shift confirmed, Phase 2 starts at shift
   const chartData = rows.map((r, i) => ({
     idx: i,
     label: r.week_label,
     value: r.median_minutes,
     phase: r.phase,
-    median: r.phase === 1 ? p1.median : p2.median,
-    med1: r.phase === 1 ? p1.median : undefined,
-    med2: r.phase === 2 ? p2.median : undefined,
+    median: (shiftConfirmedIdx >= 0 && i >= shiftConfirmedIdx) ? p2.median : p1.median,
+    // Phase 1 median line: from start through shift point (or end if no shift)
+    med1: (shiftConfirmedIdx >= 0 ? i < shiftConfirmedIdx : true) ? p1.median : undefined,
+    // Phase 2 median line: from shift point onward
+    med2: (shiftConfirmedIdx >= 0 && i >= shiftConfirmedIdx) ? p2.median : undefined,
+    // Faint Phase 1 reference line extending into Phase 2 territory
+    med1ref: (shiftConfirmedIdx >= 0 && i >= shiftConfirmedIdx) ? p1.median : undefined,
   }));
 
-  // Detect run chart signals
+  // Detect run chart signals within each phase
   const signals = detectRunChartSignals(chartData);
+
+  // Historical shift dots: Phase 2 points below the Phase 1 median in the confirmed run
+  const historicalShiftIndices = new Set<number>();
+  if (phase2StartIdx > 0 && p1.median > 0) {
+    let runStart = phase2StartIdx;
+    for (let i = phase2StartIdx; i <= rows.length; i++) {
+      const belowP1 = i < rows.length && rows[i].median_minutes < p1.median;
+      if (!belowP1) {
+        if (i - runStart >= 6) {
+          for (let j = runStart; j < i; j++) historicalShiftIndices.add(j);
+        }
+        runStart = i + 1;
+      }
+    }
+  }
 
   const handleAdd = () => {
     if (!weekLabel.trim() || !weekStart || !medianMin) return;
@@ -161,14 +206,22 @@ const VisitDuration = () => {
   const CustomTooltip = ({ active, payload }: any) => {
     if (!active || !payload?.length) return null;
     const d = payload[0].payload;
-    // Check if this point is in a signal
     const sig = signals.find(s => d.idx >= s.startIdx && d.idx <= s.endIdx);
+    const isHistShift = historicalShiftIndices.has(d.idx);
     return (
       <div style={{ background: "#fff", border: "1px solid #C9CED4", borderRadius: 6, padding: "8px 12px", fontSize: 12, boxShadow: "0 2px 8px rgba(0,0,0,0.12)" }}>
         <div style={{ fontWeight: 600, color: "#2D3748", marginBottom: 2 }}>{d.label}</div>
         <div style={{ color: "#415162" }}>Median LOS: <strong>{d.value} min</strong></div>
         <div style={{ color: "#8A9AAB", fontSize: 11 }}>Centerline: {d.median} min</div>
-        {sig && (
+        {d.med1ref != null && (
+          <div style={{ color: "#8A9AAB", fontSize: 11 }}>Baseline ref: {d.med1ref} min</div>
+        )}
+        {isHistShift && (
+          <div style={{ fontSize: 10, marginTop: 3, fontWeight: 500, color: "#A04040" }}>
+            ⬤ Below baseline median (shift signal)
+          </div>
+        )}
+        {sig && !isHistShift && (
           <div style={{ fontSize: 10, marginTop: 3, fontWeight: 500, color: sig.type === "shift" ? "#A04040" : "#185FA5" }}>
             {sig.type === "shift" ? "⬤ Shift signal" : "⬤ Trend signal"}
           </div>
@@ -177,13 +230,15 @@ const VisitDuration = () => {
     );
   };
 
-  // Dot renderer — color by signal type
+  // Dot renderer — color by signal type or historical shift
   const renderDot = (props: any) => {
     const { cx, cy, payload } = props;
     if (cx == null || cy == null) return null;
+    const isHistShift = historicalShiftIndices.has(payload.idx);
     const sig = signals.find(s => payload.idx >= s.startIdx && payload.idx <= s.endIdx);
-    const fill = sig ? (sig.type === "shift" ? "#A04040" : "#185FA5") : "#415162";
-    return <circle cx={cx} cy={cy} r={sig ? 4 : 2.5} fill={fill} stroke="none" />;
+    const fill = isHistShift ? "#A04040" : sig ? (sig.type === "shift" ? "#A04040" : "#185FA5") : "#415162";
+    const r = isHistShift || sig ? 4 : 2.5;
+    return <circle cx={cx} cy={cy} r={r} fill={fill} stroke="none" />;
   };
 
   // Y axis range
@@ -239,17 +294,19 @@ const VisitDuration = () => {
             <div style={{ display: "flex", alignItems: "flex-start", gap: 12, marginBottom: 16 }}>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 12, flex: 1, minWidth: 0 }}>
                 <div style={{ background: "#E7EBEF", borderRadius: 8, padding: "10px 16px" }}>
-                  <div style={{ fontSize: 11, color: "#5F7285", marginBottom: 2 }}>AY 2024-25</div>
+                  <div style={{ fontSize: 11, color: "#5F7285", marginBottom: 2 }}>Baseline</div>
                   <div style={{ fontSize: 14, fontWeight: 600, color: "#415162" }}>
                     Median {p1.median} min <span style={{ fontWeight: 400, fontSize: 12, color: "#5F7285" }}>· n={p1.n}</span>
                   </div>
                 </div>
+                {shiftConfirmedIdx >= 0 && (
                 <div style={{ background: "#E4F0EB", borderRadius: 8, padding: "10px 16px" }}>
-                  <div style={{ fontSize: 11, color: "#3B6D11", marginBottom: 2 }}>AY 2025-26</div>
+                  <div style={{ fontSize: 11, color: "#3B6D11", marginBottom: 2 }}>Post-shift</div>
                   <div style={{ fontSize: 14, fontWeight: 600, color: "#27500A" }}>
                     Median {p2.median} min <span style={{ fontWeight: 400, fontSize: 12, color: "#3B6D11" }}>· n={p2.n}</span>
                   </div>
                 </div>
+                )}
               </div>
               {canEdit && (
                 <span
@@ -312,17 +369,22 @@ const VisitDuration = () => {
                 <LineChart data={chartData} margin={{ top: 20, right: 60, bottom: 30, left: 10 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#E7EBEF" />
 
-                  {/* Phase shading */}
-                  {phase2StartIdx > 0 && (
+                  {/* Phase shading — divides at shift confirmation, not academic year */}
+                  {shiftConfirmedIdx > 0 && (
                     <>
-                      <ReferenceArea x1={0} x2={phase2StartIdx - 1} fill="#415162" fillOpacity={0.04} />
-                      <ReferenceArea x1={phase2StartIdx} x2={chartData.length - 1} fill="#4A846C" fillOpacity={0.04} />
+                      <ReferenceArea x1={0} x2={shiftConfirmedIdx - 1} fill="#415162" fillOpacity={0.04} />
+                      <ReferenceArea x1={shiftConfirmedIdx} x2={chartData.length - 1} fill="#4A846C" fillOpacity={0.04} />
                     </>
                   )}
 
-                  {/* Phase divider */}
-                  {phase2StartIdx > 0 && (
-                    <ReferenceLine x={phase2StartIdx} stroke="#C9CED4" strokeDasharray="4 4" strokeWidth={1} />
+                  {/* Shift divider */}
+                  {shiftConfirmedIdx > 0 && (
+                    <ReferenceLine x={shiftConfirmedIdx} stroke="#C9CED4" strokeDasharray="4 4" strokeWidth={1} />
+                  )}
+
+                  {/* Academic year boundary (lighter reference) */}
+                  {phase2StartIdx > 0 && phase2StartIdx !== shiftConfirmedIdx && (
+                    <ReferenceLine x={phase2StartIdx} stroke="#D5DAE0" strokeDasharray="2 4" strokeWidth={1} />
                   )}
 
                   <XAxis
@@ -345,9 +407,11 @@ const VisitDuration = () => {
                   />
                   <Tooltip content={<CustomTooltip />} />
 
-                  {/* Phase 1 median centerline */}
+                  {/* Phase 1 median centerline (extends until shift confirmed) */}
                   <Line type="linear" dataKey="med1" stroke="#415162" strokeWidth={2} strokeDasharray="8 4" dot={false} activeDot={false} isAnimationActive={false} connectNulls={false} />
-                  {/* Phase 2 median centerline */}
+                  {/* Phase 1 median faint reference (extends into post-shift territory) */}
+                  <Line type="linear" dataKey="med1ref" stroke="#415162" strokeWidth={1} strokeDasharray="4 6" strokeOpacity={0.3} dot={false} activeDot={false} isAnimationActive={false} connectNulls={false} />
+                  {/* Phase 2 median centerline (starts at shift confirmation) */}
                   <Line type="linear" dataKey="med2" stroke="#4A846C" strokeWidth={2} strokeDasharray="8 4" dot={false} activeDot={false} isAnimationActive={false} connectNulls={false} />
 
                   {/* Data line */}
@@ -396,11 +460,18 @@ const VisitDuration = () => {
                 <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#415162" }} /> Data point
               </span>
               <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                <span style={{ width: 16, height: 0, borderTop: "2px dashed #415162" }} /> Phase 1 median
+                <span style={{ width: 16, height: 0, borderTop: "2px dashed #415162" }} /> Baseline median
               </span>
-              <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                <span style={{ width: 16, height: 0, borderTop: "2px dashed #4A846C" }} /> Phase 2 median
-              </span>
+              {shiftConfirmedIdx >= 0 && (
+                <>
+                  <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                    <span style={{ width: 16, height: 0, borderTop: "1px dashed rgba(65,81,98,0.3)" }} /> Baseline ref
+                  </span>
+                  <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                    <span style={{ width: 16, height: 0, borderTop: "2px dashed #4A846C" }} /> Post-shift median
+                  </span>
+                </>
+              )}
               <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
                 <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#A04040" }} /> Shift signal
               </span>
