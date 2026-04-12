@@ -12,7 +12,7 @@ type AcgmeLevel = "critical" | "high" | "medium" | "low" | "none";
 interface RoadmapItem {
   name: string;
   category: string;
-  status: "missing" | "partial" | "external";
+  status: "missing" | "partial" | "external" | "scrapped";
   difficulty: Tier;
   estimate: string;
   acgme: AcgmeLevel;
@@ -33,7 +33,9 @@ const items: RoadmapItem[] = [
   { name: "Orientation Materials / Welcome Package", category: "Recruitment", status: "partial", difficulty: TIER.EASY, estimate: "2–3 hrs", acgme: "low", rationale: "Curate existing Handbook and Rotation content into a dedicated 'New Resident' landing page with quick links. Content assembly, not new features." },
   { name: "Site Visit Preparation", category: "Compliance", status: "partial", difficulty: TIER.EASY, estimate: "3–4 hrs", acgme: "high", rationale: "Checklist page linked to Compliance module. Template-driven: list of documents to stage, interview prep items. Mostly static with checkbox tracking." },
   { name: "Simulation / Skills Lab Tracking", category: "Curriculum", status: "missing", difficulty: TIER.EASY, estimate: "3–4 hrs", acgme: "low", rationale: "Filter/view within existing Procedure Logs for sim entries. Add a sim-specific summary card. Minimal new code — mostly a filtered view of existing data." },
-  { name: "App Badge Count (Client-Side)", category: "Operations", status: "missing", difficulty: TIER.EASY, estimate: "4–6 hrs", acgme: "none", rationale: "useUnreadCount hook queries pending items (new feedback, overdue topic selections, peer practice requests). Calls navigator.setAppBadge() on app open, clearAppBadge() when items viewed. Works on iOS Safari 16.4+, macOS Chrome/Edge. Android shows badges automatically from notifications. No external services needed — purely client-side. Requires PWA to be installed on home screen." },
+  { name: "App Badge Count (Client-Side)", category: "Operations", status: "scrapped", difficulty: TIER.EASY, estimate: "4–6 hrs", acgme: "none", rationale: "Scrapped — navigator.setAppBadge() only fires when app is in foreground, making it redundant with the in-app notification bell. Would need push notifications for background badge updates, which is a much larger lift." },
+  { name: "Site-Wide Search", category: "Operations", status: "missing", difficulty: TIER.EASY, estimate: "4–6 hrs", acgme: "none", rationale: "Search input in the header that queries across handbook_sections, events, tasks, announcements, and other key tables using ilike matching. Returns grouped results by section. No AI needed — fully deterministic. Quick win for navigation across growing content." },
+  { name: "AI Read-Only Query Box", category: "Operations", status: "missing", difficulty: TIER.MODERATE, estimate: "8–12 hrs", acgme: "none", rationale: "Natural language input on Home page. New Supabase edge function pulls relevant data for the logged-in user (tasks, feedback, procedures, block schedule, milestones) scoped by RLS, sends data + question to Claude, returns plain-English answer. Read-only — no mutations. Two approaches: simple (always send all user data) or smart (classify question first, targeted query). Iterative prompt tuning required." },
 
   // ── MODERATE ──
   { name: "ITE Score Tracking", category: "Assessment", status: "missing", difficulty: TIER.MODERATE, estimate: "6–8 hrs", acgme: "high", rationale: "New table for annual scores per resident. Import from spreadsheet/PDF. Trend chart (Recharts already in stack). Subject-area breakdown view. ACGME reviews board pass rates and ITE trends as program quality indicators." },
@@ -77,6 +79,7 @@ const statusConfig: Record<string, { label: string; color: string; bg: string }>
   missing: { label: "Not Built", color: "#9F2929", bg: "#FCEAEA" },
   partial: { label: "Partial", color: "#B8860B", bg: "#FFF8E1" },
   external: { label: "External", color: "#52657A", bg: "#E7EBEF" },
+  scrapped: { label: "Scrapped", color: "#8A9AAB", bg: "#F0F0F0" },
 };
 
 const acgmeConfig: Record<AcgmeLevel, { label: string; color: string; bg: string }> = {
