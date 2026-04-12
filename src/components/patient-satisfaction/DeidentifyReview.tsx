@@ -142,28 +142,30 @@ export default function DeidentifyReview({ monthLabel, rows, onCancel, onSave, s
   return (
     <div style={{ minHeight: "100vh", background: "#F5F3EE" }}>
       {/* Header */}
-      <header style={{ position: "sticky", top: 0, zIndex: 40, background: "#415162", height: 56, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 16px" }}>
-        <span style={{ color: "#fff", fontSize: 16, fontWeight: 600 }}>Import — Review Names</span>
-        <div style={{ display: "flex", gap: 8 }}>
-          <button
-            onClick={onCancel}
-            style={{ padding: "5px 14px", background: "transparent", border: "1px solid rgba(255,255,255,0.3)", color: "#fff", borderRadius: 8, fontSize: 12, cursor: "pointer" }}
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleSave}
-            disabled={pendingCount > 0 || saving}
-            style={{
-              padding: "5px 14px",
-              background: pendingCount > 0 ? "rgba(255,255,255,0.15)" : "#4A846C",
-              color: "#fff", borderRadius: 8, fontSize: 12, fontWeight: 600, border: "none",
-              cursor: pendingCount > 0 || saving ? "not-allowed" : "pointer",
-              opacity: saving ? 0.6 : 1,
-            }}
-          >
-            {saving ? "Saving..." : `Save ${totalComments} Comments`}
-          </button>
+      <header style={{ position: "sticky", top: 0, zIndex: 40, background: "#415162" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", height: 56, padding: "0 16px" }}>
+          <span style={{ color: "#fff", fontSize: 16, fontWeight: 600 }}>Import — Review Names</span>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button
+              onClick={onCancel}
+              style={{ padding: "5px 14px", background: "transparent", border: "1px solid rgba(255,255,255,0.3)", color: "#fff", borderRadius: 8, fontSize: 12, cursor: "pointer" }}
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSave}
+              disabled={pendingCount > 0 || saving}
+              style={{
+                padding: "5px 14px",
+                background: pendingCount > 0 ? "rgba(255,255,255,0.15)" : "#4A846C",
+                color: "#fff", borderRadius: 8, fontSize: 12, fontWeight: 600, border: "none",
+                cursor: pendingCount > 0 || saving ? "not-allowed" : "pointer",
+                opacity: saving ? 0.6 : 1,
+              }}
+            >
+              {saving ? "Saving..." : `Save ${totalComments} Comments`}
+            </button>
+          </div>
         </div>
       </header>
 

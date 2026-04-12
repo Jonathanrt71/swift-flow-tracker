@@ -283,11 +283,17 @@ const PatientSatisfaction = () => {
       const insertRows = rows.map((row) => {
         // Apply de-identification to comment text
         const cleanComment = applyDeidentification(row.comment, row.detections);
+        // Convert MM/DD/YYYY to YYYY-MM-DD for Supabase date column
+        let dbDate = row.received_date;
+        const dateParts = row.received_date.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+        if (dateParts) {
+          dbDate = `${dateParts[3]}-${dateParts[1]}-${dateParts[2]}`;
+        }
         return {
-          received_date: row.received_date,
+          received_date: dbDate,
           survey_section: row.survey_section,
           comment_question: row.comment_question,
-          provider_name: row.provider_name, // kept for fallback display; profile_id is the primary link
+          provider_name: row.provider_name,
           profile_id: row.provider_profile_id,
           rating: row.rating,
           comment: cleanComment,
@@ -296,8 +302,12 @@ const PatientSatisfaction = () => {
         };
       });
 
+      console.log("Inserting rows:", insertRows.length, insertRows[0]);
       const { error } = await (supabase.from("patient_comments" as any).insert(insertRows as any) as any);
-      if (error) throw error;
+      if (error) {
+        console.error("Insert error:", error);
+        throw error;
+      }
 
       queryClient.invalidateQueries({ queryKey: ["patient_comments"] });
       queryClient.invalidateQueries({ queryKey: ["deidentify_names"] }); // Refresh in case known_names were added
